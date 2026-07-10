@@ -266,6 +266,23 @@
     letter-spacing:.1em;text-transform:uppercase;color:var(--mist);opacity:.7;}
   .dwing{display:none;} .dwing.on{display:block;}
 
+
+  /* ---------- TIMELINE ---------- */
+  .drow .rtime{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mist);min-width:52px;}
+  .drow .rep{color:#3A4855;cursor:pointer;font-size:14px;padding:2px 5px;}
+  .drow .rep:active{color:var(--gold);}
+  #pathSec .sec-body{padding-top:4px;}
+  .pev{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px dashed #1a2530;}
+  .pev:last-child{border-bottom:none;}
+  .pev .ptime{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mist);min-width:56px;}
+  .pev .pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor;}
+  .pdot.in{color:var(--green);background:var(--green);}
+  .pdot.out{color:var(--ember-glow);background:var(--ember-glow);}
+  .pdot.water{color:#7FD4E8;background:#7FD4E8;}
+  .pev .pname{flex:1;font-size:15px;color:var(--deep);}
+  .pev .pval{font-family:'IBM Plex Mono',monospace;font-size:13px;}
+  .pval.in{color:var(--green);} .pval.out{color:var(--ember-glow);} .pval.water{color:#7FD4E8;}
+
 </style>
 </head>
 <body>
@@ -294,7 +311,11 @@
     <div>Net<b id="sNet">0</b></div>
   </div>
   <div class="feed" id="feed"></div>
-  <div class="section open" id="wallSec">
+  <div class="section open" id="pathSec">
+    <div class="sec-head"><h3>Today's Path · The Timeline</h3><span class="car">›</span></div>
+    <div class="sec-body"><div id="todayPath"></div></div>
+  </div>
+  <div class="section" id="wallSec">
     <div class="sec-head"><h3>The Wall · Marks</h3><span class="car">›</span></div>
     <div class="sec-body">
       <div class="frame" id="frame"></div>
@@ -335,6 +356,14 @@
     <div class="sec-head"><h3>The Ladders · Climb to Elite</h3><span class="car">›</span></div>
     <div class="sec-body" id="ladders"></div>
   </div>
+  <div class="dsearch">
+    <input id="moveSearch" placeholder="Search or name any movement…" autocomplete="off">
+    <button id="moveSearchBtn">🔍</button>
+  </div>
+  <div class="section" id="moveDictSec">
+    <div class="sec-head"><h3>The Movement Dictionary</h3><span class="car">›</span></div>
+    <div class="sec-body"><div class="codex-grid" id="moveDict"></div></div>
+  </div>
 </div>
 
 </div><!-- /scroll -->
@@ -355,7 +384,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Speak, type, or snap your plate — the fish handles the rest. · v11</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v13</div>
   </div>
 </div>
 
@@ -433,6 +462,40 @@ const LADDERS={
 const RUNG_NAMES=['Novice','Inter','Adv','Elite'];
 const epley=(w,r)=>r>1?w*(1+r/30):w;
 
+
+
+/* ============ THE MOVEMENT DICTIONARY ============ */
+const MOVEDICT=[
+ {n:'Push-ups',u:'per rep',how:'25 push-ups',grp:'Bodyweight'},
+ {n:'Pull-ups',u:'per rep',how:'10 pull-ups',grp:'Bodyweight'},
+ {n:'Squats (bodyweight)',u:'per rep',how:'40 squats',grp:'Bodyweight'},
+ {n:'Lunges',u:'per rep',how:'30 lunges',grp:'Bodyweight'},
+ {n:'Burpees',u:'per rep',how:'20 burpees',grp:'Bodyweight'},
+ {n:'Sit-ups',u:'per rep',how:'50 sit-ups',grp:'Bodyweight'},
+ {n:'Dips',u:'per rep',how:'15 dips',grp:'Bodyweight'},
+ {n:'Plank',u:'per minute',how:'plank 3 minutes',grp:'Bodyweight'},
+ {n:'Jumping jacks',u:'per rep',how:'100 jumping jacks',grp:'Bodyweight'},
+ {n:'Mountain climbers',u:'per minute',how:'mountain climbers 5 min',grp:'Bodyweight'},
+ {n:'Bench Press',u:'lift · feeds ladder',how:'benched 185 for 8',grp:'Lifts'},
+ {n:'Squat',u:'lift · feeds ladder',how:'squatted 275 for 5',grp:'Lifts'},
+ {n:'Deadlift',u:'lift · feeds ladder',how:'deadlift 315 for 5',grp:'Lifts'},
+ {n:'Overhead Press',u:'lift · feeds ladder',how:'overhead press 115 for 6',grp:'Lifts'},
+ {n:'Barbell Row',u:'lift',how:'barbell row 135 for 8',grp:'Lifts'},
+ {n:'Dumbbell Curl',u:'lift',how:'dumbbell curl 30 for 12',grp:'Lifts'},
+ {n:'Kettlebell Swing',u:'per rep',how:'30 kettlebell swings',grp:'Lifts'},
+ {n:'Run',u:'per mile / minute',how:'ran 3 miles',grp:'Cardio'},
+ {n:'Walk',u:'per minute',how:'walked 30 minutes',grp:'Cardio'},
+ {n:'Cycling',u:'per minute',how:'cycled 45 minutes',grp:'Cardio'},
+ {n:'Swim',u:'per minute',how:'swam 30 minutes',grp:'Cardio'},
+ {n:'Rowing',u:'per minute',how:'rowed 20 minutes',grp:'Cardio'},
+ {n:'Jump rope',u:'per minute',how:'jump rope 10 minutes',grp:'Cardio'},
+ {n:'Hiking',u:'per minute',how:'hiked 60 minutes',grp:'Cardio'},
+ {n:'Yoga',u:'per minute',how:'yoga 30 minutes',grp:'Mobility'},
+ {n:'Stretching',u:'per minute',how:'stretched 15 minutes',grp:'Mobility'},
+ {n:'Bodywork session',u:'per minute',how:'massage bodywork 60 minutes',grp:'Mobility'}
+];
+function loadGrownMove(){try{return JSON.parse(store.get('grownMove')||'[]');}catch(e){return [];}}
+const GROWNMOVE=loadGrownMove();
 
 /* ============ THE APOTHECARY — the honest few ============ */
 const APOTH=[
@@ -569,7 +632,7 @@ function localEstimate(text){
 }
 
 /* ============ CLAUDE — the fish's living mind ============ */
-const FISH_SOUL = 'You are The Fish — the crimson koi who lives inside My Caloric Mirror, a 90-day numeric truth practice by Mecca Tymes, part of the Kingdom of Inner Light. You are a legendary personal trainer and a warm daily companion; you build a real relationship across the 90 days, remembering what they tell you and guiding them through the journal. '+
+const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Caloric Mirror, a 90-day numeric truth practice by Mecca Tymes, part of the Kingdom of Inner Light. You are a legendary personal trainer and a warm daily companion; you build a real relationship across the 90 days, remembering what they tell you and guiding them through the journal. '+
 'You obey Four Laws: (1) The mirror reflects what it is given — honest numbers, never invented ones. (2) Calories IN and OUT are separate truths. (3) Inside the mirror no one can fail; only see clearly or look away. (4) The mirror is not the judge — never shame, never moralize food, never praise weight loss itself; praise honesty and showing up. '+
 'VOICE: warm, brief, a little playful, plain enough for a child. One to three short sentences. No bullet points, no exclamation-mark pileups. '+
 'JOB: parse what they ate or did into calorie estimates. For movement, count ONLY calories above resting burn (basal is tracked separately — driving 45 min is roughly 10-15 above rest; say small truths plainly). Use their bodyweight. Close and consistent beats falsely precise. '+
@@ -690,11 +753,12 @@ function fishAsk(){
 
 /* first-visit tour — the fish explains everything */
 const TOUR=[
- 'Hey. I’m your guy. 🐟 I live in this water, and I only do one thing: reflect the truth.',
- 'That big number up there? That’s <b>you</b>, measured in calories. Your weight × 3,500. It moves in real time — watch it.',
- 'Tell me what you <b>eat</b>, the water rises. Tell me how you <b>move</b>, it falls. Your body burns some just resting — I count that automatically, every second.',
- 'You can’t fail in here. Bad day, big meal, whatever — you only win by <b>telling me the truth</b>. That’s the whole game.',
- 'I get bigger and brighter every day you show up. Ninety days of honesty and I become a dragon. Ready? Let’s put your first mark on the wall.'
+ 'Hey — I’m <b>KOI</b>. 🐟 Your guide in this water. I live here, and I only do one thing: reflect the truth back to you.',
+ 'That big number up top is <b>you</b>, measured in calories — your weight × 3,500. It breathes in real time. Watch it move as you talk to me.',
+ 'Tell me what you <b>eat</b> and the water rises. Tell me how you <b>move</b> and it falls. Your body burns some just resting — I count that every second, sleep included.',
+ 'Three ways to tell me anything: <b>speak</b> it, <b>type</b> it, or <b>snap a photo / drop a file</b> of your plate. I break it into foods, calories, and the time you had it.',
+ 'I stamp <b>everything with the time</b>, so your whole day builds a path you can look back on and repeat. And if I don’t know a food, a supplement, or a movement — I’ll <b>learn it and keep it</b> on your shelf forever.',
+ 'Ask me <b>anything</b> — what to eat, how to train, where something sits on the spectrum of light, why your temples are thinning. I’m a mirror, not a master. You always choose. Ready? Let’s set your first mark.'
 ];
 function runTour(){
   let i=0;
@@ -716,7 +780,7 @@ setInterval(()=>{
   if(!S.profile||document.hidden)return;
   if(Date.now()-lastAct>50000&&!$('bubble').classList.contains('show')){
     attention=1;
-    const nudges=['Psst. Still here. '+fishAsk(),'Come talk to me — anything you ate or did. I’ll do the math.','The water’s been quiet. What did I miss?'];
+    const nudges=['Psst — KOI here. '+fishAsk(),'Come talk to me — anything you ate, drank, took, or did. I’ll do the math and the time.','The water’s been quiet. What did I miss?'];
     fishSay(nudges[Math.floor(Math.random()*nudges.length)]);
     lastAct=Date.now();
   }
@@ -728,6 +792,12 @@ function greetIfNewDay(){
   S.lastGreet=tk;save();
   const d=Math.min(dayIndex(),90);
   fishSay(`Day ${dayIndex()}. <i>${QUOTES[String(d)]||QUOTES['90']}</i><br><br>${fishAsk()}`);
+}
+
+
+/* ============ KOI EXPLAINS HIMSELF ON REQUEST ============ */
+function koiHelp(){
+  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Ask me anything. I reflect; you choose.',null,null,true);
 }
 
 /* ============ HANDLE INPUT ============ */
@@ -750,6 +820,8 @@ async function handle(text,images,imgSrcs){
   text=(text||'').trim();
   if(!text&&!(images&&images.length))return;
   addMe(text||'📷',imgSrcs);
+  const tl=text.toLowerCase();
+  if(/^(help|what can you do|who are you|how do (i|you) work|what do you do|guide me)\b/.test(tl)){koiHelp();return;}
   const wm=text.toLowerCase().match(/weigh(?:ed)?(?:\s*in)?\s*(?:at)?\s*(\d{2,3}(?:\.\d+)?)/);
   if(wm){weighIn(parseFloat(wm[1]));return;}
   const wat=text.toLowerCase().match(/(?:drank|had|drinking)?\s*(?:a\s+)?(?:(\d+(?:\.\d+)?)\s*(oz|ounces?|liters?|l\b|cups?|bottles?|glass(?:es)?)\s+(?:of\s+)?)?water(?!melon)/);
@@ -773,14 +845,15 @@ async function handle(text,images,imgSrcs){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   const chips=[];
-  for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal});
+  const now=Date.now();for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal,t:now});
     chips.push({...it,t:it.type});}
   if(lift)applyLift(lift);
   save();renderAll();pulse();burst=1;
   if(items.some(i=>i.type==='in'&&i.kcal>0))chimeRise();
   if(items.some(i=>i.type==='out'&&i.kcal>0))toneFall();
+  const photoLine=(images&&images.length&&items.length>1)?('I broke the plate into '+items.length+' items, each on your timeline with the time. '):'';
   const fine=(images&&images.length)||items.some(i=>/~|about|assumed|est/.test(i.name))?HONESTY:null;
-  fishSay((reply||teachLine(items[0]))+(lift?' '+lift.line:''),chips,fine);
+  fishSay(photoLine+(reply||teachLine(items[0]))+(lift?' '+lift.line:''),chips,fine);
 }
 
 function detectLift(text){
@@ -947,6 +1020,63 @@ $('dictSearchBtn').onclick=dictSearch;
 $('dictSearch').addEventListener('keydown',e=>{if(e.key==='Enter')dictSearch();});
 
 
+
+/* ============ MOVEMENT DICTIONARY RENDER ============ */
+const MOVE_ORDER=['Bodyweight','Lifts','Cardio','Mobility','Grown here','Other'];
+function renderMoveDict(){
+  const g=$('moveDict'); if(!g)return;
+  const items=[...MOVEDICT,...GROWNMOVE];
+  g.innerHTML='';
+  MOVE_ORDER.forEach(grp=>{
+    const inGrp=items.filter(x=>(x.grown?'Grown here':x.grp||'Other')===grp);
+    if(!inGrp.length)return;
+    const h=document.createElement('div');h.className='grphead';h.textContent=grp;g.appendChild(h);
+    inGrp.forEach(m=>{
+      const el=document.createElement('div');el.className='food';
+      const grown=m.grown?'<span class="grown">🌱 grown here</span>':'';
+      el.innerHTML=`<span class="volt volt-${m.grp==='Lifts'?'gold':'green'}"></span><div class="fname">${m.n}</div><div class="fmac">${m.u}</div><div class="fwhy">Say “${m.how}” — I log calories & time.</div>${grown}`;
+      el.onclick=()=>{ if(m.grown&&m.how){handle(m.how);}
+        else{handle(m.how);} document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'}); };
+      g.appendChild(el);
+    });
+  });
+  const note=document.createElement('div');note.className='codex-note';
+  note.textContent='Name any movement I don’t know and I’ll grow its card — same as food. Lifts feed your Ladders; everything is stamped with the time and lands on Today’s Path.';
+  g.appendChild(note);
+}
+renderMoveDict();
+
+/* movement search — find or grow */
+function moveSearch(){
+  const q=$('moveSearch').value.trim(); if(!q)return;
+  const all=[...MOVEDICT,...GROWNMOVE];
+  const hit=all.find(x=>x.n.toLowerCase()===q.toLowerCase())||all.find(x=>x.n.toLowerCase().includes(q.toLowerCase()));
+  if(hit){ handle(hit.how||q); }
+  else { growMove(q); }
+  $('moveSearch').value='';
+  document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});
+}
+$('moveSearchBtn').onclick=moveSearch;
+$('moveSearch').addEventListener('keydown',e=>{if(e.key==='Enter')moveSearch();});
+
+async function growMove(name){
+  fishSay('New movement — “'+name+'”. Let me learn it…',null,null,true);
+  const prompt='Create a movement dictionary entry for "'+name+'" for the Caloric Mirror strength page. '+
+    'RESPOND RAW JSON ONLY: {"n":"Name","u":"per rep | per minute | lift","how":"an example phrase the user would say, like 30 kettlebell swings","grp":"Bodyweight|Lifts|Cardio|Mobility"}';
+  let card=null;
+  const claude=await askClaude(prompt);
+  if(claude){ try{ card=claude.n?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim()); }catch(e){card=null;} }
+  if(!card||!card.n){ fishSay('Couldn’t build that one right now — make sure my Mirror Key is set in ⚙, or just tell me plainly (like “did 30 of them”).'); return; }
+  card.grown=true;
+  if(!GROWNMOVE.some(x=>x.n.toLowerCase()===card.n.toLowerCase())){ GROWNMOVE.push(card); store.set('grownMove',JSON.stringify(GROWNMOVE)); renderMoveDict(); }
+  fishSay('Added “'+card.n+'” to your movement dictionary. 🌱 Say “'+card.how+'” whenever you do it and I’ll log the calories and time.',null,'Did you just do it, or only add it?',true);
+  const b=$('bubble');const wrap=document.createElement('div');wrap.style.cssText='margin-top:12px;display:flex;gap:8px;pointer-events:auto';
+  const b1=document.createElement('span');b1.className='tap';b1.textContent='Did it now';b1.onclick=()=>handle(card.how);
+  const b2=document.createElement('span');b2.className='tap';b2.textContent='Just added';b2.style.borderColor='var(--ice-line)';b2.style.color='var(--mist)';
+  b2.onclick=()=>fishSay('Kept on the shelf. Nothing logged.');
+  wrap.appendChild(b1);wrap.appendChild(b2);b.appendChild(wrap);
+}
+
 /* ============ INPUT WIRING ============ */
 $('sendBtn').onclick=()=>{handle($('speak').value);$('speak').value='';};
 $('speak').addEventListener('keydown',e=>{if(e.key==='Enter'){handle($('speak').value);$('speak').value='';}});
@@ -1069,12 +1199,20 @@ function logWater(oz){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   S.days[tk].water=(S.days[tk].water||0)+oz;
+  if(!S.days[tk].waterLog)S.days[tk].waterLog=[];
+  S.days[tk].waterLog.push({oz,t:Date.now()});
   save();renderAll();chimeRise();
   const tot=S.days[tk].water,goal=waterGoal();
   fishSay(tot>=goal
     ? 'That’s '+tot+' oz — you’ve crossed your '+goal+' oz mark for the day. The whole machine runs cleaner like this: skin, joints, thinking, kidneys.'
     : '+'+oz+' oz. '+tot+' of '+goal+' oz today. Zero calories, and every trade your body makes happens in this water.');
 }
+
+
+/* ============ TIME ============ */
+function clockOf(ts){ if(!ts)return ''; const d=new Date(ts);
+  let h=d.getHours(),m=d.getMinutes(),ap=h<12?'am':'pm'; h=h%12||12;
+  return h+':'+String(m).padStart(2,'0')+ap; }
 
 /* ============ TABS ============ */
 let activeTab='pageHome';
@@ -1111,7 +1249,7 @@ const QUICK_MOVE=[
 function logDirect(item){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
-  S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal});
+  S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,t:Date.now()});
   save();renderAll();pulse();burst=1;
   if(item.type==='in'&&item.kcal>0)chimeRise();else if(item.type==='out')toneFall();
   fishSay(teachLine(item),[{...item,t:item.type}]);
@@ -1125,13 +1263,31 @@ function renderLists(){
     if(!arr.length){el.innerHTML='<div class="dempty">'+empty+'</div>';return;}
     arr.forEach((e,i)=>{
       const r=document.createElement('div');r.className='drow';
-      r.innerHTML=`<span class="what">${e.name}</span><span class="kc ${t}">${t==='in'?'+':'−'}${fmt(e.kcal)}</span><span class="x">✕</span>`;
+      r.innerHTML=`<span class="rtime">${clockOf(e.t)}</span><span class="what">${e.name}</span><span class="kc ${t}">${t==='in'?'+':'−'}${fmt(e.kcal)}</span><span class="rep" title="log again">↻</span><span class="x">✕</span>`;
       r.querySelector('.x').onclick=()=>{arr.splice(i,1);save();renderAll();
         fishSay('Unsaid. The mirror only holds what you stand behind.');};
+      r.querySelector('.rep').onclick=()=>{logDirect({type:t==='in'?'in':'out',name:e.name.replace(/ · repeat.*/,''),kcal:e.kcal});
+        fishSay('Logged again — same as before, stamped at '+clockOf(Date.now())+'.');};
       el.appendChild(r);});
   };
-  if($('foodList'))build($('foodList'),d.in,'in','Nothing on the table yet. Tap a chip, speak it, or snap the plate.');
+  if($('foodList'))build($('foodList'),d.in,'in','Nothing on the table yet. Snap a photo, tap a chip, speak it, or describe it — I break it into foods, calories, and time.');
   if($('moveList'))build($('moveList'),d.out,'out','The forge is cold. Tap a chip or tell me your sets.');
+  renderPath();
+}
+
+/* ============ TODAY'S PATH — unified timeline on the Mirror page ============ */
+function renderPath(){
+  const host=$('todayPath'); if(!host)return;
+  const d=S.days[todayKey()]||{in:[],out:[]};
+  const events=[];
+  (d.in||[]).forEach(e=>events.push({t:e.t,name:e.name,val:'+'+fmt(e.kcal),cls:'in'}));
+  (d.out||[]).forEach(e=>events.push({t:e.t,name:e.name,val:'−'+fmt(e.kcal),cls:'out'}));
+  (d.waterLog||[]).forEach(e=>events.push({t:e.t,name:e.oz+' oz water',val:'💧',cls:'water'}));
+  events.sort((a,b)=>(a.t||0)-(b.t||0));
+  if(!events.length){host.innerHTML='<div class="dempty">Your path begins the moment you speak. Everything you log lands here in the order it happened — with the time.</div>';return;}
+  host.innerHTML=events.map(e=>
+    `<div class="pev"><span class="ptime">${clockOf(e.t)}</span><span class="pdot ${e.cls}"></span><span class="pname">${e.name}</span><span class="pval ${e.cls}">${e.val}</span></div>`
+  ).join('');
 }
 
 /* ============ FOOD GAUGE ============ */
