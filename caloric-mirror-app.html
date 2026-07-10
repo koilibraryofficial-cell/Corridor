@@ -283,6 +283,34 @@
   .pev .pval{font-family:'IBM Plex Mono',monospace;font-size:13px;}
   .pval.in{color:var(--green);} .pval.out{color:var(--ember-glow);} .pval.water{color:#7FD4E8;}
 
+
+  /* ---------- KOI'S MARKS (recommendations vs reality) ---------- */
+  .marks{margin:12px 12px 0;background:var(--glass);backdrop-filter:blur(8px);
+    border:1px solid rgba(232,196,107,.3);border-radius:16px;padding:12px 16px;}
+  .marks .mtitle{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.35em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .mrow{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px dashed #1a2530;font-size:14px;}
+  .mrow:last-of-type{border-bottom:none;}
+  .mrow .ml{flex:1;color:var(--slate);}
+  .mrow .mt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mist);}
+  .mrow .mv{font-family:'IBM Plex Mono',monospace;font-size:13px;min-width:78px;text-align:right;}
+  .mv.hit{color:var(--green);} .mv.under{color:var(--gold);} .mv.over{color:var(--ember-glow);}
+  .mguide{font-size:13px;font-style:italic;color:var(--mist);margin-top:8px;line-height:1.45;}
+  .mgoal{font-size:12.5px;color:var(--slate);font-style:italic;margin-top:6px;}
+
+
+  .tab.on.pth{color:#B79BE0;border-color:rgba(183,155,224,.5);box-shadow:0 0 14px rgba(183,155,224,.18);}
+  .daynav{display:flex;align-items:center;gap:10px;margin:12px 12px 0;}
+  .daynav button{background:rgba(16,24,33,.95);border:1px solid var(--ice-line);color:var(--slate);
+    font-size:16px;padding:8px 16px;border-radius:12px;cursor:pointer;}
+  .daynav .dlabel{flex:1;text-align:center;font-family:'Cormorant',serif;font-weight:700;font-size:15px;
+    letter-spacing:.12em;color:var(--deep);}
+  .daysum{display:flex;justify-content:space-around;margin:10px 12px 0;padding:10px;
+    background:var(--glass);border:1px solid var(--ice-line);border-radius:14px;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--mist);text-align:center;}
+  .daysum b{display:block;font-size:13px;font-weight:500;margin-top:3px;color:var(--deep);}
+
 </style>
 </head>
 <body>
@@ -326,6 +354,11 @@
 
 <div class="page" id="pageFood">
   <div class="ribbon-wrap"><canvas class="ribbon" id="ribFood"></canvas><div class="ribbon-title">The Table</div></div>
+  <div class="dsearch">
+    <input id="dictSearch" placeholder="Speak below, or search / name any food…" autocomplete="off">
+    <button id="dictSearchBtn">🔍</button>
+  </div>
+  <div class="marks" id="foodMarks"></div>
   <div class="gauge">
     <div class="glabel"><span>Water risen today</span><b id="gaugeVal">0 in</b></div>
     <div class="gbar"><div class="gfill" id="gaugeFill"></div><div class="gmark" id="gaugeMark"></div></div>
@@ -340,31 +373,41 @@
     <div class="subtab on" id="subFood" data-wing="wingFood">🍲 Food</div>
     <div class="subtab apo" id="subApo" data-wing="wingApo">⚗ Apothecary</div>
   </div>
-  <div class="dsearch">
-    <input id="dictSearch" placeholder="Search or name anything…" autocomplete="off">
-    <button id="dictSearchBtn">🔍</button>
-  </div>
   <div class="dwing on" id="wingFood"><div class="codex-grid" id="codex"></div></div>
   <div class="dwing" id="wingApo"><div class="codex-grid" id="apoth"></div></div>
 </div>
 
 <div class="page" id="pageStr">
   <div class="ribbon-wrap"><canvas class="ribbon" id="ribStr"></canvas><div class="ribbon-title">The Forge</div></div>
+  <div class="dsearch">
+    <input id="moveSearch" placeholder="Speak below, or search / name any movement…" autocomplete="off">
+    <button id="moveSearchBtn">🔍</button>
+  </div>
+  <div class="marks" id="strMarks"></div>
   <div class="quick" id="quickMove"></div>
   <div class="daylist" id="moveList"></div>
   <div class="section open" id="ladderSec">
     <div class="sec-head"><h3>The Ladders · Climb to Elite</h3><span class="car">›</span></div>
     <div class="sec-body" id="ladders"></div>
   </div>
-  <div class="dsearch">
-    <input id="moveSearch" placeholder="Search or name any movement…" autocomplete="off">
-    <button id="moveSearchBtn">🔍</button>
-  </div>
   <div class="section" id="moveDictSec">
     <div class="sec-head"><h3>The Movement Dictionary</h3><span class="car">›</span></div>
     <div class="sec-body"><div class="codex-grid" id="moveDict"></div></div>
   </div>
 </div>
+<div class="page" id="pagePath">
+  <div class="daynav">
+    <button id="dayPrev">‹</button>
+    <div class="dlabel" id="dayLabelPath">Today</div>
+    <button id="dayNext">›</button>
+  </div>
+  <div class="daysum" id="daySum"></div>
+  <div class="section open">
+    <div class="sec-head"><h3>The Path · Everything, In Time</h3><span class="car">›</span></div>
+    <div class="sec-body"><div id="pathDay"></div></div>
+  </div>
+</div>
+
 
 </div><!-- /scroll -->
 
@@ -375,6 +418,7 @@
     <div class="tab on" data-page="pageHome"><span class="ic">🪞</span>Mirror</div>
     <div class="tab food" data-page="pageFood"><span class="ic">🍲</span>Food</div>
     <div class="tab str" data-page="pageStr"><span class="ic">🔥</span>Strength</div>
+    <div class="tab pth" data-page="pagePath"><span class="ic">📜</span>Path</div>
   </div>
   <div class="bar">
     <div class="bar-inner">
@@ -384,7 +428,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v13</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v15</div>
   </div>
 </div>
 
@@ -397,6 +441,7 @@
   <div class="field"><label>Age</label><input id="aIn" type="number" inputmode="numeric"></div>
   <div class="field"><label>Body</label><select id="sSex"><option value="m">Male</option><option value="f">Female</option></select></div>
   <div class="field"><label>Target weight (optional — the mirror never requires a line)</label><input id="tIn" type="number" inputmode="decimal" placeholder="leave blank to simply witness"></div>
+  <div class="field"><label>Your goal — in your own words</label><input id="gIn" type="text" placeholder="e.g. cut to 155 shredded but keep my strength" autocomplete="off"></div>
   <div class="field"><label>Mirror Key (wakes the fish — stored only in this browser)</label><input id="kIn" type="password" placeholder="your key from the keeper — or sk-ant-… if you are the keeper" autocomplete="off"></div>
   <div id="mirrorPreview"></div>
   <div class="mid-note">Your resting burn drains the water continuously, in real time — sleep included, never counted twice.</div>
@@ -466,33 +511,33 @@ const epley=(w,r)=>r>1?w*(1+r/30):w;
 
 /* ============ THE MOVEMENT DICTIONARY ============ */
 const MOVEDICT=[
- {n:'Push-ups',u:'per rep',how:'25 push-ups',grp:'Bodyweight'},
- {n:'Pull-ups',u:'per rep',how:'10 pull-ups',grp:'Bodyweight'},
- {n:'Squats (bodyweight)',u:'per rep',how:'40 squats',grp:'Bodyweight'},
- {n:'Lunges',u:'per rep',how:'30 lunges',grp:'Bodyweight'},
- {n:'Burpees',u:'per rep',how:'20 burpees',grp:'Bodyweight'},
- {n:'Sit-ups',u:'per rep',how:'50 sit-ups',grp:'Bodyweight'},
- {n:'Dips',u:'per rep',how:'15 dips',grp:'Bodyweight'},
- {n:'Plank',u:'per minute',how:'plank 3 minutes',grp:'Bodyweight'},
- {n:'Jumping jacks',u:'per rep',how:'100 jumping jacks',grp:'Bodyweight'},
- {n:'Mountain climbers',u:'per minute',how:'mountain climbers 5 min',grp:'Bodyweight'},
- {n:'Bench Press',u:'lift · feeds ladder',how:'benched 185 for 8',grp:'Lifts'},
- {n:'Squat',u:'lift · feeds ladder',how:'squatted 275 for 5',grp:'Lifts'},
- {n:'Deadlift',u:'lift · feeds ladder',how:'deadlift 315 for 5',grp:'Lifts'},
- {n:'Overhead Press',u:'lift · feeds ladder',how:'overhead press 115 for 6',grp:'Lifts'},
- {n:'Barbell Row',u:'lift',how:'barbell row 135 for 8',grp:'Lifts'},
- {n:'Dumbbell Curl',u:'lift',how:'dumbbell curl 30 for 12',grp:'Lifts'},
- {n:'Kettlebell Swing',u:'per rep',how:'30 kettlebell swings',grp:'Lifts'},
- {n:'Run',u:'per mile / minute',how:'ran 3 miles',grp:'Cardio'},
- {n:'Walk',u:'per minute',how:'walked 30 minutes',grp:'Cardio'},
- {n:'Cycling',u:'per minute',how:'cycled 45 minutes',grp:'Cardio'},
- {n:'Swim',u:'per minute',how:'swam 30 minutes',grp:'Cardio'},
- {n:'Rowing',u:'per minute',how:'rowed 20 minutes',grp:'Cardio'},
- {n:'Jump rope',u:'per minute',how:'jump rope 10 minutes',grp:'Cardio'},
- {n:'Hiking',u:'per minute',how:'hiked 60 minutes',grp:'Cardio'},
- {n:'Yoga',u:'per minute',how:'yoga 30 minutes',grp:'Mobility'},
- {n:'Stretching',u:'per minute',how:'stretched 15 minutes',grp:'Mobility'},
- {n:'Bodywork session',u:'per minute',how:'massage bodywork 60 minutes',grp:'Mobility'}
+ {n:'Push-ups',u:'per rep',how:'25 push-ups',grp:'Bodyweight',mus:'chest, triceps, front shoulders, core',burn:0.36,bk:'rep'},
+ {n:'Pull-ups',u:'per rep',how:'10 pull-ups',grp:'Bodyweight',mus:'lats, biceps, upper back, grip',burn:1.0,bk:'rep'},
+ {n:'Squats (bodyweight)',u:'per rep',how:'40 squats',grp:'Bodyweight',mus:'quads, glutes, hamstrings, core',burn:0.32,bk:'rep'},
+ {n:'Lunges',u:'per rep',how:'30 lunges',grp:'Bodyweight',mus:'quads, glutes, hamstrings, balance',burn:0.3,bk:'rep'},
+ {n:'Burpees',u:'per rep',how:'20 burpees',grp:'Bodyweight',mus:'full body — legs, chest, core, lungs',burn:1.4,bk:'rep'},
+ {n:'Sit-ups',u:'per rep',how:'50 sit-ups',grp:'Bodyweight',mus:'abs, hip flexors',burn:0.25,bk:'rep'},
+ {n:'Dips',u:'per rep',how:'15 dips',grp:'Bodyweight',mus:'chest, triceps, front shoulders',burn:0.5,bk:'rep'},
+ {n:'Plank',u:'per minute',how:'plank 3 minutes',grp:'Bodyweight',mus:'deep core, shoulders, back',burn:4.0,bk:'min'},
+ {n:'Jumping jacks',u:'per rep',how:'100 jumping jacks',grp:'Bodyweight',mus:'calves, shoulders, heart',burn:0.2,bk:'rep'},
+ {n:'Mountain climbers',u:'per minute',how:'mountain climbers 5 min',grp:'Bodyweight',mus:'core, hip flexors, shoulders, heart',burn:9.0,bk:'min'},
+ {n:'Bench Press',u:'lift · feeds ladder',how:'benched 185 for 8',grp:'Lifts',mus:'chest, triceps, front shoulders',burn:5.0,bk:'min'},
+ {n:'Squat',u:'lift · feeds ladder',how:'squatted 275 for 5',grp:'Lifts',mus:'quads, glutes, hamstrings, spine',burn:5.5,bk:'min'},
+ {n:'Deadlift',u:'lift · feeds ladder',how:'deadlift 315 for 5',grp:'Lifts',mus:'posterior chain — hamstrings, glutes, back, grip',burn:5.5,bk:'min'},
+ {n:'Overhead Press',u:'lift · feeds ladder',how:'overhead press 115 for 6',grp:'Lifts',mus:'shoulders, triceps, upper chest, core',burn:5.0,bk:'min'},
+ {n:'Barbell Row',u:'lift',how:'barbell row 135 for 8',grp:'Lifts',mus:'lats, mid-back, biceps, rear shoulders',burn:5.0,bk:'min'},
+ {n:'Dumbbell Curl',u:'lift',how:'dumbbell curl 30 for 12',grp:'Lifts',mus:'biceps, forearms',burn:3.5,bk:'min'},
+ {n:'Kettlebell Swing',u:'per rep',how:'30 kettlebell swings',grp:'Lifts',mus:'glutes, hamstrings, back, heart',burn:0.5,bk:'rep'},
+ {n:'Run',u:'per mile / minute',how:'ran 3 miles',grp:'Cardio',mus:'legs, heart, lungs',burn:9.8,bk:'min'},
+ {n:'Walk',u:'per minute',how:'walked 30 minutes',grp:'Cardio',mus:'legs, heart — gently',burn:3.8,bk:'min'},
+ {n:'Cycling',u:'per minute',how:'cycled 45 minutes',grp:'Cardio',mus:'quads, glutes, heart',burn:7.5,bk:'min'},
+ {n:'Swim',u:'per minute',how:'swam 30 minutes',grp:'Cardio',mus:'full body, lungs, joints spared',burn:7.0,bk:'min'},
+ {n:'Rowing',u:'per minute',how:'rowed 20 minutes',grp:'Cardio',mus:'back, legs, heart — full chain',burn:8.5,bk:'min'},
+ {n:'Jump rope',u:'per minute',how:'jump rope 10 minutes',grp:'Cardio',mus:'calves, shoulders, heart, timing',burn:11.0,bk:'min'},
+ {n:'Hiking',u:'per minute',how:'hiked 60 minutes',grp:'Cardio',mus:'legs, glutes, heart, mind',burn:5.3,bk:'min'},
+ {n:'Yoga',u:'per minute',how:'yoga 30 minutes',grp:'Mobility',mus:'mobility, breath, deep core',burn:2.8,bk:'min'},
+ {n:'Stretching',u:'per minute',how:'stretched 15 minutes',grp:'Mobility',mus:'mobility, recovery',burn:2.3,bk:'min'},
+ {n:'Bodywork session',u:'per minute',how:'massage bodywork 60 minutes',grp:'Mobility',mus:'hands, forearms, back — your craft',burn:4.0,bk:'min'}
 ];
 function loadGrownMove(){try{return JSON.parse(store.get('grownMove')||'[]');}catch(e){return [];}}
 const GROWNMOVE=loadGrownMove();
@@ -633,7 +678,7 @@ function localEstimate(text){
 
 /* ============ CLAUDE — the fish's living mind ============ */
 const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Caloric Mirror, a 90-day numeric truth practice by Mecca Tymes, part of the Kingdom of Inner Light. You are a legendary personal trainer and a warm daily companion; you build a real relationship across the 90 days, remembering what they tell you and guiding them through the journal. '+
-'You obey Four Laws: (1) The mirror reflects what it is given — honest numbers, never invented ones. (2) Calories IN and OUT are separate truths. (3) Inside the mirror no one can fail; only see clearly or look away. (4) The mirror is not the judge — never shame, never moralize food, never praise weight loss itself; praise honesty and showing up. '+
+'You obey Four Laws: (1) The mirror reflects what it is given — honest numbers, never invented ones. (2) Calories IN and OUT are separate truths. (3) Inside the mirror no one can fail; only see clearly or look away. (4) The mirror is not the judge — never shame, never moralize food, never praise weight loss itself; praise honesty and showing up. The book asks only that a person witness for 90 days; exercise, the ladders, and every plan are a BONUS WING — offered, never demanded. Never imply someone must train to belong here. '+
 'VOICE: warm, brief, a little playful, plain enough for a child. One to three short sentences. No bullet points, no exclamation-mark pileups. '+
 'JOB: parse what they ate or did into calorie estimates. For movement, count ONLY calories above resting burn (basal is tracked separately — driving 45 min is roughly 10-15 above rest; say small truths plainly). Use their bodyweight. Close and consistent beats falsely precise. '+
 'PHOTOS: identify each food, speak a RANGE in the reply ("around 700, could be 850 if the kitchen was heavy with oil"), use the middle as the kcal number, and remind them gently that portions and hidden oils blur the lens — the kitchen scale holds the exact truth. Never fake precision. '+
@@ -642,10 +687,10 @@ const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Cal
 'APOTHECARY: supplements are the footnote, food is the text. Only these earn shelf space: creatine monohydrate 3-5g, protein powder as food-gap filler, vitamin D3 1000-2000 IU (blood panel decides the real dose), omega-3 1-2g EPA+DHA, magnesium glycinate 200-400mg, electrolytes on heavy-sweat days, caffeine 100-200mg pre-work. Clean-label laws: single ingredients, third-party tested (NSF Certified for Sport / Informed Sport), never proprietary blends. Everything else — fat burners, detox teas, testosterone boosters — is painted water: say so plainly. Always name the food that beats the pill, and for doses tied to blood levels point to their doctor without being preachy. '+
 'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
 'THE SPECTRUM OF LIGHT: everything sits on a voltage from radiant (raises the whole system — clean water, living greens, wild plants) through green (clean daily fuel), gold (supports a system under the right conditions), violet (traditional botanicals, long human lineage, honored even where modern data is thin), amber (neutral), to dim (pulls toward the least optimal — heavy, processed). You inform, you never command. Name where something sits and why, name real cautions (medication interactions, blood-test effects) plainly, always name the food or practice that comes first, and leave the choice with the person — the mirror reflects, it does not rule. '+
-    'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
+    'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number,"p":protein-grams-if-food-else-0}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
 
 async function askClaude(text,images){
-  const context='PERSON: '+JSON.stringify(S.profile)+
+  const context='PERSON: '+JSON.stringify(S.profile)+(S.goalText?' | STATED GOAL: "'+S.goalText+'" | daily marks: '+JSON.stringify(S.plan||{}):'')+
     (S.targetW?' | their chosen line: '+S.targetW+' lbs':' | witnessing only, no target line')+
     ' | day '+dayIndex()+' of 90 | metabolic calibration ×'+S.calib+
     ' | today so far: '+JSON.stringify(S.days[todayKey()]||{in:[],out:[]})+
@@ -755,7 +800,7 @@ function fishAsk(){
 const TOUR=[
  'Hey — I’m <b>KOI</b>. 🐟 Your guide in this water. I live here, and I only do one thing: reflect the truth back to you.',
  'That big number up top is <b>you</b>, measured in calories — your weight × 3,500. It breathes in real time. Watch it move as you talk to me.',
- 'Tell me what you <b>eat</b> and the water rises. Tell me how you <b>move</b> and it falls. Your body burns some just resting — I count that every second, sleep included.',
+ 'Tell me what you <b>eat</b> and the water rises. Tell me how you <b>move</b> and it falls — though movement is a <b>bonus wing</b>, never a demand; the book asks only that you look. Your body burns some just resting — I count that every second, sleep included.',
  'Three ways to tell me anything: <b>speak</b> it, <b>type</b> it, or <b>snap a photo / drop a file</b> of your plate. I break it into foods, calories, and the time you had it.',
  'I stamp <b>everything with the time</b>, so your whole day builds a path you can look back on and repeat. And if I don’t know a food, a supplement, or a movement — I’ll <b>learn it and keep it</b> on your shelf forever.',
  'Ask me <b>anything</b> — what to eat, how to train, where something sits on the spectrum of light, why your temples are thinning. I’m a mirror, not a master. You always choose. Ready? Let’s set your first mark.'
@@ -845,7 +890,7 @@ async function handle(text,images,imgSrcs){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   const chips=[];
-  const now=Date.now();for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal,t:now});
+  const now=Date.now();for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal,p:it.p||0,t:now});
     chips.push({...it,t:it.type});}
   if(lift)applyLift(lift);
   save();renderAll();pulse();burst=1;
@@ -931,7 +976,7 @@ function renderAll(){
       <div class="rungs">${L.rungs.map((r,i)=>`<span>${RUNG_NAMES[i]}<br>${L.reps?r:Math.round(r*bw)}</span>`).join('')}</div>
       <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
     lad.appendChild(el);}
-  renderLists();renderGauge();
+  renderLists();renderGauge();renderMarks();renderSchedule();
 }
 function tick(){
   if(S.profile){
@@ -962,7 +1007,7 @@ function foodCard(f,wing){
   el.onclick=()=>{
     const q = wing==='apoth'
       ? 'Tell me the truth about '+f.n.toLowerCase()+' — where it sits on the spectrum, how to use it, clean-label cautions, and the food that comes first.'
-      : 'Tell me about '+f.n.toLowerCase()+' — why it serves the body and when to eat it.';
+      : 'Tell me about '+f.n.toLowerCase()+' — why it serves the body, when to eat it, and how much per day fits my goal.';
     handle(q); document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});
   };
   return el;
@@ -1021,6 +1066,85 @@ $('dictSearch').addEventListener('keydown',e=>{if(e.key==='Enter')dictSearch();}
 
 
 
+
+/* ============ KOI'S MARKS — the recommended day, from your goal ============ */
+function localPlan(){
+  const p=S.profile; if(!p) return null;
+  const b=bmr(), tdee=Math.round(b*1.35);
+  const tw=S.targetW||p.w;
+  const mode = tw < p.w-2 ? 'cut' : tw > p.w+2 ? 'build' : 'maintain';
+  const cal = mode==='cut'? tdee-500 : mode==='build'? tdee+300 : tdee;
+  return { mode, calTarget:cal, proteinTarget:Math.round(p.w*0.8), waterOz:waterGoal(),
+    moveBurn:300, setsPerWorkout:12,
+    guidance: mode==='cut'
+      ? 'A steady ~500 under keeps roughly a pound a week moving while protein guards the muscle.'
+      : mode==='build'
+      ? 'A clean ~300 over feeds growth without drowning the mirror; protein and sets do the building.'
+      : 'Holding harbor: eat to your burn, keep protein high, let training shape the frame.' };
+}
+async function buildPlan(){
+  S.plan = localPlan(); save(); renderAll();
+  if(!S.goalText || !(S.apiKey||CONFIG.SCRIPT_URL)) return;
+  const prompt='Build daily targets for this goal: "'+S.goalText+'". Person: '+JSON.stringify(S.profile)+
+    ', target line '+(S.targetW||'none')+' lbs, BMR '+bmr()+'. Be honest and specific to the goal, however extreme — targets inform, the person chooses. '+
+    'RESPOND RAW JSON ONLY: {"mode":"cut|build|maintain|recomp","calTarget":n,"proteinTarget":grams,"waterOz":n,"moveBurn":kcal-above-rest-per-day,"setsPerWorkout":n,"guidance":"1-2 sentences in KOI voice explaining the why"}';
+  const claude=await askClaude(prompt);
+  let plan=null;
+  if(claude){ try{ plan=claude.calTarget?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim()); }catch(e){plan=null;} }
+  if(plan&&plan.calTarget){ S.plan=plan; save(); renderAll();
+    fishSay('Your marks are set from your goal — “'+S.goalText+'”. '+(plan.guidance||'')+' They live at the top of Food and Strength. Exceed them or don’t — the mirror only reflects.'); }
+}
+function markRow(label,target,current,unit,higherIsBetter){
+  const hit = higherIsBetter ? current>=target : current<=target;
+  const cls = hit?'hit':(higherIsBetter?'under':'over');
+  const status = hit?'✓ reached':(higherIsBetter? (target-current)+' to go' : (current-target)+' over');
+  return `<div class="mrow"><span class="ml">${label}</span><span class="mt">${target}${unit}</span><span class="mv ${cls}">${current}${unit} · ${status}</span></div>`;
+}
+function renderMarks(){
+  const fm=$('foodMarks'), sm=$('strMarks');
+  if(!S.profile){ if(fm)fm.innerHTML=''; if(sm)sm.innerHTML=''; return; }
+  if(!S.plan) S.plan=localPlan();
+  const pl=S.plan; const t=dayTotals(todayKey()); const d=S.days[todayKey()]||{};
+  const prot=((d.in)||[]).reduce((a,b)=>a+(b.p||0),0);
+  if(fm) fm.innerHTML='<div class="mtitle">KOI’S MARKS — TODAY’S FOOD, FOR YOUR GOAL</div>'
+    + markRow('Calories in', pl.calTarget, t.inC, '', pl.mode==='build')
+    + markRow('Protein (known)', pl.proteinTarget, prot, 'g', true)
+    + markRow('Water', pl.waterOz, (d.water||0), ' oz', true)
+    + (pl.guidance?'<div class="mguide">'+pl.guidance+'</div>':'')
+    + (S.goalText?'<div class="mgoal">goal: “'+S.goalText+'” · change it in ⚙</div>':'<div class="mgoal">name your goal in ⚙ and I sharpen these marks</div>');
+  if(sm) sm.innerHTML='<div class="mtitle">KOI’S MARKS — TODAY’S FORGE, FOR YOUR GOAL</div>'
+    + markRow('Movement burn', pl.moveBurn, t.outMove, '', true)
+    + `<div class="mrow"><span class="ml">Working sets per workout</span><span class="mt">${pl.setsPerWorkout}</span><span class="mv under">aim per session</span></div>`
+    + '<div class="mguide">Hit each muscle with 2–4 exercises, 3–4 working sets each, most muscles twice a week. Tap any movement below and I’ll teach its muscles and burn.</div>';
+}
+
+
+/* ============ TEACH A MOVEMENT (tap = learn, not log) ============ */
+function teachMove(m){
+  const kg=(S.profile?.w||170)*0.4536;
+  let burnLine='';
+  if(m.burn&&m.bk==='rep'){
+    const per10=Math.max(1,Math.round(10/m.burn));
+    burnLine='At your weight, roughly every '+per10+' reps ≈ 10 calories (estimate).';
+  } else if(m.burn&&m.bk==='min'){
+    const perMin=((m.burn-1)*kg)/60;
+    const min10=Math.max(1,Math.round(10/perMin));
+    burnLine='At your weight, roughly every '+min10+' min ≈ 10 calories above rest (estimate).';
+  }
+  const musLine=m.mus?('<b>Targets:</b> '+m.mus+'.'):'';
+  fishSay('<b>'+m.n+'</b> — '+musLine+' '+burnLine+
+    '<br><br>In a workout: 3–4 working sets of this, 2–4 exercises per muscle, most muscles twice a week.'+
+    '<br>Done some? Just say it — “'+(m.how||'…')+'” — and I log calories and time.',null,
+    m.grown?null:'Estimates from your bodyweight — close, not gospel. Your form and effort move the real number.',true);
+  const b=$('bubble');
+  const wrap=document.createElement('div');wrap.style.cssText='margin-top:12px;display:flex;gap:8px;pointer-events:auto';
+  const b1=document.createElement('span');b1.className='tap';b1.textContent='Did it — log “'+(m.how||'')+'”';
+  b1.onclick=()=>handle(m.how);
+  const b2=document.createElement('span');b2.className='tap';b2.textContent='Ask KOI more';b2.style.borderColor='var(--ice-line)';b2.style.color='var(--mist)';
+  b2.onclick=()=>handle('Teach me '+m.n.toLowerCase()+' for my goal — form cues, sets and reps, and where it fits my week.');
+  wrap.appendChild(b1);wrap.appendChild(b2);b.appendChild(wrap);
+}
+
 /* ============ MOVEMENT DICTIONARY RENDER ============ */
 const MOVE_ORDER=['Bodyweight','Lifts','Cardio','Mobility','Grown here','Other'];
 function renderMoveDict(){
@@ -1034,9 +1158,8 @@ function renderMoveDict(){
     inGrp.forEach(m=>{
       const el=document.createElement('div');el.className='food';
       const grown=m.grown?'<span class="grown">🌱 grown here</span>':'';
-      el.innerHTML=`<span class="volt volt-${m.grp==='Lifts'?'gold':'green'}"></span><div class="fname">${m.n}</div><div class="fmac">${m.u}</div><div class="fwhy">Say “${m.how}” — I log calories & time.</div>${grown}`;
-      el.onclick=()=>{ if(m.grown&&m.how){handle(m.how);}
-        else{handle(m.how);} document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'}); };
+      el.innerHTML=`<span class="volt volt-${m.grp==='Lifts'?'gold':'green'}"></span><div class="fname">${m.n}</div><div class="fmac">${m.u}</div><div class="fwhy">${m.mus?m.mus:'Say “'+m.how+'”'}</div>${grown}`;
+      el.onclick=()=>{ teachMove(m); };
       g.appendChild(el);
     });
   });
@@ -1117,6 +1240,10 @@ $('claimBtn').onclick=()=>{
   const first=!S.profile;
   S.profile=p;S.targetW=parseFloat($('tIn').value)||S.targetW||null;
   const k=$('kIn').value.trim(); if(k) S.apiKey=k;
+  const gTxt=$('gIn').value.trim();
+  const goalChanged = gTxt && gTxt!==S.goalText;
+  if(gTxt) S.goalText=gTxt;
+  if(goalChanged){ buildPlan(); }
   if(first){S.startDate=todayKey();S.mirrorStart=Math.round(p.w*CONFIG.CAL_PER_LB);
     S.marks.push({date:todayKey(),weight:p.w,mirror:S.mirrorStart});}
   save();renderAll();bellMark();
@@ -1125,7 +1252,8 @@ $('claimBtn').onclick=()=>{
 $('gearBtn').onclick=()=>{const p=S.profile;
   if(p){$('wIn').value=p.w;$('hIn').value=p.h;$('aIn').value=p.a;$('sSex').value=p.s;
     if(S.targetW)$('tIn').value=S.targetW;
-    if(S.apiKey)$('kIn').value=S.apiKey;previewMirror();}
+    if(S.apiKey)$('kIn').value=S.apiKey;
+    if(S.goalText)$('gIn').value=S.goalText;previewMirror();}
   $('setup').classList.add('show');};
 $('exportBtn').onclick=()=>{prompt('Your thread token — copy it somewhere safe. Paste on any device to restore.',
   btoa(unescape(encodeURIComponent(JSON.stringify(S)))));};
@@ -1218,7 +1346,8 @@ function clockOf(ts){ if(!ts)return ''; const d=new Date(ts);
 let activeTab='pageHome';
 const PLACEHOLDERS={pageHome:'Talk to me. Food, movement, questions…',
   pageFood:'What did you eat? “two eggs and toast”…',
-  pageStr:'Your sets — “benched 185 for 8” · “ran 2 miles”…'};
+  pageStr:'Your sets — “benched 185 for 8” · “ran 2 miles”…',
+  pagePath:'Everything you say lands on the Path with its time…'};
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
@@ -1230,8 +1359,8 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 
 /* ============ QUICK CHIPS — one-tap truth ============ */
 const QUICK_FOOD=[
-  {n:'Water · 16 oz',k:0,water:16},{n:'Black coffee',k:5},{n:'Two eggs',k:156},{n:'Protein shake',k:250},
-  {n:'Oatmeal',k:300},{n:'Salad',k:350},{n:'Banana',k:105},{n:'Chicken breast',k:280}];
+  {n:'Water · 16 oz',k:0,water:16},{n:'Black coffee',k:5,p:0},{n:'Two eggs',k:156,p:12},{n:'Protein shake',k:250,p:25},
+  {n:'Oatmeal',k:300,p:10},{n:'Salad',k:350,p:8},{n:'Banana',k:105,p:1},{n:'Chicken breast',k:280,p:52}];
 const QUICK_MOVE=[
   {n:'Walk · 30 min',k:null,txt:'walked 30 minutes'},{n:'Run · 2 mi',k:null,txt:'ran 2 miles'},
   {n:'Push-ups · 25',k:null,txt:'25 push-ups'},{n:'Lifting · 45 min',k:null,txt:'lifted weights 45 minutes'},
@@ -1240,7 +1369,7 @@ const QUICK_MOVE=[
   const qf=$('quickFood');
   QUICK_FOOD.forEach(q=>{const c=document.createElement('div');c.className='qchip food';
     c.innerHTML=q.n+'<b>'+(q.k===0?'free':'+'+q.k)+'</b>';
-    c.onclick=()=>{if(q.water){logWater(q.water);}else{logDirect({type:'in',name:q.n,kcal:q.k});}};qf.appendChild(c);});
+    c.onclick=()=>{if(q.water){logWater(q.water);}else{logDirect({type:'in',name:q.n,kcal:q.k,p:q.p||0});}};qf.appendChild(c);});
   const qm=$('quickMove');
   QUICK_MOVE.forEach(q=>{const c=document.createElement('div');c.className='qchip move';
     c.textContent=q.n;
@@ -1249,7 +1378,7 @@ const QUICK_MOVE=[
 function logDirect(item){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
-  S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,t:Date.now()});
+  S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,p:item.p||0,t:Date.now()});
   save();renderAll();pulse();burst=1;
   if(item.type==='in'&&item.kcal>0)chimeRise();else if(item.type==='out')toneFall();
   fishSay(teachLine(item),[{...item,t:item.type}]);
@@ -1386,8 +1515,47 @@ async function growEntry(name){
   wrap.appendChild(b1);wrap.appendChild(b2);b.appendChild(wrap);
 }
 
+
+/* ============ THE PATH — full schedule, any day ============ */
+let pathOffset=0; // 0 = today, -1 = yesterday...
+function pathKey(){ const d=new Date(); d.setDate(d.getDate()+pathOffset);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function renderSchedule(){
+  const host=$('pathDay'); if(!host)return;
+  const key=pathKey(); const d=S.days[key]||{in:[],out:[]};
+  const lbl=$('dayLabelPath');
+  if(lbl){ lbl.textContent = pathOffset===0?'Today':pathOffset===-1?'Yesterday':
+    new Date(key+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); }
+  const t={inC:(d.in||[]).reduce((a,b)=>a+b.kcal,0),outMove:(d.out||[]).reduce((a,b)=>a+b.kcal,0)};
+  const water=d.water||0;
+  const sum=$('daySum');
+  if(sum) sum.innerHTML=`<div>In<b style="color:var(--green)">+${fmt(t.inC)}</b></div>
+    <div>Moved<b style="color:var(--ember-glow)">−${fmt(t.outMove)}</b></div>
+    <div>Water<b style="color:#7FD4E8">${water} oz</b></div>
+    <div>Entries<b>${(d.in||[]).length+(d.out||[]).length+((d.waterLog||[]).length)}</b></div>`;
+  const events=[];
+  (d.in||[]).forEach(e=>events.push({t:e.t,name:e.name,val:'+'+fmt(e.kcal),cls:'in',kcal:e.kcal,p:e.p,type:'in'}));
+  (d.out||[]).forEach(e=>events.push({t:e.t,name:e.name,val:'−'+fmt(e.kcal),cls:'out',kcal:e.kcal,type:'out'}));
+  (d.waterLog||[]).forEach(e=>events.push({t:e.t,name:e.oz+' oz water',val:'💧',cls:'water',oz:e.oz,type:'water'}));
+  events.sort((a,b)=>(a.t||0)-(b.t||0));
+  if(!events.length){ host.innerHTML='<div class="dempty">'+(pathOffset===0?'Nothing on the Path yet today. Speak below — everything lands here with its time.':'The mirror was quiet this day.')+'</div>'; return; }
+  host.innerHTML='';
+  events.forEach(e=>{
+    const r=document.createElement('div');r.className='pev';
+    r.innerHTML=`<span class="ptime">${clockOf(e.t)}</span><span class="pdot ${e.cls}"></span><span class="pname">${e.name}</span><span class="pval ${e.cls}">${e.val}</span><span class="rep" title="repeat now" style="color:#3A4855;cursor:pointer;padding:2px 6px">↻</span>`;
+    r.querySelector('.rep').onclick=()=>{
+      if(e.type==='water'){logWater(e.oz);}
+      else{logDirect({type:e.type,name:e.name,kcal:e.kcal,p:e.p||0});}
+      fishSay('Repeated from '+(pathOffset===0?'earlier today':'that day')+' — logged now at '+clockOf(Date.now())+'.');
+    };
+    host.appendChild(r);
+  });
+}
+$('dayPrev').onclick=()=>{pathOffset--;renderSchedule();};
+$('dayNext').onclick=()=>{if(pathOffset<0){pathOffset++;renderSchedule();}};
+
 /* ============ BOOT ============ */
-sizeCanvas();renderAll();
+sizeCanvas();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();
 requestAnimationFrame(tick);requestAnimationFrame(drawPond);
 if(!S.profile&&!S.toured)runTour();
 else if(!S.profile)$('setup').classList.add('show');
