@@ -228,6 +228,24 @@
     text-transform:uppercase;color:var(--gold);margin-bottom:6px;animation:glowpulse 3s infinite;}
   @keyframes glowpulse{50%{opacity:.55;}}
 
+
+  /* ---------- SPECTRUM OF LIGHT ---------- */
+  .food{position:relative;}
+  .food .volt{position:absolute;top:10px;right:11px;width:11px;height:11px;border-radius:50%;
+    box-shadow:0 0 8px currentColor;}
+  .food .caution{position:absolute;bottom:10px;right:11px;font-size:11px;color:#FF6B6B;
+    filter:drop-shadow(0 0 4px rgba(255,77,94,.6));}
+  .volt-radiant{color:#FFF4D6;background:radial-gradient(circle,#FFFDF5,#F0DFA0);}
+  .volt-green{color:#8FCB9B;background:#5FB06E;}
+  .volt-gold{color:#E8C46B;background:#D9A93C;}
+  .volt-violet{color:#B79BE0;background:#8E6FC4;}
+  .volt-amber{color:#D69A5C;background:#B87A38;}
+  .volt-dim{color:#8A6A66;background:#5A3E3B;}
+  .legend{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:6px;padding-top:12px;
+    border-top:1px solid #22303E;}
+  .legend .lg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--mist);}
+  .legend .dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 6px currentColor;}
+
 </style>
 </head>
 <body>
@@ -281,6 +299,10 @@
     <div class="sec-head"><h3>The Codex · Alive Foods</h3><span class="car">›</span></div>
     <div class="sec-body"><div class="codex-grid" id="codex"></div></div>
   </div>
+  <div class="section" id="apothSec">
+    <div class="sec-head"><h3>The Apothecary · What The Body Needs</h3><span class="car">›</span></div>
+    <div class="sec-body"><div class="codex-grid" id="apoth"></div></div>
+  </div>
 </div>
 
 <div class="page" id="pageStr">
@@ -311,7 +333,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Speak, type, or snap your plate — the fish handles the rest. · v8</div>
+    <div class="hint">Speak, type, or snap your plate — the fish handles the rest. · v10</div>
   </div>
 </div>
 
@@ -389,32 +411,52 @@ const LADDERS={
 const RUNG_NAMES=['Novice','Inter','Adv','Elite'];
 const epley=(w,r)=>r>1?w*(1+r/30):w;
 
+
+/* ============ THE APOTHECARY — the honest few ============ */
+const APOTH=[
+ {n:'Creatine monohydrate',d:'3–5 g daily, any time',w:'The most proven supplement in existence — strength, power, recovery, even brain support. Plain monohydrate only; every fancier form is marketing.',f:'Beats it: nothing, honestly. Red meat carries ~1–2 g per pound but 5 g from food is impractical.',volt:'green'},
+ {n:'Protein powder',d:'to close the day’s gap',w:'Not magic — just food in a scoop. Use it only when real meals can’t reach your protein mark for the day.',f:'Beats it: chicken, eggs, salmon, Greek yogurt — whole food wins every time it’s available.',volt:'gold'},
+ {n:'Vitamin D3',d:'1,000–2,000 IU with a meal',w:'The sun hormone. Most indoor lives run low; supports bone, mood, immunity, testosterone. Blood panel tells the real dose — your doctor holds that.',f:'Beats it: 20 minutes of real sun on skin.',volt:'gold',caution:'blood panel sets the true dose'},
+ {n:'Omega-3 (EPA/DHA)',d:'1–2 g combined daily',w:'Brain and heart oil, calms inflammation. Check the label for actual EPA+DHA grams, not "fish oil" grams — that difference is where they hide the water.',f:'Beats it: salmon or sardines twice a week.',volt:'green'},
+ {n:'Magnesium glycinate',d:'200–400 mg at night',w:'The mineral sweat steals. Sleep depth, muscle relaxation, hundreds of quiet reactions. Glycinate form — oxide is cheap chalk that mostly passes through.',f:'Beats it: spinach, almonds, black beans, dark chocolate.',volt:'gold'},
+ {n:'Electrolytes / sodium',d:'heavy-sweat days only',w:'For long sessions on the table or hard training days. Salt, potassium, magnesium — not sugar water with a sports label.',f:'Beats it: real food plus salted water costs pennies.',volt:'amber',caution:'watch sodium if blood pressure runs high'},
+ {n:'Caffeine',d:'100–200 mg, 30 min before work',w:'The oldest performance compound there is. Cheap, proven, sharp. Cut it 8 hours before sleep or it quietly robs the night.',f:'Beats it: black coffee IS the supplement — 5 calories of it.',volt:'amber',caution:'cut 8h before sleep; raises heart rate'},
+ {n:'Zinc',d:'8–15 mg with food',w:'Immune, skin, testosterone, and hair-follicle mineral. Easy to run low if you sweat and train. Don’t megadose — high zinc blocks copper.',f:'Beats it: oysters, beef, pumpkin seeds.',volt:'gold',caution:'over ~40 mg long-term depletes copper'},
+ {n:'Ashwagandha',d:'300–600 mg standardized extract',w:'Adaptogen with real evidence for lowering stress and cortisol — and stress is a quiet driver of hair loss and poor sleep. Works only through the stress door, not magic.',f:'First: sleep, breath, and sunlight lower cortisol for free.',volt:'gold',caution:'can shift thyroid; talk to your doctor if you take thyroid meds'},
+ {n:'Biotin',d:'only if actually deficient',w:'Helps hair and nails when you are low in it — and does little if you are not. Most people already get enough from eggs and whole food.',f:'Beats it: eggs, almonds, sweet potato carry biotin whole.',volt:'gold',caution:'skews thyroid & heart blood tests — tell any lab you take it'},
+ {n:'Rosemary oil (topical)',d:'diluted, massaged into scalp',w:'For the temples and thinning: quiet studies put it near minoxidil for regrowth, without the chemical. Patience — hair moves in months, not days.',f:'Pairs with: scalp massage, which raises blood flow on its own.',volt:'violet'},
+ {n:'Hair & Temples — the map',d:'read before buying anything',w:'Thinning is usually DHT-driven or stress-and-nutrient-driven. The honest levers, in order: enough protein, iron/ferritin, vitamin D, zinc, and lowering stress + sleeping. Biotin only if deficient. Rosemary oil and scalp massage have real, gentle evidence. Pills come last.',f:'The food-and-rest foundation beats every bottle sold for hair.',volt:'radiant'},
+ {n:'Sea moss (holistic)',d:'traditional, thin modern data',w:'A Sebi-lineage botanical rich in minerals and iodine. Long human use, honored here as tradition; modern studies are still thin, and iodine can move the thyroid.',f:'Beats it: a varied plate of sea vegetables and greens.',volt:'violet',caution:'iodine load can affect thyroid'},
+ {n:'Turmeric / curcumin',d:'with black pepper for uptake',w:'Anti-inflammatory root with growing evidence; pepper (piperine) multiplies absorption. Whole root in food is gentle; concentrated extract is stronger.',f:'Beats it: the whole root in your cooking, often.',volt:'violet'}
+];
+const APOTH_LAWS='THE LAWS OF THIS SHELF: Food first — every card names the food that beats it. Single ingredients only. Third-party tested (look for NSF Certified for Sport or Informed Sport stamps). No proprietary blends — if a label hides the doses, it hides the truth. And if it promises magic, it is painted water: walk away.';
+
 /* ============ CODEX — ALIVE FOODS ============ */
 const CODEX=[
- {n:'Eggs',m:'78 cal · 6p / 0.6c / 5f',w:'A whole protein with every amino acid the body asks for.'},
- {n:'Salmon',m:'400 cal · 40p / 0c / 26f',w:'Omega-3 fats that feed the brain and calm inflammation.'},
- {n:'Chicken breast',m:'280 cal · 52p / 0c / 6f',w:'The cleanest protein-per-calorie in the butcher case.'},
- {n:'Sardines',m:'190 cal · 22p / 0c / 11f',w:'Small fish, low in the food chain, dense in minerals.'},
- {n:'Lentils',m:'230 cal · 18p / 40c / 1f',w:'Plant protein and slow carbs that hold you for hours.'},
- {n:'Black beans',m:'220 cal · 15p / 40c / 1f',w:'Fiber that feeds the gut the way it was designed to eat.'},
- {n:'Oats',m:'300 cal · 10p / 54c / 5f',w:'Slow morning fuel; steadies blood sugar instead of spiking it.'},
- {n:'Sweet potato',m:'180 cal · 4p / 41c / 0f',w:'Deep carbohydrate with the vitamins still living in it.'},
- {n:'Brown rice',m:'215 cal · 5p / 45c / 2f',w:'The grain with its coat still on — fiber intact.'},
- {n:'Quinoa',m:'220 cal · 8p / 39c / 4f',w:'A seed that eats like a grain and carries complete protein.'},
- {n:'Spinach',m:'25 cal · 3p / 4c / 0f',w:'Iron, magnesium, folate — nearly free of calories.'},
- {n:'Broccoli',m:'55 cal · 4p / 11c / 0f',w:'A whole pharmacy in a green head. Eat it often.'},
- {n:'Kale',m:'35 cal · 3p / 6c / 1f',w:'Bitter on purpose — the compounds that protect are the ones you taste.'},
- {n:'Avocado',m:'240 cal · 3p / 12c / 22f',w:'Whole-food fat that carries vitamins into the body.'},
- {n:'Olive oil',m:'120 cal/tbsp · 0p / 0c / 14f',w:'The old-world fat. Dense — measure it, don’t pour it.'},
- {n:'Almonds',m:'165 cal/oz · 6p / 6c / 14f',w:'A handful is medicine; a bag is a meal. Count the handful.'},
- {n:'Walnuts',m:'185 cal/oz · 4p / 4c / 18f',w:'Shaped like the brain, and feeds it — omega-3 in a shell.'},
- {n:'Greek yogurt',m:'130 cal · 17p / 8c / 3f',w:'Living cultures plus protein. Plain, not the sugared kind.'},
- {n:'Blueberries',m:'85 cal/cup · 1p / 21c / 0f',w:'Sweetness the way the earth makes it, wrapped in antioxidants.'},
- {n:'Banana',m:'105 cal · 1p / 27c / 0f',w:'Portable fuel with potassium — best around movement.'},
- {n:'Apple',m:'95 cal · 0p / 25c / 0f',w:'Fiber and water that fill you honestly.'},
- {n:'Beef (lean)',m:'250 cal · 35p / 0c / 12f',w:'Iron, zinc, creatine — strength food, in honest portions.'},
- {n:'Cottage cheese',m:'110 cal · 13p / 4c / 5f',w:'Slow casein protein — feeds muscle through the night.'},
- {n:'Water',m:'0 cal · you are ~60% water',w:'Every trade your body makes — fat for energy, waste for renewal — happens in solution. Skin fullness, joint glide, clear thinking, kidney function: all water-fed. Aim near ⅔ oz per pound of bodyweight daily, more when you sweat. Thirst arrives late; drink ahead of it.'}
+ {n:'Eggs',m:'78 cal · 6p / 0.6c / 5f',w:'A whole protein with every amino acid the body asks for.',volt:'green'},
+ {n:'Salmon',m:'400 cal · 40p / 0c / 26f',w:'Omega-3 fats that feed the brain and calm inflammation.',volt:'green'},
+ {n:'Chicken breast',m:'280 cal · 52p / 0c / 6f',w:'The cleanest protein-per-calorie in the butcher case.',volt:'green'},
+ {n:'Sardines',m:'190 cal · 22p / 0c / 11f',w:'Small fish, low in the food chain, dense in minerals.',volt:'green'},
+ {n:'Lentils',m:'230 cal · 18p / 40c / 1f',w:'Plant protein and slow carbs that hold you for hours.',volt:'green'},
+ {n:'Black beans',m:'220 cal · 15p / 40c / 1f',w:'Fiber that feeds the gut the way it was designed to eat.',volt:'green'},
+ {n:'Oats',m:'300 cal · 10p / 54c / 5f',w:'Slow morning fuel; steadies blood sugar instead of spiking it.',volt:'green'},
+ {n:'Sweet potato',m:'180 cal · 4p / 41c / 0f',w:'Deep carbohydrate with the vitamins still living in it.',volt:'radiant'},
+ {n:'Brown rice',m:'215 cal · 5p / 45c / 2f',w:'The grain with its coat still on — fiber intact.',volt:'green'},
+ {n:'Quinoa',m:'220 cal · 8p / 39c / 4f',w:'A seed that eats like a grain and carries complete protein.',volt:'green'},
+ {n:'Spinach',m:'25 cal · 3p / 4c / 0f',w:'Iron, magnesium, folate — nearly free of calories.',volt:'radiant'},
+ {n:'Broccoli',m:'55 cal · 4p / 11c / 0f',w:'A whole pharmacy in a green head. Eat it often.',volt:'radiant'},
+ {n:'Kale',m:'35 cal · 3p / 6c / 1f',w:'Bitter on purpose — the compounds that protect are the ones you taste.',volt:'radiant'},
+ {n:'Avocado',m:'240 cal · 3p / 12c / 22f',w:'Whole-food fat that carries vitamins into the body.',volt:'radiant'},
+ {n:'Olive oil',m:'120 cal/tbsp · 0p / 0c / 14f',w:'The old-world fat. Dense — measure it, don’t pour it.',volt:'green'},
+ {n:'Almonds',m:'165 cal/oz · 6p / 6c / 14f',w:'A handful is medicine; a bag is a meal. Count the handful.',volt:'green'},
+ {n:'Walnuts',m:'185 cal/oz · 4p / 4c / 18f',w:'Shaped like the brain, and feeds it — omega-3 in a shell.',volt:'green'},
+ {n:'Greek yogurt',m:'130 cal · 17p / 8c / 3f',w:'Living cultures plus protein. Plain, not the sugared kind.',volt:'green'},
+ {n:'Blueberries',m:'85 cal/cup · 1p / 21c / 0f',w:'Sweetness the way the earth makes it, wrapped in antioxidants.',volt:'radiant'},
+ {n:'Banana',m:'105 cal · 1p / 27c / 0f',w:'Portable fuel with potassium — best around movement.',volt:'green'},
+ {n:'Apple',m:'95 cal · 0p / 25c / 0f',w:'Fiber and water that fill you honestly.',volt:'radiant'},
+ {n:'Beef (lean)',m:'250 cal · 35p / 0c / 12f',w:'Iron, zinc, creatine — strength food, in honest portions.',volt:'gold'},
+ {n:'Cottage cheese',m:'110 cal · 13p / 4c / 5f',w:'Slow casein protein — feeds muscle through the night.',volt:'green'},
+ {n:'Water',m:'0 cal · you are ~60% water',w:'Every trade your body makes — fat for energy, waste for renewal — happens in solution. Skin fullness, joint glide, clear thinking, kidney function: all water-fed. Aim near ⅔ oz per pound of bodyweight daily, more when you sweat. Thirst arrives late; drink ahead of it.',volt:'radiant'}
 ];
 
 /* ============ LOCAL ESTIMATOR ============ */
@@ -468,8 +510,10 @@ const FISH_SOUL = 'You are The Fish — the crimson koi who lives inside My Calo
 'PHOTOS: identify each food, speak a RANGE in the reply ("around 700, could be 850 if the kitchen was heavy with oil"), use the middle as the kcal number, and remind them gently that portions and hidden oils blur the lens — the kitchen scale holds the exact truth. Never fake precision. '+
 'If food is vague, estimate a middle value AND ask one short clarifying question — never more than one. Zero-calorie things (water, black coffee, fasting) are free — say so. '+
 'HYDRATION: water is zero calories and tracked separately in ounces; the daily aim is roughly two-thirds of an ounce per pound of bodyweight, more with sweat. It carries skin fullness, joint lubrication, cognition, kidney and digestive function; thirst is a late signal. Encourage drinking ahead of thirst, never as punishment. '+
+'APOTHECARY: supplements are the footnote, food is the text. Only these earn shelf space: creatine monohydrate 3-5g, protein powder as food-gap filler, vitamin D3 1000-2000 IU (blood panel decides the real dose), omega-3 1-2g EPA+DHA, magnesium glycinate 200-400mg, electrolytes on heavy-sweat days, caffeine 100-200mg pre-work. Clean-label laws: single ingredients, third-party tested (NSF Certified for Sport / Informed Sport), never proprietary blends. Everything else — fat burners, detox teas, testosterone boosters — is painted water: say so plainly. Always name the food that beats the pill, and for doses tied to blood levels point to their doctor without being preachy. '+
 'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
-'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
+'THE SPECTRUM OF LIGHT: everything sits on a voltage from radiant (raises the whole system — clean water, living greens, wild plants) through green (clean daily fuel), gold (supports a system under the right conditions), violet (traditional botanicals, long human lineage, honored even where modern data is thin), amber (neutral), to dim (pulls toward the least optimal — heavy, processed). You inform, you never command. Name where something sits and why, name real cautions (medication interactions, blood-test effects) plainly, always name the food or practice that comes first, and leave the choice with the person — the mirror reflects, it does not rule. '+
+    'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
 
 async function askClaude(text,images){
   const context='PERSON: '+JSON.stringify(S.profile)+
@@ -763,13 +807,28 @@ function tick(){
 /* ============ CODEX RENDER ============ */
 (function(){const g=$('codex');
   CODEX.forEach(f=>{const el=document.createElement('div');el.className='food';
-    el.innerHTML=`<div class="fname">${f.n}</div><div class="fmac">${f.m}</div><div class="fwhy">${f.w}</div>`;
+    el.innerHTML=`<span class="volt volt-${f.volt||'amber'}"></span><div class="fname">${f.n}</div><div class="fmac">${f.m}</div><div class="fwhy">${f.w}</div>`;
     el.onclick=()=>{handle('Tell me about '+f.n.toLowerCase()+' — why is it good for me and when should I eat it?');
       document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});};
     g.appendChild(el);});
   const note=document.createElement('div');note.className='codex-note';
   note.textContent='Alive foods only — whole, close to the ground, what’s best for a human. Tap any card and ask the fish about it.';
   g.appendChild(note);
+  const LEGEND=[['radiant','Radiant — lifts the whole system'],['green','Nourishing — clean daily fuel'],['gold','Supports — under the right conditions'],['violet','Traditional — long human lineage'],['amber','Neutral — neither lifts nor dims'],['dim','Dimming — pulls toward least optimal']];
+  const leg=document.createElement('div');leg.className='legend';
+  leg.innerHTML='<div style="width:100%;font-family:IBM Plex Mono,monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--mist);margin-bottom:2px">The Spectrum of Light — you read it, you choose</div>'+
+    LEGEND.map(l=>`<span class="lg"><span class="dot volt-${l[0]}"></span>${l[1]}</span>`).join('');
+  g.appendChild(leg);
+  const a=$('apoth');
+  APOTH.forEach(s=>{const el=document.createElement('div');el.className='food';
+    el.style.borderColor='rgba(232,196,107,.35)';
+    el.innerHTML=`<span class="volt volt-${s.volt||'gold'}"></span>${s.caution?'<span class="caution" title="'+s.caution+'">⚠</span>':''}<div class="fname">${s.n}</div><div class="fmac">${s.d}</div><div class="fwhy">${s.w}</div><div class="fwhy" style="color:var(--gold);opacity:.85">${s.f}</div>${s.caution?'<div class="fwhy" style="color:#FF8A8A;opacity:.85">⚠ '+s.caution+'</div>':''}`;
+    el.onclick=()=>{handle('Tell me the truth about '+s.n.toLowerCase()+' — should I take it, how, and what to look for on a clean label?');
+      document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});};
+    a.appendChild(el);});
+  const anote=document.createElement('div');anote.className='codex-note';
+  anote.textContent=APOTH_LAWS;
+  a.appendChild(anote);
 })();
 
 /* ============ INPUT WIRING ============ */
