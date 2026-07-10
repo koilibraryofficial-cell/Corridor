@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<title>My Caloric Mirror</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,500;0,700;1,300;1,500&family=EB+Garamond:ital@0;1&family=IBM+Plex+Mono:wght@300;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --snow:#0A0E13; --frost:#111823; --glass:rgba(20,28,38,.72);
+    --ice-line:#2A3A4C; --deep:#F0E9D8; --slate:#C9BFA9; --mist:#7E8A96;
+    --ember:#C1121F; --ember-glow:#FF4D5E;
+    --gold:#E8C46B; --aurora1:#E8C46B; --aurora2:#B98A3C;
+    --green:#8FCB9B;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--snow);color:var(--deep);font-family:'EB Garamond',serif;}
+  body{max-width:520px;margin:0 auto;padding-bottom:126px;
+    background:radial-gradient(ellipse at 50% -10%, #17202C 0%, #0A0E13 55%, #070A0E 100%);}
+
+  /* ---------- LINTEL ---------- */
+  .lintel{padding:20px 26px 6px;text-align:center;}
+  .lintel .day{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.4em;
+    text-transform:uppercase;color:var(--mist);margin-bottom:8px;}
+  .lintel .q{font-family:'Cormorant',serif;font-style:italic;font-weight:500;
+    font-size:19px;line-height:1.45;color:var(--slate);}
+
+  /* ---------- POND ---------- */
+  .pond{position:relative;overflow:hidden;margin:12px 12px 0;border-radius:16px;
+    border:1px solid var(--ice-line);
+    box-shadow:0 10px 34px rgba(0,0,0,.55), inset 0 0 46px rgba(232,196,107,.06);}
+  #water{display:block;width:100%;height:265px;}
+  .num-overlay{position:absolute;top:20px;left:0;right:0;text-align:center;pointer-events:none;}
+  .num-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.45em;
+    text-transform:uppercase;color:var(--mist);}
+  #mirrorNumber{font-family:'IBM Plex Mono',monospace;font-weight:300;font-size:42px;
+    color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:.02em;
+    text-shadow:0 0 26px rgba(232,196,107,.45);transition:text-shadow .3s;}
+  #mirrorNumber.moving{text-shadow:0 0 36px rgba(232,196,107,.9);}
+  #targetLine{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate);letter-spacing:.08em;margin-top:4px;}
+  #targetLine b{color:var(--deep);font-weight:500;}
+  .gear,.snd{position:absolute;top:8px;background:var(--glass);backdrop-filter:blur(6px);
+    border:1px solid var(--ice-line);color:var(--slate);font-size:15px;cursor:pointer;
+    border-radius:50%;width:34px;height:34px;z-index:6;}
+  .gear{right:10px;} .snd{right:52px;}
+
+  /* ---------- FISH BUBBLE ---------- */
+  .bubble{position:fixed;left:12px;right:12px;bottom:150px;max-width:496px;margin:0 auto;z-index:30;
+    background:rgba(18,26,36,.92);backdrop-filter:blur(10px);
+    border:1px solid var(--ice-line);border-radius:14px;padding:12px 15px;
+    font-size:15.5px;line-height:1.5;color:var(--deep);
+    box-shadow:0 8px 22px rgba(0,0,0,.5), 0 0 0 1px rgba(232,196,107,.08);display:none;animation:bub .35s;}
+  .bubble.show{display:block;}
+  @keyframes bub{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;}}
+  .bubble::after{content:'';position:absolute;bottom:-8px;left:50%;margin-left:-8px;
+    border:8px solid transparent;border-top-color:rgba(18,26,36,.92);border-bottom:none;}
+  .bubble .chips{margin-top:8px;}
+  .bubble .chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:12px;
+    padding:3px 10px;margin:3px 4px 0 0;border-radius:9px;border:1px solid var(--ice-line);color:var(--slate);background:rgba(10,14,19,.6);}
+  .bubble .chip.in{color:var(--green);border-color:#31543C;}
+  .bubble .chip.out{color:var(--ember-glow);border-color:#5A232B;}
+  .bubble .fine{display:block;margin-top:7px;font-size:12.5px;font-style:italic;color:var(--mist);line-height:1.45;}
+  .bubble .tap{display:inline-block;margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ember);cursor:pointer;
+    border-bottom:1px dashed var(--ember);pointer-events:auto;}
+
+  /* ---------- STRIP ---------- */
+  .strip{display:flex;justify-content:space-around;margin:12px 12px 0;padding:11px 8px;
+    background:var(--glass);backdrop-filter:blur(8px);border:1px solid var(--ice-line);border-radius:14px;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--mist);text-align:center;}
+  .strip b{display:block;font-size:14px;font-weight:500;margin-top:3px;color:var(--deep);}
+  .strip .in b{color:var(--green);} .strip .out b{color:var(--ember);}
+
+  /* ---------- FEED ---------- */
+  .feed{padding:14px 18px 4px;}
+  .msg{margin-bottom:12px;max-width:88%;line-height:1.5;font-size:15.5px;animation:bub .35s;}
+  .msg.me{margin-left:auto;text-align:right;color:var(--deep);font-style:italic;
+    background:rgba(24,34,46,.85);border:1px solid var(--ice-line);border-radius:14px 14px 3px 14px;
+    padding:9px 14px;width:fit-content;}
+  .msg.me img{max-width:130px;border-radius:9px;display:block;margin:4px 0 0 auto;}
+
+  /* ---------- SECTIONS ---------- */
+  .section{margin:14px 12px 0;background:var(--glass);backdrop-filter:blur(8px);
+    border:1px solid var(--ice-line);border-radius:16px;overflow:hidden;}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;}
+  .sec-head h3{font-family:'Cormorant',serif;font-weight:700;font-size:13px;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--slate);}
+  .sec-head .car{color:var(--mist);font-family:'IBM Plex Mono',monospace;transition:transform .3s;}
+  .sec-body{display:none;padding:0 18px 18px;}
+  .section.open .sec-body{display:block;}
+  .section.open .car{transform:rotate(90deg);}
+
+  /* wall */
+  .frame{border-left:3px solid #4A3C22;margin-left:6px;position:relative;}
+  .mark{position:relative;padding:12px 0 12px 22px;}
+  .mark::before{content:'';position:absolute;left:-3px;top:50%;width:24px;height:2px;
+    background:var(--gold);box-shadow:0 0 6px rgba(184,134,11,.35);}
+  .mark .mnum{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--gold);text-shadow:0 0 10px rgba(232,196,107,.3);}
+  .mark .mdate{font-family:'Cormorant',serif;font-style:italic;font-size:13px;color:var(--mist);margin-top:2px;}
+  .mark .mw{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate);}
+  .frame-note{font-size:13px;font-style:italic;color:var(--mist);margin-top:10px;line-height:1.5;}
+
+  /* ladders */
+  .ladder{margin-bottom:15px;}
+  .ladder .lname{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;}
+  .ladder .lname b{color:var(--deep);font-weight:500;}
+  .rail{height:6px;background:rgba(10,14,19,.7);border:1px solid var(--ice-line);position:relative;border-radius:3px;}
+  .rail .fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px;transition:width .8s;
+    background:linear-gradient(to right,var(--ember),#E8963C);}
+  .rungs{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px;letter-spacing:.06em;color:var(--mist);margin-top:4px;text-transform:uppercase;}
+  .lstat{font-size:13px;font-style:italic;color:var(--slate);margin-top:5px;}
+
+  /* codex */
+  .codex-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .food{background:rgba(13,19,27,.85);border:1px solid var(--ice-line);border-radius:12px;padding:11px 12px;cursor:pointer;
+    transition:box-shadow .2s;}
+  .food:active{box-shadow:0 0 0 2px var(--aurora2);}
+  .food .fname{font-family:'Cormorant',serif;font-weight:700;font-size:15px;}
+  .food .fmac{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--slate);margin-top:3px;letter-spacing:.03em;}
+  .food .fwhy{font-size:12px;font-style:italic;color:var(--mist);margin-top:4px;line-height:1.35;}
+  .codex-note{grid-column:1/-1;font-size:13px;font-style:italic;color:var(--mist);line-height:1.5;margin-top:4px;}
+
+  /* ---------- INPUT BAR ---------- */
+  .bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;
+    padding:10px 12px 16px;z-index:20;
+    background:linear-gradient(to top, rgba(7,10,14,.97) 70%, transparent);}
+  .bar-inner{display:flex;gap:8px;align-items:stretch;}
+  #speak{flex:1;background:rgba(16,24,33,.95);border:1px solid var(--ice-line);color:var(--deep);
+    font-family:'EB Garamond',serif;font-size:16px;padding:13px 15px;border-radius:14px;outline:none;
+    box-shadow:0 4px 14px rgba(0,0,0,.4);}
+  #speak::placeholder{color:var(--mist);font-style:italic;}
+  #speak:focus{border-color:var(--aurora2);}
+  .btn{background:rgba(16,24,33,.95);border:1px solid var(--ice-line);color:var(--slate);cursor:pointer;
+    font-size:17px;padding:0 14px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.4);}
+  .btn.mic{background:var(--ember);border-color:var(--ember);color:#fff;font-size:19px;padding:0 17px;}
+  .btn.mic.listening{animation:pulse 1.1s infinite;}
+  @keyframes pulse{50%{box-shadow:0 0 24px rgba(193,18,31,.75);}}
+  #photoIn{display:none;}
+  .hint{text-align:center;font-size:12px;color:var(--mist);font-style:italic;margin-top:7px;}
+
+  /* ---------- SETUP ---------- */
+  .panel{position:fixed;inset:0;background:rgba(7,10,14,.98);backdrop-filter:blur(8px);
+    z-index:50;display:none;overflow-y:auto;padding:34px 26px 60px;}
+  .panel.show{display:block;}
+  .panel h2{font-family:'Cormorant',serif;font-weight:300;font-size:30px;text-align:center;color:var(--deep);}
+  .panel .tag{text-align:center;color:var(--slate);font-style:italic;margin:6px 0 22px;font-size:15px;line-height:1.5;}
+  .field{margin:0 auto 14px;max-width:340px;}
+  .field label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--mist);margin-bottom:6px;}
+  .field input,.field select{width:100%;background:rgba(16,24,33,.95);border:1px solid var(--ice-line);color:var(--deep);
+    font-family:'IBM Plex Mono',monospace;font-size:16px;padding:12px;border-radius:12px;outline:none;}
+  .field input:focus{border-color:var(--aurora2);}
+  .big-btn{display:block;width:100%;max-width:340px;margin:22px auto 0;background:var(--ember);border:none;
+    color:#fff;font-family:'Cormorant',serif;font-weight:700;font-size:17px;letter-spacing:.2em;
+    text-transform:uppercase;padding:15px;cursor:pointer;border-radius:14px;
+    box-shadow:0 8px 22px rgba(193,18,31,.3);}
+  .small-link{display:block;text-align:center;color:var(--slate);font-size:13px;margin-top:15px;cursor:pointer;
+    text-decoration:underline;font-style:italic;background:none;border:none;width:100%;}
+  #mirrorPreview{font-family:'IBM Plex Mono',monospace;color:var(--gold);text-align:center;font-size:20px;margin-top:6px;min-height:26px;}
+  .mid-note{max-width:340px;margin:10px auto 0;font-size:13px;color:var(--mist);font-style:italic;text-align:center;line-height:1.5;}
+
+  /* ---------- TABS ---------- */
+  .tabs{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);width:calc(100% - 24px);
+    max-width:496px;display:flex;gap:6px;z-index:22;}
+  .tab{flex:1;background:rgba(16,24,33,.92);backdrop-filter:blur(8px);border:1px solid var(--ice-line);
+    color:var(--mist);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;padding:10px 0 9px;border-radius:12px;cursor:pointer;text-align:center;}
+  .tab .ic{display:block;font-size:16px;margin-bottom:2px;}
+  .tab.on{color:var(--gold);border-color:rgba(232,196,107,.5);box-shadow:0 0 14px rgba(232,196,107,.15);}
+  .tab.on.food{color:var(--green);border-color:rgba(143,203,155,.5);box-shadow:0 0 14px rgba(143,203,155,.15);}
+  .tab.on.str{color:var(--ember-glow);border-color:rgba(255,77,94,.5);box-shadow:0 0 14px rgba(255,77,94,.18);}
+  .page{display:none;} .page.on{display:block;animation:bub .3s;}
+  body{padding-bottom:176px;}
+
+  /* ---------- RIBBON (fish swims across sub-pages) ---------- */
+  .ribbon-wrap{position:relative;margin:12px 12px 0;border-radius:14px;overflow:hidden;
+    border:1px solid var(--ice-line);}
+  canvas.ribbon{display:block;width:100%;height:86px;}
+  .ribbon-title{position:absolute;top:50%;left:18px;transform:translateY(-50%);
+    font-family:'Cormorant',serif;font-weight:700;font-size:15px;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--slate);text-shadow:0 0 12px rgba(0,0,0,.8);pointer-events:none;}
+
+  /* ---------- QUICK CHIPS ---------- */
+  .quick{display:flex;flex-wrap:wrap;gap:8px;margin:12px 12px 0;}
+  .qchip{background:rgba(16,24,33,.9);border:1px solid var(--ice-line);border-radius:20px;
+    color:var(--slate);font-size:14px;padding:8px 14px;cursor:pointer;font-family:'EB Garamond',serif;
+    transition:transform .1s, box-shadow .2s;}
+  .qchip:active{transform:scale(.94);}
+  .qchip.food:active{box-shadow:0 0 14px rgba(143,203,155,.4);}
+  .qchip.move:active{box-shadow:0 0 14px rgba(255,77,94,.4);}
+  .qchip b{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mist);font-weight:400;margin-left:5px;}
+
+  /* ---------- DAY LIST (interactive entries) ---------- */
+  .daylist{margin:12px 12px 0;background:var(--glass);backdrop-filter:blur(8px);
+    border:1px solid var(--ice-line);border-radius:16px;padding:6px 14px;}
+  .drow{display:flex;align-items:baseline;gap:10px;padding:11px 2px;border-bottom:1px dashed #22303E;font-size:15.5px;}
+  .drow:last-child{border-bottom:none;}
+  .drow .what{flex:1;color:var(--deep);}
+  .drow .kc{font-family:'IBM Plex Mono',monospace;font-size:13px;white-space:nowrap;}
+  .drow .kc.in{color:var(--green);} .drow .kc.out{color:var(--ember-glow);}
+  .drow .x{color:#3A4855;cursor:pointer;font-family:'IBM Plex Mono',monospace;padding:2px 6px;font-size:13px;}
+  .drow .x:active{color:var(--ember-glow);}
+  .dempty{text-align:center;color:var(--mist);font-style:italic;padding:16px 0;font-size:14.5px;}
+
+  /* ---------- GAUGE (food page) ---------- */
+  .gauge{margin:12px 12px 0;background:var(--glass);border:1px solid var(--ice-line);border-radius:16px;padding:14px 16px;}
+  .gauge .glabel{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;
+    font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;}
+  .gauge .glabel b{color:var(--deep);font-weight:500;}
+  .gbar{height:10px;background:rgba(10,14,19,.7);border:1px solid var(--ice-line);border-radius:5px;position:relative;overflow:hidden;}
+  .gbar .gfill{position:absolute;left:0;top:0;bottom:0;border-radius:5px;transition:width .8s;
+    background:linear-gradient(to right,var(--green),#C9E265);}
+  .gbar .gmark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--gold);box-shadow:0 0 8px rgba(232,196,107,.6);}
+  .gnote{font-size:12.5px;font-style:italic;color:var(--mist);margin-top:7px;line-height:1.4;}
+
+  /* ---------- LADDER KOI MARKER ---------- */
+  .rail{overflow:visible;}
+  .rail .swimmer{position:absolute;top:-9px;font-size:15px;transform:translateX(-50%);
+    filter:drop-shadow(0 0 6px rgba(255,77,94,.7));transition:left .8s;}
+
+  /* ---------- TALK LABEL ---------- */
+  .talk-label{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.4em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:6px;animation:glowpulse 3s infinite;}
+  @keyframes glowpulse{50%{opacity:.55;}}
+
+</style>
+</head>
+<body>
+
+<div class="page on" id="pageHome">
+  <div class="lintel">
+    <div class="day" id="dayLabel">MY CALORIC MIRROR</div>
+    <div class="q" id="quote">One rule above all others: honest numbers only.</div>
+  </div>
+  <div class="pond">
+    <button class="snd" id="sndBtn" title="Sound">🕯</button>
+    <button class="gear" id="gearBtn" title="Recalibrate">⚙</button>
+    <canvas id="water"></canvas>
+    <div class="num-overlay">
+      <div class="num-eyebrow">CALORIC UNITS</div>
+      <div id="mirrorNumber">—</div>
+      <div id="targetLine"></div>
+    </div>
+  </div>
+  <div class="strip">
+    <div class="in">In today<b id="sIn">0</b></div>
+    <div class="out">Rest burn<b id="sBasal">0</b></div>
+    <div class="out">Movement<b id="sMove">0</b></div>
+    <div>Net<b id="sNet">0</b></div>
+  </div>
+  <div class="feed" id="feed"></div>
+  <div class="section open" id="wallSec">
+    <div class="sec-head"><h3>The Wall · Marks</h3><span class="car">›</span></div>
+    <div class="sec-body">
+      <div class="frame" id="frame"></div>
+      <div class="frame-note">Each mark is a day you stood at the door and let the mirror measure you. Say “weighed in at 181” any time to draw a new one.</div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="pageFood">
+  <div class="ribbon-wrap"><canvas class="ribbon" id="ribFood"></canvas><div class="ribbon-title">The Table</div></div>
+  <div class="gauge">
+    <div class="glabel"><span>Water risen today</span><b id="gaugeVal">0 in</b></div>
+    <div class="gbar"><div class="gfill" id="gaugeFill"></div><div class="gmark" id="gaugeMark"></div></div>
+    <div class="gnote" id="gaugeNote">The gold line is your resting burn — what your body spends today doing nothing. Rise past it, the mirror climbs; stay under, it sinks.</div>
+    <div class="glabel" style="margin-top:14px"><span>Water — the medium of the mirror</span><b id="hydVal">0 oz</b></div>
+    <div class="gbar"><div class="gfill" id="hydFill" style="background:linear-gradient(to right,#4FA3C7,#7FD4E8)"></div></div>
+    <div class="gnote" id="hydNote"></div>
+  </div>
+  <div class="quick" id="quickFood"></div>
+  <div class="daylist" id="foodList"></div>
+  <div class="section open" id="codexSec">
+    <div class="sec-head"><h3>The Codex · Alive Foods</h3><span class="car">›</span></div>
+    <div class="sec-body"><div class="codex-grid" id="codex"></div></div>
+  </div>
+</div>
+
+<div class="page" id="pageStr">
+  <div class="ribbon-wrap"><canvas class="ribbon" id="ribStr"></canvas><div class="ribbon-title">The Forge</div></div>
+  <div class="quick" id="quickMove"></div>
+  <div class="daylist" id="moveList"></div>
+  <div class="section open" id="ladderSec">
+    <div class="sec-head"><h3>The Ladders · Climb to Elite</h3><span class="car">›</span></div>
+    <div class="sec-body" id="ladders"></div>
+  </div>
+</div>
+
+<div class="bubble" id="bubble"></div>
+
+<div class="tabs">
+  <div class="tab on" data-page="pageHome"><span class="ic">🪞</span>Mirror</div>
+  <div class="tab food" data-page="pageFood"><span class="ic">🍲</span>Food</div>
+  <div class="tab str" data-page="pageStr"><span class="ic">🔥</span>Strength</div>
+</div>
+
+<div class="bar">
+  <div class="talk-label">◈ TALK TO ME — SPEAK · TYPE · SNAP ◈</div>
+  <div class="bar-inner">
+    <button class="btn mic" id="micBtn" title="Hold to speak">🎙</button>
+    <input id="speak" placeholder="Talk to me. Food, movement, questions…" autocomplete="off">
+    <button class="btn" id="camBtn" title="Photo of your plate">📷</button>
+    <button class="btn" id="sendBtn">→</button>
+  </div>
+  <input type="file" id="photoIn" accept="image/*" multiple>
+  <div class="hint">Speak, type, or snap your plate — the fish handles the rest.</div>
+</div>
+
+<!-- SETUP -->
+<div class="panel" id="setup">
+  <h2>My Caloric Mirror</h2>
+  <div class="tag">The first mark on the wall. Weight × 3,500 — your starting truth, not your permanent reality.</div>
+  <div class="field"><label>Current weight (lbs)</label><input id="wIn" type="number" inputmode="decimal"></div>
+  <div class="field"><label>Height (inches)</label><input id="hIn" type="number" inputmode="decimal"></div>
+  <div class="field"><label>Age</label><input id="aIn" type="number" inputmode="numeric"></div>
+  <div class="field"><label>Body</label><select id="sSex"><option value="m">Male</option><option value="f">Female</option></select></div>
+  <div class="field"><label>Target weight (optional — the mirror never requires a line)</label><input id="tIn" type="number" inputmode="decimal" placeholder="leave blank to simply witness"></div>
+  <div class="field"><label>Claude API key (brings the fish alive — stored only in this browser)</label><input id="kIn" type="password" placeholder="sk-ant-…" autocomplete="off"></div>
+  <div id="mirrorPreview"></div>
+  <div class="mid-note">Your resting burn drains the water continuously, in real time — sleep included, never counted twice.</div>
+  <button class="big-btn" id="claimBtn">Claim My Mirror</button>
+  <button class="small-link" id="exportBtn">Export thread token (backup / move devices)</button>
+  <button class="small-link" id="importBtn">Import thread token</button>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const CONFIG={ SCRIPT_URL:"", CAL_PER_LB:3500 };
+
+/* ============ THE 90 QUOTES ============ */
+const QUOTES={"1": "The mirror opens today. So do you...", "2": "You came back. That is the whole victory.", "3": "Three days. The body has started to believe you.", "4": "Clarity is not a feeling. It is a choice you keep making.", "5": "Five days of truth in a world built on comfortable lies.", "6": "The mirror has no mercy and no malice. Only reflection", "7": "Seven days. You made a promise and you kept it.", "8": "The second week belongs to people who survived the first.", "9": "Nine days. Every guess your body used to make, you answered with a number.", "10": "Ten days in. The experiment is over. This is who you are now.", "11": "The body does not reward intention. It rewards action. You acted.", "12": "Twelve days of truth in a body that has waited longer than that to be counted.", "13": "Every day counts the same. The mirror does not grade the effort. Only the number.", "14": "Two weeks. The version of you that almost quit is already gone.", "15": "Halfway through the first month. The mirror has been taking notes.", "16": "Sixteen days of numeric sovereignty. The pattern is undeniable now.", "17": "What the scale measures is weight. What this mirror measures is truth.", "18": "Eighteen days. You are building something that outlasts motivation.", "19": "The body has been keeping score since before you opened this journal. Today you keep score together.", "20": "Twenty days. The quitting window has closed. Something different lives here now.", "21": "Three weeks. The person who started this journal is already different.", "22": "Confusion had a home in you once. You have been evicting it daily.", "23": "Twenty-three days of evidence. The case for your transformation is building.", "24": "The mirror reflects exactly what you give it. Give it your truth.", "25": "Twenty-five days. Quitting is still possible. It just no longer feels like relief.", "26": "Every number you record today is a vote for the person you are becoming.", "27": "Twenty-seven days. The voice that said this would not work has run out of material.", "28": "Four weeks. You did not just lose weight. You built a behavior.", "29": "Twenty-nine days. Tomorrow is not the milestone. Tonight's honest numbers are.", "30": "Thirty days. A behavior built from nothing but the decision to see clearly.", "31": "The second month belongs to you. You earned the right to be here.", "32": "Thirty-two days of truth in a culture that profits from your confusion.", "33": "Every honest entry compounds. Interest accrues. The body pays dividends.", "34": "Thirty-four days. The body has a memory. So does this mirror.", "35": "Five weeks of showing up when no one was watching except the numbers.", "36": "Thirty-six days of choosing clarity over the comfort of not knowing.", "37": "The mirror does not negotiate. Neither do you anymore.", "38": "Thirty-eight days. You have outlasted every version of yourself that quit.", "39": "Thirty-nine days. The person who reaches Day 90 is built right here.", "40": "Forty days. You know what this number means. Let it mean everything.", "41": "Forty-one days of numeric sovereignty. The body bows to consistency.", "42": "Six weeks. Your consistency is no longer a habit. It is your character.", "43": "Forty-three days. Doubt does not disappear. You simply stopped saving it a seat.", "44": "Every day you track is a day confusion does not collect rent from you.", "45": "Forty-five days. Exactly halfway. The mirror has seen every single one.", "46": "The second half begins. You know now what you did not know then.", "47": "Forty-seven days of showing your body that you take it seriously.", "48": "Forty-eight days. The habit is no longer a decision. It is identity.", "49": "Seven weeks. Planning is where most people live. You moved.", "50": "Fifty days. That number does not lie. Neither have you.", "51": "Fifty-one days. The body does not announce its changes. It just makes them. So have you.", "52": "The finish line is now closer than the starting line. Keep moving.", "53": "Fifty-three days. The mirror knows your patterns better than your excuses do.", "54": "Fifty-four days of refusing to let confusion win.", "55": "The body does not forget what you feed it food or truth.", "56": "Eight weeks. You have tracked your body longer than most people ever will.", "57": "Fifty-seven days. The numbers tell a story only you can read.", "58": "Fifty-eight days of showing up. The mirror has not missed a single one.", "59": "Fifty-nine days. Tomorrow is a milestone. Tonight's numbers are what make it true.", "60": "Sixty days. Two months of choosing truth over comfortable blindness.", "61": "The final month opens. Everything you have built leads exactly here.", "62": "Sixty-two days. The mirror has watched you become someone new.", "63": "Nine weeks. You can count the remaining days on two hands. Count them.", "64": "Sixty-four days. You stopped tracking numbers. You started tracking identity.", "65": "Sixty-five days. The clarity you built is already permanent. The body is still catching up.", "66": "Sixty-six days of clarity. The person who started this would not recognize you.", "67": "Every number you recorded was an act of self-respect. Today is no different.", "68": "The mirror has asked only one thing of you honesty. You have delivered.", "69": "Sixty-nine days. The last milestone is not ahead of you. It lives inside the number you write tonight.", "70": "Seventy days. You have earned every single number on every single page.", "71": "Twenty days remain. The finish line is not a hope anymore. It is a fact.", "72": "Seventy-two days. The body knows. The mirror knows. Now you know.", "73": "The habit you built here will outlast this journal. That is the whole point.", "74": "Seventy-four days of choosing to see clearly when blindness would have been easier.", "75": "Seventy-five days. Three quarters complete. The last quarter is already yours.", "76": "The mirror you have built inside yourself cannot be confiscated. It is permanent.", "77": "Eleven weeks. The person who fills in tonight's number is not who picked up this journal. Both deserve to be counted.", "78": "Seventy-eight days. Close enough that the finish line is no longer motivation. It is geography.", "79": "Seventy-nine days of sovereignty. One more and you enter the final ten.", "80": "Eighty days. Ten remain. The person who reaches Day 90 is standing here right now.", "81": "Nine days left. Every entry from here is not a duty. It is a victory lap.", "82": "Eighty-two days of truth. The mirror has never wavered. You never did either.", "83": "You have outlasted confusion, doubt, bad days, and every excuse you ever had.", "84": "Twelve weeks. Seven pages remain. Write every number like it is the last honest thing you will ever say.", "85": "Five days from the finish. The mirror sees someone Day 1 could only hope to become.", "86": "Eighty-six days of numeric sovereignty. The body is the evidence.", "87": "Three days remain. Everything you have ever tracked has been building to this.", "88": "Two more honest entries. The mirror is ready. So are you.", "89": "One day from ninety. You did not come this far to look away now.", "90": "Ninety days. You came here willing to see your truth. You never flinched once."};
+
+/* ============ STORAGE ============ */
+const store=(()=>{let mem={},ok=false;
+  try{localStorage.setItem('__t','1');localStorage.removeItem('__t');ok=true;}catch(e){}
+  return{get:k=>{try{return ok?localStorage.getItem(k):(mem[k]??null);}catch(e){return mem[k]??null;}},
+         set:(k,v)=>{try{if(ok)localStorage.setItem(k,v);}catch(e){} mem[k]=v;}};})();
+
+let S=JSON.parse(store.get('caloricMirror')||'null')||{
+  profile:null,targetW:null,startDate:null,mirrorStart:0,calib:1.0,
+  marks:[],days:{},lifts:{},chat:[],lastGreet:null,toured:false,sound:false
+};
+const save=()=>store.set('caloricMirror',JSON.stringify(S));
+const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const dayIndex=()=>S.startDate?Math.floor((new Date(todayKey())-new Date(S.startDate))/864e5)+1:0;
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const $=id=>document.getElementById(id);
+function bmr(){const p=S.profile,kg=p.w*0.4536,cm=p.h*2.54;
+  return Math.round((10*kg+6.25*cm-5*p.a+(p.s==='m'?5:-161))*S.calib);}
+
+/* ============ MIRROR MATH ============ */
+function dayTotals(key){const d=S.days[key];if(!d)return{inC:0,outMove:0};
+  return{inC:d.in.reduce((a,b)=>a+b.kcal,0),outMove:d.out.reduce((a,b)=>a+b.kcal,0)};}
+function secondsToday(){const n=new Date();return n.getHours()*3600+n.getMinutes()*60+n.getSeconds();}
+function mirrorNow(){
+  if(!S.profile)return 0;
+  const b=bmr(),tk=todayKey();
+  let total=S.mirrorStart;
+  for(const key of Object.keys(S.days).sort()){
+    if(key>=tk)continue;
+    const t=dayTotals(key);total+=t.inC-t.outMove-b;}
+  const elapsed=Math.max(0,Math.round((new Date(tk)-new Date(S.startDate))/864e5));
+  const loggedSealed=Object.keys(S.days).filter(k=>k<tk).length;
+  total-=b*(elapsed-loggedSealed);
+  const t=dayTotals(tk);
+  total+=t.inC-t.outMove-b*(secondsToday()/86400);
+  return Math.max(0,total);
+}
+function witnessedCount(){return Object.values(S.days).filter(d=>d.in.length||d.out.length).length;}
+
+/* ============ LADDERS ============ */
+const LADDERS={
+  bench:{name:'Bench Press',rungs:[0.75,1.25,1.75,2.0],re:/bench/},
+  squat:{name:'Squat',rungs:[1.25,1.75,2.25,2.75],re:/back squat|front squat|squat.*(lb|pound|\dx|\d+ for)/},
+  deadlift:{name:'Deadlift',rungs:[1.5,2.0,2.5,3.25],re:/dead.?lift/},
+  ohp:{name:'Overhead Press',rungs:[0.55,0.8,1.05,1.3],re:/overhead|ohp|shoulder press|military press/},
+  pullups:{name:'Pull-ups',rungs:[5,12,20,30],reps:true,re:/max pull|pull.?ups?.*(max|straight|set of)/}
+};
+const RUNG_NAMES=['Novice','Inter','Adv','Elite'];
+const epley=(w,r)=>r>1?w*(1+r/30):w;
+
+/* ============ CODEX — ALIVE FOODS ============ */
+const CODEX=[
+ {n:'Eggs',m:'78 cal · 6p / 0.6c / 5f',w:'A whole protein with every amino acid the body asks for.'},
+ {n:'Salmon',m:'400 cal · 40p / 0c / 26f',w:'Omega-3 fats that feed the brain and calm inflammation.'},
+ {n:'Chicken breast',m:'280 cal · 52p / 0c / 6f',w:'The cleanest protein-per-calorie in the butcher case.'},
+ {n:'Sardines',m:'190 cal · 22p / 0c / 11f',w:'Small fish, low in the food chain, dense in minerals.'},
+ {n:'Lentils',m:'230 cal · 18p / 40c / 1f',w:'Plant protein and slow carbs that hold you for hours.'},
+ {n:'Black beans',m:'220 cal · 15p / 40c / 1f',w:'Fiber that feeds the gut the way it was designed to eat.'},
+ {n:'Oats',m:'300 cal · 10p / 54c / 5f',w:'Slow morning fuel; steadies blood sugar instead of spiking it.'},
+ {n:'Sweet potato',m:'180 cal · 4p / 41c / 0f',w:'Deep carbohydrate with the vitamins still living in it.'},
+ {n:'Brown rice',m:'215 cal · 5p / 45c / 2f',w:'The grain with its coat still on — fiber intact.'},
+ {n:'Quinoa',m:'220 cal · 8p / 39c / 4f',w:'A seed that eats like a grain and carries complete protein.'},
+ {n:'Spinach',m:'25 cal · 3p / 4c / 0f',w:'Iron, magnesium, folate — nearly free of calories.'},
+ {n:'Broccoli',m:'55 cal · 4p / 11c / 0f',w:'A whole pharmacy in a green head. Eat it often.'},
+ {n:'Kale',m:'35 cal · 3p / 6c / 1f',w:'Bitter on purpose — the compounds that protect are the ones you taste.'},
+ {n:'Avocado',m:'240 cal · 3p / 12c / 22f',w:'Whole-food fat that carries vitamins into the body.'},
+ {n:'Olive oil',m:'120 cal/tbsp · 0p / 0c / 14f',w:'The old-world fat. Dense — measure it, don’t pour it.'},
+ {n:'Almonds',m:'165 cal/oz · 6p / 6c / 14f',w:'A handful is medicine; a bag is a meal. Count the handful.'},
+ {n:'Walnuts',m:'185 cal/oz · 4p / 4c / 18f',w:'Shaped like the brain, and feeds it — omega-3 in a shell.'},
+ {n:'Greek yogurt',m:'130 cal · 17p / 8c / 3f',w:'Living cultures plus protein. Plain, not the sugared kind.'},
+ {n:'Blueberries',m:'85 cal/cup · 1p / 21c / 0f',w:'Sweetness the way the earth makes it, wrapped in antioxidants.'},
+ {n:'Banana',m:'105 cal · 1p / 27c / 0f',w:'Portable fuel with potassium — best around movement.'},
+ {n:'Apple',m:'95 cal · 0p / 25c / 0f',w:'Fiber and water that fill you honestly.'},
+ {n:'Beef (lean)',m:'250 cal · 35p / 0c / 12f',w:'Iron, zinc, creatine — strength food, in honest portions.'},
+ {n:'Cottage cheese',m:'110 cal · 13p / 4c / 5f',w:'Slow casein protein — feeds muscle through the night.'},
+ {n:'Water',m:'0 cal · you are ~60% water',w:'Every trade your body makes — fat for energy, waste for renewal — happens in solution. Skin fullness, joint glide, clear thinking, kidney function: all water-fed. Aim near ⅔ oz per pound of bodyweight daily, more when you sweat. Thirst arrives late; drink ahead of it.'}
+];
+
+/* ============ LOCAL ESTIMATOR ============ */
+const MOVES=[
+ {re:/push.?ups?/,perRep:0.36,name:'Push-ups'},{re:/pull.?ups?/,perRep:1.0,name:'Pull-ups'},
+ {re:/squats?(?!.*\d+\s*(lb|pound))/,perRep:0.32,name:'Squats (bodyweight)'},
+ {re:/burpees?/,perRep:1.4,name:'Burpees'},{re:/sit.?ups?|crunch/,perRep:0.25,name:'Sit-ups'},
+ {re:/lunges?/,perRep:0.3,name:'Lunges'},{re:/jumping jacks?/,perRep:0.2,name:'Jumping jacks'},
+ {re:/\brun|jog|miles?\b/,met:9.8,name:'Run'},{re:/walk|hik/,met:3.8,name:'Walk'},
+ {re:/bik|cycl/,met:7.5,name:'Cycling'},{re:/swim/,met:7.0,name:'Swim'},
+ {re:/yoga|stretch/,met:2.8,name:'Yoga / stretch'},
+ {re:/massage|bodywork|deep tissue/,met:4.0,name:'Bodywork session'},
+ {re:/lift|weights|bench|dead.?lift|press|dumbbell|barbell/,met:5.0,name:'Lifting'},
+ {re:/clean(ed|ing)? (the )?(house|room)/,met:3.3,name:'Cleaning'},
+ {re:/dr(ove|iving|ive)/,met:1.3,name:'Driving'},{re:/plank/,met:3.5,name:'Plank'}
+];
+const FOODS=[
+ {re:/chipotle|burrito bowl/,kcal:900,name:'Chipotle bowl'},{re:/burrito/,kcal:1000,name:'Burrito'},
+ {re:/turkey sandwich/,kcal:450,name:'Turkey sandwich'},{re:/sandwich/,kcal:450,name:'Sandwich'},
+ {re:/banana/,kcal:105,name:'Banana'},{re:/apple/,kcal:95,name:'Apple'},
+ {re:/eggs?\b/,each:78,name:'Egg'},{re:/chicken breast|grilled chicken/,kcal:280,name:'Chicken breast'},
+ {re:/rice/,kcal:210,name:'Rice (cup)'},{re:/oatmeal|oats/,kcal:300,name:'Oatmeal'},
+ {re:/protein shake|shake/,kcal:250,name:'Protein shake'},{re:/salad/,kcal:350,name:'Salad'},
+ {re:/pizza/,each:285,name:'Pizza slice'},{re:/coffee/,kcal:5,name:'Coffee (black)'},
+ {re:/smoothie/,kcal:320,name:'Smoothie'},{re:/\bwater\b|fast(ed|ing)?/,kcal:0,name:'Water / fasting'},
+ {re:/steak/,kcal:600,name:'Steak'},{re:/salmon/,kcal:400,name:'Salmon'}
+];
+function localEstimate(text){
+  const t=text.toLowerCase();
+  const num=(t.match(/(\d+(?:\.\d+)?)/)||[])[1];const n=num?parseFloat(num):null;
+  const mins=/min|minute/.test(t)?n:(/hour|hr/.test(t)?n*60:null);
+  const miles=/mile/.test(t)?n:null;
+  for(const m of MOVES){if(m.re.test(t)){
+    let kcal,extra='';const kg=(S.profile?.w||170)*0.4536;
+    if(m.perRep&&n&&!mins)kcal=Math.round(m.perRep*n);
+    else if(miles&&/run|jog|mile/.test(t))kcal=Math.round(0.63*(S.profile?.w||170)*miles);
+    else{const hrs=(mins||30)/60;kcal=Math.round(((m.met||5)-1)*kg*hrs);extra=mins?'':' (~30 min assumed)';}
+    return{type:'out',name:m.name+(n?` · ${n}${mins?' min':miles?' mi':''}`:'')+extra,kcal:Math.max(0,kcal)};}}
+  for(const f of FOODS){if(f.re.test(t)){
+    const kcal=f.each?Math.round(f.each*(n||1)):f.kcal;
+    return{type:'in',name:f.name+(f.each&&n?` × ${n}`:''),kcal};}}
+  if(n&&/cal/.test(t))return{type:/burn|work|train/.test(t)?'out':'in',name:text,kcal:Math.round(n)};
+  return null;
+}
+
+/* ============ CLAUDE — the fish's living mind ============ */
+const FISH_SOUL = 'You are The Fish — the crimson koi who lives inside My Caloric Mirror, a 90-day numeric truth practice by Mecca Tymes, part of the Kingdom of Inner Light. You are a legendary personal trainer and a warm daily companion; you build a real relationship across the 90 days, remembering what they tell you and guiding them through the journal. '+
+'You obey Four Laws: (1) The mirror reflects what it is given — honest numbers, never invented ones. (2) Calories IN and OUT are separate truths. (3) Inside the mirror no one can fail; only see clearly or look away. (4) The mirror is not the judge — never shame, never moralize food, never praise weight loss itself; praise honesty and showing up. '+
+'VOICE: warm, brief, a little playful, plain enough for a child. One to three short sentences. No bullet points, no exclamation-mark pileups. '+
+'JOB: parse what they ate or did into calorie estimates. For movement, count ONLY calories above resting burn (basal is tracked separately — driving 45 min is roughly 10-15 above rest; say small truths plainly). Use their bodyweight. Close and consistent beats falsely precise. '+
+'PHOTOS: identify each food, speak a RANGE in the reply ("around 700, could be 850 if the kitchen was heavy with oil"), use the middle as the kcal number, and remind them gently that portions and hidden oils blur the lens — the kitchen scale holds the exact truth. Never fake precision. '+
+'If food is vague, estimate a middle value AND ask one short clarifying question — never more than one. Zero-calorie things (water, black coffee, fasting) are free — say so. '+
+'HYDRATION: water is zero calories and tracked separately in ounces; the daily aim is roughly two-thirds of an ounce per pound of bodyweight, more with sweat. It carries skin fullness, joint lubrication, cognition, kidney and digestive function; thirst is a late signal. Encourage drinking ahead of thirst, never as punishment. '+
+'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
+'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
+
+async function askClaude(text,images){
+  const context='PERSON: '+JSON.stringify(S.profile)+
+    (S.targetW?' | their chosen line: '+S.targetW+' lbs':' | witnessing only, no target line')+
+    ' | day '+dayIndex()+' of 90 | metabolic calibration ×'+S.calib+
+    ' | today so far: '+JSON.stringify(S.days[todayKey()]||{in:[],out:[]})+
+    ' | strength records: '+JSON.stringify(S.lifts)+
+    ' | recent conversation: '+JSON.stringify(S.chat.slice(-12));
+  const content=[];
+  (images||[]).slice(0,4).forEach(img=>content.push({type:'image',
+    source:{type:'base64',media_type:img.media_type||'image/jpeg',data:img.data}}));
+  content.push({type:'text',text:context+'\n\nTHEY SAID: "'+text+'"'});
+
+  // Door 1 — direct: your key, your browser, nothing in between
+  if(S.apiKey){
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':S.apiKey,
+          'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:FISH_SOUL,
+          messages:[{role:'user',content}]})});
+      const body=await res.json();
+      if(body.error){fishNote('The key was refused: '+(body.error.message||'check it in ⚙').slice(0,120));return null;}
+      let t=(body.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
+      t=t.replace(/```json|```/g,'').trim();
+      try{return JSON.parse(t);}catch(e){return{reply:t,items:[]};}
+    }catch(e){return null;}
+  }
+  // Door 2 — Apps Script pipe (if configured)
+  if(CONFIG.SCRIPT_URL){
+    try{
+      const res=await fetch(CONFIG.SCRIPT_URL,{method:'POST',redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({mode:'waiter',text,images:images||[],
+          profile:S.profile,targetW:S.targetW,day:dayIndex(),calib:S.calib,
+          today:S.days[todayKey()]||{in:[],out:[]},lifts:S.lifts,chat:S.chat.slice(-10)})});
+      return await res.json();
+    }catch(e){return null;}
+  }
+  return null;
+}
+let fishNoteMsg=null; function fishNote(m){fishNoteMsg=m;}
+
+/* ============ SOUND ENGINE (❄ toggles) ============ */
+let AC=null,streamGain=null;
+function initAudio(){
+  if(AC)return;
+  AC=new (window.AudioContext||window.webkitAudioContext)();
+  const len=AC.sampleRate*2,buf=AC.createBuffer(1,len,AC.sampleRate),d=buf.getChannelData(0);
+  for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
+  const src=AC.createBufferSource();src.buffer=buf;src.loop=true;
+  const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=480;
+  streamGain=AC.createGain();streamGain.gain.value=0;
+  const lfo=AC.createOscillator(),lg=AC.createGain();
+  lfo.frequency.value=0.13;lg.gain.value=40;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();
+  src.connect(lp);lp.connect(streamGain);streamGain.connect(AC.destination);src.start();
+}
+function setStream(on){if(!AC)return;streamGain.gain.linearRampToValueAtTime(on?0.045:0,AC.currentTime+1.2);}
+function tone(freq,dur,vol,type){
+  if(!S.sound||!AC)return;
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(vol,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+dur);
+  o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+dur);
+}
+const chimeRise=()=>{tone(1180,0.9,0.08);tone(1560,0.7,0.045);};
+const toneFall=()=>tone(238,0.8,0.09,'triangle');
+const bellMark=()=>{tone(520,1.6,0.1);tone(782,1.4,0.06);};
+$('sndBtn').onclick=()=>{
+  initAudio();AC.resume();
+  S.sound=!S.sound;save();
+  $('sndBtn').textContent=S.sound?'🔊':'🕯';
+  setStream(S.sound);
+  if(S.sound)chimeRise();
+};
+
+/* ============ THE FISH SPEAKS ============ */
+let bubbleT=null,typeT=null;
+function fishSay(html,chips,fine,hold){
+  const b=$('bubble');clearTimeout(bubbleT);clearInterval(typeT);
+  b.classList.add('show');b.innerHTML='';
+  const span=document.createElement('span');b.appendChild(span);
+  const plain=html;let i=0;
+  typeT=setInterval(()=>{i+=3;span.innerHTML=plain.slice(0,i);
+    if(i>=plain.length){clearInterval(typeT);
+      if(chips&&chips.length){const c=document.createElement('div');c.className='chips';
+        c.innerHTML=chips.map(x=>`<span class="chip ${x.t}">${x.t==='in'?'+':'−'}${fmt(x.kcal)} · ${x.name}</span>`).join('');
+        b.appendChild(c);}
+      if(fine){const f=document.createElement('span');f.className='fine';f.innerHTML=fine;b.appendChild(f);}
+    }},16);
+  attention=1;
+  if(!hold)bubbleT=setTimeout(()=>b.classList.remove('show'),14000);
+  S.chat.push({who:'fish',text:html.replace(/<[^>]+>/g,'').slice(0,300)});S.chat=S.chat.slice(-24);save();
+}
+function fishAsk(){
+  const t=dayTotals(todayKey());const h=new Date().getHours();
+  const daysSince=S.marks.length?Math.round((new Date(todayKey())-new Date(S.marks[S.marks.length-1].date))/864e5):0;
+  if(daysSince>=30)return 'It’s been thirty days since your last mark. Step on a scale when you can and tell me — “weighed in at 181.” I recalibrate to your body, not the other way around.';
+  if(t.inC===0&&h<12)return 'Eaten yet? Just name it — “two eggs and toast” is plenty. Close is good enough.';
+  if(t.inC===0)return 'What’ve you eaten today? Say it plain and watch the water move.';
+  if(t.outMove===0&&h>=10)return 'Moved your body at all? Everything counts — a walk to the store counts.';
+  if(h>=19)return 'Anything I didn’t see today? Snacks, drinks, late bites. That’s the whole practice.';
+  return 'I’m here. Food, movement, or any question about either — just talk.';
+}
+
+/* first-visit tour — the fish explains everything */
+const TOUR=[
+ 'Hey. I’m your guy. 🐟 I live in this water, and I only do one thing: reflect the truth.',
+ 'That big number up there? That’s <b>you</b>, measured in calories. Your weight × 3,500. It moves in real time — watch it.',
+ 'Tell me what you <b>eat</b>, the water rises. Tell me how you <b>move</b>, it falls. Your body burns some just resting — I count that automatically, every second.',
+ 'You can’t fail in here. Bad day, big meal, whatever — you only win by <b>telling me the truth</b>. That’s the whole game.',
+ 'I get bigger and brighter every day you show up. Ninety days of honesty and I become a dragon. Ready? Let’s put your first mark on the wall.'
+];
+function runTour(){
+  let i=0;
+  const step=()=>{
+    if(i>=TOUR.length){S.toured=true;save();$('setup').classList.add('show');return;}
+    fishSay(TOUR[i]+ (i<TOUR.length-1?'':''),null,null,true);
+    const b=$('bubble');
+    setTimeout(()=>{const t=document.createElement('span');t.className='tap';
+      t.textContent=i<TOUR.length-1?'next ›':'let’s begin ›';
+      t.onclick=()=>{i++;step();};b.appendChild(t);},TOUR[i].length*6+300);
+  };
+  step();
+}
+
+/* idle nudges — the fish taps the glass */
+let attention=1,lastAct=Date.now();
+['click','keydown','touchstart'].forEach(ev=>addEventListener(ev,()=>lastAct=Date.now()));
+setInterval(()=>{
+  if(!S.profile||document.hidden)return;
+  if(Date.now()-lastAct>50000&&!$('bubble').classList.contains('show')){
+    attention=1;
+    const nudges=['Psst. Still here. '+fishAsk(),'Come talk to me — anything you ate or did. I’ll do the math.','The water’s been quiet. What did I miss?'];
+    fishSay(nudges[Math.floor(Math.random()*nudges.length)]);
+    lastAct=Date.now();
+  }
+},15000);
+
+function greetIfNewDay(){
+  const tk=todayKey();
+  if(!S.profile||S.lastGreet===tk)return;
+  S.lastGreet=tk;save();
+  const d=Math.min(dayIndex(),90);
+  fishSay(`Day ${dayIndex()}. <i>${QUOTES[String(d)]||QUOTES['90']}</i><br><br>${fishAsk()}`);
+}
+
+/* ============ HANDLE INPUT ============ */
+function addMe(text,imgSrcs){
+  const feed=$('feed');const m=document.createElement('div');m.className='msg me';
+  m.innerHTML=text+(imgSrcs||[]).map(s=>`<img src="${s}">`).join('');
+  feed.appendChild(m);m.scrollIntoView({behavior:'smooth',block:'end'});
+  S.chat.push({who:'me',text:text.slice(0,300)});S.chat=S.chat.slice(-24);save();
+}
+function teachLine(item){
+  if(item.kcal===0)return 'Zero. Free. Always.';
+  if(item.type==='in')return 'The water rose. No judgment — a reflection.';
+  if(item.kcal<40)return 'Small and real. It counts — everything above your resting burn counts.';
+  if(item.kcal>400)return 'The current felt that. Honor the machine tonight.';
+  return 'Witnessed. I’m holding it.';
+}
+const HONESTY='Estimates are close, not gospel — portions and hidden oils blur the lens. If you want the exact truth, the kitchen scale is right there. I enhance the seeing; you stay the instrument.';
+
+async function handle(text,images,imgSrcs){
+  text=(text||'').trim();
+  if(!text&&!(images&&images.length))return;
+  addMe(text||'📷',imgSrcs);
+  const wm=text.toLowerCase().match(/weigh(?:ed)?(?:\s*in)?\s*(?:at)?\s*(\d{2,3}(?:\.\d+)?)/);
+  if(wm){weighIn(parseFloat(wm[1]));return;}
+  const wat=text.toLowerCase().match(/(?:drank|had|drinking)?\s*(?:a\s+)?(?:(\d+(?:\.\d+)?)\s*(oz|ounces?|liters?|l\b|cups?|bottles?|glass(?:es)?)\s+(?:of\s+)?)?water(?!melon)/);
+  if(wat&&/water(?!melon)/.test(text.toLowerCase())&&!/with water|water the/.test(text.toLowerCase())){
+    let oz=16;
+    if(wat[1]){const n=parseFloat(wat[1]),u=wat[2]||'';
+      oz=/l/.test(u)&&!/glass|bottle/.test(u)?Math.round(n*33.8):/cup/.test(u)?n*8:/bottle/.test(u)?n*16.9:/glass/.test(u)?n*8:n;}
+    logWater(Math.round(oz));return;}
+  const lift=detectLift(text);
+  fishSay('…reading the water…',null,null,true);
+  const claude=await askClaude(text,images);
+  if(fishNoteMsg){fishSay(fishNoteMsg);fishNoteMsg=null;return;}
+  let items=[],reply='';
+  if(claude&&claude.items){items=claude.items;reply=claude.reply||'';}
+  else if(images&&images.length&&!S.apiKey&&!CONFIG.SCRIPT_URL){
+    fishSay('My eyes aren’t open yet — drop your Claude API key in ⚙ and I can read plates, answer anything, and coach you through all ninety days. Tell me in words for now and I’ve got you.');return;}
+  else{const it=localEstimate(text);if(it)items=[it];}
+  if(!items.length&&!lift){
+    if(claude&&claude.reply){fishSay(claude.reply+'<br><br>'+fishAsk());return;}
+    fishSay('I couldn’t read that one'+((S.apiKey||CONFIG.SCRIPT_URL)?'':' — my full mind isn’t connected yet (add a Claude API key in ⚙ and I can understand anything)')+'. Name the food or the movement, or give me the number straight: “pasta, 600 calories.”');return;}
+  const tk=todayKey();
+  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  const chips=[];
+  for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal});
+    chips.push({...it,t:it.type});}
+  if(lift)applyLift(lift);
+  save();renderAll();pulse();burst=1;
+  if(items.some(i=>i.type==='in'&&i.kcal>0))chimeRise();
+  if(items.some(i=>i.type==='out'&&i.kcal>0))toneFall();
+  const fine=(images&&images.length)||items.some(i=>/~|about|assumed|est/.test(i.name))?HONESTY:null;
+  fishSay((reply||teachLine(items[0]))+(lift?' '+lift.line:''),chips,fine);
+}
+
+function detectLift(text){
+  const t=text.toLowerCase();
+  const m=t.match(/(\d{2,3})\s*(?:lbs?|pounds?)?\s*(?:for|x|×)\s*(\d{1,2})/);
+  for(const key in LADDERS){const L=LADDERS[key];
+    if(L.re.test(t)){
+      if(L.reps){const r=(t.match(/(\d{1,2})/)||[])[1];if(r)return mkLift(key,parseInt(r),true);continue;}
+      if(m)return mkLift(key,epley(parseFloat(m[1]),parseInt(m[2])),false);}}
+  return null;
+}
+function mkLift(key,e1rm,isReps){
+  const L=LADDERS[key],bw=S.profile.w;
+  const val=isReps?e1rm:e1rm/bw;
+  const elite=L.rungs[3],pct=Math.min(100,Math.round(val/elite*100));
+  const prev=S.lifts[key]?.val||0;
+  const line=val>prev
+    ?`New mark on the ${L.name} ladder — ${isReps?Math.round(e1rm)+' reps':'est. 1RM '+Math.round(e1rm)+' lb'} · ${pct}% of the climb to Elite.`
+    :`${L.name} witnessed — your best mark stands at ${pct}% toward Elite.`;
+  return{key,val:Math.max(val,prev),e1rm:Math.round(e1rm),line};
+}
+function applyLift(l){S.lifts[l.key]={val:l.val,e1rm:l.e1rm,when:todayKey()};}
+
+/* ============ WEIGH-IN ============ */
+function weighIn(w){
+  const last=S.marks[S.marks.length-1];
+  const now=mirrorNow();
+  const newMirror=Math.round(w*CONFIG.CAL_PER_LB);
+  let calibLine='';
+  if(last){
+    const predictedShed=last.mirror-now;
+    const actualShed=(last.weight-w)*CONFIG.CAL_PER_LB;
+    if(Math.abs(predictedShed)>3000){
+      const f=Math.min(1.5,Math.max(0.5,actualShed/predictedShed));
+      S.calib=Math.round((S.calib*0.5+f*0.5)*100)/100;
+      calibLine=`<br><br>I predicted ${fmt(predictedShed)} shed; your body says ${fmt(actualShed)}. Calibration is now ×${S.calib} — I just learned your metabolism a little better.`;}}
+  S.marks.push({date:todayKey(),weight:w,mirror:newMirror});
+  S.mirrorStart=newMirror;S.days={};S.profile.w=w;save();renderAll();bellMark();
+  fishSay(`A new mark on the wall — <b style="font-family:'IBM Plex Mono',monospace;color:var(--gold)">${fmt(newMirror)}</b> at ${w} lbs. Stand here a moment. This is where you stood, ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.${calibLine}`);
+}
+
+/* ============ RENDER ============ */
+let displayed=null,pulseT=0,burst=0;
+function pulse(){$('mirrorNumber').classList.add('moving');clearTimeout(pulseT);
+  pulseT=setTimeout(()=>$('mirrorNumber').classList.remove('moving'),1200);}
+function renderAll(){
+  if(!S.profile){if(!S.toured)return;$('setup').classList.add('show');return;}
+  $('setup').classList.remove('show');
+  $('dayLabel').textContent='DAY '+dayIndex()+' · MY CALORIC MIRROR';
+  const d=Math.min(Math.max(dayIndex(),1),90);
+  $('quote').textContent=QUOTES[String(d)]||'The mirror is open beyond ninety. You know the way now.';
+  if(S.targetW){
+    const line=Math.round(S.targetW*CONFIG.CAL_PER_LB),gap=Math.round(mirrorNow()-line);
+    $('targetLine').innerHTML=Math.abs(gap)<3500
+      ?'harbor · holding at your line of <b>'+fmt(line)+'</b>'
+      :'your line: <b>'+fmt(line)+'</b> · '+fmt(Math.abs(gap))+' units '+(gap>0?'above':'below');
+  }else $('targetLine').textContent='witnessing — no line required';
+  const t=dayTotals(todayKey()),b=bmr()*(secondsToday()/86400);
+  $('sIn').textContent='+'+fmt(t.inC);$('sBasal').textContent='−'+fmt(b);
+  $('sMove').textContent='−'+fmt(t.outMove);
+  const net=t.inC-t.outMove-b;$('sNet').textContent=(net>0?'+':'−')+fmt(Math.abs(net));
+  const fr=$('frame');fr.innerHTML='';
+  [...S.marks].reverse().forEach(m=>{
+    const el=document.createElement('div');el.className='mark';
+    el.innerHTML=`<div class="mnum">${fmt(m.mirror)}</div><div class="mw">${m.weight} lbs</div>
+      <div class="mdate">${new Date(m.date+'T12:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>`;
+    fr.appendChild(el);});
+  const lad=$('ladders');lad.innerHTML='';
+  for(const key in LADDERS){const L=LADDERS[key],rec=S.lifts[key];
+    const bw=S.profile.w,elite=L.rungs[3];
+    const val=rec?rec.val:0,pct=Math.min(100,val/elite*100);
+    const el=document.createElement('div');el.className='ladder';
+    el.innerHTML=`<div class="lname"><span>${L.name}</span><b>${rec?(L.reps?rec.e1rm+' reps':rec.e1rm+' lb e1RM'):'unwitnessed'}</b></div>
+      <div class="rail"><div class="fill" style="width:${pct}%"></div><span class="swimmer" style="left:${Math.max(2,pct)}%">🐟</span></div>
+      <div class="rungs">${L.rungs.map((r,i)=>`<span>${RUNG_NAMES[i]}<br>${L.reps?r:Math.round(r*bw)}</span>`).join('')}</div>
+      <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
+    lad.appendChild(el);}
+  renderLists();renderGauge();
+}
+function tick(){
+  if(S.profile){
+    const target=mirrorNow();
+    if(displayed===null)displayed=target;
+    const diff=target-displayed;
+    if(Math.abs(diff)>0.5){displayed+=diff*0.08;pulse();}else displayed=target;
+    $('mirrorNumber').textContent=fmt(displayed);}
+  requestAnimationFrame(tick);
+}
+
+/* ============ CODEX RENDER ============ */
+(function(){const g=$('codex');
+  CODEX.forEach(f=>{const el=document.createElement('div');el.className='food';
+    el.innerHTML=`<div class="fname">${f.n}</div><div class="fmac">${f.m}</div><div class="fwhy">${f.w}</div>`;
+    el.onclick=()=>{handle('Tell me about '+f.n.toLowerCase()+' — why is it good for me and when should I eat it?');
+      window.scrollTo({top:0,behavior:'smooth'});};
+    g.appendChild(el);});
+  const note=document.createElement('div');note.className='codex-note';
+  note.textContent='Alive foods only — whole, close to the ground, what’s best for a human. Tap any card and ask the fish about it.';
+  g.appendChild(note);
+})();
+
+/* ============ INPUT WIRING ============ */
+$('sendBtn').onclick=()=>{handle($('speak').value);$('speak').value='';};
+$('speak').addEventListener('keydown',e=>{if(e.key==='Enter'){handle($('speak').value);$('speak').value='';}});
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){const rec=new SR();rec.lang='en-US';
+  $('micBtn').onclick=()=>{initAudio();$('micBtn').classList.add('listening');
+    try{rec.start();}catch(e){}};
+  rec.onresult=e=>{handle(e.results[0][0].transcript);};
+  rec.onend=()=>$('micBtn').classList.remove('listening');
+  rec.onerror=e=>{$('micBtn').classList.remove('listening');
+    if(e.error==='not-allowed')fishSay('The microphone is blocked here. In a preview window that’s normal — on your own site, the browser will ask permission and I’ll hear you fine. Type to me for now.');};
+}else{$('micBtn').onclick=()=>fishSay('This browser doesn’t carry a voice line — but typing works everywhere.');}
+$('camBtn').onclick=()=>$('photoIn').click();
+$('photoIn').addEventListener('change',async e=>{
+  const files=[...e.target.files].slice(0,4);if(!files.length)return;
+  const images=[],srcs=[];
+  for(const f of files){
+    const data=await shrink(f);images.push(data);srcs.push('data:image/jpeg;base64,'+data.data);}
+  handle($('speak').value||'What’s on this plate?',images,srcs);
+  $('speak').value='';e.target.value='';
+});
+function shrink(file){return new Promise(res=>{
+  const img=new Image();img.onload=()=>{
+    const max=900,r=Math.min(1,max/Math.max(img.width,img.height));
+    const c=document.createElement('canvas');c.width=img.width*r;c.height=img.height*r;
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    res({media_type:'image/jpeg',data:c.toDataURL('image/jpeg',0.8).split(',')[1]});};
+  img.src=URL.createObjectURL(file);});}
+document.querySelectorAll('.sec-head').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));
+
+/* ============ SETUP ============ */
+function previewMirror(){const w=parseFloat($('wIn').value);
+  $('mirrorPreview').textContent=w?'Mirror ID #'+fmt(w*CONFIG.CAL_PER_LB):'';}
+['wIn','hIn','aIn'].forEach(id=>$(id).addEventListener('input',previewMirror));
+$('claimBtn').onclick=()=>{
+  const p={w:parseFloat($('wIn').value),h:parseFloat($('hIn').value),a:parseInt($('aIn').value),s:$('sSex').value};
+  if(!p.w||!p.h||!p.a){$('mirrorPreview').textContent='All three numbers required — the mirror reflects what you give it.';return;}
+  const first=!S.profile;
+  S.profile=p;S.targetW=parseFloat($('tIn').value)||S.targetW||null;
+  const k=$('kIn').value.trim(); if(k) S.apiKey=k;
+  if(first){S.startDate=todayKey();S.mirrorStart=Math.round(p.w*CONFIG.CAL_PER_LB);
+    S.marks.push({date:todayKey(),weight:p.w,mirror:S.mirrorStart});}
+  save();renderAll();bellMark();
+  if(first)fishSay(`There it is — your first mark: <b style="font-family:'IBM Plex Mono',monospace;color:var(--gold)">${fmt(S.mirrorStart)}</b>. Your starting truth, not your permanent reality. Now — ${fishAsk()}`);
+};
+$('gearBtn').onclick=()=>{const p=S.profile;
+  if(p){$('wIn').value=p.w;$('hIn').value=p.h;$('aIn').value=p.a;$('sSex').value=p.s;
+    if(S.targetW)$('tIn').value=S.targetW;
+    if(S.apiKey)$('kIn').value=S.apiKey;previewMirror();}
+  $('setup').classList.add('show');};
+$('exportBtn').onclick=()=>{prompt('Your thread token — copy it somewhere safe. Paste on any device to restore.',
+  btoa(unescape(encodeURIComponent(JSON.stringify(S)))));};
+$('importBtn').onclick=()=>{const t=prompt('Paste your thread token:');if(!t)return;
+  try{S=JSON.parse(decodeURIComponent(escape(atob(t.trim()))));save();displayed=null;renderAll();greetIfNewDay();}
+  catch(e){alert('That token did not open. Check it and try again.');}};
+
+/* ============ SNOW POND CANVAS ============ */
+const cv=$('water'),cx=cv.getContext('2d');
+function sizeCanvas(){cv.width=cv.clientWidth*devicePixelRatio;cv.height=265*devicePixelRatio;
+  cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);}
+addEventListener('resize',sizeCanvas);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const flakes=Array.from({length:38},()=>({x:Math.random(),y:Math.random(),r:0.7+Math.random()*1.8,s:0.15+Math.random()*0.35,d:Math.random()*6.28}));
+function drawPond(ts){
+  const W=cv.clientWidth,H=265,time=ts/1000;
+  cx.clearRect(0,0,W,H);
+  const g=cx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#131C28');g.addColorStop(0.5,'#0E141D');g.addColorStop(1,'#090D12');
+  cx.fillStyle=g;cx.fillRect(0,0,W,H);
+  // torchlight breathing across the water
+  const au=cx.createRadialGradient(W/2,-40,20,W/2,-40,W*0.9);
+  au.addColorStop(0,'rgba(232,196,107,'+(0.10+Math.sin(time*0.6)*0.03)+')');
+  au.addColorStop(1,'rgba(232,196,107,0)');
+  cx.fillStyle=au;cx.fillRect(0,0,W,H);
+  // current lines
+  cx.strokeStyle='rgba(126,138,150,.14)';cx.lineWidth=1;
+  for(let i=0;i<5;i++){const y=52+i*42,off=((time*18)+(i*60))%(W+120)-60;
+    cx.beginPath();for(let x=-60;x<W+60;x+=8)cx.lineTo(x,y+Math.sin((x+off)/38+i)*4);cx.stroke();}
+  // koi — the ember
+  const prog=Math.min(1,witnessedCount()/90);
+  const scale=0.85+prog*0.7;
+  const attnBoost=attention>0? attention*0.35:0;
+  const cxr=W/2+Math.sin(time*(0.5+attnBoost))*W*0.18;
+  const cyr=H*0.60+Math.sin(time*0.9)*14;
+  const wig=a=>Math.sin(time*(3.4+attnBoost*2)+a)*(6+prog*4);
+  cx.save();cx.translate(cxr,cyr);cx.scale(scale,scale);cx.rotate(Math.sin(time*0.5)*0.12);
+  const glow=burst>0?burst:(0.4+prog*0.4+attnBoost);
+  cx.shadowColor='#FF5A3C';cx.shadowBlur=18+glow*30;
+  cx.fillStyle='#C1121F';cx.beginPath();cx.moveTo(38,0);
+  cx.quadraticCurveTo(20,-14,-8,-10+wig(0)*.2);cx.quadraticCurveTo(-26,-6+wig(1)*.4,-34,wig(2)*.6);
+  cx.quadraticCurveTo(-26,6+wig(1)*.4,-8,10+wig(0)*.2);cx.quadraticCurveTo(20,14,38,0);cx.fill();
+  cx.beginPath();cx.moveTo(-32,wig(2)*.6);
+  cx.quadraticCurveTo(-48,-14+wig(3),-56,-8+wig(3));cx.quadraticCurveTo(-46,wig(3)*.5,-56,10+wig(3));
+  cx.quadraticCurveTo(-48,14+wig(3),-32,wig(2)*.6);cx.fillStyle='rgba(193,18,31,.85)';cx.fill();
+  cx.shadowBlur=0;cx.fillStyle='rgba(255,255,255,'+(0.5+prog*0.4)+')';
+  cx.beginPath();cx.ellipse(12,-2,9,5.5,.3,0,7);cx.fill();
+  cx.fillStyle='#0A0E13';cx.beginPath();cx.arc(30,-3,2.4,0,7);cx.fill();
+  cx.fillStyle='rgba(255,90,60,.55)';
+  cx.beginPath();cx.ellipse(8,12,10,4,.7+Math.sin(time*3)*.2,0,7);cx.fill();
+  cx.beginPath();cx.ellipse(8,-12,10,4,-.7-Math.sin(time*3)*.2,0,7);cx.fill();
+  cx.restore();
+  // golden motes rising like torch embers
+  for(const f of flakes){
+    f.y-=f.s/265;f.x+=Math.sin(time+f.d)*0.0004;
+    if(f.y<-0.02){f.y=1.02;f.x=Math.random();}
+    cx.fillStyle='rgba(232,196,107,'+(0.25+0.35*Math.abs(Math.sin(time+f.d)))+')';
+    cx.beginPath();cx.arc(f.x*W,f.y*H,f.r*0.8,0,7);cx.fill();}
+  // dragon-gate shimmer
+  if(witnessedCount()>=70){cx.fillStyle='rgba(232,180,80,'+(0.2+Math.sin(time*2)*.1)+')';cx.fillRect(W-7,0,3,H);}
+  if(burst>0)burst=Math.max(0,burst-0.015);
+  if(attention>0)attention=Math.max(0,attention-0.003);
+  if(!reduce)requestAnimationFrame(drawPond);
+}
+
+
+
+/* ============ HYDRATION ============ */
+function waterGoal(){return S.profile?Math.round(S.profile.w*0.66):100;} // ~2/3 oz per lb
+function logWater(oz){
+  const tk=todayKey();
+  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  S.days[tk].water=(S.days[tk].water||0)+oz;
+  save();renderAll();chimeRise();
+  const tot=S.days[tk].water,goal=waterGoal();
+  fishSay(tot>=goal
+    ? 'That’s '+tot+' oz — you’ve crossed your '+goal+' oz mark for the day. The whole machine runs cleaner like this: skin, joints, thinking, kidneys.'
+    : '+'+oz+' oz. '+tot+' of '+goal+' oz today. Zero calories, and every trade your body makes happens in this water.');
+}
+
+/* ============ TABS ============ */
+let activeTab='pageHome';
+const PLACEHOLDERS={pageHome:'Talk to me. Food, movement, questions…',
+  pageFood:'What did you eat? “two eggs and toast”…',
+  pageStr:'Your sets — “benched 185 for 8” · “ran 2 miles”…'};
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');activeTab=t.dataset.page;
+  $(activeTab).classList.add('on');
+  $('speak').placeholder=PLACEHOLDERS[activeTab];
+  renderAll();
+});
+
+/* ============ QUICK CHIPS — one-tap truth ============ */
+const QUICK_FOOD=[
+  {n:'Water · 16 oz',k:0,water:16},{n:'Black coffee',k:5},{n:'Two eggs',k:156},{n:'Protein shake',k:250},
+  {n:'Oatmeal',k:300},{n:'Salad',k:350},{n:'Banana',k:105},{n:'Chicken breast',k:280}];
+const QUICK_MOVE=[
+  {n:'Walk · 30 min',k:null,txt:'walked 30 minutes'},{n:'Run · 2 mi',k:null,txt:'ran 2 miles'},
+  {n:'Push-ups · 25',k:null,txt:'25 push-ups'},{n:'Lifting · 45 min',k:null,txt:'lifted weights 45 minutes'},
+  {n:'Yoga · 20 min',k:null,txt:'yoga 20 minutes'},{n:'Bodywork session',k:null,txt:'massage bodywork 60 minutes'}];
+(function(){
+  const qf=$('quickFood');
+  QUICK_FOOD.forEach(q=>{const c=document.createElement('div');c.className='qchip food';
+    c.innerHTML=q.n+'<b>'+(q.k===0?'free':'+'+q.k)+'</b>';
+    c.onclick=()=>{if(q.water){logWater(q.water);}else{logDirect({type:'in',name:q.n,kcal:q.k});}};qf.appendChild(c);});
+  const qm=$('quickMove');
+  QUICK_MOVE.forEach(q=>{const c=document.createElement('div');c.className='qchip move';
+    c.textContent=q.n;
+    c.onclick=()=>{handle(q.txt);};qm.appendChild(c);});
+})();
+function logDirect(item){
+  const tk=todayKey();
+  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal});
+  save();renderAll();pulse();burst=1;
+  if(item.type==='in'&&item.kcal>0)chimeRise();else if(item.type==='out')toneFall();
+  fishSay(teachLine(item),[{...item,t:item.type}]);
+}
+
+/* ============ DAY LISTS (tap ✕ to unsay it) ============ */
+function renderLists(){
+  const d=S.days[todayKey()]||{in:[],out:[]};
+  const build=(el,arr,t,empty)=>{
+    el.innerHTML='';
+    if(!arr.length){el.innerHTML='<div class="dempty">'+empty+'</div>';return;}
+    arr.forEach((e,i)=>{
+      const r=document.createElement('div');r.className='drow';
+      r.innerHTML=`<span class="what">${e.name}</span><span class="kc ${t}">${t==='in'?'+':'−'}${fmt(e.kcal)}</span><span class="x">✕</span>`;
+      r.querySelector('.x').onclick=()=>{arr.splice(i,1);save();renderAll();
+        fishSay('Unsaid. The mirror only holds what you stand behind.');};
+      el.appendChild(r);});
+  };
+  if($('foodList'))build($('foodList'),d.in,'in','Nothing on the table yet. Tap a chip, speak it, or snap the plate.');
+  if($('moveList'))build($('moveList'),d.out,'out','The forge is cold. Tap a chip or tell me your sets.');
+}
+
+/* ============ FOOD GAUGE ============ */
+function renderGauge(){
+  if(!S.profile||!$('gaugeFill'))return;
+  const t=dayTotals(todayKey()),b=bmr();
+  const max=Math.max(b*1.6,t.inC*1.1,1);
+  $('gaugeFill').style.width=Math.min(100,t.inC/max*100)+'%';
+  $('gaugeMark').style.left=Math.min(98,b/max*100)+'%';
+  $('gaugeVal').textContent='+'+fmt(t.inC)+' in';
+  const diff=t.inC-b-t.outMove;
+  $('gaugeNote').textContent= t.inC===0
+    ? 'The gold line is your resting burn — what your body spends today doing nothing.'
+    : diff>0 ? 'You are '+fmt(diff)+' above today’s burn so far — the mirror is rising. A fact, not a verdict.'
+    : 'You are '+fmt(-diff)+' under today’s burn so far — the mirror is sinking. A fact, not a verdict.';
+  const w=(S.days[todayKey()]||{}).water||0,goal=waterGoal();
+  $('hydVal').textContent=w+' / '+goal+' oz';
+  $('hydFill').style.width=Math.min(100,w/goal*100)+'%';
+  $('hydNote').textContent= w>=goal
+    ? 'Crossed. Skin, joints, thinking, kidneys — the whole machine runs in this.'
+    : 'Your body is ~60% water — about ⅔ oz per pound daily keeps every system fed. Say “drank 16 oz water” or tap the chip.';
+}
+
+/* ============ RIBBON FISH (gold table koi · white-hot forge koi) ============ */
+const ribbons=[{id:'ribFood',color:'#E8C46B',glow:'#FFDf8A',bg0:'#141A12',bg1:'#0B0F0A'},
+               {id:'ribStr',color:'#FF4D2A',glow:'#FFB36B',bg0:'#1C1210',bg1:'#0F0908'}];
+ribbons.forEach(r=>{const c=$(r.id);if(!c)return;
+  c.width=c.clientWidth*devicePixelRatio||500;c.height=86*devicePixelRatio;});
+function drawRibbons(ts){
+  const time=ts/1000;
+  for(const r of ribbons){
+    const c=$(r.id);if(!c)continue;
+    const page=c.closest('.page');if(!page.classList.contains('on'))continue;
+    if(c.width!==c.clientWidth*devicePixelRatio){c.width=c.clientWidth*devicePixelRatio;c.height=86*devicePixelRatio;}
+    const x=c.getContext('2d');x.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    const W=c.clientWidth,H=86;
+    const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,r.bg0);g.addColorStop(1,r.bg1);
+    x.fillStyle=g;x.fillRect(0,0,W,H);
+    x.strokeStyle='rgba(126,138,150,.12)';
+    for(let i=0;i<2;i++){const y=28+i*30,off=((time*16)+(i*60))%(W+120)-60;
+      x.beginPath();for(let px=-60;px<W+60;px+=8)x.lineTo(px,y+Math.sin((px+off)/38+i)*3);x.stroke();}
+    const fx=((time*46)%(W+140))-70, fy=H/2+Math.sin(time*2)*9;
+    const wig=a=>Math.sin(time*4+a)*5;
+    x.save();x.translate(fx,fy);x.scale(0.62,0.62);
+    x.shadowColor=r.glow;x.shadowBlur=22;
+    x.fillStyle=r.color;x.beginPath();x.moveTo(38,0);
+    x.quadraticCurveTo(20,-14,-8,-10+wig(0)*.2);x.quadraticCurveTo(-26,-6+wig(1)*.4,-34,wig(2)*.6);
+    x.quadraticCurveTo(-26,6+wig(1)*.4,-8,10+wig(0)*.2);x.quadraticCurveTo(20,14,38,0);x.fill();
+    x.beginPath();x.moveTo(-32,wig(2)*.6);
+    x.quadraticCurveTo(-48,-14+wig(3),-56,-8+wig(3));x.quadraticCurveTo(-46,wig(3)*.5,-56,10+wig(3));
+    x.quadraticCurveTo(-48,14+wig(3),-32,wig(2)*.6);x.globalAlpha=.85;x.fill();x.globalAlpha=1;
+    x.shadowBlur=0;x.fillStyle='#0A0E13';x.beginPath();x.arc(30,-3,2.4,0,7);x.fill();
+    x.restore();
+  }
+  requestAnimationFrame(drawRibbons);
+}
+requestAnimationFrame(drawRibbons);
+
+/* ============ BOOT ============ */
+sizeCanvas();renderAll();
+requestAnimationFrame(tick);requestAnimationFrame(drawPond);
+if(!S.profile&&!S.toured)runTour();
+else if(!S.profile)$('setup').classList.add('show');
+else greetIfNewDay();
+setInterval(()=>{renderAll();greetIfNewDay();},60000);
+$('sndBtn').textContent=S.sound?'🔊':'🕯';
+</script>
+</body>
+</html>
