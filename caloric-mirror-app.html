@@ -16,9 +16,10 @@
     --green:#8FCB9B;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{background:var(--snow);color:var(--deep);font-family:'EB Garamond',serif;}
-  body{max-width:520px;margin:0 auto;padding-bottom:126px;
-    background:radial-gradient(ellipse at 50% -10%, #17202C 0%, #0A0E13 55%, #070A0E 100%);}
+  html,body{height:100%;overflow:hidden;background:var(--snow);color:var(--deep);font-family:'EB Garamond',serif;}
+  body{background:radial-gradient(ellipse at 50% -10%, #17202C 0%, #0A0E13 55%, #070A0E 100%);}
+  #app{position:relative;height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column;}
+  #scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:24px;}
 
   /* ---------- LINTEL ---------- */
   .lintel{padding:20px 26px 6px;text-align:center;}
@@ -47,7 +48,7 @@
   .gear{right:10px;} .snd{right:52px;}
 
   /* ---------- FISH BUBBLE ---------- */
-  .bubble{position:fixed;left:12px;right:12px;bottom:158px;max-width:496px;margin:0 auto;z-index:30;max-height:38vh;overflow-y:auto;
+  .bubble{position:absolute;left:12px;right:12px;bottom:152px;z-index:30;max-height:45%;overflow-y:auto;
     background:rgba(18,26,36,.92);backdrop-filter:blur(10px);
     border:1px solid var(--ice-line);border-radius:14px;padding:12px 15px;
     font-size:15.5px;line-height:1.5;color:var(--deep);
@@ -142,8 +143,8 @@
   .hint{text-align:center;font-size:11.5px;color:#5A6570;font-style:italic;margin-top:6px;}
 
   /* ---------- SETUP ---------- */
-  .panel{position:fixed;inset:0;background:rgba(7,10,14,.98);backdrop-filter:blur(8px);
-    z-index:50;display:none;overflow-y:auto;padding:34px 26px 60px;}
+  .panel{position:absolute;inset:0;background:rgba(7,10,14,.98);backdrop-filter:blur(8px);
+    z-index:50;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:34px 26px 60px;}
   .panel.show{display:block;}
   .panel h2{font-family:'Cormorant',serif;font-weight:300;font-size:30px;text-align:center;color:var(--deep);}
   .panel .tag{text-align:center;color:var(--slate);font-style:italic;margin:6px 0 22px;font-size:15px;line-height:1.5;}
@@ -163,8 +164,8 @@
   .mid-note{max-width:340px;margin:10px auto 0;font-size:13px;color:var(--mist);font-style:italic;text-align:center;line-height:1.5;}
 
   /* ---------- DOCK (tabs + talk, one unit) ---------- */
-  .dock{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;
-    z-index:20;background:linear-gradient(to top, #070A0E 82%, rgba(7,10,14,0));
+  .dock{flex-shrink:0;width:100%;z-index:20;background:#070A0E;
+    border-top:1px solid #17222E;
     padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));}
   .tabs{display:flex;gap:6px;margin-bottom:8px;}
   .tab{flex:1;background:rgba(16,24,33,.92);border:1px solid var(--ice-line);
@@ -175,7 +176,6 @@
   .tab.on.food{color:var(--green);border-color:rgba(143,203,155,.5);box-shadow:0 0 14px rgba(143,203,155,.15);}
   .tab.on.str{color:var(--ember-glow);border-color:rgba(255,77,94,.5);box-shadow:0 0 14px rgba(255,77,94,.18);}
   .page{display:none;} .page.on{display:block;animation:bub .3s;}
-  body{padding-bottom:190px;}
 
   /* ---------- RIBBON (fish swims across sub-pages) ---------- */
   .ribbon-wrap{position:relative;margin:12px 12px 0;border-radius:14px;overflow:hidden;
@@ -231,6 +231,8 @@
 </style>
 </head>
 <body>
+<div id="app">
+<div id="scroll">
 
 <div class="page on" id="pageHome">
   <div class="lintel">
@@ -291,6 +293,8 @@
   </div>
 </div>
 
+</div><!-- /scroll -->
+
 <div class="bubble" id="bubble"></div>
 
 <div class="dock">
@@ -307,7 +311,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Speak, type, or snap your plate — the fish handles the rest.</div>
+    <div class="hint">Speak, type, or snap your plate — the fish handles the rest. · v8</div>
   </div>
 </div>
 
@@ -327,6 +331,7 @@
   <button class="small-link" id="exportBtn">Export thread token (backup / move devices)</button>
   <button class="small-link" id="importBtn">Import thread token</button>
 </div>
+</div><!-- /app -->
 
 <script>
 /* ============ CONFIG ============ */
@@ -619,7 +624,7 @@ function greetIfNewDay(){
 function addMe(text,imgSrcs){
   const feed=$('feed');const m=document.createElement('div');m.className='msg me';
   m.innerHTML=text+(imgSrcs||[]).map(s=>`<img src="${s}">`).join('');
-  feed.appendChild(m);m.scrollIntoView({behavior:'smooth',block:'end'});
+  feed.appendChild(m);const sc=document.getElementById('scroll');sc.scrollTop=sc.scrollHeight;
   S.chat.push({who:'me',text:text.slice(0,300)});S.chat=S.chat.slice(-24);save();
 }
 function teachLine(item){
@@ -760,7 +765,7 @@ function tick(){
   CODEX.forEach(f=>{const el=document.createElement('div');el.className='food';
     el.innerHTML=`<div class="fname">${f.n}</div><div class="fmac">${f.m}</div><div class="fwhy">${f.w}</div>`;
     el.onclick=()=>{handle('Tell me about '+f.n.toLowerCase()+' — why is it good for me and when should I eat it?');
-      window.scrollTo({top:0,behavior:'smooth'});};
+      document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});};
     g.appendChild(el);});
   const note=document.createElement('div');note.className='codex-note';
   note.textContent='Alive foods only — whole, close to the ground, what’s best for a human. Tap any card and ask the fish about it.';
