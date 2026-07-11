@@ -473,6 +473,17 @@
     <button id="dayNext">›</button>
   </div>
   <div class="daysum" id="daySum"></div>
+  <div style="display:flex;gap:8px;margin:10px 12px 0">
+    <button class="btn" id="bookBtn" style="flex:1;padding:11px 0;font-family:'Cormorant',serif;font-weight:700;letter-spacing:.18em;font-size:13px;text-transform:uppercase;color:var(--gold)">📖 Book Page</button>
+    <button class="btn" id="analyzeBtn" style="flex:1;padding:11px 0;font-family:'Cormorant',serif;font-weight:700;letter-spacing:.18em;font-size:13px;text-transform:uppercase;color:var(--ember-glow)">📊 Full Analysis</button>
+  </div>
+  <div class="section" id="bookSec" style="display:none">
+    <div class="sec-head"><h3>The Page · Copy Into The Book</h3><span class="car">›</span></div>
+    <div class="sec-body">
+      <pre id="bookPage" style="white-space:pre-wrap;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:var(--deep);background:rgba(10,14,19,.6);border:1px solid var(--ice-line);border-radius:12px;padding:14px"></pre>
+      <button class="btn" id="copyBook" style="width:100%;margin-top:10px;padding:12px 0;color:var(--gold)">Copy the page</button>
+    </div>
+  </div>
   <div class="section open">
     <div class="sec-head"><h3>The Path · Everything, In Time</h3><span class="car">›</span></div>
     <div class="sec-body"><div id="pathDay"></div></div>
@@ -489,6 +500,7 @@
     <div class="tab food" data-page="pageFood"><span class="ic">🍲</span>Food</div>
     <div class="tab str" data-page="pageStr"><span class="ic">🔥</span>Strength</div>
     <div class="tab pth" data-page="pagePath"><span class="ic">📜</span>Path</div>
+    <div class="tab" id="chatBtn" style="flex:0 0 52px"><span class="ic">💬</span>KOI</div>
   </div>
   <div class="bar">
     <div class="bar-inner">
@@ -498,7 +510,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v18</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v19</div>
   </div>
 </div>
 
@@ -954,7 +966,7 @@ function greetIfNewDay(){
 
 /* ============ KOI EXPLAINS HIMSELF ON REQUEST ============ */
 function koiHelp(){
-  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Ask me anything. I reflect; you choose.',null,null,true);
+  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. On the Path tab, <b>📖 Book Page</b> formats any day exactly for copying into the paper journal. Ask me anything. I reflect; you choose.',null,null,true);
 }
 
 /* ============ HANDLE INPUT ============ */
@@ -979,6 +991,7 @@ async function handle(text,images,imgSrcs){
   addMe(text||'📷',imgSrcs);
   const tl=text.toLowerCase();
   if(/^(help|what can you do|who are you|how do (i|you) work|what do you do|guide me)\b/.test(tl)){koiHelp();return;}
+  if(/analy[sz]|full report|how am i doing|read the mirror/.test(tl)){koiAnalyze();return;}
   const wm=text.toLowerCase().match(/weigh(?:ed)?(?:\s*in)?\s*(?:at)?\s*(\d{2,3}(?:\.\d+)?)/);
   if(wm){weighIn(parseFloat(wm[1]));return;}
   const wat=text.toLowerCase().match(/(?:drank|had|drinking)?\s*(?:a\s+)?(?:(\d+(?:\.\d+)?)\s*(oz|ounces?|liters?|l\b|cups?|bottles?|glass(?:es)?)\s+(?:of\s+)?)?water(?!melon)/);
@@ -1777,6 +1790,100 @@ function renderSchedule(){
 }
 $('dayPrev').onclick=()=>{pathOffset--;renderSchedule();};
 $('dayNext').onclick=()=>{if(pathOffset<0){pathOffset++;renderSchedule();}};
+
+
+/* ============ THE CONVERSATION, ANYWHERE ============ */
+$('chatBtn').onclick=()=>{
+  const b=$('bubble');
+  if(b.classList.contains('show')){b.classList.remove('show');return;}
+  clearTimeout(bubbleT);clearInterval(typeT);
+  b.classList.add('show');b.innerHTML='';
+  const head=document.createElement('div');
+  head.style.cssText="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:8px";
+  head.textContent='THE CONVERSATION · KOI REMEMBERS';b.appendChild(head);
+  if(!S.chat.length){const e=document.createElement('div');e.style.cssText='font-style:italic;color:var(--mist)';e.textContent='Nothing yet — speak below and it begins.';b.appendChild(e);}
+  S.chat.slice(-12).forEach(c=>{
+    const m=document.createElement('div');
+    m.style.cssText='margin-bottom:9px;font-size:14.5px;line-height:1.45;'+(c.who==='me'?'text-align:right;color:var(--deep);font-style:italic':'color:#C9BFAC');
+    m.innerHTML=(c.who==='me'?'':'<span style="font-family:IBM Plex Mono,monospace;font-size:8.5px;letter-spacing:.3em;color:var(--gold)">KOI </span>')+c.text;
+    b.appendChild(m);});
+  const xb=document.createElement('span');xb.className='bclose';xb.textContent='✕';
+  xb.onclick=()=>b.classList.remove('show');b.appendChild(xb);
+  b.scrollTop=b.scrollHeight;
+};
+
+
+/* ============ THE BOOK PAGE — formatted to copy into the paper journal ============ */
+function mirrorAtClose(key){ // total after the given day seals
+  if(!S.profile)return 0;
+  const b=bmr(); let total=S.mirrorStart;
+  const start=new Date(S.startDate), endD=new Date(key);
+  for(let d=new Date(start); d<=endD; d.setDate(d.getDate()+1)){
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const t=dayTotals(k);
+    total += t.inC - t.outMove - b;
+  }
+  return Math.max(0,Math.round(total));
+}
+function buildBookPage(){
+  const key=pathKey(); const d=S.days[key]||{in:[],out:[]};
+  const dayN=Math.max(1,Math.floor((new Date(key)-new Date(S.startDate))/864e5)+1);
+  const q=QUOTES[String(Math.min(dayN,90))]||'';
+  const b=bmr(); const t=dayTotals(key);
+  const prevKey=(()=>{const p=new Date(key);p.setDate(p.getDate()-1);
+    return p.getFullYear()+'-'+String(p.getMonth()+1).padStart(2,'0')+'-'+String(p.getDate()).padStart(2,'0');})();
+  const yTotal = dayN===1? S.mirrorStart : mirrorAtClose(prevKey);
+  const newTotal = mirrorAtClose(key);
+  const net=t.inC-b-t.outMove;
+  const inLines=(d.in||[]).map(e=>'  '+clockOf(e.t)+'  '+e.name+'  +'+fmt(e.kcal)).join('\n')||'  —';
+  const outLines=(d.out||[]).map(e=>'  '+clockOf(e.t)+'  '+e.name+'  −'+fmt(e.kcal)).join('\n')||'  —';
+  const water=d.water?('WATER: '+d.water+' oz\n'):'';
+  return 'MY CALORIC MIRROR — Day '+dayN+' of 90\n'
+    +'Date: '+new Date(key+'T12:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'\n'
+    +'“'+q+'”\n\n'
+    +'YESTERDAY’S TOTAL: '+fmt(yTotal)+'\n\n'
+    +'CALORIES IN\n'+inLines+'\n  TOTAL IN: +'+fmt(t.inC)+'\n\n'
+    +'CALORIES OUT\n  Basal burn (rest): −'+fmt(b)+'\n'+outLines+'\n  TOTAL OUT: −'+fmt(b+t.outMove)+'\n\n'
+    +water
+    +'NET: '+(net>0?'+':'')+fmt(net)+'\n'
+    +'NEW MIRROR TOTAL: '+fmt(newTotal)+'\n\n'
+    +'REFLECTION:\n  ____________________________________\n  ____________________________________';
+}
+$('bookBtn').onclick=()=>{
+  const sec=$('bookSec');
+  $('bookPage').textContent=buildBookPage();
+  sec.style.display = sec.style.display==='none'?'block':'none';
+  sec.classList.add('open');
+};
+$('copyBook').onclick=()=>{
+  const txt=$('bookPage').textContent;
+  const done=()=>fishSay('The page is copied — carry it into the paper book. Ink is the oldest mirror there is.');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>{fallbackCopy(txt);done();});}
+  else{fallbackCopy(txt);done();}
+};
+function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}ta.remove();}
+
+/* ============ FULL ANALYSIS — KOI reads the whole mirror ============ */
+async function koiAnalyze(){
+  const key=pathKey(); const t=dayTotals(key); const d=S.days[key]||{};
+  const b=bmr(); const pl=S.plan||localPlan();
+  const eff=muscleEffort(); const TH=forgeThreshold();
+  const lit=FORGE_GROUPS.filter(g=>(eff[g]||0)>=TH).length;
+  const shed=S.mirrorStart-mirrorNow();
+  const prot=((d.in)||[]).reduce((a,x)=>a+(x.p||0),0);
+  const facts={day:dayIndex(),mirrorStart:S.mirrorStart,now:Math.round(mirrorNow()),shed:Math.round(shed),
+    lbsShed:(shed/CONFIG.CAL_PER_LB).toFixed(1),targetLine:S.targetW?Math.round(S.targetW*CONFIG.CAL_PER_LB):null,
+    today:{in:t.inC,basal:b,move:t.outMove,water:d.water||0,protein:prot},
+    marks:pl,forge:lit+'/'+FORGE_GROUPS.length,witnessed:witnessedCount(),lifts:S.lifts,goal:S.goalText||null};
+  fishSay('…reading the whole mirror…',null,null,true);
+  const claude=await askClaude('Give me your FULL ANALYSIS. Facts: '+JSON.stringify(facts)+
+    ' — Cover: (1) the arc since Day 1 in units and pounds, (2) today against each mark with exact numbers, (3) the forge and what is cold, (4) water and protein gaps, (5) the three most important moves for tomorrow, in your drill-fire voice. 5-7 sentences, no lists.');
+  if(claude&&claude.reply){fishSay(claude.reply,null,null,true);return;}
+  // honest local fallback
+  const gapC=pl.calTarget-t.inC, gapW=pl.waterOz-(d.water||0), gapP=pl.proteinTarget-prot;
+  fishSay('Day '+facts.day+'. You started at '+fmt(facts.mirrorStart)+' and stand at '+fmt(facts.now)+' — '+fmt(facts.shed)+' units ('+facts.lbsShed+' lb) witnessed into the record. Today: '+fmt(t.inC)+' in against a '+fmt(pl.calTarget)+' mark ('+(gapC>0?fmt(gapC)+' left':'over by '+fmt(-gapC))+'), '+(d.water||0)+' of '+pl.waterOz+' oz water, '+prot+' of '+pl.proteinTarget+'g protein known. The forge: '+facts.forge+' burning. '+(gapW>0?'Water first — '+gapW+' oz behind. ':'')+(gapP>0?'Protein next — '+gapP+'g short. ':'')+'Tomorrow: hit the water early, front-load protein, and light what stayed cold today.',null,null,true);
+}
+$('analyzeBtn').onclick=koiAnalyze;
 
 /* ============ BOOT ============ */
 sizeCanvas();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();
