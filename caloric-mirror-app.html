@@ -48,15 +48,14 @@
   .gear{right:10px;} .snd{right:52px;}
 
   /* ---------- FISH BUBBLE ---------- */
-  .bubble{position:absolute;left:12px;right:12px;bottom:152px;z-index:30;max-height:45%;overflow-y:auto;
+  .bubble{position:relative;margin:0 0 8px;max-height:32vh;overflow-y:auto;
     background:rgba(18,26,36,.92);backdrop-filter:blur(10px);
     border:1px solid var(--ice-line);border-radius:14px;padding:12px 15px;
     font-size:15.5px;line-height:1.5;color:var(--deep);
     box-shadow:0 8px 22px rgba(0,0,0,.5), 0 0 0 1px rgba(232,196,107,.08);display:none;animation:bub .35s;}
   .bubble.show{display:block;}
   @keyframes bub{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;}}
-  .bubble::after{content:'';position:absolute;bottom:-8px;left:50%;margin-left:-8px;
-    border:8px solid transparent;border-top-color:rgba(18,26,36,.92);border-bottom:none;}
+  
   .bubble .chips{margin-top:8px;}
   .bubble .chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:12px;
     padding:3px 10px;margin:3px 4px 0 0;border-radius:9px;border:1px solid var(--ice-line);color:var(--slate);background:rgba(10,14,19,.6);}
@@ -339,6 +338,11 @@
   .bstat{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate);text-align:center;margin-top:8px;}
   .bstat b{color:var(--ember-glow);}
 
+
+  .food .fx{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8FCB9B;
+    margin-top:5px;letter-spacing:.02em;line-height:1.5;}
+  .food .fx.dim{color:#C98A7A;}
+
 </style>
 </head>
 <body>
@@ -478,9 +482,8 @@
 
 </div><!-- /scroll -->
 
-<div class="bubble" id="bubble"></div>
-
 <div class="dock">
+  <div class="bubble" id="bubble"></div>
   <div class="tabs">
     <div class="tab on" data-page="pageHome"><span class="ic">🪞</span>Mirror</div>
     <div class="tab food" data-page="pageFood"><span class="ic">🍲</span>Food</div>
@@ -495,7 +498,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v16</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v18</div>
   </div>
 </div>
 
@@ -697,7 +700,15 @@ const CODEX=[
  {n:'Dates',m:'66 cal each · 0p / 18c / 0f',w:'Concentrated natural sweetness and minerals.',volt:'green',grp:'Fruits'},
  {n:'Lemon',m:'17 cal · 1p / 5c / 0f',w:'Alkaline-forming despite the sour; brightens water.',volt:'radiant',grp:'Foundation'},
  {n:'Green tea',m:'2 cal · antioxidants',w:'Gentle caffeine plus calming L-theanine.',volt:'radiant',grp:'Foundation'},
- {n:'Bone broth',m:'50 cal · 9p / 0c / 1f',w:'Collagen and minerals; joints, gut, and skin.',volt:'green',grp:'Foundation'}
+ {n:'Bone broth',m:'50 cal · 9p / 0c / 1f',w:'Collagen and minerals; joints, gut, and skin.',volt:'green',grp:'Foundation'},
+ {n:'Twinkie',m:'135 cal · 1p / 27c / 2f',w:'Named plainly so the choice is informed. The mirror reflects; you decide.',fx:'⚡ energy spike now · 💤 crash in ~1h · little payload',volt:'dim',grp:'Common Shadows'},
+ {n:'Soda (12 oz)',m:'140 cal · 0p / 39c / 0f',w:'Liquid sugar — the fastest spike there is.',fx:'⚡ spike in minutes · 💤 crash · 0 nourishment',volt:'dim',grp:'Common Shadows'},
+ {n:'Energy drink',m:'160 cal · sugar + heavy caffeine',w:'Borrowed energy with interest.',fx:'⚡ wired 2h · 💤 crash + sleep debt tonight',volt:'dim',grp:'Common Shadows'},
+ {n:'Fast-food burger',m:'550 cal · 25p / 40c / 30f',w:'Real fuel wrapped in heavy oils and salt.',fx:'🛢 heavy fuel · 💤 slow afternoon · +inflammation load',volt:'dim',grp:'Common Shadows'},
+ {n:'Potato chips',m:'160 cal/oz · 2p / 15c / 10f',w:'Engineered to be un-stoppable, light on payload.',fx:'⚡ moreish loop · little nourishment per unit',volt:'dim',grp:'Common Shadows'},
+ {n:'Candy bar',m:'250 cal · 3p / 33c / 12f',w:'Sugar and fat in a wrapper — honest pleasure, honest cost.',fx:'⚡ spike 30 min · 💤 crash · +craving echo',volt:'dim',grp:'Common Shadows'},
+ {n:'White bread',m:'80 cal/slice · 3p / 15c / 1f',w:'The grain with its coat stripped off.',fx:'⚡ fast burn, short · blood sugar wave',volt:'dim',grp:'Common Shadows'},
+ {n:'Ice cream',m:'270 cal/cup · 5p / 31c / 14f',w:'Comfort with a sugar-fat load — sometimes worth it, always counted.',fx:'😌 comfort now · 💤 sugar-fat weight after',volt:'dim',grp:'Common Shadows'}
 ];
 
 /* ============ LOCAL ESTIMATOR ============ */
@@ -754,6 +765,8 @@ const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Cal
 'APOTHECARY: supplements are the footnote, food is the text. Only these earn shelf space: creatine monohydrate 3-5g, protein powder as food-gap filler, vitamin D3 1000-2000 IU (blood panel decides the real dose), omega-3 1-2g EPA+DHA, magnesium glycinate 200-400mg, electrolytes on heavy-sweat days, caffeine 100-200mg pre-work. Clean-label laws: single ingredients, third-party tested (NSF Certified for Sport / Informed Sport), never proprietary blends. Everything else — fat burners, detox teas, testosterone boosters — is painted water: say so plainly. Always name the food that beats the pill, and for doses tied to blood levels point to their doctor without being preachy. '+
 'GAPS: when asked what to eat, what is missing, or what the body needs, compare TODAY SO FAR against their daily marks and name the exact gaps with numbers (e.g. 62g protein short, 40 oz water behind, 180 under your calorie mark) — then give 2-3 concrete picks from alive foods that close them, sized to their goal and bodyweight. Same for supplements: name what their day is missing before naming any pill. '+
 'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
+'DRILL FIRE: you are also a personal trainer with a military guide\'s fire — you believe in their potential more than they do, and you push. The Body Forge figure is the digital them: every workout deposited trains it. When they log movement, acknowledge the deposit, name what ignited, then call out the coldest muscle BY NAME with a specific ask (\"quads are cold — 40 squats lights them, give me that\"). Challenge escalation, never shame: fire aimed at their potential, never at their worth. If they rest or decline, honor it instantly — Law 4 outranks the fire. '+
+'RPG BENEFITS: speak effects like a game item card — the buff and the cost, plainly: a Twinkie is an energy spike now and a crash in an hour; salmon is brain oil and muscle repair; squats are +legs +spine +will. Every food, supplement, and movement has an effect line — name it when teaching. '+
 'THE SPECTRUM OF LIGHT: everything sits on a voltage from radiant (raises the whole system — clean water, living greens, wild plants) through green (clean daily fuel), gold (supports a system under the right conditions), violet (traditional botanicals, long human lineage, honored even where modern data is thin), amber (neutral), to dim (pulls toward the least optimal — heavy, processed). You inform, you never command. Name where something sits and why, name real cautions (medication interactions, blood-test effects) plainly, always name the food or practice that comes first, and leave the choice with the person — the mirror reflects, it does not rule. '+
     'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number,"p":protein-grams-if-food-else-0}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
 
@@ -800,6 +813,26 @@ async function askClaude(text,images){
   return null;
 }
 let fishNoteMsg=null; function fishNote(m){fishNoteMsg=m;}
+
+
+/* ============ RAW PIPE — for cards and plans, exact JSON out ============ */
+async function askClaudeRaw(prompt){
+  if(S.apiKey&&S.apiKey.indexOf('sk-ant')===0){
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':S.apiKey,
+          'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:500,
+          system:'Follow the format instructions exactly. Output RAW JSON only — no markdown, no fences, no commentary.',
+          messages:[{role:'user',content:prompt}]})});
+      const body=await res.json();
+      if(body.error){fishNote('The key was refused: '+(body.error.message||'check it in ⚙').slice(0,120));return null;}
+      let t=(body.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
+      try{return JSON.parse(t);}catch(e){return null;}
+    }catch(e){return null;}
+  }
+  return null;
+}
 
 /* ============ SOUND ENGINE (❄ toggles) ============ */
 let AC=null,streamGain=null;
@@ -904,7 +937,7 @@ setInterval(()=>{
   if(!S.profile||document.hidden)return;
   if(Date.now()-lastAct>50000&&!$('bubble').classList.contains('show')){
     attention=1;
-    const nudges=['Psst — KOI here. '+fishAsk(),'Come talk to me — anything you ate, drank, took, or did. I’ll do the math and the time.','The water’s been quiet. What did I miss?'];
+    const nudges=activeTab==='pageStr'&&S.profile?[('The forge waits.'+fireChallenge()).trim()]:['Psst — KOI here. '+fishAsk(),'Come talk to me — anything you ate, drank, took, or did. I’ll do the math and the time.','The water’s been quiet. What did I miss?'];
     fishSay(nudges[Math.floor(Math.random()*nudges.length)]);
     lastAct=Date.now();
   }
@@ -977,7 +1010,8 @@ async function handle(text,images,imgSrcs){
   if(items.some(i=>i.type==='out'&&i.kcal>0))toneFall();
   const photoLine=(images&&images.length&&items.length>1)?('I broke the plate into '+items.length+' items, each on your timeline with the time. '):'';
   const fine=(images&&images.length)||items.some(i=>/~|about|assumed|est/.test(i.name))?HONESTY:null;
-  fishSay(photoLine+(reply||teachLine(items[0]))+(lift?' '+lift.line:''),chips,fine);
+  const fireLine=items.some(i=>i.type==='out'&&i.kcal>0)?fireChallenge():'';
+  fishSay(photoLine+(reply||teachLine(items[0]))+(lift?' '+lift.line:'')+fireLine,chips,fine);
 }
 
 function detectLift(text){
@@ -1068,11 +1102,42 @@ function tick(){
 }
 
 /* ============ CODEX RENDER ============ */
+/* ============ RPG EFFECTS — every item states its buff and its cost ============ */
+const FX_FOOD_DEFAULT={Proteins:'⚔ +muscle repair · +satiety 3–4h',
+ Greens:'✦ +micronutrients · +system clarity',Grains:'⚡ +steady energy 3–4h',
+ Fats:'🛢 +lasting fuel · +hormone support',Fruits:'⚡ +quick clean energy · ✦ antioxidants',
+ Foundation:'✦ +whole-system function','Common Shadows':'',Other:'',['Grown here']:''};
+const FX_FOOD={'Water':'💧 +every system runs · 0 cost','Eggs':'⚔ +complete protein · +choline (brain)',
+ 'Salmon':'🧠 +omega-3 brain oil · ⚔ +repair','Oats':'⚡ +slow burn 4h · steadies blood sugar',
+ 'Blueberries':'🧠 +memory support · ✦ antioxidants','Avocado':'🛢 +absorption of vitamins · +satiety',
+ 'Coffee':'⚡ +alert 2–4h · 💤 debt if late','Green tea':'⚡ +calm focus · gentler than coffee',
+ 'Dates':'⚡ +fast natural fuel · pre-workout','Bone broth':'✦ +joints & gut · +collagen',
+ 'Sweet potato':'⚡ +deep fuel · ✦ vitamin A','Beets':'🫀 +blood flow · +stamina'};
+const FX_APO_DEFAULT={Vitamins:'✦ fills a specific gap — test, then supply',
+ Minerals:'✦ restores what sweat and stress spend',Adaptogens:'🧘 +stress buffer · works through calm',
+ Botanicals:'🌿 traditional support · gentle & slow',Performance:'⚔ +output · foundation still rules',
+ Guides:'📜 the map itself',['Grown here']:'',Other:''};
+const FX_APO={'Creatine monohydrate':'⚔ +strength & power · +recovery · daily, not timed',
+ 'Caffeine':'⚡ +sharp 2–4h · 💤 crash + sleep debt if late',
+ 'Magnesium glycinate':'🌙 +sleep depth · +muscle ease','Ashwagandha':'🧘 −cortisol · 🌙 +calm sleep',
+ 'Vitamin D3':'☀ +bone · +mood · +immunity','Zinc':'⚔ +skin, hair & hormones'};
+const FX_MOVE_DEFAULT={Bodyweight:'⚔ +functional strength · anywhere, free',
+ Lifts:'⚔ +max strength · climbs your Ladder',Cardio:'🫀 +heart & lungs · +endurance',
+ Mobility:'🧘 +range · +recovery · injury shield',['Grown here']:'',Other:''};
+function fxOf(item,kind){
+  if(item.fx) return item.fx;
+  const grp=item.grown?'Grown here':(item.grp||'Other');
+  return (kind==='food'?FX_FOOD[item.n]||FX_FOOD_DEFAULT[grp]:
+          kind==='apoth'?FX_APO[item.n]||FX_APO_DEFAULT[grp]:
+          FX_MOVE_DEFAULT[grp])||'';
+}
+
+
 function loadGrown(){try{return JSON.parse(store.get('grownDict')||'{}');}catch(e){return {};}}
 function saveGrown(g){store.set('grownDict',JSON.stringify(g));}
 const GROWN=loadGrown();  // {food:[...], apoth:[...]}
 
-const FOOD_ORDER=['Foundation','Proteins','Greens','Grains','Fats','Fruits','Grown here','Other'];
+const FOOD_ORDER=['Foundation','Proteins','Greens','Grains','Fats','Fruits','Common Shadows','Grown here','Other'];
 const APO_ORDER=['Vitamins','Minerals','Adaptogens','Botanicals','Performance','Guides','Grown here','Other'];
 const LEGEND=[['radiant','Radiant — lifts the whole system'],['green','Nourishing — clean daily fuel'],['gold','Supports — under the right conditions'],['violet','Traditional — long human lineage'],['amber','Neutral — neither lifts nor dims'],['dim','Dimming — pulls toward least optimal']];
 
@@ -1082,7 +1147,8 @@ function foodCard(f,wing){
   const extra=f.f?`<div class="fwhy" style="color:var(--gold);opacity:.85">${f.f}</div>`:'';
   const caut=f.caution?`<span class="caution">⚠</span><div class="fwhy" style="color:#FF8A8A;opacity:.85">⚠ ${f.caution}</div>`:'';
   const grown=f.grown?'<span class="grown">🌱 grown here</span>':'';
-  el.innerHTML=`<span class="volt volt-${f.volt||'amber'}"></span>${caut}<div class="fname">${f.n}</div><div class="fmac">${macro}</div><div class="fwhy">${f.w}</div>${extra}${grown}`;
+  const fx=fxOf(f,wing==='apoth'?'apoth':'food');
+  el.innerHTML=`<span class="volt volt-${f.volt||'amber'}"></span>${caut}<div class="fname">${f.n}</div><div class="fmac">${macro}</div>${fx?'<div class="fx'+(f.volt==='dim'?' dim':'')+'">'+fx+'</div>':''}<div class="fwhy">${f.w}</div>${extra}${grown}`;
   el.onclick=()=>{
     const q = wing==='apoth'
       ? 'Tell me the truth about '+f.n.toLowerCase()+' — where it sits on the spectrum, how to use it, clean-label cautions, and the food that comes first.'
@@ -1167,9 +1233,9 @@ async function buildPlan(){
   const prompt='Build daily targets for this goal: "'+S.goalText+'". Person: '+JSON.stringify(S.profile)+
     ', target line '+(S.targetW||'none')+' lbs, BMR '+bmr()+'. Be honest and specific to the goal, however extreme — targets inform, the person chooses. '+
     'RESPOND RAW JSON ONLY: {"mode":"cut|build|maintain|recomp","calTarget":n,"proteinTarget":grams,"waterOz":n,"moveBurn":kcal-above-rest-per-day,"setsPerWorkout":n,"guidance":"1-2 sentences in KOI voice explaining the why"}';
-  const claude=await askClaude(prompt);
-  let plan=null;
-  if(claude){ try{ plan=claude.calTarget?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim()); }catch(e){plan=null;} }
+  let plan=await askClaudeRaw(prompt);
+  if(!plan){ const claude=await askClaude(prompt);
+    if(claude){ try{ plan=claude.calTarget?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim()); }catch(e){plan=null;} } }
   if(plan&&plan.calTarget){ S.plan=plan; save(); renderAll();
     fishSay('Your marks are set from your goal — “'+S.goalText+'”. '+(plan.guidance||'')+' They live at the top of Food and Strength. Exceed them or don’t — the mirror only reflects.'); }
 }
@@ -1224,6 +1290,7 @@ function teachMove(m){
   wrap.appendChild(b1);wrap.appendChild(b2);b.appendChild(wrap);
 }
 
+
 /* ============ MOVEMENT DICTIONARY RENDER ============ */
 const MOVE_ORDER=['Bodyweight','Lifts','Cardio','Mobility','Grown here','Other'];
 function renderMoveDict(){
@@ -1237,7 +1304,8 @@ function renderMoveDict(){
     inGrp.forEach(m=>{
       const el=document.createElement('div');el.className='food';
       const grown=m.grown?'<span class="grown">🌱 grown here</span>':'';
-      el.innerHTML=`<span class="volt volt-${m.grp==='Lifts'?'gold':'green'}"></span><div class="fname">${m.n}</div><div class="fmac">${m.u}</div><div class="fwhy">${m.mus?m.mus:'Say “'+m.how+'”'}</div>${grown}`;
+      const mfx=fxOf(m,'move');
+      el.innerHTML=`<span class="volt volt-${m.grp==='Lifts'?'gold':'green'}"></span><div class="fname">${m.n}</div><div class="fmac">${m.u}</div>${mfx?'<div class="fx">'+mfx+'</div>':''}<div class="fwhy">${m.mus?m.mus:'Say “'+m.how+'”'}</div>${grown}`;
       el.onclick=()=>{ teachMove(m); };
       g.appendChild(el);
     });
@@ -1264,10 +1332,10 @@ $('moveSearch').addEventListener('keydown',e=>{if(e.key==='Enter')moveSearch();}
 async function growMove(name){
   fishSay('New movement — “'+name+'”. Let me learn it…',null,null,true);
   const prompt='Create a movement dictionary entry for "'+name+'" for the Caloric Mirror strength page. '+
-    'RESPOND RAW JSON ONLY: {"n":"Name","u":"per rep | per minute | lift","how":"an example phrase the user would say, like 30 kettlebell swings","grp":"Bodyweight|Lifts|Cardio|Mobility"}';
-  let card=null;
-  const claude=await askClaude(prompt);
-  if(claude){ try{ card=claude.n?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim()); }catch(e){card=null;} }
+    'RESPOND RAW JSON ONLY: {"n":"Name","u":"per rep | per minute | lift","how":"an example phrase the user would say, like 30 kettlebell swings","grp":"Bodyweight|Lifts|Cardio|Mobility","mus":"muscles it targets","fx":"RPG effect line, e.g. ⚔ +grip & posterior chain"}';
+  let card=await askClaudeRaw(prompt);
+  if(!card){ const claude=await askClaude(prompt);
+    if(claude){ try{ card=claude.n?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim()); }catch(e){card=null;} } }
   if(!card||!card.n){ fishSay('Couldn’t build that one right now — make sure my Mirror Key is set in ⚙, or just tell me plainly (like “did 30 of them”).'); return; }
   card.grown=true;
   if(!GROWNMOVE.some(x=>x.n.toLowerCase()===card.n.toLowerCase())){ GROWNMOVE.push(card); store.set('grownMove',JSON.stringify(GROWNMOVE)); renderMoveDict(); }
@@ -1460,7 +1528,7 @@ function logDirect(item){
   S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,p:item.p||0,t:Date.now()});
   save();renderAll();pulse();burst=1;
   if(item.type==='in'&&item.kcal>0)chimeRise();else if(item.type==='out')toneFall();
-  fishSay(teachLine(item),[{...item,t:item.type}]);
+  fishSay(teachLine(item)+(item.type==='out'&&item.kcal>0?fireChallenge():''),[{...item,t:item.type}]);
 }
 
 /* ============ DAY LISTS (tap ✕ to unsay it) ============ */
@@ -1561,15 +1629,10 @@ async function growEntry(name){
   const prompt='Create a dictionary entry for "'+name+'" for the Caloric Mirror. '+
     'Decide if it is a FOOD or a SUPPLEMENT/botanical. '+
     'Place it on the spectrum of light: radiant, green, gold, violet, amber, or dim. '+
-    'RESPOND RAW JSON ONLY: {"kind":"food"|"apoth","n":"Name","m":"cal · Pp / Cc / Ff (foods only, best estimate)","d":"honest dose (supplements only)","w":"one honest sentence on what it does","f":"the food or practice that comes first","volt":"tier","grp":"one of Proteins/Greens/Grains/Fats/Fruits/Foundation for food or Vitamins/Minerals/Adaptogens/Botanicals/Performance for supplements","caution":"only if it interacts with meds or skews a blood test, else omit","kcal": number-if-food-else-0}';
-  let card=null;
-  const claude=await askClaude(prompt);
-  if(claude&&(claude.n||claude.reply)){
-    try{
-      // askClaude returns {reply, items}; the JSON we asked for may be in reply
-      card = claude.n?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim());
-    }catch(e){card=null;}
-  }
+    'RESPOND RAW JSON ONLY: {"kind":"food"|"apoth","n":"Name","m":"cal · Pp / Cc / Ff (foods only, best estimate)","d":"honest dose (supplements only)","w":"one honest sentence on what it does","f":"the food or practice that comes first","volt":"tier","grp":"one of Proteins/Greens/Grains/Fats/Fruits/Foundation for food or Vitamins/Minerals/Adaptogens/Botanicals/Performance for supplements","caution":"only if it interacts with meds or skews a blood test, else omit","fx":"RPG-style effect line: buff and cost, e.g. ⚡ energy spike now · 💤 crash in ~1h","kcal": number-if-food-else-0}';
+  let card=await askClaudeRaw(prompt);
+  if(!card){ const claude=await askClaude(prompt);
+    if(claude){ try{ card=claude.n?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim()); }catch(e){card=null;} } }
   if(!card||!card.n){
     fishSay('I couldn’t build a clean card for “'+name+'” right now. My full mind may be offline — add a Mirror Key in ⚙, or tell me plainly what it is.');
     return;
@@ -1657,6 +1720,24 @@ function renderForge(){
     bellMark();
     fishSay('🔥 <b>THE WHOLE BODY BURNS.</b> Every muscle crimson — conquest number '+S.forgeCrowns+'. The bar rises: next time the forge asks '+forgeThreshold()+' from every muscle. Rest tonight; you earned the fire.');
   }
+}
+
+
+/* ============ DRILL FIRE — the digital you trains on deposits ============ */
+const COLD_CALLS={chest:'20 push-ups',back:'pull-ups or rows',quads:'40 squats',
+ hamstrings:'kettlebell swings or a deadlift set',glutes:'lunges or swings',
+ calves:'3 minutes of jump rope',shoulders:'an overhead press set or 50 jacks',
+ biceps:'curls or pull-ups',triceps:'dips',forearms:'a dead hang or heavy carry',
+ core:'a 2-minute plank',heart:'a fast mile',traps:'shrugs',lowback:'light clean deadlifts'};
+function fireChallenge(){
+  if(!S.profile)return '';
+  const eff=muscleEffort(), TH=forgeThreshold();
+  const cold=FORGE_GROUPS.filter(g=>(eff[g]||0)<TH).sort((a,b)=>(eff[a]||0)-(eff[b]||0));
+  if(!cold.length)return ' 🔥 All fourteen burning — the digital you is fully lit. Hold the line and recover like it matters.';
+  const g=cold[0];
+  const lit=FORGE_GROUPS.length-cold.length;
+  return ' ⚔ Deposit received — the digital you felt it. '+(lit>0?lit+'/'+FORGE_GROUPS.length+' burning. ':'')+
+    'Your '+g+(g==='heart'?' is':' are')+' still cold — '+COLD_CALLS[g]+' lights '+(g==='heart'?'it':'them')+'. Give me that.';
 }
 
 /* ============ THE PATH — full schedule, any day ============ */
