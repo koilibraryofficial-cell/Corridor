@@ -311,6 +311,34 @@
     color:var(--mist);text-align:center;}
   .daysum b{display:block;font-size:13px;font-weight:500;margin-top:3px;color:var(--deep);}
 
+
+  .msg.mirror{color:#C9BFAC;background:rgba(18,26,36,.55);border:1px solid #1B2836;
+    border-radius:14px 14px 14px 3px;padding:9px 14px;width:fit-content;max-width:92%;}
+  .msg.mirror .tag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.35em;
+    text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px;}
+  .msg.mirror .chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:12px;
+    padding:2px 9px;margin:4px 4px 0 0;border-radius:9px;border:1px solid var(--ice-line);}
+  .msg.mirror .chip.in{color:var(--green);} .msg.mirror .chip.out{color:var(--ember-glow);}
+  .msg.mirror .fine{display:block;margin-top:6px;font-size:12px;font-style:italic;color:var(--mist);}
+  .bclose{position:absolute;top:8px;right:11px;color:var(--mist);cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;padding:3px 6px;pointer-events:auto;}
+  .feed-head{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.35em;
+    text-transform:uppercase;color:var(--mist);text-align:center;margin:10px 0 4px;}
+
+
+  /* ---------- BODY FORGE ---------- */
+  .bforge{margin:12px 12px 0;background:var(--glass);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,77,94,.28);border-radius:16px;padding:14px 16px;}
+  .bforge .btitle{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.35em;
+    text-transform:uppercase;color:var(--ember-glow);margin-bottom:4px;}
+  .bforge .bsub{font-size:13px;font-style:italic;color:var(--mist);margin-bottom:8px;line-height:1.4;}
+  .bfig{display:flex;justify-content:center;gap:26px;}
+  .bfig svg{height:190px;}
+  .bfig .m{fill:#1A2430;stroke:#2A3A4C;stroke-width:1;transition:fill .6s;}
+  .bfig text{font-family:'IBM Plex Mono',monospace;font-size:6px;fill:#5A6570;letter-spacing:.05em;}
+  .bstat{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate);text-align:center;margin-top:8px;}
+  .bstat b{color:var(--ember-glow);}
+
 </style>
 </head>
 <body>
@@ -384,6 +412,45 @@
     <button id="moveSearchBtn">🔍</button>
   </div>
   <div class="marks" id="strMarks"></div>
+  <div class="bforge">
+    <div class="btitle">THE BODY FORGE — TAKE IT ALL RED</div>
+    <div class="bsub">Every movement you log pours effort into the muscles it works. Full crimson in every muscle is the day's conquest — and each conquest raises the bar.</div>
+    <div class="bfig">
+      <svg viewBox="0 0 100 200" id="figFront">
+        <ellipse class="m" data-g="head" cx="50" cy="14" rx="9" ry="11"/>
+        <rect class="m" data-g="shoulders" x="28" y="28" width="44" height="9" rx="4"/>
+        <rect class="m" data-g="chest" x="34" y="38" width="32" height="16" rx="5"/>
+        <rect class="m" data-g="core" x="37" y="56" width="26" height="22" rx="5"/>
+        <rect class="m" data-g="biceps" x="20" y="38" width="10" height="18" rx="4"/>
+        <rect class="m" data-g="biceps" x="70" y="38" width="10" height="18" rx="4"/>
+        <rect class="m" data-g="forearms" x="18" y="58" width="9" height="20" rx="4"/>
+        <rect class="m" data-g="forearms" x="73" y="58" width="9" height="20" rx="4"/>
+        <rect class="m" data-g="quads" x="36" y="82" width="12" height="34" rx="5"/>
+        <rect class="m" data-g="quads" x="52" y="82" width="12" height="34" rx="5"/>
+        <rect class="m" data-g="calves" x="37" y="120" width="10" height="26" rx="4"/>
+        <rect class="m" data-g="calves" x="53" y="120" width="10" height="26" rx="4"/>
+        <ellipse class="m" data-g="heart" cx="50" cy="45" rx="4.5" ry="5"/>
+        <text x="50" y="160" text-anchor="middle">FRONT</text>
+      </svg>
+      <svg viewBox="0 0 100 200" id="figBack">
+        <ellipse class="m" data-g="head" cx="50" cy="14" rx="9" ry="11"/>
+        <rect class="m" data-g="traps" x="34" y="26" width="32" height="10" rx="4"/>
+        <rect class="m" data-g="back" x="34" y="38" width="32" height="24" rx="5"/>
+        <rect class="m" data-g="lowback" x="38" y="64" width="24" height="12" rx="4"/>
+        <rect class="m" data-g="triceps" x="20" y="38" width="10" height="18" rx="4"/>
+        <rect class="m" data-g="triceps" x="70" y="38" width="10" height="18" rx="4"/>
+        <rect class="m" data-g="forearms" x="18" y="58" width="9" height="20" rx="4"/>
+        <rect class="m" data-g="forearms" x="73" y="58" width="9" height="20" rx="4"/>
+        <rect class="m" data-g="glutes" x="37" y="78" width="26" height="12" rx="5"/>
+        <rect class="m" data-g="hamstrings" x="36" y="92" width="12" height="26" rx="5"/>
+        <rect class="m" data-g="hamstrings" x="52" y="92" width="12" height="26" rx="5"/>
+        <rect class="m" data-g="calves" x="37" y="122" width="10" height="24" rx="4"/>
+        <rect class="m" data-g="calves" x="53" y="122" width="10" height="24" rx="4"/>
+        <text x="50" y="160" text-anchor="middle">BACK</text>
+      </svg>
+    </div>
+    <div class="bstat" id="forgeStat"></div>
+  </div>
   <div class="quick" id="quickMove"></div>
   <div class="daylist" id="moveList"></div>
   <div class="section open" id="ladderSec">
@@ -428,7 +495,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v15</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v16</div>
   </div>
 </div>
 
@@ -685,6 +752,7 @@ const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Cal
 'If food is vague, estimate a middle value AND ask one short clarifying question — never more than one. Zero-calorie things (water, black coffee, fasting) are free — say so. '+
 'HYDRATION: water is zero calories and tracked separately in ounces; the daily aim is roughly two-thirds of an ounce per pound of bodyweight, more with sweat. It carries skin fullness, joint lubrication, cognition, kidney and digestive function; thirst is a late signal. Encourage drinking ahead of thirst, never as punishment. '+
 'APOTHECARY: supplements are the footnote, food is the text. Only these earn shelf space: creatine monohydrate 3-5g, protein powder as food-gap filler, vitamin D3 1000-2000 IU (blood panel decides the real dose), omega-3 1-2g EPA+DHA, magnesium glycinate 200-400mg, electrolytes on heavy-sweat days, caffeine 100-200mg pre-work. Clean-label laws: single ingredients, third-party tested (NSF Certified for Sport / Informed Sport), never proprietary blends. Everything else — fat burners, detox teas, testosterone boosters — is painted water: say so plainly. Always name the food that beats the pill, and for doses tied to blood levels point to their doctor without being preachy. '+
+'GAPS: when asked what to eat, what is missing, or what the body needs, compare TODAY SO FAR against their daily marks and name the exact gaps with numbers (e.g. 62g protein short, 40 oz water behind, 180 under your calorie mark) — then give 2-3 concrete picks from alive foods that close them, sized to their goal and bodyweight. Same for supplements: name what their day is missing before naming any pill. '+
 'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
 'THE SPECTRUM OF LIGHT: everything sits on a voltage from radiant (raises the whole system — clean water, living greens, wild plants) through green (clean daily fuel), gold (supports a system under the right conditions), violet (traditional botanicals, long human lineage, honored even where modern data is thin), amber (neutral), to dim (pulls toward the least optimal — heavy, processed). You inform, you never command. Name where something sits and why, name real cautions (medication interactions, blood-test effects) plainly, always name the food or practice that comes first, and leave the choice with the person — the mirror reflects, it does not rule. '+
     'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number,"p":protein-grams-if-food-else-0}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
@@ -770,6 +838,15 @@ $('sndBtn').onclick=()=>{
 /* ============ THE FISH SPEAKS ============ */
 let bubbleT=null,typeT=null;
 function fishSay(html,chips,fine,hold){
+  // every word KOI says also lands in the conversation (unless it's a thinking placeholder)
+  if(!html.startsWith('…')){
+    const feed=$('feed');
+    if(feed){const m=document.createElement('div');m.className='msg mirror';
+      m.innerHTML='<span class="tag">KOI</span>'+html+
+        (chips||[]).map(c=>`<br><span class="chip ${c.t}">${c.t==='in'?'+':'−'}${fmt(c.kcal)} · ${c.name}</span>`).join('')+
+        (fine?'<span class="fine">'+fine+'</span>':'');
+      feed.appendChild(m);}
+  }
   const b=$('bubble');clearTimeout(bubbleT);clearInterval(typeT);
   b.classList.add('show');b.innerHTML='';
   const span=document.createElement('span');b.appendChild(span);
@@ -782,7 +859,9 @@ function fishSay(html,chips,fine,hold){
       if(fine){const f=document.createElement('span');f.className='fine';f.innerHTML=fine;b.appendChild(f);}
     }},16);
   attention=1;
-  if(!hold)bubbleT=setTimeout(()=>b.classList.remove('show'),14000);
+  const xb=document.createElement('span');xb.className='bclose';xb.textContent='✕';
+  xb.onclick=()=>b.classList.remove('show');b.appendChild(xb);
+  if(!hold)bubbleT=setTimeout(()=>b.classList.remove('show'),30000);
   S.chat.push({who:'fish',text:html.replace(/<[^>]+>/g,'').slice(0,300)});S.chat=S.chat.slice(-24);save();
 }
 function fishAsk(){
@@ -976,7 +1055,7 @@ function renderAll(){
       <div class="rungs">${L.rungs.map((r,i)=>`<span>${RUNG_NAMES[i]}<br>${L.reps?r:Math.round(r*bw)}</span>`).join('')}</div>
       <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
     lad.appendChild(el);}
-  renderLists();renderGauge();renderMarks();renderSchedule();
+  renderLists();renderGauge();renderMarks();renderSchedule();renderForge();
 }
 function tick(){
   if(S.profile){
@@ -1516,6 +1595,70 @@ async function growEntry(name){
 }
 
 
+
+/* ============ BODY FORGE ENGINE ============ */
+const MUSCLE_KEYS=[
+ [/push.?up/, ['chest','triceps','shoulders','core']],
+ [/pull.?up/, ['back','biceps','forearms']],
+ [/squat/, ['quads','glutes','hamstrings','core']],
+ [/lunge/, ['quads','glutes','hamstrings']],
+ [/burpee/, ['chest','quads','core','heart']],
+ [/sit.?up|crunch/, ['core']],
+ [/\bdip/, ['chest','triceps','shoulders']],
+ [/plank/, ['core','shoulders']],
+ [/jumping jack/, ['calves','shoulders','heart']],
+ [/mountain climber/, ['core','heart','shoulders']],
+ [/bench/, ['chest','triceps','shoulders']],
+ [/dead.?lift/, ['hamstrings','glutes','back','lowback','forearms']],
+ [/overhead|ohp|shoulder press|military/, ['shoulders','triceps','core']],
+ [/\brow(ing|ed)?\b/, ['back','biceps','heart']],
+ [/curl/, ['biceps','forearms']],
+ [/kettlebell|swing/, ['glutes','hamstrings','back','heart']],
+ [/run|jog|mile/, ['quads','calves','hamstrings','heart']],
+ [/walk|hik/, ['quads','calves','heart']],
+ [/cycl|bik/, ['quads','calves','heart']],
+ [/swim/, ['back','shoulders','core','heart']],
+ [/jump rope/, ['calves','shoulders','heart']],
+ [/yoga|stretch/, ['core','lowback']],
+ [/massage|bodywork/, ['forearms','shoulders','back']],
+ [/lift(ing)?|weights|dumbbell|barbell/, ['chest','back','quads','shoulders']],
+ [/traps|shrug/, ['traps']]
+];
+function forgeThreshold(){ return 80 + 15*(S.forgeCrowns||0); }
+function muscleEffort(){
+  const d=S.days[todayKey()]||{out:[]}; const eff={};
+  (d.out||[]).forEach(e=>{
+    const t=(e.name||'').toLowerCase();
+    for(const [re,groups] of MUSCLE_KEYS){
+      if(re.test(t)){ const share=e.kcal/groups.length;
+        groups.forEach(g=>eff[g]=(eff[g]||0)+share); break; }
+    }
+  });
+  return eff;
+}
+const FORGE_GROUPS=['shoulders','chest','core','biceps','triceps','forearms','quads','hamstrings','glutes','calves','back','traps','lowback','heart'];
+function renderForge(){
+  const front=$('figFront'); if(!front)return;
+  const eff=muscleEffort(), TH=forgeThreshold();
+  let red=0;
+  document.querySelectorAll('.bfig .m').forEach(el=>{
+    const g=el.dataset.g; if(!g||g==='head'){el.style.fill='#141C26';return;}
+    const i=Math.min(1,(eff[g]||0)/TH);
+    if(i>=1){el.style.fill='#C1121F';el.style.filter='drop-shadow(0 0 4px rgba(255,77,94,.8))';}
+    else{el.style.filter='none';
+      el.style.fill=i===0?'#1A2430':`rgb(${26+Math.round(167*i)},${36-Math.round(18*i)},${48-Math.round(17*i)})`;}
+  });
+  FORGE_GROUPS.forEach(g=>{if((eff[g]||0)>=TH)red++;});
+  const stat=$('forgeStat');
+  if(stat) stat.innerHTML='<b>'+red+'</b> / '+FORGE_GROUPS.length+' muscles burning · '+TH+' effort each to ignite'
+    + ((S.forgeCrowns||0)>0?' · 👑×'+S.forgeCrowns:'');
+  if(red===FORGE_GROUPS.length && S.lastCrown!==todayKey()){
+    S.forgeCrowns=(S.forgeCrowns||0)+1; S.lastCrown=todayKey(); save();
+    bellMark();
+    fishSay('🔥 <b>THE WHOLE BODY BURNS.</b> Every muscle crimson — conquest number '+S.forgeCrowns+'. The bar rises: next time the forge asks '+forgeThreshold()+' from every muscle. Rest tonight; you earned the fire.');
+  }
+}
+
 /* ============ THE PATH — full schedule, any day ============ */
 let pathOffset=0; // 0 = today, -1 = yesterday...
 function pathKey(){ const d=new Date(); d.setDate(d.getDate()+pathOffset);
@@ -1556,6 +1699,15 @@ $('dayNext').onclick=()=>{if(pathOffset<0){pathOffset++;renderSchedule();}};
 
 /* ============ BOOT ============ */
 sizeCanvas();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();
+(function restoreChat(){
+  const feed=$('feed'); if(!feed||!S.chat.length)return;
+  const h=document.createElement('div');h.className='feed-head';h.textContent='THE CONVERSATION · KOI REMEMBERS';feed.appendChild(h);
+  S.chat.slice(-12).forEach(c=>{
+    const m=document.createElement('div');
+    if(c.who==='me'){m.className='msg me';m.textContent=c.text;}
+    else{m.className='msg mirror';m.innerHTML='<span class="tag">KOI</span>'+c.text;}
+    feed.appendChild(m);});
+})();
 requestAnimationFrame(tick);requestAnimationFrame(drawPond);
 if(!S.profile&&!S.toured)runTour();
 else if(!S.profile)$('setup').classList.add('show');
