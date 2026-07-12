@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The KOIL Realm — the missing manual</title>
+<meta property="og:title" content="The KOIL Realm">
+<meta property="og:description" content="You were born into a world with no manual. This is the missing manual. The doors open August 1.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://koilibraryofficial-cell.github.io/Corridor/trailer/poster.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The KOIL Realm">
+<meta name="twitter:description" content="You were born into a world with no manual. This is the missing manual. The doors open August 1.">
+<meta name="twitter:image" content="https://koilibraryofficial-cell.github.io/Corridor/trailer/poster.png">
+<style>
+  :root{
+    --void:#07070d;
+    --ink:hsl(258 30% 90%);
+    --dim:hsl(258 14% 56%);
+    --koi:#f2ead8;
+    --gold:hsl(45 78% 62%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;background:var(--void)}
+  body{
+    font-family:Georgia,'Times New Roman',serif;
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;user-select:none;-webkit-user-select:none;
+  }
+  #sky{position:fixed;inset:0;z-index:0;pointer-events:none;display:block;width:100%;height:100%}
+  #stage{position:relative;width:min(92vw,560px);text-align:center;padding:0 8px;z-index:2}
+  .scene{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+    opacity:0;pointer-events:none;transition:opacity .95s ease}
+  .scene.on{opacity:1;pointer-events:auto}
+  .line{font-size:clamp(21px,5.6vw,30px);line-height:1.55;letter-spacing:.015em;
+    font-style:italic;text-shadow:0 0 26px hsl(258 60% 40% / .35)}
+  .line b{font-style:normal;font-weight:600;color:var(--koi)}
+  .small{font-family:ui-sans-serif,system-ui,sans-serif;font-style:normal;
+    font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin-top:20px}
+  .brand{font-size:clamp(34px,9vw,54px);font-style:normal;font-weight:600;
+    letter-spacing:.14em;color:var(--koi);
+    text-shadow:0 0 40px hsl(45 80% 60% / .3),0 0 90px hsl(335 80% 60% / .18)}
+  .brand-sub{margin-top:14px;font-size:clamp(15px,4vw,19px);font-style:italic;color:var(--dim)}
+  #constellation{display:flex;justify-content:center;gap:clamp(8px,2.6vw,18px);
+    margin-bottom:28px;height:64px;align-items:flex-end}
+  .star{display:flex;flex-direction:column;align-items:center;gap:8px;
+    opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease}
+  .star.lit{opacity:1;transform:none}
+  .orb{width:clamp(14px,3.6vw,20px);height:clamp(14px,3.6vw,20px);border-radius:50%}
+  .star span{font-family:ui-sans-serif,system-ui,sans-serif;font-size:9px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .attest{display:block;margin-top:14px;font-size:clamp(16px,4.4vw,20px);color:var(--koi);
+    opacity:0;transition:opacity .8s ease}
+  .attest.on{opacity:1}
+  .gold{display:block;margin-top:18px;font-size:clamp(15px,4vw,18px);font-style:italic;
+    color:var(--gold);opacity:0;transition:opacity .9s ease}
+  .gold.on{opacity:1}
+  /* ---- micro-demo ---- */
+  #speakbar{display:inline-flex;align-items:center;gap:12px;margin-bottom:26px;
+    padding:14px 20px;border-radius:14px;border:1px solid hsl(258 30% 26%);
+    background:hsl(258 30% 10% / .8);min-width:min(78vw,340px);min-height:52px;justify-content:flex-start}
+  #typed{font-size:clamp(16px,4.6vw,20px);color:var(--koi);text-align:left}
+  #caret{width:2px;height:1.2em;background:var(--koi);animation:blink 1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+  #demoOrb{width:26px;height:26px;border-radius:50%;margin:0 auto 18px;
+    background:hsl(335 70% 62%);box-shadow:0 0 16px hsl(335 80% 58%);
+    transition:background 1.2s ease,box-shadow 1.2s ease,transform 1.2s ease}
+  #demoOrb.gilded{background:var(--gold);box-shadow:0 0 34px hsl(45 90% 58%),0 0 70px hsl(45 90% 55% / .5);
+    transform:scale(1.25)}
+  #koi{position:fixed;top:50%;left:-140px;width:110px;z-index:1;pointer-events:none;
+    filter:drop-shadow(0 0 18px hsl(45 70% 70% / .5));opacity:0}
+  #koi.swim{animation:swim 8s linear forwards}
+  @keyframes swim{
+    0%{transform:translate(0,-50%) rotate(4deg) scale(1);opacity:0}
+    8%{opacity:.95}
+    50%{transform:translate(56vw,-64%) rotate(-6deg) scale(1)}
+    92%{opacity:.95}
+    100%{transform:translate(120vw,-46%) rotate(5deg) scale(1);opacity:0}
+  }
+  #koi.drift{animation:drift 11s linear forwards}
+  @keyframes drift{
+    0%{transform:translate(130vw,-120%) rotate(184deg) scale(.55) scaleY(-1);opacity:0}
+    10%{opacity:.34}
+    90%{opacity:.34}
+    100%{transform:translate(-30vw,-90%) rotate(176deg) scale(.55) scaleY(-1);opacity:0}
+  }
+  #koi .fin{animation:fin 1.6s ease-in-out infinite}
+  @keyframes fin{0%,100%{transform:rotate(0)}50%{transform:rotate(9deg)}}
+  /* ---- doors / capture ---- */
+  .doors{font-size:clamp(21px,5.6vw,30px);font-style:normal;color:var(--koi);
+    letter-spacing:.04em;text-shadow:0 0 34px hsl(45 85% 60% / .35)}
+  #count{margin-top:8px;font-family:ui-sans-serif,system-ui,sans-serif;
+    font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .price{margin-top:16px;font-size:clamp(15px,4.2vw,18px);font-style:italic;color:var(--ink)}
+  .price b{font-style:normal;color:var(--gold)}
+  .price-sub{margin-top:8px;font-size:clamp(12px,3.4vw,14px);font-style:italic;color:var(--dim)}
+  #joinRow{display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+  #email{flex:1;min-width:0;max-width:250px;padding:12px 14px;border-radius:999px;
+    border:1px solid hsl(258 30% 30%);background:hsl(258 30% 10%);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:14px;outline:none}
+  #email::placeholder{color:hsl(258 14% 44%)}
+  #email:focus{border-color:hsl(45 60% 55%)}
+  #joinBtn{padding:12px 22px;border-radius:999px;border:none;cursor:pointer;
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--void);
+    background:linear-gradient(120deg,hsl(45 80% 68%),hsl(335 70% 70%));
+    box-shadow:0 0 26px hsl(45 80% 60% / .3)}
+  #joinBtn.done{background:hsl(130 45% 45%);color:#fff;box-shadow:0 0 26px hsl(130 60% 45% / .4)}
+  #enterBtn{display:inline-block;padding:14px 30px;border-radius:999px;text-decoration:none;
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:14px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--void);
+    background:linear-gradient(120deg,hsl(45 80% 68%),hsl(335 70% 70%));
+    box-shadow:0 0 34px hsl(45 85% 60% / .4)}
+  #miniRow{display:flex;gap:18px;justify-content:center;margin-top:16px}
+  .mini{background:none;border:none;cursor:pointer;color:var(--dim);
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;letter-spacing:.2em;
+    text-transform:uppercase;padding:6px 4px}
+  .mini:hover{color:var(--ink)}
+  .gate{margin-top:18px;font-size:clamp(13px,3.6vw,15px);font-style:italic;color:var(--dim)}
+  #replay{margin-top:14px;background:none;border:none;color:hsl(258 14% 40%);cursor:pointer;
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;letter-spacing:.24em;
+    text-transform:uppercase}
+  #toast{position:fixed;left:50%;bottom:calc(74px + env(safe-area-inset-bottom));
+    transform:translateX(-50%) translateY(8px);padding:9px 18px;border-radius:999px;
+    background:hsl(258 30% 16%);color:var(--ink);font-family:ui-sans-serif,system-ui,sans-serif;
+    font-size:12px;letter-spacing:.08em;opacity:0;transition:opacity .4s,transform .4s;z-index:5;pointer-events:none}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  #dots{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:0;right:0;
+    display:flex;justify-content:center;gap:7px;z-index:3}
+  #dots i{width:5px;height:5px;border-radius:50%;background:hsl(258 20% 30%);transition:background .4s}
+  #dots i.done{background:hsl(258 40% 62%)}
+  #hint{position:fixed;bottom:calc(42px + env(safe-area-inset-bottom));left:0;right:0;
+    text-align:center;font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;
+    letter-spacing:.26em;text-transform:uppercase;color:hsl(258 14% 38%);z-index:3;
+    transition:opacity 1s}
+  @media (prefers-reduced-motion: reduce){
+    #koi.swim,#koi.drift,#koi .fin,#caret{animation:none}
+    .scene,.star,.attest,.gold,#demoOrb{transition:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<svg id="koi" viewBox="0 0 100 44" aria-hidden="true">
+  <path d="M14 22 C 30 4, 66 4, 84 22 C 66 40, 30 40, 14 22 Z" fill="#f2ead8"/>
+  <path class="fin" d="M14 22 C 6 12, 0 14, 2 22 C 0 30, 6 32, 14 22 Z" fill="#e8dcc2" style="transform-origin:14px 22px"/>
+  <circle cx="72" cy="19" r="2.6" fill="#221c14"/>
+  <path d="M40 12 C 48 16, 48 28, 40 32" stroke="#d9c9a6" stroke-width="2.5" fill="none"/>
+  <path d="M55 10 C 62 15, 62 29, 55 34" stroke="#d9c9a6" stroke-width="2.5" fill="none"/>
+</svg>
+
+<div id="stage">
+
+  <div class="scene" data-hold="3500">
+    <div class="line">You were born into a world<br>with <b>no manual.</b></div>
+  </div>
+
+  <div class="scene" data-hold="4200">
+    <div class="line">A name. Bills. A body. A clock.<br>And <b>no instructions.</b></div>
+  </div>
+
+  <div class="scene" data-hold="3600">
+    <div class="line">This is the <b>missing manual.</b></div>
+  </div>
+
+  <div class="scene" data-koi="drift" data-hold="4800">
+    <div class="brand">THE KOIL REALM</div>
+    <div class="brand-sub">a living world, made of your real life</div>
+  </div>
+
+  <div class="scene" id="starScene" data-hold="6500">
+    <div id="constellation">
+      <div class="star"><div class="orb" style="background:hsl(0 70% 58%);box-shadow:0 0 16px hsl(0 80% 55%)"></div><span>body</span></div>
+      <div class="star"><div class="orb" style="background:hsl(280 70% 62%);box-shadow:0 0 16px hsl(280 80% 58%)"></div><span>mind</span></div>
+      <div class="star"><div class="orb" style="background:hsl(45 80% 58%);box-shadow:0 0 16px hsl(45 85% 55%)"></div><span>money</span></div>
+      <div class="star"><div class="orb" style="background:hsl(22 78% 58%);box-shadow:0 0 16px hsl(22 85% 55%)"></div><span>craft</span></div>
+      <div class="star"><div class="orb" style="background:hsl(335 70% 62%);box-shadow:0 0 16px hsl(335 80% 58%)"></div><span>bonds</span></div>
+      <div class="star"><div class="orb" style="background:hsl(190 70% 55%);box-shadow:0 0 16px hsl(190 80% 52%)"></div><span>hours</span></div>
+      <div class="star"><div class="orb" style="background:hsl(130 60% 52%);box-shadow:0 0 16px hsl(130 70% 48%)"></div><span>road</span></div>
+    </div>
+    <div class="line">Seven stars.<br>Every one is <b>already yours.</b></div>
+  </div>
+
+  <div class="scene" id="witnessScene" data-hold="7000">
+    <div class="line">Nothing counts<br>until you <b>speak it true.</b></div>
+    <span class="attest">"I trained."</span>
+    <span class="attest">"I called my brother."</span>
+    <span class="attest">"I shipped the chapter."</span>
+    <span class="gold">True things turn to gold. No false gold, ever.</span>
+    <div class="small">the witness law</div>
+  </div>
+
+  <div class="scene" id="demoScene" data-hold="5600">
+    <div id="speakbar"><span id="typed"></span><span id="caret"></span></div>
+    <div id="demoOrb"></div>
+    <div class="line" style="font-size:clamp(16px,4.4vw,20px)">Speak it. Watch it <b>turn to gold.</b></div>
+  </div>
+
+  <div class="scene" data-hold="4600">
+    <div class="line">Nothing grows in here<br>unless it happened <b>out there.</b></div>
+    <div class="small">a reality interface, not an escape</div>
+  </div>
+
+  <div class="scene" data-koi="swim" data-hold="4800">
+    <div class="line">A koi swims through it —<br>a guide that reads what you've spoken<br>and <b>reflects it back.</b></div>
+  </div>
+
+  <div class="scene" data-hold="4400">
+    <div class="line">Not another app fighting for your attention.<br>The first one that <b>hands it back.</b></div>
+  </div>
+
+  <div class="scene" id="doorsScene" data-koi="drift" data-hold="999999">
+    <div class="doors">The doors open August 1.</div>
+    <div id="count"></div>
+    <div class="price">Walking the realm is <b>free</b>.<br>Waking the koi is not.</div>
+    <div class="price-sub">The koi speaks on your own AI key — you pay the source, never a markup.</div>
+    <div id="joinRow">
+      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="your email">
+      <button id="joinBtn">Be there</button>
+    </div>
+    <div id="miniRow">
+      <button class="mini" id="icsBtn">✦ remind me</button>
+      <button class="mini" id="shareBtn">✦ share this</button>
+    </div>
+    <div class="gate">No one is told what waits at the gate.</div>
+    <div><button id="replay">↻ &nbsp;watch again</button></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+<div id="hint">tap to continue</div>
+<div id="dots"></div>
+
+<script>
+(function(){
+  /* ====== EDIT ME: your Apps Script webhook (or Squarespace form endpoint). Leave "" to fall back to the waitlist page. ====== */
+  var WAITLIST_ENDPOINT="";
+  var WAITLIST_PAGE="https://koilibraryofficial.com/waitlist";
+  var REALM_URL="https://koilibraryofficial-cell.github.io/Corridor/";
+
+  var scenes=[].slice.call(document.querySelectorAll('.scene'));
+  var dots=document.getElementById('dots');
+  scenes.forEach(function(){var i=document.createElement('i');dots.appendChild(i);});
+  var di=[].slice.call(dots.children);
+  var koi=document.getElementById('koi');
+
+  /* ================= living-canvas sky engine ================= */
+  (function(){
+    var canvas=document.getElementById('sky');
+    var ctx=canvas.getContext('2d');
+    var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var W=0,H=0,DPR=1;
+    var px=0,py=0,tx=0,ty=0; /* parallax current + target */
+
+    /* three star layers: far, mid, near — deeper = smaller, slower, dimmer */
+    var layers=[
+      {n:70,depth:.15,size:[.5,1.2],alpha:[.10,.35],stars:[]},
+      {n:44,depth:.35,size:[.8,1.7],alpha:[.16,.50],stars:[]},
+      {n:22,depth:.70,size:[1.2,2.4],alpha:[.22,.65],stars:[]}
+    ];
+    function seedStars(){
+      layers.forEach(function(L){
+        L.stars=[];
+        for(var i=0;i<L.n;i++){
+          L.stars.push({
+            x:Math.random(),y:Math.random(),
+            r:L.size[0]+Math.random()*(L.size[1]-L.size[0]),
+            ph:Math.random()*Math.PI*2,
+            sp:.4+Math.random()*.9,
+            vx:(Math.random()*.5+.2)*L.depth /* autonomous drift, px/s scaled later */
+          });
+        }
+      });
+    }
+
+    /* nebulae: pre-rendered radial-gradient sprites, drifting and breathing */
+    var NEB_HUES=[
+      {h:258,s:60,l:38,a:.085},
+      {h:335,s:65,l:44,a:.060},
+      {h:45, s:70,l:50,a:.040},
+      {h:190,s:60,l:42,a:.050},
+      {h:275,s:55,l:34,a:.075}
+    ];
+    var nebulae=[];
+    function makeSprite(hue){
+      var s=document.createElement('canvas');
+      var R=256;s.width=R*2;s.height=R*2;
+      var g=s.getContext('2d');
+      var grad=g.createRadialGradient(R,R,0,R,R,R);
+      grad.addColorStop(0,'hsla('+hue.h+','+hue.s+'%,'+hue.l+'%,'+hue.a+')');
+      grad.addColorStop(.55,'hsla('+hue.h+','+hue.s+'%,'+hue.l+'%,'+(hue.a*.45)+')');
+      grad.addColorStop(1,'hsla('+hue.h+','+hue.s+'%,'+hue.l+'%,0)');
+      g.fillStyle=grad;g.fillRect(0,0,R*2,R*2);
+      return s;
+    }
+    function seedNebulae(){
+      nebulae=[];
+      NEB_HUES.forEach(function(hue,i){
+        nebulae.push({
+          sprite:makeSprite(hue),
+          x:Math.random(),y:Math.random(),
+          scale:.9+Math.random()*1.4,           /* of min(W,H) */
+          vx:(Math.random()-.5)*.006,           /* screen-fractions per second */
+          vy:(Math.random()-.5)*.004,
+          ph:Math.random()*Math.PI*2,
+          br:.06+Math.random()*.06,             /* breathing amplitude */
+          depth:.08+i*.05                       /* faint parallax */
+        });
+      });
+    }
+
+    function resize(){
+      DPR=Math.min(window.devicePixelRatio||1,2);
+      W=window.innerWidth;H=window.innerHeight;
+      canvas.width=W*DPR;canvas.height=H*DPR;
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      if(reduced)drawFrame(0); /* static repaint on resize */
+    }
+
+    function drawFrame(t){
+      /* t in seconds */
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='#07070d';
+      ctx.fillRect(0,0,W,H);
+      var base=Math.min(W,H);
+      ctx.globalCompositeOperation='lighter';
+      /* nebulae */
+      for(var i=0;i<nebulae.length;i++){
+        var nb=nebulae[i];
+        var breathe=1+nb.br*Math.sin(t*.15+nb.ph);
+        var size=base*nb.scale*breathe;
+        var nx=((nb.x+nb.vx*t)%1.4+1.4)%1.4-.2; /* wrap through -0.2..1.2 */
+        var ny=((nb.y+nb.vy*t)%1.4+1.4)%1.4-.2;
+        var ox=px*nb.depth,oy=py*nb.depth;
+        ctx.drawImage(nb.sprite,nx*W-size/2+ox,ny*H-size/2+oy,size,size);
+      }
+      /* parallax star layers */
+      for(var L=0;L<layers.length;L++){
+        var lay=layers[L];
+        var ox2=px*lay.depth,oy2=py*lay.depth;
+        for(var s=0;s<lay.stars.length;s++){
+          var st=lay.stars[s];
+          var tw=reduced?1:(.5+.5*Math.sin(t*st.sp*1.6+st.ph));
+          var a=lay.alpha[0]+tw*(lay.alpha[1]-lay.alpha[0]);
+          var sx=(((st.x+st.vx*t*.01)%1.04)+1.04)%1.04-.02;
+          ctx.beginPath();
+          ctx.arc(sx*W+ox2,st.y*H+oy2,st.r,0,6.2832);
+          ctx.fillStyle='hsla(258,40%,82%,'+a.toFixed(3)+')';
+          ctx.fill();
+        }
+      }
+      ctx.globalCompositeOperation='source-over';
+    }
+
+    seedStars();seedNebulae();resize();
+    window.addEventListener('resize',resize);
+
+    if(reduced){
+      drawFrame(0); /* one still frame: nebulae + stars, no motion */
+    }else{
+      window.addEventListener('pointermove',function(e){
+        tx=(e.clientX/W-.5)*28;  /* max ±14px at full depth */
+        ty=(e.clientY/H-.5)*20;
+      },{passive:true});
+      var raf=null,t0=performance.now();
+      function loop(now){
+        var t=(now-t0)/1000;
+        px+=(tx-px)*.04;py+=(ty-py)*.04; /* lerp toward pointer */
+        drawFrame(t);
+        raf=requestAnimationFrame(loop);
+      }
+      raf=requestAnimationFrame(loop);
+      document.addEventListener('visibilitychange',function(){
+        if(document.hidden){if(raf){cancelAnimationFrame(raf);raf=null;}}
+        else if(!raf){t0=performance.now()-0;raf=requestAnimationFrame(loop);}
+      });
+    }
+  })();
+  /* ================ end sky engine ================ */
+
+  var idx=-1,timer=null,subTimers=[];
+  function clearSubs(){subTimers.forEach(clearTimeout);subTimers=[];}
+  function koiReset(){koi.classList.remove('swim','drift');void koi.offsetWidth;}
+  function toast(msg){
+    var t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('on');
+    setTimeout(function(){t.classList.remove('on');},2200);
+  }
+  function show(n){
+    if(n>=scenes.length)return;
+    clearTimeout(timer);clearSubs();
+    if(idx>=0)scenes[idx].classList.remove('on');
+    idx=n;
+    var sc=scenes[idx];
+    [].slice.call(sc.querySelectorAll('.star,.attest,.gold')).forEach(function(el){el.classList.remove('lit','on');});
+    if(sc.id==='demoScene'){
+      document.getElementById('typed').textContent='';
+      document.getElementById('demoOrb').classList.remove('gilded');
+    }
+    sc.classList.add('on');
+    di.forEach(function(el,k){el.classList.toggle('done',k<=idx);});
+    if(sc.id==='starScene'){
+      [].slice.call(sc.querySelectorAll('.star')).forEach(function(st,k){
+        subTimers.push(setTimeout(function(){st.classList.add('lit');},300+k*450));
+      });
+    }
+    if(sc.id==='witnessScene'){
+      [].slice.call(sc.querySelectorAll('.attest')).forEach(function(at,k){
+        subTimers.push(setTimeout(function(){at.classList.add('on');},1200+k*1100));
+      });
+      subTimers.push(setTimeout(function(){sc.querySelector('.gold').classList.add('on');},5100));
+    }
+    if(sc.id==='demoScene'){
+      var text='I had dinner with my mother.';
+      var el=document.getElementById('typed');
+      for(var c=0;c<text.length;c++){
+        (function(c){subTimers.push(setTimeout(function(){el.textContent=text.slice(0,c+1);},600+c*42));})(c);
+      }
+      subTimers.push(setTimeout(function(){document.getElementById('demoOrb').classList.add('gilded');},600+text.length*42+500));
+    }
+    if(sc.id==='doorsScene'){document.getElementById('hint').style.opacity=0;}
+    var kmode=sc.getAttribute('data-koi');
+    if(kmode){koiReset();koi.classList.add(kmode);}
+    var hold=parseInt(sc.getAttribute('data-hold'),10)||4500;
+    timer=setTimeout(function(){show(idx+1);},hold);
+  }
+  function next(){if(idx<scenes.length-1)show(idx+1);}
+  document.body.addEventListener('click',function(e){
+    if(e.target.closest('a,button,input'))return;
+    next();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT')return;
+    if(e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();next();}
+  });
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){clearTimeout(timer);clearSubs();}
+    else if(idx>=0&&idx<scenes.length-1){show(idx);}
+  });
+  document.getElementById('replay').addEventListener('click',function(e){
+    e.stopPropagation();
+    scenes[idx].classList.remove('on');
+    koiReset();
+    document.getElementById('hint').style.opacity=1;
+    idx=-1;show(0);
+  });
+
+  /* ---- countdown ---- */
+  function tick(){
+    var now=new Date(), open=new Date(2026,7,1,0,0,0);
+    var ms=open-now;
+    var el=document.getElementById('count');
+    if(ms<=0){
+      el.textContent='the doors are open';
+      if(!document.getElementById('enterBtn')){
+        var d=document.querySelector('.doors');
+        if(d)d.textContent='The doors are open.';
+        var row=document.getElementById('joinRow');
+        row.innerHTML='';
+        var a=document.createElement('a');
+        a.id='enterBtn';a.href=REALM_URL;a.textContent='Enter the Realm';
+        a.addEventListener('click',function(ev){ev.stopPropagation();});
+        row.appendChild(a);
+        var mr=document.getElementById('miniRow');
+        if(mr)mr.style.display='none';
+      }
+      return;
+    }
+    var dys=Math.floor(ms/864e5), hrs=Math.floor(ms%864e5/36e5), mins=Math.floor(ms%36e5/6e4);
+    el.textContent=dys+' days · '+hrs+' hours · '+mins+' min';
+  }
+  tick();setInterval(tick,30000);
+
+  /* ---- email capture ---- */
+  var joinBtn=document.getElementById('joinBtn'), emailEl=document.getElementById('email');
+  joinBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(joinBtn.classList.contains('done'))return;
+    var v=emailEl.value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){toast('speak a real email');emailEl.focus();return;}
+    if(WAITLIST_ENDPOINT){
+      try{
+        fetch(WAITLIST_ENDPOINT,{method:'POST',mode:'no-cors',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body:'email='+encodeURIComponent(v)+'&source=trailer'});
+      }catch(err){}
+      joinBtn.classList.add('done');joinBtn.textContent="You'll be there";
+      emailEl.disabled=true;
+    }else{
+      window.open(WAITLIST_PAGE+'?email='+encodeURIComponent(v),'_blank');
+      joinBtn.textContent='Finish on the next page';
+    }
+  });
+  emailEl.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();joinBtn.click();}});
+  emailEl.addEventListener('click',function(e){e.stopPropagation();});
+
+  /* ---- .ics remind me ---- */
+  document.getElementById('icsBtn').addEventListener('click',function(e){
+    e.stopPropagation();
+    var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//KOIL//Realm//EN','BEGIN:VEVENT',
+      'UID:koil-realm-doors-20260801@koilibraryofficial.com',
+      'DTSTAMP:20260712T000000Z','DTSTART;VALUE=DATE:20260801','DTEND;VALUE=DATE:20260802',
+      'SUMMARY:The KOIL Realm \u2014 the doors open',
+      'DESCRIPTION:Walking the realm is free. Waking the koi is not. '+WAITLIST_PAGE,
+      'URL:'+WAITLIST_PAGE,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+    var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');a.href=url;a.download='koil-realm-august-1.ics';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);a.remove();},4000);
+    toast('august 1, held');
+  });
+
+  /* ---- share ---- */
+  document.getElementById('shareBtn').addEventListener('click',function(e){
+    e.stopPropagation();
+    var payload={title:'The KOIL Realm',
+      text:'You were born into a world with no manual. The doors open August 1.',
+      url:location.href};
+    if(navigator.share){navigator.share(payload).catch(function(){});}
+    else if(navigator.clipboard){
+      navigator.clipboard.writeText(payload.text+' '+payload.url).then(function(){toast('copied \u2014 send it');});
+    }
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>
