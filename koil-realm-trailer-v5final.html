@@ -14,6 +14,8 @@
 <meta name="twitter:title" content="The KOIL Realm">
 <meta name="twitter:description" content="You were born into a world with no manual. This is the missing manual. The doors open August 1.">
 <meta name="twitter:image" content="https://koilibraryofficial-cell.github.io/Corridor/trailer/poster.png">
+<link rel="apple-touch-icon" href="https://koilibraryofficial-cell.github.io/Corridor/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="https://koilibraryofficial-cell.github.io/Corridor/apple-touch-icon.png">
 <style>
   :root{
     --void:#07070d;
@@ -74,18 +76,18 @@
     filter:drop-shadow(0 0 18px hsl(45 70% 70% / .5));opacity:0}
   #koi.swim{animation:swim 8s linear forwards}
   @keyframes swim{
-    0%{transform:translate(0,-50%) rotate(4deg) scale(1);opacity:0}
+    0%{transform:translate(0,-30vh) rotate(4deg) scale(1);opacity:0}
     8%{opacity:.95}
-    50%{transform:translate(56vw,-64%) rotate(-6deg) scale(1)}
+    50%{transform:translate(56vw,-34vh) rotate(-6deg) scale(1)}
     92%{opacity:.95}
-    100%{transform:translate(120vw,-46%) rotate(5deg) scale(1);opacity:0}
+    100%{transform:translate(120vw,-28vh) rotate(5deg) scale(1);opacity:0}
   }
   #koi.drift{animation:drift 11s linear forwards}
   @keyframes drift{
-    0%{transform:translate(130vw,-120%) rotate(184deg) scale(.55) scaleY(-1);opacity:0}
+    0%{transform:translate(130vw,-38vh) rotate(184deg) scale(.55) scaleY(-1);opacity:0}
     10%{opacity:.34}
     90%{opacity:.34}
-    100%{transform:translate(-30vw,-90%) rotate(176deg) scale(.55) scaleY(-1);opacity:0}
+    100%{transform:translate(-30vw,-35vh) rotate(176deg) scale(.55) scaleY(-1);opacity:0}
   }
   #koi .fin{animation:fin 1.6s ease-in-out infinite}
   @keyframes fin{0%,100%{transform:rotate(0)}50%{transform:rotate(9deg)}}
@@ -241,8 +243,7 @@
   /* ====== EDIT ME: your Apps Script webhook (or Squarespace form endpoint). Leave "" to fall back to the waitlist page. ====== */
   var WAITLIST_ENDPOINT="";
   var WAITLIST_PAGE="https://koilibraryofficial.com/waitlist";
-  var REALM_URL="https://koilibraryofficial-cell.github.io/Corridor/realm/";
-
+  var REALM_URL="https://koilibraryofficial-cell.github.io/Corridor/";
 
   var scenes=[].slice.call(document.querySelectorAll('.scene'));
   var dots=document.getElementById('dots');
