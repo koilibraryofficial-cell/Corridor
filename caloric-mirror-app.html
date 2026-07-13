@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A0E13">
+<link rel="apple-touch-icon" href="koi-icon.png">
 <title>My Caloric Mirror</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,500;0,700;1,300;1,500&family=EB+Garamond:ital@0;1&family=IBM+Plex+Mono:wght@300;500&display=swap" rel="stylesheet">
@@ -108,7 +111,7 @@
   .ladder .lname{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;
     font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;}
   .ladder .lname b{color:var(--deep);font-weight:500;}
-  .rail{height:6px;background:rgba(10,14,19,.7);border:1px solid var(--ice-line);position:relative;border-radius:3px;}
+  .rail{height:6px;background:rgba(10,14,19,.7);border:1px solid var(--ice-line);position:relative;border-radius:3px;overflow:visible;}
   .rail .fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px;transition:width .8s;
     background:linear-gradient(to right,var(--ember),#E8963C);}
   .rungs{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;
@@ -218,7 +221,6 @@
   .gnote{font-size:12.5px;font-style:italic;color:var(--mist);margin-top:7px;line-height:1.4;}
 
   /* ---------- LADDER KOI MARKER ---------- */
-  .rail{overflow:visible;}
   .rail .swimmer{position:absolute;top:-9px;font-size:15px;transform:translateX(-50%);
     filter:drop-shadow(0 0 6px rgba(255,77,94,.7));transition:left .8s;}
 
@@ -333,7 +335,7 @@
     text-transform:uppercase;color:var(--ember-glow);margin-bottom:4px;}
   .bforge .bsub{font-size:13px;font-style:italic;color:var(--mist);margin-bottom:8px;line-height:1.4;}
   .bfig{display:flex;justify-content:center;gap:26px;}
-  .bfig svg{height:190px;}
+  .bfig svg{height:200px;filter:drop-shadow(0 2px 10px rgba(0,0,0,.5));}
   .bfig .m{fill:#1A2430;stroke:#2A3A4C;stroke-width:1;transition:fill .6s;}
   .bfig text{font-family:'IBM Plex Mono',monospace;font-size:6px;fill:#5A6570;letter-spacing:.05em;}
   .bstat{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate);text-align:center;margin-top:8px;}
@@ -362,6 +364,38 @@
     text-align:center;margin:18px 0 4px;line-height:1.5;}
   .bk-saved{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mist);text-align:center;margin-top:6px;}
 
+
+  /* ---------- PAPER ---------- */
+  #pageBook .sec-body{background:#F2EBDD;border-radius:12px;padding:18px 16px !important;margin:0 -2px;
+    box-shadow:inset 0 0 40px rgba(160,130,80,.15), 0 6px 18px rgba(0,0,0,.4);}
+  #pageBook .bk-quote{color:#5A4A33;}
+  #pageBook .bk-h{color:#8A6F3C;}
+  #pageBook .bk-row{border-bottom:1px dashed #C9BBA0;}
+  #pageBook .bk-row .l{color:#5A4A33;} #pageBook .bk-row .v{color:#2E2718;}
+  #pageBook .bk-row.total .v{color:#8A6F3C;font-weight:500;}
+  #pageBook .bk-q{color:#2E2718;}
+  #pageBook .bk-a{background:#FAF6EC;border:1px solid #C9BBA0;color:#2E2718;}
+  #pageBook .bk-a:focus{border-color:#8A6F3C;}
+  #pageBook .bk-close{color:#8A6F3C;}
+  #pageBook .bk-saved{color:#9A8A6A;}
+  #pageBook .sec-head h3{color:var(--gold);}
+
+
+  /* ---------- THE OPENING ---------- */
+  #intro{position:absolute;inset:0;background:#05080C;z-index:100;display:none;overflow:hidden;}
+  #intro.show{display:block;}
+  #introCv{position:absolute;inset:0;width:100%;height:100%;}
+  .in-text{position:absolute;left:8%;right:8%;top:38%;text-align:center;
+    font-family:'Cormorant',serif;font-weight:300;font-size:26px;line-height:1.45;color:#EDE6D8;
+    opacity:0;transition:opacity 1.1s;text-shadow:0 2px 18px rgba(0,0,0,.8);}
+  .in-text.on{opacity:1;}
+  .in-text b{color:var(--gold);font-weight:500;}
+  .in-sub{display:block;font-size:15px;font-style:italic;color:var(--mist);margin-top:12px;letter-spacing:.04em;}
+  .in-skip{position:absolute;top:14px;right:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;
+    letter-spacing:.2em;color:var(--mist);cursor:pointer;padding:8px 12px;border:1px solid #22303E;border-radius:10px;z-index:5;}
+  .in-tap{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-family:'IBM Plex Mono',monospace;
+    font-size:10px;letter-spacing:.35em;color:#3A4855;animation:glowpulse 2.6s infinite;}
+
 </style>
 </head>
 <body>
@@ -371,6 +405,7 @@
 <div class="page on" id="pageHome">
   <div class="lintel">
     <div class="day" id="dayLabel">MY CALORIC MIRROR</div>
+    <div class="day" id="streakLine" style="cursor:pointer;color:var(--gold);margin-top:-4px"></div>
     <div class="q" id="quote">One rule above all others: honest numbers only.</div>
   </div>
   <div class="pond">
@@ -378,10 +413,14 @@
     <button class="gear" id="gearBtn" title="Recalibrate">⚙</button>
     <canvas id="water"></canvas>
     <div class="num-overlay">
-      <div class="num-eyebrow">CALORIC UNITS</div>
+      <div class="num-eyebrow" id="formLabel" style="pointer-events:auto;cursor:pointer">CALORIC UNITS</div>
       <div id="mirrorNumber">—</div>
       <div id="targetLine"></div>
     </div>
+  </div>
+  <div class="strip" style="margin-top:12px">
+    <div>Day started at<b id="sStart" style="color:var(--gold)">—</b></div>
+    <div>Now<b id="sNow" style="color:var(--gold)">—</b></div>
   </div>
   <div class="strip">
     <div class="in">In today<b id="sIn">0</b></div>
@@ -425,47 +464,80 @@
     <button id="moveSearchBtn">🔍</button>
   </div>
   <div class="marks" id="strMarks"></div>
+  <button class="btn" id="sessBtn" style="display:block;width:calc(100% - 24px);margin:12px 12px 0;padding:14px 0;
+    font-family:'Cormorant',serif;font-weight:700;letter-spacing:.24em;font-size:15px;text-transform:uppercase;
+    color:#fff;background:var(--ember);border-color:var(--ember)">⚔ Begin Forge Session</button>
+  <div id="sessPanel" style="display:none;margin:12px 12px 0;background:var(--glass);border:1px solid rgba(255,77,94,.4);
+    border-radius:16px;padding:14px 16px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:22px;color:var(--deep)" id="sessClock">0:00</span>
+      <canvas id="restRing" width="64" height="64" style="width:64px;height:64px"></canvas>
+    </div>
+    <div style="display:flex;gap:6px;margin:8px 0 4px">
+      <button class="btn rbtn" data-r="60">60s</button><button class="btn rbtn" data-r="90">90s</button>
+      <button class="btn rbtn" data-r="120" style="color:var(--gold)">120s</button><button class="btn rbtn" data-r="180">180s</button>
+    </div>
+    <input id="sessEx" placeholder="exercise" style="width:100%;margin:8px 0;background:rgba(16,24,33,.95);
+      border:1px solid var(--ice-line);color:var(--deep);font-family:'EB Garamond',serif;font-size:16px;padding:11px;border-radius:12px">
+    <div style="display:flex;gap:8px;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">
+      <button class="btn" id="wDn">−5</button><span id="sessW" style="font-size:18px;color:var(--gold);min-width:64px;text-align:center">185</span><button class="btn" id="wUp">+5</button>
+      <span style="color:var(--mist)">×</span>
+      <button class="btn" id="rDn">−1</button><span id="sessR" style="font-size:18px;color:var(--gold);min-width:34px;text-align:center">8</span><button class="btn" id="rUp">+1</button>
+    </div>
+    <button class="btn" id="logSetBtn" style="display:block;width:100%;margin-top:10px;padding:13px 0;color:#fff;
+      background:var(--ember);border-color:var(--ember);font-family:'Cormorant',serif;font-weight:700;
+      letter-spacing:.2em;text-transform:uppercase">Log Set</button>
+    <div id="sessBark" style="font-style:italic;color:var(--slate);font-size:14px;margin-top:9px;min-height:20px"></div>
+    <button class="btn" id="sealBtn" style="display:block;width:100%;margin-top:10px;padding:11px 0;color:var(--gold)">Seal the Session</button>
+  </div>
   <div class="bforge">
     <div class="btitle">THE BODY FORGE — TAKE IT ALL RED</div>
     <div class="bsub">Every movement you log pours effort into the muscles it works. Full crimson in every muscle is the day's conquest — and each conquest raises the bar.</div>
     <div class="bfig">
-      <svg viewBox="0 0 100 200" id="figFront">
-        <ellipse class="m" data-g="head" cx="50" cy="14" rx="9" ry="11"/>
-        <rect class="m" data-g="shoulders" x="28" y="28" width="44" height="9" rx="4"/>
-        <rect class="m" data-g="chest" x="34" y="38" width="32" height="16" rx="5"/>
-        <rect class="m" data-g="core" x="37" y="56" width="26" height="22" rx="5"/>
-        <rect class="m" data-g="biceps" x="20" y="38" width="10" height="18" rx="4"/>
-        <rect class="m" data-g="biceps" x="70" y="38" width="10" height="18" rx="4"/>
-        <rect class="m" data-g="forearms" x="18" y="58" width="9" height="20" rx="4"/>
-        <rect class="m" data-g="forearms" x="73" y="58" width="9" height="20" rx="4"/>
-        <rect class="m" data-g="quads" x="36" y="82" width="12" height="34" rx="5"/>
-        <rect class="m" data-g="quads" x="52" y="82" width="12" height="34" rx="5"/>
-        <rect class="m" data-g="calves" x="37" y="120" width="10" height="26" rx="4"/>
-        <rect class="m" data-g="calves" x="53" y="120" width="10" height="26" rx="4"/>
-        <ellipse class="m" data-g="heart" cx="50" cy="45" rx="4.5" ry="5"/>
-        <text x="50" y="160" text-anchor="middle">FRONT</text>
+      <svg viewBox="0 0 100 190" id="figFront">
+        <defs><filter id="soft"><feGaussianBlur stdDeviation="0.6"/></filter></defs>
+        <ellipse class="m" data-g="head" cx="50" cy="13" rx="8" ry="10"/>
+        <rect class="m" data-g="head" x="46.5" y="22" width="7" height="5" rx="2"/>
+        <path class="m" data-g="shoulders" d="M30 30 Q50 25 70 30 L70 37 Q50 33 30 37 Z"/>
+        <path class="m" data-g="chest" d="M34 39 Q50 36 66 39 L64 55 Q50 58 36 55 Z"/>
+        <ellipse class="m" data-g="heart" cx="50" cy="45" rx="4" ry="4.6"/>
+        <path class="m" data-g="core" d="M37 58 Q50 60 63 58 L61 80 Q50 83 39 80 Z"/>
+        <rect class="m" data-g="biceps" x="21" y="37" width="9" height="19" rx="4.5"/>
+        <rect class="m" data-g="biceps" x="70" y="37" width="9" height="19" rx="4.5"/>
+        <rect class="m" data-g="forearms" x="19.5" y="57" width="8" height="20" rx="4"/>
+        <rect class="m" data-g="forearms" x="72.5" y="57" width="8" height="20" rx="4"/>
+        <path class="m" data-g="quads" d="M39 84 L48 84 L47 118 L40 118 Z" />
+        <path class="m" data-g="quads" d="M52 84 L61 84 L60 118 L53 118 Z"/>
+        <rect class="m" data-g="calves" x="40" y="121" width="8" height="26" rx="4"/>
+        <rect class="m" data-g="calves" x="52" y="121" width="8" height="26" rx="4"/>
+        <text x="50" y="162" text-anchor="middle">FRONT</text>
       </svg>
-      <svg viewBox="0 0 100 200" id="figBack">
-        <ellipse class="m" data-g="head" cx="50" cy="14" rx="9" ry="11"/>
-        <rect class="m" data-g="traps" x="34" y="26" width="32" height="10" rx="4"/>
-        <rect class="m" data-g="back" x="34" y="38" width="32" height="24" rx="5"/>
-        <rect class="m" data-g="lowback" x="38" y="64" width="24" height="12" rx="4"/>
-        <rect class="m" data-g="triceps" x="20" y="38" width="10" height="18" rx="4"/>
-        <rect class="m" data-g="triceps" x="70" y="38" width="10" height="18" rx="4"/>
-        <rect class="m" data-g="forearms" x="18" y="58" width="9" height="20" rx="4"/>
-        <rect class="m" data-g="forearms" x="73" y="58" width="9" height="20" rx="4"/>
-        <rect class="m" data-g="glutes" x="37" y="78" width="26" height="12" rx="5"/>
-        <rect class="m" data-g="hamstrings" x="36" y="92" width="12" height="26" rx="5"/>
-        <rect class="m" data-g="hamstrings" x="52" y="92" width="12" height="26" rx="5"/>
-        <rect class="m" data-g="calves" x="37" y="122" width="10" height="24" rx="4"/>
-        <rect class="m" data-g="calves" x="53" y="122" width="10" height="24" rx="4"/>
-        <text x="50" y="160" text-anchor="middle">BACK</text>
+      <svg viewBox="0 0 100 190" id="figBack">
+        <ellipse class="m" data-g="head" cx="50" cy="13" rx="8" ry="10"/>
+        <rect class="m" data-g="head" x="46.5" y="22" width="7" height="5" rx="2"/>
+        <path class="m" data-g="traps" d="M34 28 Q50 23 66 28 L64 36 Q50 32 36 36 Z"/>
+        <path class="m" data-g="back" d="M35 38 Q50 36 65 38 L62 62 Q50 65 38 62 Z"/>
+        <path class="m" data-g="lowback" d="M39 64 Q50 66 61 64 L60 76 Q50 78 40 76 Z"/>
+        <rect class="m" data-g="triceps" x="21" y="37" width="9" height="19" rx="4.5"/>
+        <rect class="m" data-g="triceps" x="70" y="37" width="9" height="19" rx="4.5"/>
+        <rect class="m" data-g="forearms" x="19.5" y="57" width="8" height="20" rx="4"/>
+        <rect class="m" data-g="forearms" x="72.5" y="57" width="8" height="20" rx="4"/>
+        <path class="m" data-g="glutes" d="M38 79 Q50 76 62 79 L61 90 Q50 93 39 90 Z"/>
+        <path class="m" data-g="hamstrings" d="M39 93 L48 93 L47 120 L40 120 Z"/>
+        <path class="m" data-g="hamstrings" d="M52 93 L61 93 L60 120 L53 120 Z"/>
+        <rect class="m" data-g="calves" x="40" y="123" width="8" height="25" rx="4"/>
+        <rect class="m" data-g="calves" x="52" y="123" width="8" height="25" rx="4"/>
+        <text x="50" y="162" text-anchor="middle">BACK</text>
       </svg>
     </div>
     <div class="bstat" id="forgeStat"></div>
   </div>
   <div class="quick" id="quickMove"></div>
   <div class="daylist" id="moveList"></div>
+  <div class="section" id="weekSec">
+    <div class="sec-head"><h3>The Week's Work · Sets Per Muscle</h3><span class="car">›</span></div>
+    <div class="sec-body" id="weekWork"></div>
+  </div>
   <div class="section open" id="ladderSec">
     <div class="sec-head"><h3>The Ladders · Climb to Elite</h3><span class="car">›</span></div>
     <div class="sec-body" id="ladders"></div>
@@ -509,6 +581,13 @@
     <div class="sec-head"><h3>The Path · Everything, In Time</h3><span class="car">›</span></div>
     <div class="sec-body"><div id="pathDay"></div></div>
   </div>
+  <div class="section" id="boardSec">
+    <div class="sec-head"><h3>Founding Holders · Wall of Witnesses</h3><span class="car">›</span></div>
+    <div class="sec-body">
+      <div id="boardList" class="dempty">Names and days, nothing else — every kingdom on that board is its own.</div>
+      <button class="btn" id="boardJoin" style="width:100%;margin-top:10px;padding:11px 0;color:var(--gold)">Join with a name</button>
+    </div>
+  </div>
   <div class="section open" id="wallSec">
     <div class="sec-head"><h3>The Wall · Marks</h3><span class="car">›</span></div>
     <div class="sec-body">
@@ -530,6 +609,7 @@
     <div class="tab pth" data-page="pagePath"><span class="ic">📜</span>Path</div>
     <div class="tab bok" data-page="pageBook"><span class="ic">📕</span>Book</div>
     <div class="tab" id="chatBtn" style="flex:0 0 46px"><span class="ic">💬</span></div>
+    <div class="tab" id="infoBtn" style="flex:0 0 46px"><span class="ic">ⓘ</span></div>
   </div>
   <div class="bar">
     <div class="bar-inner">
@@ -539,11 +619,18 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v21</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v25</div>
   </div>
 </div>
 
 <!-- SETUP -->
+<div id="intro">
+  <canvas id="introCv"></canvas>
+  <div class="in-text" id="inText"></div>
+  <span class="in-skip" id="inSkip">SKIP ›</span>
+  <div class="in-tap">TAP TO CONTINUE</div>
+</div>
+
 <div class="panel" id="setup">
   <h2>My Caloric Mirror</h2>
   <div class="tag">The first mark on the wall. Weight × 3,500 — your starting truth, not your permanent reality.</div>
@@ -553,7 +640,8 @@
   <div class="field"><label>Body</label><select id="sSex"><option value="m">Male</option><option value="f">Female</option></select></div>
   <div class="field"><label>Target weight (optional — the mirror never requires a line)</label><input id="tIn" type="number" inputmode="decimal" placeholder="leave blank to simply witness"></div>
   <div class="field"><label>Your goal — in your own words</label><input id="gIn" type="text" placeholder="e.g. cut to 155 shredded but keep my strength" autocomplete="off"></div>
-  <div class="field"><label>Mirror Key (wakes the fish — stored only in this browser)</label><input id="kIn" type="password" placeholder="your key from the keeper — or sk-ant-… if you are the keeper" autocomplete="off"></div>
+  <div class="field"><label>Mirror Key — wakes KOI's full mind for all 90 days</label><input id="kIn" type="password" placeholder="paste your Mirror Key" autocomplete="off"></div>
+  <div class="mid-note">No key yet? Get yours at <b>KOIlibraryOfficial.com/mirror-key</b> — $33 for the full 90 days. The app works free without one; KOI's photo-reading, coaching, and living dictionary wake with the key.</div>
   <div id="mirrorPreview"></div>
   <div class="mid-note">Your resting burn drains the water continuously, in real time — sleep included, never counted twice.</div>
   <button class="big-btn" id="claimBtn">Claim My Mirror</button>
@@ -586,8 +674,17 @@ const store=(()=>{let mem={},ok=false;
 
 let S=JSON.parse(store.get('caloricMirror')||'null')||{
   profile:null,targetW:null,startDate:null,mirrorStart:0,calib:1.0,
-  marks:[],days:{},lifts:{},chat:[],lastGreet:null,toured:false,sound:false
+  marks:[],days:{},lifts:{},chat:[],lastGreet:null,toured:false,sound:false,
+  book:{},roomSeen:{},forgeCrowns:0,lastCrown:null,registered:false,reflect:null,goalText:null,plan:null,apiKey:null,
+  prs:{},streak:{current:0,longest:0,lastSeen:null},form:1,gateCrossed:false,session:null,installAsked:false,notifAsked:false,boardName:null
 };
+function normalizeState(){
+  S.book=S.book||{};S.roomSeen=S.roomSeen||{};S.marks=S.marks||[];S.days=S.days||{};
+  S.lifts=S.lifts||{};S.chat=S.chat||[];S.forgeCrowns=S.forgeCrowns||0;
+  S.calib=S.calib||1.0;S.registered=!!S.registered;
+  S.prs=S.prs||{};S.streak=S.streak||{current:0,longest:0,lastSeen:null};S.form=S.form||1;
+}
+normalizeState();
 const save=()=>store.set('caloricMirror',JSON.stringify(S));
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const dayIndex=()=>S.startDate?Math.floor((new Date(todayKey())-new Date(S.startDate))/864e5)+1:0;
@@ -600,18 +697,23 @@ function bmr(){const p=S.profile,kg=p.w*0.4536,cm=p.h*2.54;
 function dayTotals(key){const d=S.days[key];if(!d)return{inC:0,outMove:0};
   return{inC:d.in.reduce((a,b)=>a+b.kcal,0),outMove:d.out.reduce((a,b)=>a+b.kcal,0)};}
 function secondsToday(){const n=new Date();return n.getHours()*3600+n.getMinutes()*60+n.getSeconds();}
+function anchorMark(beforeKey){
+  let a=null;
+  for(const m of (S.marks||[])){ if(m.date<=beforeKey && (!a||m.date>=a.date)) a=m; }
+  return a||(S.marks&&S.marks[0])||{date:S.startDate,mirror:S.mirrorStart};
+}
 function mirrorNow(){
   if(!S.profile)return 0;
-  const b=bmr(),tk=todayKey();
-  let total=S.mirrorStart;
-  for(const key of Object.keys(S.days).sort()){
-    if(key>=tk)continue;
-    const t=dayTotals(key);total+=t.inC-t.outMove-b;}
-  const elapsed=Math.max(0,Math.round((new Date(tk)-new Date(S.startDate))/864e5));
-  const loggedSealed=Object.keys(S.days).filter(k=>k<tk).length;
-  total-=b*(elapsed-loggedSealed);
+  const b=bmr(), tk=todayKey(), a=anchorMark(tk);
+  let total=a.mirror;
+  for(let d=new Date(a.date+'T12:00'); ; d.setDate(d.getDate()+1)){
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if(k>=tk)break;
+    const t=dayTotals(k);
+    total += t.inC - t.outMove - b;
+  }
   const t=dayTotals(tk);
-  total+=t.inC-t.outMove-b*(secondsToday()/86400);
+  total += t.inC - t.outMove - b*(secondsToday()/86400);
   return Math.max(0,total);
 }
 function witnessedCount(){return Object.values(S.days).filter(d=>d.in.length||d.out.length).length;}
@@ -776,15 +878,15 @@ const MOVES=[
  {re:/dr(ove|iving|ive)/,met:1.3,name:'Driving'},{re:/plank/,met:3.5,name:'Plank'}
 ];
 const FOODS=[
- {re:/chipotle|burrito bowl/,kcal:900,name:'Chipotle bowl'},{re:/burrito/,kcal:1000,name:'Burrito'},
- {re:/turkey sandwich/,kcal:450,name:'Turkey sandwich'},{re:/sandwich/,kcal:450,name:'Sandwich'},
- {re:/banana/,kcal:105,name:'Banana'},{re:/apple/,kcal:95,name:'Apple'},
- {re:/eggs?\b/,each:78,name:'Egg'},{re:/chicken breast|grilled chicken/,kcal:280,name:'Chicken breast'},
- {re:/rice/,kcal:210,name:'Rice (cup)'},{re:/oatmeal|oats/,kcal:300,name:'Oatmeal'},
- {re:/protein shake|shake/,kcal:250,name:'Protein shake'},{re:/salad/,kcal:350,name:'Salad'},
- {re:/pizza/,each:285,name:'Pizza slice'},{re:/coffee/,kcal:5,name:'Coffee (black)'},
- {re:/smoothie/,kcal:320,name:'Smoothie'},{re:/\bwater\b|fast(ed|ing)?/,kcal:0,name:'Water / fasting'},
- {re:/steak/,kcal:600,name:'Steak'},{re:/salmon/,kcal:400,name:'Salmon'}
+ {re:/chipotle|burrito bowl/,kcal:900,name:'Chipotle bowl',p:40},{re:/burrito/,kcal:1000,name:'Burrito',p:35},
+ {re:/turkey sandwich/,kcal:450,name:'Turkey sandwich',p:28},{re:/sandwich/,kcal:450,name:'Sandwich',p:20},
+ {re:/banana/,kcal:105,name:'Banana',p:1},{re:/apple/,kcal:95,name:'Apple',p:0},
+ {re:/eggs?\b/,each:78,name:'Egg',p:6},{re:/chicken breast|grilled chicken/,kcal:280,name:'Chicken breast',p:52},
+ {re:/rice/,kcal:210,name:'Rice (cup)',p:5},{re:/oatmeal|oats/,kcal:300,name:'Oatmeal',p:10},
+ {re:/protein shake|shake/,kcal:250,name:'Protein shake',p:25},{re:/salad/,kcal:350,name:'Salad',p:8},
+ {re:/pizza/,each:285,name:'Pizza slice',p:12},{re:/coffee/,kcal:5,name:'Coffee (black)',p:0},
+ {re:/smoothie/,kcal:320,name:'Smoothie',p:5},{re:/\bwater\b|fast(ed|ing)?/,kcal:0,name:'Water / fasting',p:0},
+ {re:/steak/,kcal:600,name:'Steak',p:50},{re:/salmon/,kcal:400,name:'Salmon',p:40}
 ];
 function localEstimate(text){
   const t=text.toLowerCase();
@@ -799,7 +901,8 @@ function localEstimate(text){
     return{type:'out',name:m.name+(n?` · ${n}${mins?' min':miles?' mi':''}`:'')+extra,kcal:Math.max(0,kcal)};}}
   for(const f of FOODS){if(f.re.test(t)){
     const kcal=f.each?Math.round(f.each*(n||1)):f.kcal;
-    return{type:'in',name:f.name+(f.each&&n?` × ${n}`:''),kcal};}}
+    const p=f.p!=null?(f.each?Math.round(f.p*(n||1)):f.p):0;
+    return{type:'in',name:f.name+(f.each&&n?` × ${n}`:''),kcal,p};}}
   if(n&&/cal/.test(t))return{type:/burn|work|train/.test(t)?'out':'in',name:text,kcal:Math.round(n)};
   return null;
 }
@@ -815,17 +918,20 @@ const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Cal
 'APOTHECARY: supplements are the footnote, food is the text. Only these earn shelf space: creatine monohydrate 3-5g, protein powder as food-gap filler, vitamin D3 1000-2000 IU (blood panel decides the real dose), omega-3 1-2g EPA+DHA, magnesium glycinate 200-400mg, electrolytes on heavy-sweat days, caffeine 100-200mg pre-work. Clean-label laws: single ingredients, third-party tested (NSF Certified for Sport / Informed Sport), never proprietary blends. Everything else — fat burners, detox teas, testosterone boosters — is painted water: say so plainly. Always name the food that beats the pill, and for doses tied to blood levels point to their doctor without being preachy. '+
 'GAPS: when asked what to eat, what is missing, or what the body needs, compare TODAY SO FAR against their daily marks and name the exact gaps with numbers (e.g. 62g protein short, 40 oz water behind, 180 under your calorie mark) — then give 2-3 concrete picks from alive foods that close them, sized to their goal and bodyweight. Same for supplements: name what their day is missing before naming any pill. '+
 'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
+'OVERLOAD: when they log a lift, compare against their last performance of that exercise and their PR; if they matched last time, call the next small step (+5 lb or +1 rep). One line, drill-fire voice, never demand. '+
+'COMPARISONS: whenever they log movement, place it honestly against the average person (~200 kcal purposeful movement a day) and the elite standard (600+ kcal and structured sets), and against THEIR OWN yesterday — the true opponent is always yesterday’s them. State the digital body growth percent when it moves. All comparisons are estimates; say so lightly, never let precision-theater in. '+
+'The Forge, sessions, and ladders never measure worth; a walker who never lifts still becomes the dragon. '+
 'DRILL FIRE: you are also a personal trainer with a military guide\'s fire — you believe in their potential more than they do, and you push. The Body Forge figure is the digital them: every workout deposited trains it. When they log movement, acknowledge the deposit, name what ignited, then call out the coldest muscle BY NAME with a specific ask (\"quads are cold — 40 squats lights them, give me that\"). Challenge escalation, never shame: fire aimed at their potential, never at their worth. If they rest or decline, honor it instantly — Law 4 outranks the fire. '+
 'RPG BENEFITS: speak effects like a game item card — the buff and the cost, plainly: a Twinkie is an energy spike now and a crash in an hour; salmon is brain oil and muscle repair; squats are +legs +spine +will. Every food, supplement, and movement has an effect line — name it when teaching. '+
 'THE SPECTRUM OF LIGHT: everything sits on a voltage from radiant (raises the whole system — clean water, living greens, wild plants) through green (clean daily fuel), gold (supports a system under the right conditions), violet (traditional botanicals, long human lineage, honored even where modern data is thin), amber (neutral), to dim (pulls toward the least optimal — heavy, processed). You inform, you never command. Name where something sits and why, name real cautions (medication interactions, blood-test effects) plainly, always name the food or practice that comes first, and leave the choice with the person — the mirror reflects, it does not rule. '+
-    'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number,"p":protein-grams-if-food-else-0}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
+    'RESPOND WITH RAW JSON ONLY, no markdown fences: {"reply":"1-3 sentences in your voice","items":[{"type":"in"|"out","name":"short label","kcal":number,"p":protein-grams-if-food-else-0,"sets":[{"ex":"name","w":lbs,"r":reps}] optional-for-lifts}]} — items may be empty when they are just talking or asking. Round kcal to whole numbers. Multiple foods become multiple items.';
 
 async function askClaude(text,images){
   const context='PERSON: '+JSON.stringify(S.profile)+(S.goalText?' | STATED GOAL: "'+S.goalText+'" | daily marks: '+JSON.stringify(S.plan||{}):'')+
     (S.targetW?' | their chosen line: '+S.targetW+' lbs':' | witnessing only, no target line')+
     ' | day '+dayIndex()+' of 90 | metabolic calibration ×'+S.calib+
     ' | today so far: '+JSON.stringify(S.days[todayKey()]||{in:[],out:[]})+
-    ' | strength records: '+JSON.stringify(S.lifts)+
+    ' | strength records: '+JSON.stringify(S.lifts)+' | PRs: '+JSON.stringify(S.prs)+' | recent sets: '+JSON.stringify(recentSetsFlat(30))+
     ' | recent conversation: '+JSON.stringify(S.chat.slice(-12));
   const content=[];
   (images||[]).slice(0,4).forEach(img=>content.push({type:'image',
@@ -879,6 +985,16 @@ async function askClaudeRaw(prompt){
       if(body.error){fishNote('The key was refused: '+(body.error.message||'check it in ⚙').slice(0,120));return null;}
       let t=(body.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
       try{return JSON.parse(t);}catch(e){return null;}
+    }catch(e){return null;}
+  }
+  if(CONFIG.SCRIPT_URL&&S.apiKey){
+    try{
+      const res=await fetch(CONFIG.SCRIPT_URL,{method:'POST',redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({mode:'card',token:S.apiKey,prompt})});
+      const out=await res.json();
+      if(out&&out.error==='key'){fishNote(out.reply);return null;}
+      return out&&out.n||out&&out.calTarget?out:(out&&out.card?out.card:out);
     }catch(e){return null;}
   }
   return null;
@@ -954,12 +1070,14 @@ function fishAsk(){
   if(t.inC===0&&h<12)return 'Eaten yet? Just name it — “two eggs and toast” is plenty. Close is good enough.';
   if(t.inC===0)return 'What’ve you eaten today? Say it plain and watch the water move.';
   if(t.outMove===0&&h>=10)return 'Moved your body at all? Everything counts — a walk to the store counts.';
+  if(h>=19&&!(S.book[Math.min(dayIndex(),90)]||[]).some(a=>a))return 'The evening is here. Say <b>“reflect”</b> and I’ll ask you the book’s four questions for Day '+Math.min(dayIndex(),90)+' — your answers write straight onto the page.';
   if(h>=19)return 'Anything I didn’t see today? Snacks, drinks, late bites. That’s the whole practice.';
   return 'I’m here. Food, movement, or any question about either — just talk.';
 }
 
 /* first-visit tour — the fish explains everything */
 const TOUR=[
+ 'Before we begin, one honest word. 🕯 Watching your numbers brings clarity to most people — but if you have a history of disordered eating, talk with someone you trust or a provider before starting this walk. I’m a mirror and a guide, not a doctor; everything here, supplements included, is information — never prescription. The door is open either way, and you choose.',
  'Hey — I’m <b>KOI</b>. 🐟 Your guide in this water. I live here, and I only do one thing: reflect the truth back to you.',
  'That big number up top is <b>you</b>, measured in calories — your weight × 3,500. It breathes in real time. Watch it move as you talk to me.',
  'Tell me what you <b>eat</b> and the water rises. Tell me how you <b>move</b> and it falls — though movement is a <b>bonus wing</b>, never a demand; the book asks only that you look. Your body burns some just resting — I count that every second, sleep included.',
@@ -983,9 +1101,12 @@ function runTour(){
 /* idle nudges — the fish taps the glass */
 let attention=1,lastAct=Date.now();
 ['click','keydown','touchstart'].forEach(ev=>addEventListener(ev,()=>lastAct=Date.now()));
+let nudgeTimes=[];
 setInterval(()=>{
   if(!S.profile||document.hidden)return;
-  if(Date.now()-lastAct>50000&&!$('bubble').classList.contains('show')){
+  nudgeTimes=nudgeTimes.filter(t=>Date.now()-t<3600000);
+  if(Date.now()-lastAct>240000&&nudgeTimes.length<2&&!$('bubble').classList.contains('show')){
+    nudgeTimes.push(Date.now());
     attention=1;
     const nudges=activeTab==='pageStr'&&S.profile?[('The forge waits.'+fireChallenge()).trim()]:['Psst — KOI here. '+fishAsk(),'Come talk to me — anything you ate, drank, took, or did. I’ll do the math and the time.','The water’s been quiet. What did I miss?'];
     fishSay(nudges[Math.floor(Math.random()*nudges.length)]);
@@ -997,6 +1118,13 @@ function greetIfNewDay(){
   const tk=todayKey();
   if(!S.profile||S.lastGreet===tk)return;
   S.lastGreet=tk;save();
+  setTimeout(maybeOfferInstall,15000);setTimeout(maybeOfferNotifs,30000);
+  if(dayIndex()>=90&&!S.registered){
+    S.registered=true;save();
+    const finalTotal=Math.round(mirrorNow());
+    fishSay('🕯 <b>Ninety days.</b> You came willing to see your truth and you never flinched. Your Mirror ID opened this walk; your <b>Final Mirror Total</b> closes it: <b>'+fmt(finalTotal)+'</b>. Claim your place among the Founding Holders — your completion, sealed in the Kingdom: <b>KOIlibraryOfficial.com/founding-holder</b>. Bring your number.',null,null,true);
+    return;
+  }
   const d=Math.min(dayIndex(),90);
   fishSay(`Day ${dayIndex()}. <i>${QUOTES[String(d)]||QUOTES['90']}</i><br><br>${fishAsk()}`);
 }
@@ -1004,7 +1132,7 @@ function greetIfNewDay(){
 
 /* ============ KOI EXPLAINS HIMSELF ON REQUEST ============ */
 function koiHelp(){
-  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. The <b>📕 Book</b> tab is the paper journal itself, word for word — numbers auto-filled from your day, evening reflections answered in your own words, one tap to copy the whole page into the physical book. Ask me anything. I reflect; you choose.',null,null,true);
+  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“intro”</b> to replay the opening story. Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. The <b>📕 Book</b> tab is the paper journal itself, word for word — numbers auto-filled from your day, evening reflections answered in your own words, one tap to copy the whole page into the physical book. Ask me anything. I reflect; you choose.',null,null,true);
 }
 
 /* ============ HANDLE INPUT ============ */
@@ -1028,41 +1156,51 @@ async function handle(text,images,imgSrcs){
   if(!text&&!(images&&images.length))return;
   addMe(text||'📷',imgSrcs);
   const tl=text.toLowerCase();
+  if(S.reflect&&S.reflect.day){handleReflection(text);return;}
   if(/^(help|what can you do|who are you|how do (i|you) work|what do you do|guide me)\b/.test(tl)){koiHelp();return;}
+  if(/^(reflect|evening|close the day|seal the day)\b/.test(tl)){startReflection();return;}
   if(/analy[sz]|full report|how am i doing|read the mirror/.test(tl)){koiAnalyze();return;}
+  if(/^(intro|opening|the movie|play the opening)\b/.test(tl)){playIntro();return;}
   const wm=text.toLowerCase().match(/weigh(?:ed)?(?:\s*in)?\s*(?:at)?\s*(\d{2,3}(?:\.\d+)?)/);
   if(wm){weighIn(parseFloat(wm[1]));return;}
   const wat=text.toLowerCase().match(/(?:drank|had|drinking)?\s*(?:a\s+)?(?:(\d+(?:\.\d+)?)\s*(oz|ounces?|liters?|l\b|cups?|bottles?|glass(?:es)?)\s+(?:of\s+)?)?water(?!melon)/);
-  if(wat&&/water(?!melon)/.test(text.toLowerCase())&&!/with water|water the/.test(text.toLowerCase())){
+  if(wat&&/water(?!melon)/.test(text.toLowerCase())&&!/with water|water the|boil|cook|sparkling|watermelon/.test(text.toLowerCase())){
     let oz=16;
     if(wat[1]){const n=parseFloat(wat[1]),u=wat[2]||'';
       oz=/l/.test(u)&&!/glass|bottle/.test(u)?Math.round(n*33.8):/cup/.test(u)?n*8:/bottle/.test(u)?n*16.9:/glass/.test(u)?n*8:n;}
     logWater(Math.round(oz));return;}
   const lift=detectLift(text);
+  const setBlocks=detectSets(text);
+  const prLine=setBlocks.length?recordSets(setBlocks)||'':'';
   fishSay('…reading the water…',null,null,true);
   const claude=await askClaude(text,images);
   if(fishNoteMsg){fishSay(fishNoteMsg);fishNoteMsg=null;return;}
   let items=[],reply='';
   if(claude&&claude.items){items=claude.items;reply=claude.reply||'';}
   else if(images&&images.length&&!S.apiKey&&!CONFIG.SCRIPT_URL){
-    fishSay('My eyes aren’t open yet — drop your Claude API key in ⚙ and I can read plates, answer anything, and coach you through all ninety days. Tell me in words for now and I’ve got you.');return;}
+    fishSay('My eyes aren’t open yet — my full mind sleeps — a Mirror Key wakes it: photo-reading, any question, a dictionary that grows forever. KOIlibraryOfficial.com/mirror-key. Meanwhile, tell me plainly and I’ve got you.');return;}
   else{const it=localEstimate(text);if(it)items=[it];}
+  if(!items.length&&setBlocks.length){
+    save();renderAll();
+    fishSay('Witnessed — '+setBlocks.length+' set'+(setBlocks.length>1?'s':'')+' of '+setBlocks[0].ex+' on the record.'+prLine+fireChallenge(),null,null);
+    return;
+  }
   if(!items.length&&!lift){
     if(claude&&claude.reply){fishSay(claude.reply+'<br><br>'+fishAsk());return;}
-    fishSay('I couldn’t read that one'+((S.apiKey||CONFIG.SCRIPT_URL)?'':' — my full mind isn’t connected yet (add a Claude API key in ⚙ and I can understand anything)')+'. Name the food or the movement, or give me the number straight: “pasta, 600 calories.”');return;}
+    fishSay('I couldn’t read that one'+((S.apiKey||CONFIG.SCRIPT_URL)?'':' — my full mind sleeps — a Mirror Key wakes it: photo-reading, any question, a dictionary that grows forever. KOIlibraryOfficial.com/mirror-key. Meanwhile, tell me plainly and I\u2019ve got you.')+'. Name the food or the movement, or give me the number straight: “pasta, 600 calories.”');return;}
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   const chips=[];
   const now=Date.now();for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal,p:it.p||0,t:now});
     chips.push({...it,t:it.type});}
   if(lift)applyLift(lift);
-  save();renderAll();pulse();burst=1;
+  touchStreak();save();renderAll();pulse();burst=1;
   if(items.some(i=>i.type==='in'&&i.kcal>0))chimeRise();
   if(items.some(i=>i.type==='out'&&i.kcal>0))toneFall();
   const photoLine=(images&&images.length&&items.length>1)?('I broke the plate into '+items.length+' items, each on your timeline with the time. '):'';
   const fine=(images&&images.length)||items.some(i=>/~|about|assumed|est/.test(i.name))?HONESTY:null;
   const fireLine=items.some(i=>i.type==='out'&&i.kcal>0)?fireChallenge():'';
-  fishSay(photoLine+(reply||teachLine(items[0]))+(lift?' '+lift.line:'')+fireLine,chips,fine);
+  fishSay(photoLine+(reply||teachLine(items[0]))+(lift?' '+lift.line:'')+prLine+fireLine,chips,fine);
 }
 
 function detectLift(text){
@@ -1100,7 +1238,10 @@ function weighIn(w){
       S.calib=Math.round((S.calib*0.5+f*0.5)*100)/100;
       calibLine=`<br><br>I predicted ${fmt(predictedShed)} shed; your body says ${fmt(actualShed)}. Calibration is now ×${S.calib} — I just learned your metabolism a little better.`;}}
   S.marks.push({date:todayKey(),weight:w,mirror:newMirror});
-  S.mirrorStart=newMirror;S.days={};S.profile.w=w;save();renderAll();bellMark();
+  S.profile.w=w;
+  S.plan=localPlan();
+  if(S.goalText) buildPlan();
+  save();renderAll();bellMark();
   fishSay(`A new mark on the wall — <b style="font-family:'IBM Plex Mono',monospace;color:var(--gold)">${fmt(newMirror)}</b> at ${w} lbs. Stand here a moment. This is where you stood, ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.${calibLine}`);
 }
 
@@ -1114,6 +1255,9 @@ function renderAll(){
   $('dayLabel').textContent='DAY '+dayIndex()+' · MY CALORIC MIRROR';
   const d=Math.min(Math.max(dayIndex(),1),90);
   $('quote').textContent=QUOTES[String(d)]||'The mirror is open beyond ninety. You know the way now.';
+  const FI=formInfo();
+  if($('formLabel'))$('formLabel').textContent = FI.next? FI.name+' · '+FI.w+' / '+FI.next+' DAYS TO '+FORMS[FI.n][1] : 'DRAGON · BEYOND THE GATE';
+  checkFormUp();
   if(S.targetW){
     const line=Math.round(S.targetW*CONFIG.CAL_PER_LB),gap=Math.round(mirrorNow()-line);
     $('targetLine').innerHTML=Math.abs(gap)<3500
@@ -1121,6 +1265,9 @@ function renderAll(){
       :'your line: <b>'+fmt(line)+'</b> · '+fmt(Math.abs(gap))+' units '+(gap>0?'above':'below');
   }else $('targetLine').textContent='witnessing — no line required';
   const t=dayTotals(todayKey()),b=bmr()*(secondsToday()/86400);
+  if($('sStart')){const dn=dayIndex();
+    $('sStart').textContent=fmt(dn<=1?S.mirrorStart:mirrorAtClose(keyOfDay(dn-1)));
+    $('sNow').textContent=fmt(mirrorNow());}
   $('sIn').textContent='+'+fmt(t.inC);$('sBasal').textContent='−'+fmt(b);
   $('sMove').textContent='−'+fmt(t.outMove);
   const net=t.inC-t.outMove-b;$('sNet').textContent=(net>0?'+':'−')+fmt(Math.abs(net));
@@ -1140,7 +1287,7 @@ function renderAll(){
       <div class="rungs">${L.rungs.map((r,i)=>`<span>${RUNG_NAMES[i]}<br>${L.reps?r:Math.round(r*bw)}</span>`).join('')}</div>
       <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
     lad.appendChild(el);}
-  renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();
+  renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();renderWeekWork();renderStreak();
 }
 function tick(){
   if(S.profile){
@@ -1387,7 +1534,7 @@ async function growMove(name){
   let card=await askClaudeRaw(prompt);
   if(!card){ const claude=await askClaude(prompt);
     if(claude){ try{ card=claude.n?claude:JSON.parse((claude.reply||'').replace(/```json|```/g,'').trim()); }catch(e){card=null;} } }
-  if(!card||!card.n){ fishSay('Couldn’t build that one right now — make sure my Mirror Key is set in ⚙, or just tell me plainly (like “did 30 of them”).'); return; }
+  if(!card||!card.n){ fishSay('Couldn’t build that one — my full mind sleeps — a Mirror Key wakes it: photo-reading, any question, a dictionary that grows forever. KOIlibraryOfficial.com/mirror-key. Meanwhile, tell me plainly and I’ve got you.'); return; }
   card.grown=true;
   if(!GROWNMOVE.some(x=>x.n.toLowerCase()===card.n.toLowerCase())){ GROWNMOVE.push(card); store.set('grownMove',JSON.stringify(GROWNMOVE)); renderMoveDict(); }
   fishSay('Added “'+card.n+'” to your movement dictionary. 🌱 Say “'+card.how+'” whenever you do it and I’ll log the calories and time.',null,'Did you just do it, or only add it?',true);
@@ -1453,10 +1600,17 @@ $('gearBtn').onclick=()=>{const p=S.profile;
     if(S.apiKey)$('kIn').value=S.apiKey;
     if(S.goalText)$('gIn').value=S.goalText;previewMirror();}
   $('setup').classList.add('show');};
-$('exportBtn').onclick=()=>{prompt('Your thread token — copy it somewhere safe. Paste on any device to restore.',
-  btoa(unescape(encodeURIComponent(JSON.stringify(S)))));};
+$('exportBtn').onclick=()=>{
+  const clean={...S}; delete clean.apiKey;
+  const tok=btoa(unescape(encodeURIComponent(JSON.stringify(clean))));
+  const done=()=>fishSay('Thread token copied — keep it somewhere safe. Your Mirror Key is NOT inside it; re-enter the key on any new device.');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(tok).then(done).catch(()=>{fallbackCopy(tok);done();});}
+  else{fallbackCopy(tok);done();}
+};
 $('importBtn').onclick=()=>{const t=prompt('Paste your thread token:');if(!t)return;
-  try{S=JSON.parse(decodeURIComponent(escape(atob(t.trim()))));save();displayed=null;renderAll();greetIfNewDay();}
+  try{const incoming=JSON.parse(decodeURIComponent(escape(atob(t.trim()))));
+    incoming.apiKey=S.apiKey||incoming.apiKey; S=incoming; normalizeState();
+    save();displayed=null;renderAll();greetIfNewDay();}
   catch(e){alert('That token did not open. Check it and try again.');}};
 
 /* ============ SNOW POND CANVAS ============ */
@@ -1483,6 +1637,7 @@ function drawPond(ts){
     cx.beginPath();for(let x=-60;x<W+60;x+=8)cx.lineTo(x,y+Math.sin((x+off)/38+i)*4);cx.stroke();}
   // koi — the ember
   const prog=Math.min(1,witnessedCount()/90);
+  const form=currentForm();
   const scale=0.85+prog*0.7;
   const attnBoost=attention>0? attention*0.35:0;
   const cxr=W/2+Math.sin(time*(0.5+attnBoost))*W*0.18;
@@ -1503,7 +1658,23 @@ function drawPond(ts){
   cx.fillStyle='rgba(255,90,60,.55)';
   cx.beginPath();cx.ellipse(8,12,10,4,.7+Math.sin(time*3)*.2,0,7);cx.fill();
   cx.beginPath();cx.ellipse(8,-12,10,4,-.7-Math.sin(time*3)*.2,0,7);cx.fill();
+  if(form>=2){cx.strokeStyle='rgba(237,230,214,.7)';cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(36,3);cx.quadraticCurveTo(42,6,44,10);cx.stroke();
+    cx.beginPath();cx.moveTo(36,-3);cx.quadraticCurveTo(42,-6,44,-10);cx.stroke();}
+  if(form>=3){cx.strokeStyle='#E8C46B';cx.lineWidth=1.4;cx.shadowColor='#E8C46B';cx.shadowBlur=6;
+    cx.beginPath();cx.moveTo(30,-7);cx.quadraticCurveTo(0,-13+wig(1)*.3,-28,-8+wig(2)*.4);cx.stroke();cx.shadowBlur=0;}
+  if(form>=4){cx.fillStyle='rgba(193,18,31,.5)';
+    cx.beginPath();cx.moveTo(-52,wig(3)*.6);cx.quadraticCurveTo(-70,-18+wig(3),-80,-10+wig(3));
+    cx.quadraticCurveTo(-66,0,-80,12+wig(3));cx.quadraticCurveTo(-70,18+wig(3),-52,wig(3)*.6);cx.fill();}
+  if(form>=5){cx.strokeStyle='#E8C46B';cx.lineWidth=2;
+    cx.beginPath();cx.moveTo(46,-8);cx.lineTo(52,-16);cx.stroke();
+    cx.beginPath();cx.moveTo(43,-10);cx.lineTo(47,-19);cx.stroke();}
   cx.restore();
+  if(form>=4){cx.fillStyle='rgba(232,196,107,.5)';cx.fillRect(W-14,H*0.2,4,H*0.6);cx.fillRect(W-30,H*0.2,4,H*0.6);
+    cx.fillStyle='rgba(232,196,107,.25)';cx.fillRect(W-30,H*0.18,20,4);}
+  if(rippleR>0){cx.strokeStyle='rgba(232,196,107,'+(1-rippleR)+')';cx.lineWidth=2;
+    cx.beginPath();cx.arc(W/2,H*0.6,rippleR*W*0.7,0,7);cx.stroke();
+    rippleR+=0.012;if(rippleR>=1)rippleR=0;}
   // golden motes rising like torch embers
   for(const f of flakes){
     f.y-=f.s/265;f.x+=Math.sin(time+f.d)*0.0004;
@@ -1527,7 +1698,7 @@ function logWater(oz){
   S.days[tk].water=(S.days[tk].water||0)+oz;
   if(!S.days[tk].waterLog)S.days[tk].waterLog=[];
   S.days[tk].waterLog.push({oz,t:Date.now()});
-  save();renderAll();chimeRise();
+  touchStreak();save();renderAll();chimeRise();
   const tot=S.days[tk].water,goal=waterGoal();
   fishSay(tot>=goal
     ? 'That’s '+tot+' oz — you’ve crossed your '+goal+' oz mark for the day. The whole machine runs cleaner like this: skin, joints, thinking, kidneys.'
@@ -1554,6 +1725,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   $(activeTab).classList.add('on');
   $('speak').placeholder=PLACEHOLDERS[activeTab];
   renderAll();
+  roomTour(activeTab);
 });
 
 /* ============ QUICK CHIPS — one-tap truth ============ */
@@ -1578,7 +1750,7 @@ function logDirect(item){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,p:item.p||0,t:Date.now()});
-  save();renderAll();pulse();burst=1;
+  touchStreak();save();renderAll();pulse();burst=1;
   if(item.type==='in'&&item.kcal>0)chimeRise();else if(item.type==='out')toneFall();
   fishSay(teachLine(item)+(item.type==='out'&&item.kcal>0?fireChallenge():''),[{...item,t:item.type}]);
 }
@@ -1600,23 +1772,8 @@ function renderLists(){
   };
   if($('foodList'))build($('foodList'),d.in,'in','Nothing on the table yet. Snap a photo, tap a chip, speak it, or describe it — I break it into foods, calories, and time.');
   if($('moveList'))build($('moveList'),d.out,'out','The forge is cold. Tap a chip or tell me your sets.');
-  renderPath();
 }
 
-/* ============ TODAY'S PATH — unified timeline on the Mirror page ============ */
-function renderPath(){
-  const host=$('todayPath'); if(!host)return;
-  const d=S.days[todayKey()]||{in:[],out:[]};
-  const events=[];
-  (d.in||[]).forEach(e=>events.push({t:e.t,name:e.name,val:'+'+fmt(e.kcal),cls:'in'}));
-  (d.out||[]).forEach(e=>events.push({t:e.t,name:e.name,val:'−'+fmt(e.kcal),cls:'out'}));
-  (d.waterLog||[]).forEach(e=>events.push({t:e.t,name:e.oz+' oz water',val:'💧',cls:'water'}));
-  events.sort((a,b)=>(a.t||0)-(b.t||0));
-  if(!events.length){host.innerHTML='<div class="dempty">Your path begins the moment you speak. Everything you log lands here in the order it happened — with the time.</div>';return;}
-  host.innerHTML=events.map(e=>
-    `<div class="pev"><span class="ptime">${clockOf(e.t)}</span><span class="pdot ${e.cls}"></span><span class="pname">${e.name}</span><span class="pval ${e.cls}">${e.val}</span></div>`
-  ).join('');
-}
 
 /* ============ FOOD GAUGE ============ */
 function renderGauge(){
@@ -1711,6 +1868,148 @@ async function growEntry(name){
 
 
 
+
+
+
+/* ============ §2 THE KOI EVOLUTION — days witnessed, never pounds ============ */
+const FORMS=[[0,'FRY',14],[14,'KOI',35],[35,'CROWNED KOI',60],[60,'GATEKEEPER',90],[90,'DRAGON',null]];
+function currentForm(){const w=witnessedCount();let f=1;
+  FORMS.forEach((F,i)=>{if(w>=F[0])f=i+1;});return f;}
+function formInfo(){const w=witnessedCount(),f=currentForm(),F=FORMS[f-1];
+  return {n:f,name:F[1],next:F[2],w};}
+let rippleR=0;
+function checkFormUp(){
+  const f=currentForm();
+  if(f>(S.form||1)){
+    S.form=f;save();bellMark();rippleR=0.02;
+    const F=FORMS[f-1];
+    fishSay('🌊 <b>The water changes.</b> You are now <b>'+F[1]+'</b> — '+witnessedCount()+' days witnessed. '+(f===5?'The gate opens. A koi that climbs the falls becomes a dragon — you climbed in ninety. The practice continues with or without me; the paper book remains the oldest mirror. I am one lens.':'The climb continues — the Dragon Gate waits at ninety.')+' <span class="tap" onclick="markMoment()">mark the moment ›</span>',null,null,true);
+    if(f===5&&!S.gateCrossed){S.gateCrossed=true;save();}
+  }
+}
+function markMoment(){
+  const c=document.createElement('canvas');c.width=1080;c.height=1350;
+  const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,1350);
+  g.addColorStop(0,'#131C28');g.addColorStop(1,'#070A0E');x.fillStyle=g;x.fillRect(0,0,1080,1350);
+  x.fillStyle='rgba(232,196,107,.5)';
+  for(let i=0;i<60;i++){x.beginPath();x.arc(Math.random()*1080,Math.random()*1350,1+Math.random()*2.5,0,7);x.fill();}
+  const F=formInfo();
+  x.save();x.translate(540,600);x.scale(7,7);
+  x.shadowColor='#FF5A3C';x.shadowBlur=40;x.fillStyle='#C1121F';
+  x.beginPath();x.moveTo(38,0);x.quadraticCurveTo(20,-14,-8,-10);x.quadraticCurveTo(-26,-6,-34,0);
+  x.quadraticCurveTo(-26,6,-8,10);x.quadraticCurveTo(20,14,38,0);x.fill();
+  x.beginPath();x.moveTo(-32,0);x.quadraticCurveTo(-48,-14,-58,-9);x.quadraticCurveTo(-46,0,-58,9);
+  x.quadraticCurveTo(-48,14,-32,0);x.fill();
+  if(F.n>=3){x.shadowBlur=0;x.strokeStyle='#E8C46B';x.lineWidth=1.6;
+    x.beginPath();x.moveTo(30,-6);x.quadraticCurveTo(0,-13,-28,-7);x.stroke();}
+  x.shadowBlur=0;x.fillStyle='rgba(255,255,255,.8)';x.beginPath();x.ellipse(12,-2,9,5.5,.3,0,7);x.fill();
+  x.fillStyle='#0A0E13';x.beginPath();x.arc(30,-3,2.6,0,7);x.fill();x.restore();
+  x.textAlign='center';x.fillStyle='#E8C46B';
+  x.font='300 92px Cormorant, serif';x.fillText(F.name,540,940);
+  x.fillStyle='#EDE6D8';x.font='42px "IBM Plex Mono", monospace';
+  x.fillText(F.w+' DAYS WITNESSED',540,1020);
+  x.fillStyle='#7E8A96';x.font='italic 34px Cormorant, serif';
+  x.fillText('My Caloric Mirror · Kingdom of Inner Light',540,1230);
+  x.fillStyle='#E8C46B';x.font='30px "IBM Plex Mono", monospace';
+  x.fillText('KOIlibraryOfficial.com',540,1290);
+  c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);
+    a.download='koi-'+F.name.toLowerCase().replace(' ','-')+'-day'+F.w+'.png';a.click();});
+}
+
+/* ============ §4 THE WITNESS STREAK — pauses, never resets ============ */
+function touchStreak(){
+  const tk=todayKey(); const st=S.streak;
+  if(st.lastSeen===tk)return;
+  const y=(()=>{const d=new Date();d.setDate(d.getDate()-1);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})();
+  const resumed = st.lastSeen && st.lastSeen<y;
+  st.current=st.current+1; st.longest=Math.max(st.longest,st.current);
+  st.lastSeen=tk; save(); renderStreak();
+  if(resumed) fishSay('The mirror waited. Your '+st.current+'-day streak resumes — the days you missed are simply unwitnessed, not failures.');
+  if([7,21,45,90].includes(st.current)){bellMark();
+    fishSay('🕯 '+st.current+' witnessed days in the streak. The habit is becoming the person.');}
+}
+function renderStreak(){
+  const el=$('streakLine'); if(!el)return;
+  el.textContent='WITNESSED '+witnessedCount()+' · STREAK '+S.streak.current;
+}
+
+/* ============ §1 SETS, PRS, OVERLOAD ============ */
+function musclesFor(name){
+  const t=(name||'').toLowerCase();
+  for(const [re,groups] of MUSCLE_KEYS){ if(re.test(t)) return groups.slice(); }
+  return [];
+}
+function exerciseIn(text){
+  const t=text.toLowerCase();
+  for(const key in LADDERS){ if(LADDERS[key].re.test(t)) return LADDERS[key].name; }
+  for(const m of [...MOVEDICT,...GROWNMOVE]){ 
+    if(t.includes(m.n.toLowerCase().split(' ')[0].replace(/[()]/g,''))&&m.n.length>3) return m.n; }
+  for(const [re] of MUSCLE_KEYS){ const mm=t.match(re); if(mm) return mm[0]; }
+  return null;
+}
+function detectSets(text){
+  const ex=exerciseIn(text); if(!ex)return [];
+  const out=[]; const clauses=text.toLowerCase().split(/,|\bthen\b|\band\b/);
+  for(const c of clauses){
+    let m=c.match(/(\d{2,3})\s*(?:lbs?|pounds?)?\s*[,\s]*(\d{1,2})\s*(?:x|×|sets? of)\s*(\d{1,2})/);
+    if(m){const w=+m[1],n=+m[2],r=+m[3];for(let i=0;i<n;i++)out.push({w,r});continue;}
+    m=c.match(/(\d{2,3})\s*(?:lbs?|pounds?)?\s*(?:for|@)\s*(\d{1,2})\b/);
+    if(m){out.push({w:+m[1],r:+m[2]});continue;}
+    m=c.match(/\b(\d{1,2})\s*(?:x|×|sets? of)\s*(\d{1,2})\b/);
+    if(m){const n=+m[1],r=+m[2];for(let i=0;i<n;i++)out.push({w:0,r});continue;}
+  }
+  return out.map(s=>({ex,...s}));
+}
+function recordSets(sets){
+  if(!sets.length)return null;
+  const tk=todayKey();
+  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  if(!S.days[tk].sets)S.days[tk].sets=[];
+  const mus=musclesFor(sets[0].ex);
+  let prLine='';
+  for(const s of sets){
+    const e1=s.w>0?Math.round(epley(s.w,s.r)):s.r;
+    S.days[tk].sets.push({ex:s.ex,w:s.w,r:s.r,t:Date.now(),e1,mus});
+    const prev=S.prs[s.ex];
+    if(!prev||e1>prev.e1){
+      S.prs[s.ex]={e1,w:s.w,r:s.r,date:tk};
+      bellMark();burst=1;
+      prLine=' ⚔ New territory — '+s.ex+' '+(s.w>0?'e1RM '+e1+' lb':e1+' reps')+'. The wall remembers.';
+    }
+  }
+  save(); return prLine;
+}
+function lastPerformance(ex){
+  const keys=Object.keys(S.days).sort().reverse();
+  for(const k of keys){
+    const ss=(S.days[k].sets||[]).filter(x=>x.ex===ex);
+    if(ss.length&&k!==todayKey())return{date:k,sets:ss};
+  }
+  return null;
+}
+function recentSetsFlat(n){
+  const all=[];Object.keys(S.days).sort().forEach(k=>(S.days[k].sets||[]).forEach(s=>all.push({...s,d:k})));
+  return all.slice(-n);
+}
+/* weekly volume per muscle */
+function weeklyVolume(){
+  const cutoff=Date.now()-7*864e5;const vol={};
+  Object.values(S.days).forEach(d=>(d.sets||[]).forEach(s=>{
+    if(s.t>=cutoff)(s.mus||[]).forEach(g=>vol[g]=(vol[g]||0)+1);}));
+  return vol;
+}
+function renderWeekWork(){
+  const host=$('weekWork');if(!host)return;
+  const vol=weeklyVolume();
+  host.innerHTML=FORGE_GROUPS.filter(g=>g!=='heart').map(g=>{
+    const v=vol[g]||0,pct=Math.min(100,v/20*100);
+    return `<div class="ladder"><div class="lname"><span>${g}</span><b>${v} sets</b></div>
+      <div class="rail"><div class="fill" style="width:${pct}%"></div><div class="gmark" style="left:50%;position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--gold)"></div></div></div>`;
+  }).join('')+'<div class="lstat">Gold line = 10 sets/week, the floor of the growth zone (10–20). The mirror only reports.</div>';
+}
+
 /* ============ BODY FORGE ENGINE ============ */
 const MUSCLE_KEYS=[
  [/push.?up/, ['chest','triceps','shoulders','core']],
@@ -1742,6 +2041,7 @@ const MUSCLE_KEYS=[
 function forgeThreshold(){ return 80 + 15*(S.forgeCrowns||0); }
 function muscleEffort(){
   const d=S.days[todayKey()]||{out:[]}; const eff={};
+  (d.sets||[]).forEach(s=>{const gs=s.mus||[];const share=15/Math.max(1,gs.length);gs.forEach(g=>eff[g]=(eff[g]||0)+share);});
   (d.out||[]).forEach(e=>{
     const t=(e.name||'').toLowerCase();
     for(const [re,groups] of MUSCLE_KEYS){
@@ -1765,7 +2065,12 @@ function renderForge(){
   });
   FORGE_GROUPS.forEach(g=>{if((eff[g]||0)>=TH)red++;});
   const stat=$('forgeStat');
-  if(stat) stat.innerHTML='<b>'+red+'</b> / '+FORGE_GROUPS.length+' muscles burning · '+TH+' effort each to ignite'
+  const totalEff=Object.values(eff).reduce((a,b2)=>a+b2,0);
+  const growth=Math.min(100,Math.round(totalEff/(FORGE_GROUPS.length*TH)*100));
+  const move=dayTotals(todayKey()).outMove;
+  const standing= move>=600?'ELITE territory': move>=350?'above average': move>=150?'average day':'below average — the forge waits';
+  if(stat) stat.innerHTML='<b>'+red+'</b> / '+FORGE_GROUPS.length+' burning · digital body growth today: <b>'+growth+'%</b>'
+    + '<br>you '+fmt(move)+' · average ~200 · elite 600+ → <b>'+standing+'</b> <span style="color:var(--mist)">(estimates)</span>'
     + ((S.forgeCrowns||0)>0?' · 👑×'+S.forgeCrowns:'');
   if(red===FORGE_GROUPS.length && S.lastCrown!==todayKey()){
     S.forgeCrowns=(S.forgeCrowns||0)+1; S.lastCrown=todayKey(); save();
@@ -1853,14 +2158,15 @@ $('chatBtn').onclick=()=>{
 
 
 /* ============ THE BOOK PAGE — formatted to copy into the paper journal ============ */
-function mirrorAtClose(key){ // total after the given day seals
+function mirrorAtClose(key){ // total after the given day seals — anchored to the nearest mark
   if(!S.profile)return 0;
-  const b=bmr(); let total=S.mirrorStart;
-  const start=new Date(S.startDate), endD=new Date(key);
-  for(let d=new Date(start); d<=endD; d.setDate(d.getDate()+1)){
+  const b=bmr(), a=anchorMark(key);
+  let total=a.mirror;
+  for(let d=new Date(a.date+'T12:00'); ; d.setDate(d.getDate()+1)){
     const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     const t=dayTotals(k);
     total += t.inC - t.outMove - b;
+    if(k>=key)break;
   }
   return Math.max(0,Math.round(total));
 }
@@ -1971,7 +2277,7 @@ function renderBook(){
     +'<div class="bk-row total"><span class="l">Total Calories OUT</span><span class="v">−'+fmt(b+t.outMove)+'</span></div>'
     +'<div class="bk-h">TODAY’S NUMERIC TRUTH</div>'
     +'<div class="bk-row"><span class="l">Total IN − Total OUT</span><span class="v">'+(net>0?'+':'')+fmt(net)+' calories</span></div>'
-    +'<div class="bk-row total"><span class="l">New Caloric Mirror Total</span><span class="v">'+fmt(newTotal)+' caloric units</span></div>'
+    +'<div class="bk-row total"><span class="l">'+(key===todayKey()?'Mirror At Day’s Close (projected)':'New Caloric Mirror Total')+'</span><span class="v">'+fmt(newTotal)+' caloric units</span></div>'
     +'<div class="bk-h">EVENING REFLECTION</div>'
     +pg.r.map((q,i)=>'<div class="bk-q">'+q+'</div><textarea class="bk-a" data-i="'+i+'">'+(ans[i]||'')+'</textarea>').join('')
     +'<div class="bk-close">'+pg.c+'</div>'
@@ -2017,6 +2323,269 @@ $('beginAgainBtn').onclick=()=>{
   fishSay('Day 1. The mirror opens again — and this time you walk it answering every page. “'+ (BOOK['1']?BOOK['1'].q:'') +'” Have you eaten yet?');
 };
 
+
+/* ============ ROOM TUTORIALS — KOI explains each door ============ */
+const ROOM_TOURS={
+ pageHome:'🪞 <b>The Mirror.</b> The big number is you, in caloric units — weight × 3,500, exact to the book. It starts each day at your morning total and breathes down in real time as your body burns. Talk to me here about anything; our whole conversation lives on this page.',
+ pageFood:'🍲 <b>The Table.</b> Your marks for the day sit on top — calories, protein, water, built from your goal. Speak, snap, or search any food on earth; if the dictionary doesn’t know it, I learn it forever. Every card shows its effect like a game item: the buff and the cost.',
+ pageStr:'🔥 <b>The Forge.</b> This is the digital you — every workout you deposit pours effort into the muscles it works, and they turn crimson. Take all fourteen red in one day and the bar rises. The Ladders track you against Novice → Elite at your bodyweight. Movement is the bonus wing — offered, never demanded.',
+ pagePath:'📜 <b>The Path.</b> Everything you log lands here with its exact time — walk back through any day, tap ↻ to repeat anything now. 📖 Book Page formats a day for the paper journal; 📊 Full Analysis is my complete reading.',
+ pageBook:'📕 <b>The Book.</b> The paper journal itself, word for word — your numbers fill the page automatically from your day, and the evening reflection is yours to answer. One tap copies the whole page for the physical book. Each evening I’ll ask you the day’s four questions myself.'};
+if(!S.roomSeen)S.roomSeen={};
+function roomTour(page,force){
+  if(!force&&S.roomSeen[page])return;
+  S.roomSeen[page]=true;save();
+  if(ROOM_TOURS[page])fishSay(ROOM_TOURS[page],null,null,true);
+}
+
+$('infoBtn').onclick=()=>roomTour(activeTab,true);
+
+/* ============ EVENING REFLECTION — KOI asks, you answer, the book fills ============ */
+function startReflection(){
+  const n=Math.min(Math.max(dayIndex(),1),90);
+  if(!BOOK[String(n)])return;
+  S.reflect={day:n,q:0}; save();
+  const t=dayTotals(todayKey()), b=bmr(), net=t.inC-b-t.outMove;
+  fishSay('The day is nearly sealed — '+(net>0?'+':'')+fmt(net)+' net so far, new total '+fmt(mirrorAtClose(todayKey()))+'. Four questions from the book, one at a time. Answer plain; I write them onto Day '+n+'’s page.<br><br><b>'+BOOK[String(n)].r[0]+'</b>',null,null,true);
+}
+function handleReflection(text){
+  const r=S.reflect; const pg=BOOK[String(r.day)];
+  const arr=S.book[r.day]||['','','',''];
+  arr[r.q]=text; S.book[r.day]=arr; touchStreak();
+  r.q++;
+  if(r.q<4){ save();
+    fishSay('Written. <b>'+pg.r[r.q]+'</b>',null,null,true);
+  } else {
+    S.reflect=null; save(); renderAll();
+    fishSay('The page is full. <i>'+pg.c+'</i><br><br>One last thing — what’s tomorrow’s first meal? Say it, and tomorrow is already half-won.',null,null,true);
+  }
+}
+
+$('streakLine').onclick=()=>fishSay('Law Three: inside the mirror no one can fail — only see clearly or look away. A witnessed day is any day you told me one true thing. Rest days count. Bad days count. Fasting days count. Miss a day and the streak <b>pauses</b> — it never resets, because unwitnessed is not failure.',null,null,true);
+if($('formLabel'))$('formLabel').onclick=()=>fishSay('A koi that climbs the falls for a hundred years passes the Dragon Gate and becomes a dragon. You have ninety days. Same climb — and it is climbed by <b>witnessing</b>, never by pounds. A walker who loses nothing but looks honestly for ninety days still becomes the dragon.',null,null,true);
+
+/* ============ §3 FORGE SESSION MODE ============ */
+let restDur=120,restEnd=0,wakeLock=null,sessTick=null;
+async function grabWake(){try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}
+function dropWake(){try{wakeLock&&wakeLock.release();wakeLock=null;}catch(e){}}
+$('sessBtn').onclick=()=>{
+  S.session={start:Date.now(),sets:[]};save();
+  $('sessPanel').style.display='block';$('sessBtn').style.display='none';
+  $('sessEx').value=recentSetsFlat(1)[0]?.ex||'';
+  grabWake();
+  sessTick=setInterval(()=>{
+    const el=Math.floor((Date.now()-S.session.start)/1000);
+    $('sessClock').textContent=Math.floor(el/60)+':'+String(el%60).padStart(2,'0');
+    drawRest();
+  },500);
+  fishSay('⚔ The forge is lit. Name the exercise, log every set — I hold the clock, the rest, and the fire.');
+};
+document.querySelectorAll('.rbtn').forEach(b=>b.onclick=()=>{restDur=+b.dataset.r;
+  document.querySelectorAll('.rbtn').forEach(x=>x.style.color='');b.style.color='var(--gold)';});
+$('wUp').onclick=()=>$('sessW').textContent=+$('sessW').textContent+5;
+$('wDn').onclick=()=>$('sessW').textContent=Math.max(0,+$('sessW').textContent-5);
+$('rUp').onclick=()=>$('sessR').textContent=+$('sessR').textContent+1;
+$('rDn').onclick=()=>$('sessR').textContent=Math.max(1,+$('sessR').textContent-1);
+function drawRest(){
+  const c=$('restRing');if(!c)return;const x=c.getContext('2d');
+  x.clearRect(0,0,64,64);
+  x.strokeStyle='#2A3A4C';x.lineWidth=5;x.beginPath();x.arc(32,32,26,0,7);x.stroke();
+  if(restEnd>Date.now()){
+    const frac=(restEnd-Date.now())/(restDur*1000);
+    x.strokeStyle='#E8C46B';x.beginPath();x.arc(32,32,26,-Math.PI/2,-Math.PI/2+frac*2*Math.PI);x.stroke();
+    x.fillStyle='#EDE6D8';x.font='13px "IBM Plex Mono",monospace';x.textAlign='center';
+    x.fillText(Math.ceil((restEnd-Date.now())/1000),32,37);
+  } else if(restEnd&&restEnd<=Date.now()&&restEnd>Date.now()-1200){ chimeRise(); }
+}
+$('logSetBtn').onclick=()=>{
+  if(!S.session)return;
+  const ex=$('sessEx').value.trim()||'Lift';
+  const w=+$('sessW').textContent, r=+$('sessR').textContent;
+  const pr=recordSets([{ex,w,r}])||'';
+  S.session.sets.push({ex,w,r,t:Date.now()});save();
+  restEnd=Date.now()+restDur*1000;
+  touchStreak();renderForge();renderWeekWork();
+  const last=lastPerformance(ex);
+  const barks=[
+    pr||null,
+    last?('Last time: '+last.sets[0].w+'×'+last.sets[0].r+'. '+(w>=last.sets[0].w&&r>=last.sets[0].r?'Matched or beat it — next visit takes +5.':'The record stands at '+(S.prs[ex]?S.prs[ex].w+'×'+S.prs[ex].r:'yours to set')+'.')):null,
+    fireChallenge()
+  ].filter(Boolean);
+  $('sessBark').textContent=(barks[0]||'Set held. Rest — the ring counts.').replace(/<[^>]+>/g,'');
+};
+$('sealBtn').onclick=()=>{
+  if(!S.session)return;
+  const dur=Math.round((Date.now()-S.session.start)/60000);
+  const n=S.session.sets.length;
+  const ton=S.session.sets.reduce((a,s)=>a+s.w*s.r,0);
+  const kg=(S.profile?.w||170)*0.4536;
+  const kcal=Math.round(4*kg*(dur/60));
+  const tk=todayKey();if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  S.days[tk].out.push({name:'Forge Session · '+n+' sets, '+dur+' min',kcal,t:Date.now()});
+  if(!S.days[tk].sessions)S.days[tk].sessions=[];
+  S.days[tk].sessions.push({dur,sets:n,tonnage:ton,t:Date.now()});
+  const best= n? ('Best of the session: '+S.session.sets.reduce((a,b)=>(a.w*a.r>b.w*b.r?a:b)).ex+'.') : '';
+  S.session=null;save();dropWake();clearInterval(sessTick);restEnd=0;
+  $('sessPanel').style.display='none';$('sessBtn').style.display='block';
+  renderAll();toneFall();
+  fishSay('🔥 Session sealed — '+dur+' min, '+n+' sets, '+fmt(ton)+' lb moved, −'+kcal+' deposited. '+best);
+};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session)grabWake();});
+
+
+/* ============ §5 PWA — install & the two honest knocks ============ */
+let deferredInstall=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
+if(window===window.top&&'serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+function maybeOfferInstall(){
+  if(S.installAsked||witnessedCount()<3)return;
+  if(window!==window.top)return; // installs only at the app's own address, not inside the site frame
+  S.installAsked=true;save();
+  fishSay('Put me on your home screen and I open like a place, not a page. <span class="tap" id="installTap">install ›</span>',null,null,true);
+  setTimeout(()=>{const t=document.getElementById('installTap');
+    if(t)t.onclick=()=>{if(deferredInstall){deferredInstall.prompt();deferredInstall=null;}
+      else fishSay('On iPhone: tap the share button, then “Add to Home Screen.” Same door, Apple’s handle.');};},400);
+}
+function maybeOfferNotifs(){
+  if(S.notifAsked||witnessedCount()<5||!('Notification' in window))return;
+  S.notifAsked=true;save();
+  fishSay('May I knock twice a day? Morning quote, evening seal. Nothing else — I am not a slot machine. <span class="tap" id="notifTap">allow the two knocks ›</span>',null,null,true);
+  setTimeout(()=>{const t=document.getElementById('notifTap');
+    if(t)t.onclick=()=>Notification.requestPermission().then(p=>{
+      if(p==='granted')fishSay('Two knocks, never more. Morning brings the quote; evening brings the seal.');});},400);
+}
+function scheduleKnocks(){ // honest best-effort: fires only while the app is open; server push arrives with the backend phase
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const now=new Date();
+  [[8,0,'☀ '+(QUOTES[String(Math.min(dayIndex(),90))]||'The mirror is open.')],
+   [20,0,'🕯 Seal Day '+dayIndex()+' — four questions wait. Say “reflect.”']].forEach(([h,m,body])=>{
+    const t=new Date();t.setHours(h,m,0,0);
+    if(t>now)setTimeout(()=>{try{new Notification('My Caloric Mirror',{body});}catch(e){}},t-now);
+  });
+}
+scheduleKnocks();
+
+
+/* ============ §6 THE WALL OF WITNESSES (Mirror Key holders) ============ */
+async function boardSync(join){
+  if(!CONFIG.SCRIPT_URL||!S.apiKey)return null;
+  try{
+    const res=await fetch(CONFIG.SCRIPT_URL,{method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({mode:'board',token:S.apiKey,name:join?S.boardName:null,
+        streak:S.streak.current,crowns:S.forgeCrowns||0,form:formInfo().name})});
+    return await res.json();
+  }catch(e){return null;}
+}
+$('boardJoin').onclick=async()=>{
+  const n=prompt('Your name on the wall (names and days only — never weight):',S.boardName||'');
+  if(!n)return; S.boardName=n.slice(0,24);save();
+  const out=await boardSync(true);
+  renderBoard(out);
+};
+function renderBoard(data){
+  const el=$('boardList');if(!el)return;
+  if(!data||!data.board){el.innerHTML='The wall opens for Mirror Key holders when the keeper’s door (SCRIPT_URL) is connected.';return;}
+  el.classList.remove('dempty');
+  el.innerHTML=data.board.map((r,i)=>
+    `<div class="drow"><span class="rtime">${i+1}</span><span class="what">${r.name}</span>
+     <span class="kc in">streak ${r.streak}</span><span class="kc out">👑${r.crowns}</span></div>`).join('');
+}
+document.querySelector('#boardSec .sec-head').addEventListener('click',async()=>{
+  if(S._boardAt&&Date.now()-S._boardAt<3600000)return;
+  S._boardAt=Date.now();
+  const out=await boardSync(false); if(out)renderBoard(out);
+});
+
+
+/* ============ THE OPENING — the why, in forty seconds ============ */
+const SCENES=[
+ {t:'Parents mark their children’s height on a doorframe.',sub:'A pencil line. A date. A little name.',d:'frame',ms:5200},
+ {t:'Years later, those small lines become the most tender thing in the house.',sub:'“Look how small you were.”',d:'frame2',ms:5200},
+ {t:'But there is another number.<br>The one nobody ever marks.',sub:'The one we hide, round down, look away from.',d:'dark',ms:5200},
+ {t:'What if you measured it —<br>not to judge it. Just to <b>see</b> it.',d:'spark',ms:4800},
+ {t:'Your body, written in caloric units.<br><b id="inNum">0</b>',sub:'your weight × 3,500 — one number that cannot lie',d:'number',ms:5600},
+ {t:'Feed it, the water rises.<br>Move, it sinks.<br>Rest — it burns anyway.',d:'water',ms:5600},
+ {t:'<b>Ninety days.</b> No diet. No demands.<br>One rule: honest numbers.',sub:'You cannot fail in here. You can only see clearly, or look away.',d:'water',ms:5600},
+ {t:'A koi swims the climb with you.<br>At the top of the falls — the gate.',sub:'The fish that finishes the climb becomes a dragon.',d:'gate',ms:5600},
+ {t:'Most people have never truly seen themselves.',sub:'You are about to.',d:'dim',ms:4600},
+ {t:'<b style="font-size:34px;letter-spacing:.06em">MY CALORIC MIRROR</b>',sub:'Kingdom of Inner Light',d:'title',ms:5000}
+];
+let inScene=-1,inT=null,inRAF=null,inStart=0;
+function playIntro(done){
+  const box=$('intro');box.classList.add('show');
+  const cv=$('introCv'),x=cv.getContext('2d');
+  function size(){cv.width=box.clientWidth*devicePixelRatio;cv.height=box.clientHeight*devicePixelRatio;
+    x.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);}
+  size();addEventListener('resize',size);
+  const finish=()=>{clearTimeout(inT);cancelAnimationFrame(inRAF);box.classList.remove('show');
+    S.introSeen=true;save();done&&done();};
+  $('inSkip').onclick=finish;
+  box.onclick=e=>{if(e.target.id!=='inSkip')next();};
+  function next(){
+    inScene++;
+    if(inScene>=SCENES.length){finish();return;}
+    const sc=SCENES[inScene];inStart=performance.now();
+    const el=$('inText');el.classList.remove('on');
+    setTimeout(()=>{el.innerHTML=sc.t+(sc.sub?'<span class="in-sub">'+sc.sub+'</span>':'');el.classList.add('on');
+      if(sc.d==='number'&&S.profile){rollNum();}
+      else if(sc.d==='number'){const n=$('inNum');if(n)n.textContent='647,500';}
+    },350);
+    clearTimeout(inT);inT=setTimeout(next,sc.ms);
+  }
+  function rollNum(){
+    const target=Math.round((S.profile?.w||185)*CONFIG.CAL_PER_LB);let cur=0;
+    const step=()=>{cur+=target/40;const n=$('inNum');
+      if(n)n.textContent=fmt(Math.min(cur,target));
+      if(cur<target)setTimeout(step,40);};
+    step();
+  }
+  function draw(ts){
+    const W=box.clientWidth,H=box.clientHeight,time=ts/1000;
+    const sc=SCENES[Math.max(0,inScene)]||SCENES[0];
+    const g=x.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#0B1119');g.addColorStop(1,'#05080C');x.fillStyle=g;x.fillRect(0,0,W,H);
+    // motes always
+    x.fillStyle='rgba(232,196,107,.4)';
+    for(let i=0;i<26;i++){const yy=((time*12+i*47)%H);x.beginPath();
+      x.arc((i*97)%W, H-yy, 1.2+((i*7)%3)*0.5, 0, 7);x.fill();}
+    const p=Math.min(1,(performance.now()-inStart)/1600);
+    if(sc.d==='frame'||sc.d==='frame2'){
+      x.strokeStyle='#4A3C22';x.lineWidth=5;
+      x.beginPath();x.moveTo(W*0.5,H*0.12);x.lineTo(W*0.5,H*0.32);x.stroke();
+      const marks=sc.d==='frame2'?4:Math.ceil(p*2);
+      x.strokeStyle='#E8C46B';x.lineWidth=2;
+      for(let i=0;i<marks;i++){const y=H*0.30-i*H*0.045;
+        x.globalAlpha=Math.min(1,p*2-i*0.3);
+        x.beginPath();x.moveTo(W*0.5-2,y);x.lineTo(W*0.5+26,y);x.stroke();}
+      x.globalAlpha=1;
+    }
+    if(sc.d==='water'||sc.d==='gate'||sc.d==='title'){
+      const lvl=sc.d==='water'? H*0.68+Math.sin(time*0.8)*14 : H*0.7;
+      x.fillStyle='rgba(20,32,46,.8)';x.fillRect(0,lvl,W,H-lvl);
+      x.strokeStyle='rgba(232,196,107,.35)';x.lineWidth=1.5;
+      x.beginPath();for(let px=0;px<W;px+=6)x.lineTo(px,lvl+Math.sin(px/34+time*2)*3);x.stroke();
+      // koi
+      const kx=W*0.5+Math.sin(time*0.6)*W*0.22, ky=lvl+40+Math.sin(time*1.1)*10;
+      x.save();x.translate(kx,ky);x.scale(0.9,0.9);
+      x.shadowColor='#FF5A3C';x.shadowBlur=22;x.fillStyle='#C1121F';
+      x.beginPath();x.moveTo(30,0);x.quadraticCurveTo(16,-11,-6,-8);x.quadraticCurveTo(-20,-4,-26,0);
+      x.quadraticCurveTo(-20,4,-6,8);x.quadraticCurveTo(16,11,30,0);x.fill();
+      x.beginPath();x.moveTo(-24,0);x.quadraticCurveTo(-38,-11,-46,-7);x.quadraticCurveTo(-36,0,-46,7);
+      x.quadraticCurveTo(-38,11,-24,0);x.fill();x.restore();
+      if(sc.d==='gate'){x.fillStyle='rgba(232,196,107,'+(0.35+Math.sin(time*2)*0.12)+')';
+        x.fillRect(W*0.78,lvl-120,7,120);x.fillRect(W*0.9,lvl-120,7,120);
+        x.fillRect(W*0.78,lvl-128,W*0.12+7,7);}
+    }
+    if(sc.d==='spark'){x.fillStyle='rgba(232,196,107,'+(0.5+Math.sin(time*3)*0.3)+')';
+      x.beginPath();x.arc(W/2,H*0.3,4+Math.sin(time*3)*2,0,7);x.fill();}
+    inRAF=requestAnimationFrame(draw);
+  }
+  inScene=-1;next();inRAF=requestAnimationFrame(draw);
+}
+
 /* ============ BOOT ============ */
 sizeCanvas();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();
 (function restoreChat(){
@@ -2029,7 +2598,8 @@ sizeCanvas();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();
     feed.appendChild(m);});
 })();
 requestAnimationFrame(tick);requestAnimationFrame(drawPond);
-if(!S.profile&&!S.toured)runTour();
+if(!S.profile&&!S.toured&&!S.introSeen)playIntro(runTour);
+else if(!S.profile&&!S.toured)runTour();
 else if(!S.profile)$('setup').classList.add('show');
 else greetIfNewDay();
 setInterval(()=>{renderAll();greetIfNewDay();},60000);
