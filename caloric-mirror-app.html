@@ -169,7 +169,7 @@
   .dock{flex-shrink:0;width:100%;z-index:20;background:#070A0E;
     border-top:1px solid #17222E;
     padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));}
-  .tabs{display:flex;gap:6px;margin-bottom:8px;}
+  .tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:8px;}
   .tab{flex:1;background:rgba(16,24,33,.92);border:1px solid var(--ice-line);
     color:var(--mist);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;
     text-transform:uppercase;padding:8px 0 7px;border-radius:12px;cursor:pointer;text-align:center;}
@@ -300,6 +300,8 @@
   .mgoal{font-size:12.5px;color:var(--slate);font-style:italic;margin-top:6px;}
 
 
+  .tab{flex:1 0 auto;}
+  .tab.on.gal{color:#7FD4E8;border-color:rgba(127,212,232,.5);box-shadow:0 0 14px rgba(127,212,232,.18);}
   .tab.on.bok{color:#E8C46B;border-color:rgba(232,196,107,.55);box-shadow:0 0 14px rgba(232,196,107,.2);}
   .tab.on.pth{color:#B79BE0;border-color:rgba(183,155,224,.5);box-shadow:0 0 14px rgba(183,155,224,.18);}
   .daynav{display:flex;align-items:center;gap:10px;margin:12px 12px 0;}
@@ -397,6 +399,53 @@
   .in-tap{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-family:'IBM Plex Mono',monospace;
     font-size:10px;letter-spacing:.35em;color:#3A4855;animation:glowpulse 2.6s infinite;}
 
+
+  .pclose{position:absolute;top:14px;right:16px;background:rgba(16,24,33,.95);border:1px solid var(--ice-line);
+    color:var(--deep);font-family:'IBM Plex Mono',monospace;font-size:16px;width:40px;height:40px;
+    border-radius:50%;cursor:pointer;z-index:60;line-height:1;}
+  .pclose:active{border-color:var(--gold);color:var(--gold);}
+
+
+  /* ---------- THE ROAD ---------- */
+  .road{margin:12px 12px 0;background:var(--glass);backdrop-filter:blur(8px);
+    border:1px solid rgba(232,196,107,.3);border-radius:16px;padding:14px 16px;}
+  .road .rtitle{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.35em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .road .rdate{font-family:'Cormorant',serif;font-size:24px;color:var(--deep);text-align:center;
+    letter-spacing:.02em;transition:color .4s;}
+  .road .rdate.closer{color:var(--green);} .road .rdate.farther{color:var(--ember-glow);}
+  .road .rsub{text-align:center;font-size:13px;font-style:italic;color:var(--mist);margin-top:3px;line-height:1.45;}
+  .road canvas{display:block;width:100%;height:76px;margin-top:10px;}
+  .rdelta{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;margin-top:6px;min-height:18px;
+    opacity:0;transition:opacity .5s;}
+  .rdelta.show{opacity:1;}
+  .rdelta.good{color:var(--green);} .rdelta.bad{color:var(--ember-glow);}
+
+
+  /* ---------- THE GRID ---------- */
+  .gwrap{padding:0 12px;}
+  .ghead{display:flex;gap:8px;margin:12px 0 10px;}
+  .ghead button{flex:1;padding:11px 0;font-family:'Cormorant',serif;font-weight:700;letter-spacing:.16em;
+    font-size:12.5px;text-transform:uppercase;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+  .cell{position:relative;aspect-ratio:1;background:rgba(16,24,33,.9);border:1px solid #16202B;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;}
+  .cell img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cell .dnum{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2C3A48;}
+  .cell.today{border-color:var(--gold);box-shadow:inset 0 0 12px rgba(232,196,107,.18);}
+  .cell.today .dnum{color:var(--gold);}
+  .cell .stamp{position:absolute;left:3px;bottom:3px;font-family:'IBM Plex Mono',monospace;font-size:8px;
+    color:#EDE6D8;background:rgba(5,8,12,.6);padding:1px 4px;border-radius:4px;letter-spacing:.08em;}
+  .cell.future{opacity:.35;}
+  .lightbox{position:absolute;inset:0;background:rgba(5,8,12,.96);z-index:90;display:none;
+    flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:100%;max-height:62%;border-radius:12px;border:1px solid #22303E;}
+  .lb-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--gold);margin-top:14px;}
+  .lb-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;justify-content:center;}
+  .lb-row button{padding:10px 16px;font-size:13px;}
+  .gnote{font-size:12.5px;font-style:italic;color:var(--mist);text-align:center;margin:12px 0 0;line-height:1.5;}
+
 </style>
 </head>
 <body>
@@ -430,7 +479,15 @@
     <div class="out">Movement<b id="sMove">0</b></div>
     <div>Net<b id="sNet">0</b></div>
   </div>
-  <div class="feed-head" style="margin-top:14px">THE CONVERSATION · SPEAK BELOW</div>
+  <div class="road" id="roadBox" style="display:none">
+    <div class="rtitle">THE ROAD · YOUR LINE AT TODAY'S PACE</div>
+    <div class="rdate" id="roadDate">—</div>
+    <div class="rsub" id="roadSub"></div>
+    <canvas id="roadCv"></canvas>
+    <div class="rdelta" id="roadDelta"></div>
+  </div>
+
+<div class="feed-head" style="margin-top:14px">THE CONVERSATION · SPEAK BELOW</div>
 <div class="feed" id="feed"></div>
 </div>
 
@@ -561,6 +618,17 @@
   </div>
 </div>
 
+<div class="page" id="pageGal">
+  <div class="gwrap">
+    <div class="ghead">
+      <button class="btn" id="shotBtn" style="color:var(--gold)">📸 Today's frame</button>
+      <button class="btn" id="sheetBtn" style="color:#7FD4E8">⬓ Export contact sheet</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="gnote">Ninety frames, one per day. Fill as many as you choose — the grid is a witness, not a verdict. Photos never leave this device.</div>
+  </div>
+</div>
+
 <div class="page" id="pagePath">
   <div class="daynav">
     <button id="dayPrev">‹</button>
@@ -610,6 +678,7 @@
     <div class="tab str" data-page="pageStr"><span class="ic">🔥</span>Forge</div>
     <div class="tab pth" data-page="pagePath"><span class="ic">📜</span>Path</div>
     <div class="tab bok" data-page="pageBook"><span class="ic">📕</span>Book</div>
+    <div class="tab gal" data-page="pageGal"><span class="ic">📸</span>Grid</div>
     <div class="tab" id="chatBtn" style="flex:0 0 46px"><span class="ic">💬</span></div>
     <div class="tab" id="infoBtn" style="flex:0 0 46px"><span class="ic">ⓘ</span></div>
   </div>
@@ -621,7 +690,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v27</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v31</div>
   </div>
 </div>
 
@@ -633,16 +702,32 @@
   <div class="in-tap">TAP TO CONTINUE</div>
 </div>
 
-<div class="panel" id="vault"><div id="vaultBody"></div></div>
+<div class="lightbox" id="lightbox">
+  <img id="lbImg" alt="">
+  <div class="lb-meta" id="lbMeta"></div>
+  <div class="lb-row">
+    <button class="btn" id="lbShare">Share</button>
+    <button class="btn" id="lbSave">Save to phone</button>
+    <button class="btn" id="lbDel" style="color:var(--ember-glow)">Remove</button>
+    <button class="btn" id="lbClose" style="color:var(--gold)">Close</button>
+  </div>
+</div>
+<input type="file" id="shotInput" accept="image/*" capture="environment" style="display:none">
+
+<div class="panel" id="vault">
+  <button class="pclose" id="vaultX">✕</button>
+  <div id="vaultBody"></div>
+</div>
 
 <div class="panel" id="setup">
+  <button class="pclose" id="setupClose">✕</button>
   <h2>My Caloric Mirror</h2>
   <div class="tag">The first mark on the wall. Weight × 3,500 — your starting truth, not your permanent reality.</div>
   <div class="field"><label>Current weight (lbs)</label><input id="wIn" type="number" inputmode="decimal"></div>
   <div class="field"><label>Height (inches)</label><input id="hIn" type="number" inputmode="decimal"></div>
   <div class="field"><label>Age</label><input id="aIn" type="number" inputmode="numeric"></div>
   <div class="field"><label>Body</label><select id="sSex"><option value="m">Male</option><option value="f">Female</option></select></div>
-  <div class="field"><label>Target weight (optional — the mirror never requires a line)</label><input id="tIn" type="number" inputmode="decimal" placeholder="leave blank to simply witness"></div>
+  <div class="field"><label>Target weight (optional — the mirror never requires a line)</label><input id="tIn" type="number" inputmode="decimal" placeholder="leave blank to simply witness — the Road appears only with a line"></div>
   <div class="field"><label>Your goal — in your own words</label><input id="gIn" type="text" placeholder="e.g. cut to 155 shredded but keep my strength" autocomplete="off"></div>
   <div class="field"><label>Mirror Key — wakes KOI's full mind for all 90 days</label><input id="kIn" type="password" placeholder="paste your Mirror Key" autocomplete="off"></div>
   <div class="mid-note">No key yet? Get yours at <b>KOIlibraryOfficial.com/mirror-key</b> — $33 for the full 90 days. The app works free without one; KOI's photo-reading, coaching, and living dictionary wake with the key.</div>
@@ -928,6 +1013,8 @@ const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Cal
 'GAPS: when asked what to eat, what is missing, or what the body needs, compare TODAY SO FAR against their daily marks and name the exact gaps with numbers (e.g. 62g protein short, 40 oz water behind, 180 under your calorie mark) — then give 2-3 concrete picks from alive foods that close them, sized to their goal and bodyweight. Same for supplements: name what their day is missing before naming any pill. '+
 'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
 'OVERLOAD: when they log a lift, compare against their last performance of that exercise and their PR; if they matched last time, call the next small step (+5 lb or +1 rep). One line, drill-fire voice, never demand. '+
+'THE GRID: they may keep a daily photo. Never comment on their body, never compare frames, never praise thinness — a frame is a witness, not a verdict. Encourage only the keeping of the record. '+
+'THE ROAD: if they have a chosen line, every entry moves their projected arrival date. When it shifts meaningfully, name the cost or the gift in one clause ("that pushed the line about three days out" / "pulled it two days closer") — as a fact of pace, never a scolding, and never a deadline. '+
 'COMPARISONS: whenever they log movement, place it honestly against the average person (~200 kcal purposeful movement a day) and the elite standard (600+ kcal and structured sets), and against THEIR OWN yesterday — the true opponent is always yesterday’s them. State the digital body growth percent when it moves. All comparisons are estimates; say so lightly, never let precision-theater in. '+
 'The Forge, sessions, and ladders never measure worth; a walker who never lifts still becomes the dragon. '+
 'DRILL FIRE: you are also a personal trainer with a military guide\'s fire — you believe in their potential more than they do, and you push. The Body Forge figure is the digital them: every workout deposited trains it. When they log movement, acknowledge the deposit, name what ignited, then call out the coldest muscle BY NAME with a specific ask (\"quads are cold — 40 squats lights them, give me that\"). Challenge escalation, never shame: fire aimed at their potential, never at their worth. If they rest or decline, honor it instantly — Law 4 outranks the fire. '+
@@ -1209,6 +1296,7 @@ async function handle(text,images,imgSrcs){
   if(items.some(i=>i.type==='out'&&i.kcal>0))toneFall();
   const photoLine=(images&&images.length&&items.length>1)?('I broke the plate into '+items.length+' items, each on your timeline with the time. '):'';
   const fine=(images&&images.length)||items.some(i=>/~|about|assumed|est/.test(i.name))?HONESTY:null;
+  const before=roadProject();
   const fireLine=items.some(i=>i.type==='out'&&i.kcal>0)?fireChallenge():'';
   fishSay(photoLine+(reply||teachLine(items[0]))+(lift?' '+lift.line:'')+prLine+fireLine,chips,fine);
 }
@@ -1297,7 +1385,8 @@ function renderAll(){
       <div class="rungs">${L.rungs.map((r,i)=>`<span>${RUNG_NAMES[i]}<br>${L.reps?r:Math.round(r*bw)}</span>`).join('')}</div>
       <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
     lad.appendChild(el);}
-  renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();renderWeekWork();renderStreak();renderXP();
+  renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();renderWeekWork();renderStreak();renderXP();renderRoad();
+  if(activeTab==='pageGal')renderGrid();
 }
 function tick(){
   if(S.profile){
@@ -1605,6 +1694,7 @@ $('claimBtn').onclick=()=>{
   if(first)fishSay(`There it is — your first mark: <b style="font-family:'IBM Plex Mono',monospace;color:var(--gold)">${fmt(S.mirrorStart)}</b>. Your starting truth, not your permanent reality. Now — ${fishAsk()}`);
 };
 $('gearBtn').onclick=()=>{const p=S.profile;
+  $('setupClose').style.display=p?'block':'none';
   if(p){$('wIn').value=p.w;$('hIn').value=p.h;$('aIn').value=p.a;$('sSex').value=p.s;
     if(S.targetW)$('tIn').value=S.targetW;
     if(S.apiKey)$('kIn').value=S.apiKey;
@@ -1731,7 +1821,8 @@ const PLACEHOLDERS={pageHome:'Talk to me. Food, movement, questions…',
   pageFood:'What did you eat? “two eggs and toast”…',
   pageStr:'Your sets — “benched 185 for 8” · “ran 2 miles”…',
   pagePath:'Everything you say lands on the Path with its time…',
-  pageBook:'Answer the page in your own words…'};
+  pageBook:'Answer the page in your own words…',
+  pageGal:'Speak while you shoot — I log what you say…'};
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
@@ -2029,6 +2120,281 @@ function renderWeekWork(){
   }).join('')+'<div class="lstat">Gold line = 10 sets/week, the floor of the growth zone (10–20). The mirror only reports.</div>';
 }
 
+
+
+
+/* ============ THE GRID — ninety frames, stored in their own vault ============ */
+let IDB=null;
+function idb(){
+  return new Promise((res,rej)=>{
+    if(IDB)return res(IDB);
+    const r=indexedDB.open('koil-mirror',1);
+    r.onupgradeneeded=e=>{const db=e.target.result;
+      if(!db.objectStoreNames.contains('shots'))db.createObjectStore('shots');};
+    r.onsuccess=e=>{IDB=e.target.result;res(IDB);};
+    r.onerror=()=>rej(r.error);
+  });
+}
+async function shotPut(day,blobUrl){const db=await idb();
+  return new Promise((res,rej)=>{const tx=db.transaction('shots','readwrite');
+    tx.objectStore('shots').put(blobUrl,String(day));tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+async function shotGet(day){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readonly');
+    const q=tx.objectStore('shots').get(String(day));q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null);});}
+async function shotDel(day){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readwrite');
+    tx.objectStore('shots').delete(String(day));tx.oncomplete=res;});}
+async function shotAll(){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readonly');
+    const st=tx.objectStore('shots');const out={};
+    const q=st.openCursor();
+    q.onsuccess=e=>{const c=e.target.result;
+      if(c){out[c.key]=c.value;c.continue();}else res(out);};
+    q.onerror=()=>res(out);});}
+
+/* compress to a light square-ish frame the phone can hold 90 of */
+function compress(file,max=720,q=0.72){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{const img=new Image();
+      img.onload=()=>{
+        let{width:w,height:h}=img;
+        const s=Math.min(1,max/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        res(c.toDataURL('image/jpeg',q));
+      };img.onerror=rej;img.src=fr.result;};
+    fr.onerror=rej;fr.readAsDataURL(file);
+  });
+}
+
+let shotDay=null, shotCache={};
+$('shotBtn').onclick=()=>{shotDay=Math.min(Math.max(dayIndex(),1),90);$('shotInput').click();};
+$('shotInput').onchange=async e=>{
+  const f=e.target.files[0]; if(!f||!shotDay)return;
+  try{
+    const data=await compress(f);
+    await shotPut(shotDay,data);
+    shotCache[shotDay]=data;
+    S.shots=S.shots||{}; S.shots[shotDay]={t:Date.now(),w:S.profile?.w||null}; save();
+    grantXP(30,'marking the day in the grid','shot'+shotDay);
+    renderGrid();
+    fishSay('Day '+shotDay+' is in the grid. A frame is a witness, not a verdict — the body changes slower than the eye believes and faster than the mirror shows. Keep filling it.');
+  }catch(err){fishNote('That image wouldn’t load. Try another.');}
+  e.target.value='';
+};
+async function renderGrid(){
+  const g=$('grid'); if(!g)return;
+  const today=Math.min(Math.max(dayIndex(),1),90);
+  if(!Object.keys(shotCache).length){shotCache=await shotAll();}
+  let h='';
+  for(let d=1;d<=90;d++){
+    const img=shotCache[d];
+    const cls='cell'+(d===today?' today':'')+(d>today?' future':'');
+    h+=`<div class="${cls}" data-day="${d}">`
+      + (img?`<img src="${img}" alt="Day ${d}"><span class="stamp">D${d}</span>`
+            :`<span class="dnum">${d}</span>`)
+      + `</div>`;
+  }
+  g.innerHTML=h;
+  g.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{
+    const d=+c.dataset.day;
+    if(shotCache[d])openShot(d);
+    else if(d<=today){shotDay=d;$('shotInput').click();}
+    else fishSay('Day '+d+' hasn’t been lived yet. The grid waits — it never rushes.');
+  });
+}
+function openShot(d){
+  const lb=$('lightbox');
+  $('lbImg').src=shotCache[d];
+  const meta=S.shots&&S.shots[d];
+  const dt=meta?new Date(meta.t).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}):'';
+  $('lbMeta').textContent='DAY '+d+' OF 90'+(dt?' · '+dt.toUpperCase():'');
+  lb.classList.add('show');
+  $('lbClose').onclick=()=>lb.classList.remove('show');
+  lb.onclick=e=>{if(e.target===lb)lb.classList.remove('show');};
+  $('lbDel').onclick=async()=>{
+    if(!confirm('Remove Day '+d+' from the grid?'))return;
+    await shotDel(d);delete shotCache[d];
+    if(S.shots)delete S.shots[d];save();
+    lb.classList.remove('show');renderGrid();
+  };
+  $('lbSave').onclick=()=>{const a=document.createElement('a');
+    a.href=shotCache[d];a.download='caloric-mirror-day'+d+'.jpg';a.click();};
+  $('lbShare').onclick=async()=>{
+    try{
+      const blob=await (await fetch(shotCache[d])).blob();
+      const file=new File([blob],'caloric-mirror-day'+d+'.jpg',{type:'image/jpeg'});
+      if(navigator.canShare&&navigator.canShare({files:[file]}))
+        await navigator.share({files:[file],title:'My Caloric Mirror — Day '+d,
+          text:'Day '+d+' of 90. Witnessed. #MyCaloricMirror'});
+      else {$('lbSave').click();fishNote('Sharing isn’t available here — saved to your phone instead.');}
+    }catch(e){}
+  };
+}
+/* the contact sheet — every frame you kept, one image */
+$('sheetBtn').onclick=async()=>{
+  const all=await shotAll();
+  const days=Object.keys(all).map(Number).sort((a,b)=>a-b);
+  if(!days.length){fishSay('No frames yet. Tap “Today’s frame” and begin the record.');return;}
+  const cols=Math.min(6,Math.ceil(Math.sqrt(days.length)));
+  const rows=Math.ceil(days.length/cols);
+  const S2=360, pad=6, head=90, foot=70;
+  const c=document.createElement('canvas');
+  c.width=cols*S2+pad*(cols+1);
+  c.height=head+rows*S2+pad*(rows+1)+foot;
+  const x=c.getContext('2d');
+  x.fillStyle='#0A0E13';x.fillRect(0,0,c.width,c.height);
+  x.textAlign='center';x.fillStyle='#E8C46B';
+  x.font='300 40px Cormorant, serif';
+  x.fillText('MY CALORIC MIRROR',c.width/2,54);
+  x.fillStyle='#7E8A96';x.font='18px "IBM Plex Mono", monospace';
+  x.fillText(days.length+' FRAMES WITNESSED · '+witnessedCount()+' DAYS',c.width/2,80);
+  let done=0;
+  days.forEach((d,i)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const cx=pad+(i%cols)*(S2+pad), cy=head+pad+Math.floor(i/cols)*(S2+pad);
+      const s=Math.max(S2/img.width,S2/img.height);
+      const w=img.width*s,h=img.height*s;
+      x.save();x.beginPath();x.rect(cx,cy,S2,S2);x.clip();
+      x.drawImage(img,cx+(S2-w)/2,cy+(S2-h)/2,w,h);x.restore();
+      x.strokeStyle='#1B2836';x.lineWidth=2;x.strokeRect(cx,cy,S2,S2);
+      x.fillStyle='rgba(5,8,12,.65)';x.fillRect(cx,cy+S2-26,54,26);
+      x.fillStyle='#EDE6D8';x.font='14px "IBM Plex Mono", monospace';x.textAlign='left';
+      x.fillText('D'+d,cx+8,cy+S2-8);
+      if(++done===days.length){
+        x.textAlign='center';x.fillStyle='#7E8A96';x.font='italic 20px Cormorant, serif';
+        x.fillText('Kingdom of Inner Light · KOIlibraryOfficial.com',c.width/2,c.height-26);
+        c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);
+          a.download='caloric-mirror-contact-sheet.jpg';a.click();},'image/jpeg',0.86);
+        fishSay('The contact sheet is saved — every frame you kept, in one image. That is content, evidence, and memory at once.');
+      }
+    };
+    img.src=all[d];
+  });
+};
+
+/* ============ THE ROAD — every choice moves the date ============ */
+function dailyNets(n){ // sealed days, most recent first
+  const out=[]; const b=bmr();
+  const keys=Object.keys(S.days).filter(k=>k<todayKey()).sort().reverse();
+  for(const k of keys.slice(0,n)){
+    const t=dayTotals(k);
+    out.push(t.inC - t.outMove - b);
+  }
+  return out;
+}
+function roadPace(){ // avg net per day, folding today in as a partial signal
+  const nets=dailyNets(7);
+  const t=dayTotals(todayKey()), b=bmr();
+  const todayProj = t.inC>0 ? (t.inC - t.outMove - b) : null; // only if they've eaten
+  const all=[...nets]; if(todayProj!==null) all.push(todayProj);
+  if(!all.length) return null;
+  return all.reduce((a,x)=>a+x,0)/all.length;
+}
+function roadProject(){
+  if(!S.targetW||!S.profile) return null;
+  const line=S.targetW*CONFIG.CAL_PER_LB;
+  const now=mirrorNow();
+  const gap=now-line;                      // >0 = above the line (must fall)
+  const pace=roadPace();                   // <0 = falling
+  if(pace===null) return {days:null,gap,line,pace:null};
+  const moving = (gap>0 && pace<0) || (gap<0 && pace>0);
+  if(!moving || Math.abs(pace)<40) return {days:Infinity,gap,line,pace};
+  const days = Math.abs(gap)/Math.abs(pace);
+  return {days:Math.round(days),gap,line,pace};
+}
+let lastRoadDays=null,roadFlash=0;
+function renderRoad(){
+  const box=$('roadBox'); if(!box||!S.profile) return;
+  if(!S.targetW){box.style.display='none';return;}
+  box.style.display='block';
+  const R=roadProject();
+  const dEl=$('roadDate'),sEl=$('roadSub'),xEl=$('roadDelta');
+  const witnessed=Object.keys(S.days).filter(k=>k<todayKey()).length;
+
+  if(R.pace===null||witnessed<2){
+    dEl.textContent='the road appears soon';
+    sEl.textContent='Walk two or three honest days and I can read your pace — then this shows the date your line arrives, and every choice moves it.';
+    lastRoadDays=null;
+  } else if(!isFinite(R.days)){
+    dEl.textContent='the line is not approaching';
+    dEl.className='rdate farther';
+    sEl.textContent = R.gap>0
+      ? 'At this pace the water holds or rises. That is a fact, not a verdict — the road returns the moment your pace turns.'
+      : 'At this pace you hold below your line. Harbor, not failure.';
+    lastRoadDays=null;
+  } else {
+    const arrive=new Date(); arrive.setDate(arrive.getDate()+R.days);
+    dEl.textContent=arrive.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    const lbs=Math.abs(R.gap)/CONFIG.CAL_PER_LB;
+    sEl.innerHTML=R.days+' days at today’s pace · '+lbs.toFixed(1)+' lb to your line of <b>'+S.targetW+'</b>'
+      +'<br><span style="font-size:12px">a mirror of your pace — never a deadline</span>';
+    if(lastRoadDays!==null&&R.days!==lastRoadDays){
+      const d=R.days-lastRoadDays;
+      xEl.textContent=(d>0?'+':'−')+Math.abs(d)+' day'+(Math.abs(d)===1?'':'s')+(d>0?' further':' closer');
+      xEl.className='rdelta show '+(d>0?'bad':'good');
+      dEl.className='rdate '+(d>0?'farther':'closer');
+      roadFlash=1;
+      clearTimeout(renderRoad._t);
+      renderRoad._t=setTimeout(()=>{xEl.classList.remove('show');dEl.className='rdate';},4200);
+    }
+    lastRoadDays=R.days;
+  }
+  drawRoad(R);
+}
+function drawRoad(R){
+  const c=$('roadCv'); if(!c)return;
+  const w=c.clientWidth||300;
+  if(c.width!==w*devicePixelRatio){c.width=w*devicePixelRatio;c.height=76*devicePixelRatio;}
+  const x=c.getContext('2d');x.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  const W=w,H=76;
+  x.clearRect(0,0,W,H);
+  // the road
+  const y=H*0.62;
+  x.strokeStyle='rgba(126,138,150,.25)';x.lineWidth=2;
+  x.setLineDash([5,6]);x.beginPath();x.moveTo(16,y);x.lineTo(W-16,y);x.stroke();x.setLineDash([]);
+  // the line (destination)
+  x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--gold').trim()||'#E8C46B';
+  x.lineWidth=2;x.beginPath();x.moveTo(W-16,y-14);x.lineTo(W-16,y+12);x.stroke();
+  x.font='9px "IBM Plex Mono", monospace';x.textAlign='right';x.fillStyle=x.strokeStyle;
+  x.fillText('YOUR LINE',W-16,y+26);
+  // start marker
+  x.strokeStyle='rgba(126,138,150,.5)';x.beginPath();x.moveTo(16,y-10);x.lineTo(16,y+8);x.stroke();
+  x.textAlign='left';x.fillStyle='rgba(126,138,150,.7)';x.fillText('START',16,y+26);
+  // progress
+  const start=S.marks.length?S.marks[0].mirror:S.mirrorStart;
+  const line=(S.targetW||0)*CONFIG.CAL_PER_LB;
+  const now=mirrorNow();
+  let prog = (start-line)!==0 ? (start-now)/(start-line) : 0;
+  prog=Math.max(0,Math.min(1,prog));
+  const px=16+(W-32)*prog;
+  x.strokeStyle=x.fillStyle=(typeof koiSkin==='function'?koiSkin().c:'#C1121F');
+  x.lineWidth=3;x.beginPath();x.moveTo(16,y);x.lineTo(px,y);x.stroke();
+  // the koi walking the road
+  const KS=(typeof koiSkin==='function')?koiSkin():{c:'#C1121F',g:'#FF5A3C'};
+  const t=performance.now()/1000;
+  x.save();x.translate(px,y-2+Math.sin(t*2)*1.5);x.scale(0.5,0.5);
+  x.shadowColor=KS.g;x.shadowBlur=14+roadFlash*18;x.fillStyle=KS.c;
+  x.beginPath();x.moveTo(30,0);x.quadraticCurveTo(16,-10,-6,-7);x.quadraticCurveTo(-20,-3,-26,0);
+  x.quadraticCurveTo(-20,3,-6,7);x.quadraticCurveTo(16,10,30,0);x.fill();
+  x.beginPath();x.moveTo(-24,0);x.quadraticCurveTo(-38,-10,-46,-6);x.quadraticCurveTo(-36,0,-46,6);
+  x.quadraticCurveTo(-38,10,-24,0);x.fill();x.restore();
+  if(roadFlash>0)roadFlash=Math.max(0,roadFlash-0.02);
+  // 7-day pace sparkline
+  const nets=dailyNets(7).reverse();
+  if(nets.length>1){
+    const mx=Math.max(...nets.map(Math.abs),500);
+    x.strokeStyle='rgba(232,196,107,.5)';x.lineWidth=1.5;x.beginPath();
+    nets.forEach((n,i)=>{const sx=16+(W-32)*(i/(nets.length-1)), sy=H*0.2 - (n/mx)*10;
+      i?x.lineTo(sx,sy):x.moveTo(sx,sy);});
+    x.stroke();
+    x.font='8px "IBM Plex Mono", monospace';x.textAlign='left';x.fillStyle='rgba(126,138,150,.6)';
+    x.fillText('7-DAY PACE',16,H*0.1);
+  }
+  requestAnimationFrame(()=>{ if($('roadBox')&&$('roadBox').style.display!=='none') drawRoad(R); });
+}
 
 /* ============ XP & THE VAULT — earned by witnessing, spent on beauty ============ */
 const XP_RULES={log:5,water:30,day:50,reflect:40,book:60,session:40,pr:60,streak7:100,forge:120};
@@ -2459,6 +2825,7 @@ const ROOM_TOURS={
  pagePath:'📜 <b>The Path.</b> Everything you log lands here with its exact time — walk back through any day, tap ↻ to repeat anything now. 📖 Book Page formats a day for the paper journal; 📊 Full Analysis is my complete reading.',
  pageBook:'📕 <b>The Book.</b> The paper journal itself, word for word — your numbers fill the page automatically from your day, and the evening reflection is yours to answer. One tap copies the whole page for the physical book. Each evening I’ll ask you the day’s four questions myself.'};
 if(!S.roomSeen)S.roomSeen={};
+ROOM_TOURS.pageGal='📸 <b>The Grid.</b> Ninety squares, one for each day of the walk. Tap today’s square and take the frame — or fill in any day you’ve already lived. The photos never leave this device. When you want them, one tap builds a contact sheet of every frame you kept: your body across ninety days, in a single image. A frame is a witness, not a verdict.';
 function roomTour(page,force){
   if(!force&&S.roomSeen[page])return;
   S.roomSeen[page]=true;save();
@@ -2628,21 +2995,21 @@ document.querySelector('#boardSec .sec-head').addEventListener('click',async()=>
 });
 
 
-/* ============ THE OPENING — through the cleft in the stone ============ */
+/* ============ THE OPENING — the koi and the ancient door ============ */
 const SCENES=[
- {t:'',sub:'',d:'stone',ms:3600},
- {t:'There is a light in the stone.',sub:'It has been there the whole time.',d:'stone',ms:4600},
- {t:'Parents mark a child’s height on a doorframe.<br>Years later those little lines are the most tender thing in the house.',d:'walk',ms:6400},
- {t:'But there is another number.<br>The one nobody ever marks.',sub:'The one we hide, round down, look away from.',d:'walk',ms:5600},
- {t:'What if you measured it —<br>not to judge it. Just to <b>see</b> it.',d:'walk',ms:5000},
- {t:'Your body, written in caloric units.<br><b id="inNum">0</b>',sub:'your weight × 3,500 — one number that cannot lie',d:'open',ms:5800},
- {t:'Eat, the water rises. Move, it falls.<br>Rest — it burns anyway.',d:'water',ms:5400},
- {t:'<b>Ninety days.</b> No diet. No demands.<br>One rule: honest numbers.',sub:'You cannot fail in here. You can only see clearly, or look away.',d:'water',ms:5800},
- {t:'A koi swims the climb beside you.<br>At the top of the falls — the gate.',sub:'The fish that finishes the climb becomes a dragon.',d:'gate',ms:5600},
- {t:'Most people have never truly seen themselves.',sub:'You are about to.',d:'gate',ms:4600},
- {t:'<b style="font-size:32px;letter-spacing:.05em">MY CALORIC MIRROR</b>',sub:'A 90-Day Practice in Numeric Truth<br>Kingdom of Inner Light',d:'title',ms:5200}
+ {t:'',d:'door',ms:3800},
+ {t:'There is a light in the stone.',sub:'It has been there the whole time.',d:'door',ms:5000},
+ {t:'Parents mark a child’s height on a doorframe.<br>Years later those small lines are the most tender thing in the house.',d:'marks',ms:6600},
+ {t:'But there is another number.<br>The one nobody ever marks.',sub:'The one we hide, round down, look away from.',d:'marks',ms:5600},
+ {t:'What if you measured it —<br>not to judge it. Just to <b>see</b> it.',d:'turn',ms:5000},
+ {t:'Your body, written in caloric units.<br><b id="inNum">0</b>',sub:'your weight × 3,500 — one number that cannot lie',d:'number',ms:6000},
+ {t:'Eat, the water rises. Move, it falls.<br>Rest — it burns anyway.',d:'approach',ms:5600},
+ {t:'<b>Ninety days.</b> No diet. No demands.<br>One rule: honest numbers.',sub:'You cannot fail in here. You can only see clearly, or look away.',d:'approach',ms:6000},
+ {t:'A koi swims the climb beside you.<br>At the top of the falls — a gate.',sub:'They say the fish that finishes the climb becomes something else.',d:'gate',ms:6000},
+ {t:'Most people have never truly seen themselves.',sub:'You are about to.',d:'shadow',ms:5600},
+ {t:'<b style="font-size:32px;letter-spacing:.05em">MY CALORIC MIRROR</b>',sub:'A 90-Day Practice in Numeric Truth<br>Kingdom of Inner Light',d:'title',ms:5400}
 ];
-let inScene=-1,inT=null,inRAF=null,inStart=0,camZ=0;
+let inScene=-1,inT=null,inRAF=null,inStart=0,gapW=0,koiX=-0.25,shadowA=0;
 function playIntro(done){
   const box=$('intro');box.classList.add('show');
   const cv=$('introCv'),x=cv.getContext('2d');
@@ -2650,6 +3017,7 @@ function playIntro(done){
     x.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);}
   size();addEventListener('resize',size);
   const finish=()=>{clearTimeout(inT);cancelAnimationFrame(inRAF);box.classList.remove('show');
+    if(window.speechSynthesis)speechSynthesis.cancel();
     S.introSeen=true;save();done&&done();};
   $('inSkip').onclick=finish;
   box.onclick=e=>{if(e.target.id!=='inSkip')next();};
@@ -2664,7 +3032,7 @@ function playIntro(done){
       if(sc.t.indexOf('inNum')>-1)rollNum();
       if(S.sound&&window.speechSynthesis&&sc.t){
         const u=new SpeechSynthesisUtterance(el.textContent.replace(/\s+/g,' '));
-        u.rate=.88;u.pitch=.95;speechSynthesis.cancel();speechSynthesis.speak(u);}
+        u.rate=.86;u.pitch=.92;speechSynthesis.cancel();speechSynthesis.speak(u);}
     },420);
     clearTimeout(inT);inT=setTimeout(next,sc.ms);
   }
@@ -2675,124 +3043,155 @@ function playIntro(done){
       if(cur<target)setTimeout(step,40);};
     step();
   }
-  /* stone texture — deterministic mottling */
-  function rock(x0,y0,w,h,seed,ctx,W,H){
-    const g=ctx.createLinearGradient(x0,0,x0+w,0);
-    g.addColorStop(0,'#141A21');g.addColorStop(.5,'#2A3540');g.addColorStop(1,'#1B242D');
-    ctx.fillStyle=g;ctx.fillRect(x0,y0,w,h);
-    for(let i=0;i<90;i++){
-      const s=Math.sin(i*seed)*10000, r1=s-Math.floor(s), s2=Math.sin(i*seed*1.7)*10000, r2=s2-Math.floor(s2);
-      const px=x0+r1*w, py=y0+r2*h, sz=2+((i*7)%14);
-      ctx.fillStyle= (i%9===0)?'rgba(200,170,120,.06)':(i%3===0?'rgba(255,255,255,.025)':'rgba(0,0,0,.16)');
-      ctx.beginPath();ctx.ellipse(px,py,sz,sz*.6,i,0,7);ctx.fill();
+  /* ---- the ancient stone ---- */
+  function stoneFace(x0,y0,w,h,seed){
+    const g=x.createLinearGradient(x0,y0,x0+w*0.5,y0+h);
+    g.addColorStop(0,'#26313C');g.addColorStop(.45,'#1B242E');g.addColorStop(1,'#0F161D');
+    x.fillStyle=g;x.fillRect(x0,y0,w,h);
+    for(let i=0;i<120;i++){
+      const a=Math.sin(i*seed)*10000,r1=a-Math.floor(a);
+      const b=Math.sin(i*seed*1.61)*10000,r2=b-Math.floor(b);
+      const px=x0+r1*w,py=y0+r2*h,sz=2+((i*11)%16);
+      x.fillStyle=(i%11===0)?'rgba(214,180,120,.05)':(i%3===0?'rgba(255,255,255,.02)':'rgba(0,0,0,.18)');
+      x.beginPath();x.ellipse(px,py,sz,sz*.55,i*.7,0,7);x.fill();
     }
+    // fissures
+    x.strokeStyle='rgba(0,0,0,.35)';x.lineWidth=1.4;
+    for(let i=0;i<5;i++){const sx=x0+((i*37)%w);
+      x.beginPath();x.moveTo(sx,y0);
+      for(let yy=y0;yy<y0+h;yy+=26)x.lineTo(sx+Math.sin(yy*0.05+i)*9,yy);
+      x.stroke();}
   }
-  /* the ochre sigil from the cover */
-  function sigil(ctx,cx,cy,s,a){
-    ctx.save();ctx.globalAlpha=a;ctx.strokeStyle='#8B2318';ctx.lineWidth=1.6*s;
-    ctx.beginPath();ctx.arc(cx,cy,26*s,0,7);ctx.stroke();
-    ctx.beginPath();ctx.arc(cx,cy,13*s,0,7);ctx.stroke();
-    ctx.fillStyle='#8B2318';ctx.beginPath();ctx.arc(cx,cy,3*s,0,7);ctx.fill();
-    ctx.beginPath();ctx.moveTo(cx-34*s,cy);ctx.lineTo(cx+34*s,cy);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx,cy+26*s);ctx.lineTo(cx,cy+96*s);ctx.stroke();
-    for(let i=1;i<=4;i++){const y=cy+26*s+i*17*s, wdt=(22-i*3)*s;
-      ctx.beginPath();ctx.moveTo(cx-wdt,y);ctx.lineTo(cx+wdt,y);ctx.stroke();}
-    ctx.restore();
+  function sigil(cx,cy,s,a){
+    x.save();x.globalAlpha=a;x.strokeStyle='#8B2318';x.lineWidth=1.7*s;
+    x.beginPath();x.arc(cx,cy,26*s,0,7);x.stroke();
+    x.beginPath();x.arc(cx,cy,13*s,0,7);x.stroke();
+    x.fillStyle='#8B2318';x.beginPath();x.arc(cx,cy,3.2*s,0,7);x.fill();
+    x.beginPath();x.moveTo(cx-34*s,cy);x.lineTo(cx+34*s,cy);x.stroke();
+    x.beginPath();x.moveTo(cx,cy+26*s);x.lineTo(cx,cy+92*s);x.stroke();
+    for(let i=1;i<=4;i++){const y=cy+26*s+i*16*s,w2=(21-i*3)*s;
+      x.beginPath();x.moveTo(cx-w2,y);x.lineTo(cx+w2,y);x.stroke();}
+    x.restore();
+  }
+  function drawKoi(px,py,sc2,alpha,dragon){
+    x.save();x.translate(px,py);x.scale(sc2,sc2);
+    const t=performance.now()/1000;
+    const wig=a=>Math.sin(t*3+a)*5;
+    x.globalAlpha=alpha;
+    const KS=(typeof koiSkin==='function')?koiSkin():{c:'#C1121F',g:'#FF5A3C'};
+    x.shadowColor=KS.g;x.shadowBlur=26;x.fillStyle=KS.c;
+    x.beginPath();x.moveTo(32,0);x.quadraticCurveTo(17,-11,-6,-8+wig(0)*.2);
+    x.quadraticCurveTo(-21,-4,-28,wig(1)*.4);x.quadraticCurveTo(-21,4,-6,8+wig(0)*.2);
+    x.quadraticCurveTo(17,11,32,0);x.fill();
+    x.beginPath();x.moveTo(-26,wig(1)*.4);x.quadraticCurveTo(-40,-12+wig(2),-50,-8+wig(2));
+    x.quadraticCurveTo(-38,0,-50,8+wig(2));x.quadraticCurveTo(-40,12+wig(2),-26,wig(1)*.4);
+    x.globalAlpha=alpha*.85;x.fill();x.globalAlpha=alpha;
+    x.shadowBlur=0;x.fillStyle='rgba(255,255,255,.8)';
+    x.beginPath();x.ellipse(10,-2,7.5,4.6,.3,0,7);x.fill();
+    x.fillStyle='#070A0D';x.beginPath();x.arc(25,-3,2.2,0,7);x.fill();
+    if(dragon>0){ // the shadow that is not a fish
+      x.globalAlpha=dragon*0.55;x.fillStyle='#05070A';
+      x.beginPath();x.moveTo(44,10);x.quadraticCurveTo(18,2,-10,8);
+      x.quadraticCurveTo(-40,14,-72,4);x.quadraticCurveTo(-46,22,-8,22);
+      x.quadraticCurveTo(20,22,44,10);x.fill();
+      x.strokeStyle='#05070A';x.lineWidth=2.4;
+      x.beginPath();x.moveTo(40,8);x.lineTo(52,-4);x.stroke();   // horn
+      x.beginPath();x.moveTo(34,9);x.lineTo(42,-6);x.stroke();   // horn
+      for(let i=0;i<4;i++){x.beginPath();x.moveTo(10-i*20,10);x.lineTo(2-i*20,-2);x.stroke();} // spines
+    }
+    x.restore();x.globalAlpha=1;
   }
   function draw(ts){
     const W=box.clientWidth,H=box.clientHeight,time=ts/1000;
     const sc=SCENES[Math.max(0,inScene)]||SCENES[0];
     const p=Math.min(1,(performance.now()-inStart)/(sc.ms||4000));
-    x.fillStyle='#05080C';x.fillRect(0,0,W,H);
 
-    if(sc.d==='stone'||sc.d==='walk'||sc.d==='open'){
-      // camera pushes into the cleft: gap widens as we approach
-      const target = sc.d==='stone'?0 : sc.d==='walk'?0.55 : 1;
-      camZ += (target-camZ)*0.012;
-      const gap = W*(0.055 + camZ*0.95);            // cleft width
-      const lx = W/2 - gap/2, rx = W/2 + gap/2;
-      // rocks
-      rock(-20,0,lx+20,H,1.7,x,W,H);
-      rock(rx,0,W-rx+20,H,3.1,x,W,H);
-      // lintel stone across the top (from the cover)
-      if(camZ<0.5){const lh=H*0.22*(1-camZ*1.6);
-        if(lh>0){rock(-20,-10,W+40,lh,2.3,x,W,H);
-          x.fillStyle='rgba(0,0,0,.55)';x.fillRect(0,lh-6,W,8);}}
-      // the light between the rocks
-      const glow=x.createLinearGradient(lx,0,rx,0);
-      glow.addColorStop(0,'rgba(60,30,8,.9)');
-      glow.addColorStop(.30,'rgba(200,120,30,'+(0.75+Math.sin(time*1.4)*0.08)+')');
-      glow.addColorStop(.55,'rgba(255,210,130,'+(0.95+Math.sin(time*2.1)*0.05)+')');
-      glow.addColorStop(.75,'rgba(210,130,40,.8)');
-      glow.addColorStop(1,'rgba(50,25,6,.9)');
-      x.fillStyle=glow;x.fillRect(lx,0,gap,H);
-      // floor pool of light
-      const fl=x.createLinearGradient(0,H*0.86,0,H);
-      fl.addColorStop(0,'rgba(230,160,60,'+(0.12+camZ*0.35)+')');fl.addColorStop(1,'rgba(230,160,60,0)');
-      x.fillStyle=fl;x.fillRect(0,H*0.86,W,H*0.14);
-      // haze
-      const hz=x.createRadialGradient(W/2,H*0.55,10,W/2,H*0.55,W*0.8);
-      hz.addColorStop(0,'rgba(255,190,110,'+(0.10+camZ*0.25)+')');hz.addColorStop(1,'rgba(255,190,110,0)');
-      x.fillStyle=hz;x.fillRect(0,0,W,H);
-      // sigil on the right rock, fading as we pass
-      if(camZ<0.8) sigil(x, Math.min(W-40, rx+ (W-rx)*0.45), H*0.42, Math.max(0.6,1.1-camZ), 0.55*(1-camZ*0.9));
-      // doorframe marks appear on the left wall during the walk
-      if(sc.d==='walk'){
-        const fx=lx*0.45, marks=Math.min(5,Math.floor(p*6));
-        x.strokeStyle='rgba(232,196,107,.75)';x.lineWidth=2;
-        x.fillStyle='rgba(232,196,107,.5)';
-        for(let i=0;i<marks;i++){const y=H*0.62-i*H*0.055;
-          x.beginPath();x.moveTo(fx-14,y);x.lineTo(fx+16,y);x.stroke();}
-        x.strokeStyle='rgba(120,90,50,.7)';x.lineWidth=4;
-        x.beginPath();x.moveTo(fx,H*0.28);x.lineTo(fx,H*0.68);x.stroke();
-      }
-      // embers
-      for(let i=0;i<28;i++){
-        const yy=(H*1.1 - ((time*26+i*53)%(H*1.2)));
-        const xx=W/2 + Math.sin(time*0.7+i)*gap*0.42;
-        x.fillStyle='rgba(255,200,120,'+(0.25+((i*7)%5)*0.08)+')';
-        x.beginPath();x.arc(xx,yy,1+((i*3)%3)*0.7,0,7);x.fill();
-      }
+    // targets per scene
+    const wantGap = sc.d==='approach'?0.16 : sc.d==='gate'?0.22 : sc.d==='shadow'?0.34 : sc.d==='title'?0.5 : 0.045;
+    gapW += (wantGap-gapW)*0.02;
+    const wantKoi = sc.d==='door'?0.16 : sc.d==='marks'?0.30 : sc.d==='turn'?0.40 :
+                    sc.d==='number'?0.42 : sc.d==='approach'?0.46 : 0.50;
+    koiX += (wantKoi-koiX)*0.012;
+    shadowA += (((sc.d==='shadow'||sc.d==='gate')?1:0)-shadowA)*0.02;
+
+    // deep water behind everything
+    const bg=x.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#0C141C');bg.addColorStop(1,'#05080C');x.fillStyle=bg;x.fillRect(0,0,W,H);
+
+    const gap=W*gapW, lx=W/2-gap/2, rx=W/2+gap/2;
+    // the door: two stone faces + lintel
+    stoneFace(-20,H*0.06,lx+20,H,1.7);
+    stoneFace(rx,H*0.06,W-rx+20,H,3.1);
+    stoneFace(-20,-10,W+40,H*0.12,2.4);
+    x.fillStyle='rgba(0,0,0,.5)';x.fillRect(0,H*0.115,W,7);
+
+    // light in the cleft
+    const glow=x.createLinearGradient(lx,0,rx,0);
+    glow.addColorStop(0,'rgba(50,24,6,.95)');
+    glow.addColorStop(.28,'rgba(196,116,28,'+(0.72+Math.sin(time*1.5)*0.08)+')');
+    glow.addColorStop(.55,'rgba(255,214,138,'+(0.95+Math.sin(time*2.2)*0.05)+')');
+    glow.addColorStop(.78,'rgba(206,126,38,.8)');
+    glow.addColorStop(1,'rgba(44,20,5,.95)');
+    x.fillStyle=glow;x.fillRect(lx,H*0.06,gap,H);
+    // spill of light onto the stone and the floor
+    const spill=x.createRadialGradient(W/2,H*0.62,10,W/2,H*0.62,W*0.75);
+    spill.addColorStop(0,'rgba(255,186,102,'+(0.10+gapW*0.5)+')');spill.addColorStop(1,'rgba(255,186,102,0)');
+    x.fillStyle=spill;x.fillRect(0,0,W,H);
+    const fl=x.createLinearGradient(0,H*0.88,0,H);
+    fl.addColorStop(0,'rgba(230,160,60,'+(0.10+gapW*0.6)+')');fl.addColorStop(1,'rgba(230,160,60,0)');
+    x.fillStyle=fl;x.fillRect(0,H*0.88,W,H*0.12);
+
+    // the sigil, carved
+    sigil(Math.min(W-46, rx+(W-rx)*0.46), H*0.40, 1.05, 0.5);
+
+    // the doorframe scratched into the left stone
+    if(['marks','turn','number','approach','gate','shadow','title'].includes(sc.d)){
+      const fx=lx*0.42, marks = sc.d==='marks'? Math.min(5,Math.floor(p*6)) : 5;
+      x.strokeStyle='rgba(184,140,70,.6)';x.lineWidth=4;
+      x.beginPath();x.moveTo(fx,H*0.30);x.lineTo(fx,H*0.72);x.stroke();
+      x.strokeStyle='rgba(232,196,107,.8)';x.lineWidth=2;
+      for(let i=0;i<marks;i++){const y=H*0.66-i*H*0.055;
+        x.beginPath();x.moveTo(fx-13,y);x.lineTo(fx+17,y);x.stroke();}
     }
 
-    if(sc.d==='water'||sc.d==='gate'||sc.d==='title'){
-      const g=x.createLinearGradient(0,0,0,H);
-      g.addColorStop(0,'#131C28');g.addColorStop(1,'#05080C');x.fillStyle=g;x.fillRect(0,0,W,H);
-      // lingering warm light from the cleft behind
-      const back=x.createRadialGradient(W/2,H*0.1,10,W/2,H*0.1,W*0.7);
-      back.addColorStop(0,'rgba(232,160,70,.18)');back.addColorStop(1,'rgba(232,160,70,0)');
-      x.fillStyle=back;x.fillRect(0,0,W,H);
-      const lvl=H*0.66+Math.sin(time*0.8)*10;
-      x.fillStyle='rgba(18,30,44,.85)';x.fillRect(0,lvl,W,H-lvl);
-      x.strokeStyle='rgba(232,196,107,.32)';x.lineWidth=1.5;
-      x.beginPath();for(let px=0;px<W;px+=6)x.lineTo(px,lvl+Math.sin(px/34+time*2)*3);x.stroke();
-      const kx=W*0.5+Math.sin(time*0.55)*W*0.24, ky=lvl+46+Math.sin(time*1.1)*10;
-      x.save();x.translate(kx,ky);x.scale(1.05,1.05);
-      x.shadowColor='#FF5A3C';x.shadowBlur=26;x.fillStyle='#C1121F';
-      x.beginPath();x.moveTo(30,0);x.quadraticCurveTo(16,-11,-6,-8);x.quadraticCurveTo(-20,-4,-26,0);
-      x.quadraticCurveTo(-20,4,-6,8);x.quadraticCurveTo(16,11,30,0);x.fill();
-      x.beginPath();x.moveTo(-24,0);x.quadraticCurveTo(-38,-11,-46,-7);x.quadraticCurveTo(-36,0,-46,7);
-      x.quadraticCurveTo(-38,11,-24,0);x.fill();
-      x.shadowBlur=0;x.fillStyle='rgba(255,255,255,.75)';x.beginPath();x.ellipse(9,-2,7,4.4,.3,0,7);x.fill();
-      x.restore();
-      if(sc.d==='gate'||sc.d==='title'){
-        const a=0.4+Math.sin(time*1.8)*0.12;
-        x.fillStyle='rgba(232,196,107,'+a+')';
-        x.fillRect(W*0.76,lvl-150,8,150);x.fillRect(W*0.90,lvl-150,8,150);
-        x.fillRect(W*0.76,lvl-160,W*0.14+8,9);
-        const gg=x.createRadialGradient(W*0.83,lvl-80,5,W*0.83,lvl-80,90);
-        gg.addColorStop(0,'rgba(232,196,107,.18)');gg.addColorStop(1,'rgba(232,196,107,0)');
-        x.fillStyle=gg;x.fillRect(W*0.6,lvl-190,W*0.4,200);
-      }
-      for(let i=0;i<24;i++){const yy=((time*14+i*47)%H);
-        x.fillStyle='rgba(232,196,107,.35)';x.beginPath();
-        x.arc((i*97)%W,H-yy,1.2+((i*7)%3)*0.5,0,7);x.fill();}
+    // the number, burning on the stone
+    if(['number','approach','gate','shadow'].includes(sc.d)){
+      const n=$('inNum'); // text lives in the caption; echo a ghost of it on the rock
+      x.save();x.globalAlpha=0.22+Math.sin(time*1.6)*0.05;
+      x.textAlign='center';x.fillStyle='#E8C46B';x.font='300 40px "IBM Plex Mono", monospace';
+      x.fillText(n?n.textContent:'', W*0.24, H*0.22);x.restore();
     }
+
+    // the koi crossing the face of the door
+    const kx=W*koiX, ky=H*(0.56+Math.sin(time*0.7)*0.04);
+    const dragonBeat = shadowA * (0.5+0.5*Math.sin(time*0.9));
+    drawKoi(kx, ky, 1.15, 1, dragonBeat);
+
+    // the gate, above, in the light
+    if(sc.d==='gate'||sc.d==='shadow'||sc.d==='title'){
+      const a=0.35+Math.sin(time*1.7)*0.12;
+      x.fillStyle='rgba(232,196,107,'+a+')';
+      x.fillRect(lx-6,H*0.10,5,H*0.16);x.fillRect(rx+1,H*0.10,5,H*0.16);
+      x.fillRect(lx-8,H*0.09,gap+18,5);
+    }
+
+    // embers rising through the crack
+    for(let i=0;i<30;i++){
+      const yy=(H*1.05-((time*24+i*49)%(H*1.15)));
+      const xx=W/2+Math.sin(time*0.7+i)*gap*0.45;
+      x.fillStyle='rgba(255,204,128,'+(0.22+((i*7)%5)*0.08)+')';
+      x.beginPath();x.arc(xx,yy,1+((i*3)%3)*0.7,0,7);x.fill();
+    }
+    // drifting water motes
+    for(let i=0;i<18;i++){const yy=((time*10+i*61)%H);
+      x.fillStyle='rgba(200,220,235,.18)';x.beginPath();
+      x.arc((i*83)%W,H-yy,1.1,0,7);x.fill();}
+
     inRAF=requestAnimationFrame(draw);
   }
-  inScene=-1;camZ=0;next();inRAF=requestAnimationFrame(draw);
+  inScene=-1;gapW=0.045;koiX=-0.25;shadowA=0;
+  next();inRAF=requestAnimationFrame(draw);
 }
-
 
 /* ============ ROOM TUTORIALS — played, with KOI narrating ============ */
 const DEMOS={
@@ -2952,6 +3351,25 @@ function playDemo(page){
 $('playIntroBtn').onclick=()=>{$('setup').classList.remove('show');playIntro();};
 $('vaultBtn').onclick=()=>{$('setup').classList.remove('show');openVault();};
 $('xpBar').onclick=openVault;
+
+
+$('setupClose').onclick=()=>{
+  if(!S.profile){fishSay('Claim your mirror first — I need your weight, height, and age to reflect anything at all.');return;}
+  $('setup').classList.remove('show');
+};
+$('vaultX').onclick=()=>$('vault').classList.remove('show');
+// tap the dark edge to leave
+[['setup',()=>!!S.profile],['vault',()=>true]].forEach(([id,ok])=>{
+  const p=$(id);
+  p.addEventListener('click',e=>{ if(e.target===p && ok()) p.classList.remove('show'); });
+});
+// hardware/browser back closes an open panel instead of leaving the app
+addEventListener('popstate',()=>{
+  const v=$('vault'),s=$('setup');
+  if(v.classList.contains('show')){v.classList.remove('show');history.pushState(null,'','');}
+  else if(s.classList.contains('show')&&S.profile){s.classList.remove('show');history.pushState(null,'','');}
+});
+try{history.pushState(null,'','');}catch(e){}
 
 /* ============ BOOT ============ */
 sizeCanvas();applySkins();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
