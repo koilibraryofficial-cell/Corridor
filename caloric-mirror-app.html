@@ -385,10 +385,11 @@
   #intro{position:absolute;inset:0;background:#05080C;z-index:100;display:none;overflow:hidden;}
   #intro.show{display:block;}
   #introCv{position:absolute;inset:0;width:100%;height:100%;}
-  .in-text{position:absolute;left:8%;right:8%;top:38%;text-align:center;
-    font-family:'Cormorant',serif;font-weight:300;font-size:26px;line-height:1.45;color:#EDE6D8;
+  .in-text{position:absolute;left:7%;right:7%;bottom:16%;text-align:center;
+    font-family:'Cormorant',serif;font-weight:300;font-size:24px;line-height:1.5;color:#F3ECDE;
     opacity:0;transition:opacity 1.1s;text-shadow:0 2px 18px rgba(0,0,0,.8);}
   .in-text.on{opacity:1;}
+  .in-text{text-shadow:0 3px 26px rgba(0,0,0,.95),0 0 60px rgba(0,0,0,.8);}
   .in-text b{color:var(--gold);font-weight:500;}
   .in-sub{display:block;font-size:15px;font-style:italic;color:var(--mist);margin-top:12px;letter-spacing:.04em;}
   .in-skip{position:absolute;top:14px;right:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;
@@ -406,6 +407,7 @@
   <div class="lintel">
     <div class="day" id="dayLabel">MY CALORIC MIRROR</div>
     <div class="day" id="streakLine" style="cursor:pointer;color:var(--gold);margin-top:-4px"></div>
+    <div id="xpBar" style="margin:10px 12px 0;cursor:pointer"></div>
     <div class="q" id="quote">One rule above all others: honest numbers only.</div>
   </div>
   <div class="pond">
@@ -619,7 +621,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v25</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v27</div>
   </div>
 </div>
 
@@ -630,6 +632,8 @@
   <span class="in-skip" id="inSkip">SKIP ›</span>
   <div class="in-tap">TAP TO CONTINUE</div>
 </div>
+
+<div class="panel" id="vault"><div id="vaultBody"></div></div>
 
 <div class="panel" id="setup">
   <h2>My Caloric Mirror</h2>
@@ -645,6 +649,8 @@
   <div id="mirrorPreview"></div>
   <div class="mid-note">Your resting burn drains the water continuously, in real time — sleep included, never counted twice.</div>
   <button class="big-btn" id="claimBtn">Claim My Mirror</button>
+  <button class="small-link" id="playIntroBtn" style="color:var(--gold)">▶ Play the opening</button>
+  <button class="small-link" id="vaultBtn" style="color:var(--gold)">✦ Open the Vault — XP &amp; skins</button>
   <button class="small-link" id="beginAgainBtn" style="color:var(--gold)">Begin the 90 again — Day 1 is today</button>
   <button class="small-link" id="exportBtn">Export thread token (backup / move devices)</button>
   <button class="small-link" id="importBtn">Import thread token</button>
@@ -676,13 +682,16 @@ let S=JSON.parse(store.get('caloricMirror')||'null')||{
   profile:null,targetW:null,startDate:null,mirrorStart:0,calib:1.0,
   marks:[],days:{},lifts:{},chat:[],lastGreet:null,toured:false,sound:false,
   book:{},roomSeen:{},forgeCrowns:0,lastCrown:null,registered:false,reflect:null,goalText:null,plan:null,apiKey:null,
-  prs:{},streak:{current:0,longest:0,lastSeen:null},form:1,gateCrossed:false,session:null,installAsked:false,notifAsked:false,boardName:null
+  prs:{},streak:{current:0,longest:0,lastSeen:null},form:1,gateCrossed:false,session:null,installAsked:false,notifAsked:false,boardName:null,
+  xp:0,owned:['crimson','corridor','gold','sigil-mirror'],equip:{koi:'crimson',water:'corridor',accent:'gold',sigil:'sigil-mirror'},xpLog:{}
 };
 function normalizeState(){
   S.book=S.book||{};S.roomSeen=S.roomSeen||{};S.marks=S.marks||[];S.days=S.days||{};
   S.lifts=S.lifts||{};S.chat=S.chat||[];S.forgeCrowns=S.forgeCrowns||0;
   S.calib=S.calib||1.0;S.registered=!!S.registered;
   S.prs=S.prs||{};S.streak=S.streak||{current:0,longest:0,lastSeen:null};S.form=S.form||1;
+  S.xp=S.xp||0;S.owned=S.owned||['crimson','corridor','gold','sigil-mirror'];S.xpLog=S.xpLog||{};
+  S.equip=S.equip||{koi:'crimson',water:'corridor',accent:'gold',sigil:'sigil-mirror'};
 }
 normalizeState();
 const save=()=>store.set('caloricMirror',JSON.stringify(S));
@@ -1132,7 +1141,7 @@ function greetIfNewDay(){
 
 /* ============ KOI EXPLAINS HIMSELF ON REQUEST ============ */
 function koiHelp(){
-  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“intro”</b> to replay the opening story. Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. The <b>📕 Book</b> tab is the paper journal itself, word for word — numbers auto-filled from your day, evening reflections answered in your own words, one tap to copy the whole page into the physical book. Ask me anything. I reflect; you choose.',null,null,true);
+  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“intro”</b> to replay the opening, or <b>“tutorial”</b> (or tap ⓘ) for a played walkthrough of whatever room you’re standing in — turn on 🕯 sound and I narrate aloud. Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. The <b>📕 Book</b> tab is the paper journal itself, word for word — numbers auto-filled from your day, evening reflections answered in your own words, one tap to copy the whole page into the physical book. Witnessing earns <b>XP</b> — the Vault (tap the level bar) trades it for koi colors, waters, light, and sigils. Beauty only, never advantage. Ask me anything. I reflect; you choose.',null,null,true);
 }
 
 /* ============ HANDLE INPUT ============ */
@@ -1161,6 +1170,7 @@ async function handle(text,images,imgSrcs){
   if(/^(reflect|evening|close the day|seal the day)\b/.test(tl)){startReflection();return;}
   if(/analy[sz]|full report|how am i doing|read the mirror/.test(tl)){koiAnalyze();return;}
   if(/^(intro|opening|the movie|play the opening)\b/.test(tl)){playIntro();return;}
+  if(/^(tutorial|explain this|show me|demo)\b/.test(tl)){playDemo(activeTab);return;}
   const wm=text.toLowerCase().match(/weigh(?:ed)?(?:\s*in)?\s*(?:at)?\s*(\d{2,3}(?:\.\d+)?)/);
   if(wm){weighIn(parseFloat(wm[1]));return;}
   const wat=text.toLowerCase().match(/(?:drank|had|drinking)?\s*(?:a\s+)?(?:(\d+(?:\.\d+)?)\s*(oz|ounces?|liters?|l\b|cups?|bottles?|glass(?:es)?)\s+(?:of\s+)?)?water(?!melon)/);
@@ -1194,7 +1204,7 @@ async function handle(text,images,imgSrcs){
   const now=Date.now();for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal,p:it.p||0,t:now});
     chips.push({...it,t:it.type});}
   if(lift)applyLift(lift);
-  touchStreak();save();renderAll();pulse();burst=1;
+  touchStreak();grantXP(XP_RULES.log*items.length,'logging honestly');save();renderAll();pulse();burst=1;
   if(items.some(i=>i.type==='in'&&i.kcal>0))chimeRise();
   if(items.some(i=>i.type==='out'&&i.kcal>0))toneFall();
   const photoLine=(images&&images.length&&items.length>1)?('I broke the plate into '+items.length+' items, each on your timeline with the time. '):'';
@@ -1287,7 +1297,7 @@ function renderAll(){
       <div class="rungs">${L.rungs.map((r,i)=>`<span>${RUNG_NAMES[i]}<br>${L.reps?r:Math.round(r*bw)}</span>`).join('')}</div>
       <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
     lad.appendChild(el);}
-  renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();renderWeekWork();renderStreak();
+  renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();renderWeekWork();renderStreak();renderXP();
 }
 function tick(){
   if(S.profile){
@@ -1623,8 +1633,9 @@ const flakes=Array.from({length:38},()=>({x:Math.random(),y:Math.random(),r:0.7+
 function drawPond(ts){
   const W=cv.clientWidth,H=265,time=ts/1000;
   cx.clearRect(0,0,W,H);
+  const WS=waterSkin();
   const g=cx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#131C28');g.addColorStop(0.5,'#0E141D');g.addColorStop(1,'#090D12');
+  g.addColorStop(0,WS.a);g.addColorStop(1,WS.b);
   cx.fillStyle=g;cx.fillRect(0,0,W,H);
   // torchlight breathing across the water
   const au=cx.createRadialGradient(W/2,-40,20,W/2,-40,W*0.9);
@@ -1645,19 +1656,20 @@ function drawPond(ts){
   const wig=a=>Math.sin(time*(3.4+attnBoost*2)+a)*(6+prog*4);
   cx.save();cx.translate(cxr,cyr);cx.scale(scale,scale);cx.rotate(Math.sin(time*0.5)*0.12);
   const glow=burst>0?burst:(0.4+prog*0.4+attnBoost);
-  cx.shadowColor='#FF5A3C';cx.shadowBlur=18+glow*30;
+  const KS=koiSkin();
+  cx.shadowColor=KS.g;cx.shadowBlur=18+glow*30;
   cx.fillStyle='#C1121F';cx.beginPath();cx.moveTo(38,0);
   cx.quadraticCurveTo(20,-14,-8,-10+wig(0)*.2);cx.quadraticCurveTo(-26,-6+wig(1)*.4,-34,wig(2)*.6);
   cx.quadraticCurveTo(-26,6+wig(1)*.4,-8,10+wig(0)*.2);cx.quadraticCurveTo(20,14,38,0);cx.fill();
   cx.beginPath();cx.moveTo(-32,wig(2)*.6);
   cx.quadraticCurveTo(-48,-14+wig(3),-56,-8+wig(3));cx.quadraticCurveTo(-46,wig(3)*.5,-56,10+wig(3));
-  cx.quadraticCurveTo(-48,14+wig(3),-32,wig(2)*.6);cx.fillStyle='rgba(193,18,31,.85)';cx.fill();
+  cx.quadraticCurveTo(-48,14+wig(3),-32,wig(2)*.6);cx.globalAlpha=.85;cx.fillStyle=KS.c;cx.fill();cx.globalAlpha=1;
   cx.shadowBlur=0;cx.fillStyle='rgba(255,255,255,'+(0.5+prog*0.4)+')';
   cx.beginPath();cx.ellipse(12,-2,9,5.5,.3,0,7);cx.fill();
   cx.fillStyle='#0A0E13';cx.beginPath();cx.arc(30,-3,2.4,0,7);cx.fill();
-  cx.fillStyle='rgba(255,90,60,.55)';
+  cx.globalAlpha=.55;cx.fillStyle=KS.g;
   cx.beginPath();cx.ellipse(8,12,10,4,.7+Math.sin(time*3)*.2,0,7);cx.fill();
-  cx.beginPath();cx.ellipse(8,-12,10,4,-.7-Math.sin(time*3)*.2,0,7);cx.fill();
+  cx.beginPath();cx.ellipse(8,-12,10,4,-.7-Math.sin(time*3)*.2,0,7);cx.fill();cx.globalAlpha=1;
   if(form>=2){cx.strokeStyle='rgba(237,230,214,.7)';cx.lineWidth=1;
     cx.beginPath();cx.moveTo(36,3);cx.quadraticCurveTo(42,6,44,10);cx.stroke();
     cx.beginPath();cx.moveTo(36,-3);cx.quadraticCurveTo(42,-6,44,-10);cx.stroke();}
@@ -1700,6 +1712,8 @@ function logWater(oz){
   S.days[tk].waterLog.push({oz,t:Date.now()});
   touchStreak();save();renderAll();chimeRise();
   const tot=S.days[tk].water,goal=waterGoal();
+  grantXP(XP_RULES.log,'water');
+  if(tot>=goal)grantXP(XP_RULES.water,'crossing your water mark','water');
   fishSay(tot>=goal
     ? 'That’s '+tot+' oz — you’ve crossed your '+goal+' oz mark for the day. The whole machine runs cleaner like this: skin, joints, thinking, kidneys.'
     : '+'+oz+' oz. '+tot+' of '+goal+' oz today. Zero calories, and every trade your body makes happens in this water.');
@@ -1750,7 +1764,7 @@ function logDirect(item){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,p:item.p||0,t:Date.now()});
-  touchStreak();save();renderAll();pulse();burst=1;
+  touchStreak();grantXP(XP_RULES.log,'logging honestly');save();renderAll();pulse();burst=1;
   if(item.type==='in'&&item.kcal>0)chimeRise();else if(item.type==='out')toneFall();
   fishSay(teachLine(item)+(item.type==='out'&&item.kcal>0?fireChallenge():''),[{...item,t:item.type}]);
 }
@@ -1799,6 +1813,7 @@ function renderGauge(){
 /* ============ RIBBON FISH (gold table koi · white-hot forge koi) ============ */
 const ribbons=[{id:'ribFood',color:'#E8C46B',glow:'#FFDf8A',bg0:'#141A12',bg1:'#0B0F0A'},
                {id:'ribStr',color:'#FF4D2A',glow:'#FFB36B',bg0:'#1C1210',bg1:'#0F0908'}];
+function ribColors(r){const KS=koiSkin();return r.id==='ribStr'?{c:KS.c,g:KS.g}:{c:r.color,g:r.glow};}
 ribbons.forEach(r=>{const c=$(r.id);if(!c)return;
   c.width=c.clientWidth*devicePixelRatio||500;c.height=86*devicePixelRatio;});
 function drawRibbons(ts){
@@ -1817,8 +1832,9 @@ function drawRibbons(ts){
     const fx=((time*46)%(W+140))-70, fy=H/2+Math.sin(time*2)*9;
     const wig=a=>Math.sin(time*4+a)*5;
     x.save();x.translate(fx,fy);x.scale(0.62,0.62);
-    x.shadowColor=r.glow;x.shadowBlur=22;
-    x.fillStyle=r.color;x.beginPath();x.moveTo(38,0);
+    const RC=ribColors(r);
+    x.shadowColor=RC.g;x.shadowBlur=22;
+    x.fillStyle=RC.c;x.beginPath();x.moveTo(38,0);
     x.quadraticCurveTo(20,-14,-8,-10+wig(0)*.2);x.quadraticCurveTo(-26,-6+wig(1)*.4,-34,wig(2)*.6);
     x.quadraticCurveTo(-26,6+wig(1)*.4,-8,10+wig(0)*.2);x.quadraticCurveTo(20,14,38,0);x.fill();
     x.beginPath();x.moveTo(-32,wig(2)*.6);
@@ -1926,6 +1942,8 @@ function touchStreak(){
   const resumed = st.lastSeen && st.lastSeen<y;
   st.current=st.current+1; st.longest=Math.max(st.longest,st.current);
   st.lastSeen=tk; save(); renderStreak();
+  grantXP(XP_RULES.day,'witnessing the day','day');
+  if(st.current%7===0)grantXP(XP_RULES.streak7,'a seven-day streak');
   if(resumed) fishSay('The mirror waited. Your '+st.current+'-day streak resumes — the days you missed are simply unwitnessed, not failures.');
   if([7,21,45,90].includes(st.current)){bellMark();
     fishSay('🕯 '+st.current+' witnessed days in the streak. The habit is becoming the person.');}
@@ -1976,6 +1994,7 @@ function recordSets(sets){
     if(!prev||e1>prev.e1){
       S.prs[s.ex]={e1,w:s.w,r:s.r,date:tk};
       bellMark();burst=1;
+      grantXP(XP_RULES.pr,'new territory');
       prLine=' ⚔ New territory — '+s.ex+' '+(s.w>0?'e1RM '+e1+' lb':e1+' reps')+'. The wall remembers.';
     }
   }
@@ -2008,6 +2027,113 @@ function renderWeekWork(){
     return `<div class="ladder"><div class="lname"><span>${g}</span><b>${v} sets</b></div>
       <div class="rail"><div class="fill" style="width:${pct}%"></div><div class="gmark" style="left:50%;position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--gold)"></div></div></div>`;
   }).join('')+'<div class="lstat">Gold line = 10 sets/week, the floor of the growth zone (10–20). The mirror only reports.</div>';
+}
+
+
+/* ============ XP & THE VAULT — earned by witnessing, spent on beauty ============ */
+const XP_RULES={log:5,water:30,day:50,reflect:40,book:60,session:40,pr:60,streak7:100,forge:120};
+const SKINS={
+ koi:[
+  {id:'crimson',n:'Crimson',c:'#C1121F',g:'#FF5A3C',cost:0},
+  {id:'gold-koi',n:'Gold Koi',c:'#E8A33C',g:'#FFD98A',cost:400},
+  {id:'obsidian',n:'Obsidian',c:'#2B3440',g:'#7FD4E8',cost:700},
+  {id:'jade',n:'Jade',c:'#2E8B6F',g:'#7FD4C1',cost:700},
+  {id:'kohaku',n:'Kohaku (white & red)',c:'#F0E9DA',g:'#FF6B6B',cost:1000},
+  {id:'violet',n:'Amethyst',c:'#8E6FC4',g:'#C9A7F0',cost:1200},
+  {id:'ember',n:'Living Ember',c:'#FF4D2A',g:'#FFC46B',cost:1800},
+  {id:'ghost',n:'Ghost Koi',c:'#8FA6B8',g:'#EDE6D8',cost:2500}],
+ water:[
+  {id:'corridor',n:'The Corridor',a:'#131C28',b:'#070A0E',cost:0},
+  {id:'snowmelt',n:'Snowmelt',a:'#D9EAF3',b:'#AFC9D9',cost:600},
+  {id:'dusk',n:'Dusk Water',a:'#2A1F33',b:'#0E0A14',cost:900},
+  {id:'moonlit',n:'Moonlit Pool',a:'#16233A',b:'#070C16',cost:900},
+  {id:'ink',n:'Ink & Gold',a:'#0F0D0A',b:'#050403',cost:1500},
+  {id:'sacred',n:'Sacred Spring',a:'#0F2A26',b:'#050F0D',cost:1500}],
+ accent:[
+  {id:'gold',n:'Torch Gold',c:'#E8C46B',cost:0},
+  {id:'bone',n:'Bone',c:'#EDE6D8',cost:500},
+  {id:'copper',n:'Copper',c:'#D08A4A',cost:800},
+  {id:'jadelight',n:'Jade Light',c:'#7FD4C1',cost:1100},
+  {id:'amethyst',n:'Amethyst Light',c:'#B79BE0',cost:1400}],
+ sigil:[
+  {id:'sigil-mirror',n:'The Mirror Sigil',cost:0},
+  {id:'sigil-gate',n:'The Dragon Gate',cost:800},
+  {id:'sigil-flame',n:'The Flame',cost:1200},
+  {id:'sigil-eye',n:'The Open Eye',cost:2000}]
+};
+function xpLevel(){return Math.floor(Math.sqrt((S.xp||0)/60))+1;}
+function xpInLevel(){const l=xpLevel();const base=Math.pow(l-1,2)*60,next=Math.pow(l,2)*60;
+  return {have:(S.xp||0)-base,need:next-base,next};}
+function grantXP(n,why,once){
+  if(once){const k=todayKey()+':'+once;if(S.xpLog[k])return;S.xpLog[k]=1;}
+  const before=xpLevel();
+  S.xp=(S.xp||0)+n;save();
+  const after=xpLevel();
+  renderXP();
+  if(after>before){bellMark();
+    fishSay('✦ <b>Level '+after+'.</b> '+n+' XP from '+why+'. The Vault holds what your witnessing earns — <span class="tap" onclick="openVault()">open it ›</span>',null,null,true);}
+}
+function renderXP(){
+  const el=$('xpBar'); if(!el)return;
+  const L=xpInLevel();
+  el.innerHTML='<div style="display:flex;justify-content:space-between;font-family:\'IBM Plex Mono\',monospace;font-size:9px;letter-spacing:.2em;color:var(--mist)">'
+    +'<span>LEVEL '+xpLevel()+' · '+formInfo().name+'</span><span>'+fmt(S.xp||0)+' XP</span></div>'
+    +'<div class="rail" style="margin-top:5px"><div class="fill" style="width:'+Math.min(100,L.have/L.need*100)+'%"></div></div>';
+}
+/* apply equipped cosmetics */
+function koiSkin(){return SKINS.koi.find(k=>k.id===S.equip.koi)||SKINS.koi[0];}
+function waterSkin(){return SKINS.water.find(k=>k.id===S.equip.water)||SKINS.water[0];}
+function applySkins(){
+  const a=SKINS.accent.find(k=>k.id===S.equip.accent)||SKINS.accent[0];
+  document.documentElement.style.setProperty('--gold',a.c);
+  const k=koiSkin();
+  document.documentElement.style.setProperty('--ember',k.c);
+  document.documentElement.style.setProperty('--ember-glow',k.g);
+  const w=waterSkin();
+  const light = ['snowmelt'].includes(w.id);
+  document.documentElement.style.setProperty('--deep', light?'#16222C':'#F0E9D8');
+  document.documentElement.style.setProperty('--slate', light?'#3E5665':'#C9BFA9');
+}
+/* ---- The Vault ---- */
+function openVault(){
+  const p=$('vault'); p.classList.add('show');
+  const L=xpInLevel();
+  let h='<h2>The Vault</h2><div class="tag">'+fmt(S.xp||0)+' XP · Level '+xpLevel()+' · '+(L.need-L.have)+' XP to Level '+(xpLevel()+1)+
+    '<br><span style="font-size:13px">XP is earned by <b>witnessing</b> — never by pounds. Everything here is beauty, never advantage.</span></div>';
+  const rows=[['koi','THE KOI'],['water','THE WATER'],['accent','THE LIGHT'],['sigil','THE SIGIL']];
+  rows.forEach(([kind,label])=>{
+    h+='<div class="bk-h" style="margin-top:18px">'+label+'</div><div class="codex-grid">';
+    SKINS[kind].forEach(s=>{
+      const owned=S.owned.includes(s.id), on=S.equip[kind]===s.id;
+      const swatch = kind==='water'
+        ? '<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:linear-gradient('+s.a+','+s.b+');border:1px solid #2A3A4C"></span>'
+        : '<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:'+(s.c||'#E8C46B')+';box-shadow:0 0 8px '+(s.g||s.c||'#E8C46B')+'"></span>';
+      h+='<div class="food vault-item" data-kind="'+kind+'" data-id="'+s.id+'" style="'+(on?'border-color:var(--gold)':'')+'">'
+        +'<div class="fname">'+swatch+' '+s.n+'</div>'
+        +'<div class="fmac">'+(on?'EQUIPPED':owned?'OWNED · tap to equip':s.cost+' XP')+'</div>'
+        +(!owned?'<div class="fx">'+((S.xp||0)>=s.cost?'✦ ready to claim':'locked — '+(s.cost-(S.xp||0))+' XP to go')+'</div>':'')
+        +'</div>';
+    });
+    h+='</div>';
+  });
+  h+='<div class="bk-h" style="margin-top:20px">HOW XP IS EARNED</div><div class="mid-note" style="text-align:left;max-width:none">'
+   +'Witness a day +'+XP_RULES.day+' · every honest entry +'+XP_RULES.log+' · cross your water mark +'+XP_RULES.water
+   +' · answer the evening reflection +'+XP_RULES.reflect+' · complete a book page +'+XP_RULES.book
+   +' · seal a Forge session +'+XP_RULES.session+' · new PR +'+XP_RULES.pr+' · take the whole body red +'+XP_RULES.forge
+   +' · every 7-day streak +'+XP_RULES.streak7+'.</div>'
+   +'<button class="big-btn" id="vaultClose">Close the Vault</button>';
+  $('vaultBody').innerHTML=h;
+  $('vaultClose').onclick=()=>p.classList.remove('show');
+  document.querySelectorAll('.vault-item').forEach(el=>el.onclick=()=>{
+    const kind=el.dataset.kind,id=el.dataset.id;
+    const s=SKINS[kind].find(z=>z.id===id);
+    if(!S.owned.includes(id)){
+      if((S.xp||0)<s.cost){fishSay('Not yet — '+(s.cost-(S.xp||0))+' more XP. Keep witnessing; the Vault waits.');return;}
+      if(!confirm('Claim “'+s.n+'” for '+s.cost+' XP?'))return;
+      S.xp-=s.cost;S.owned.push(id);bellMark();
+    }
+    S.equip[kind]=id;save();applySkins();renderXP();openVault();
+  });
 }
 
 /* ============ BODY FORGE ENGINE ============ */
@@ -2074,6 +2200,7 @@ function renderForge(){
     + ((S.forgeCrowns||0)>0?' · 👑×'+S.forgeCrowns:'');
   if(red===FORGE_GROUPS.length && S.lastCrown!==todayKey()){
     S.forgeCrowns=(S.forgeCrowns||0)+1; S.lastCrown=todayKey(); save();
+    grantXP(XP_RULES.forge,'taking the whole body red');
     bellMark();
     fishSay('🔥 <b>THE WHOLE BODY BURNS.</b> Every muscle crimson — conquest number '+S.forgeCrowns+'. The bar rises: next time the forge asks '+forgeThreshold()+' from every muscle. Rest tonight; you earned the fire.');
   }
@@ -2335,10 +2462,11 @@ if(!S.roomSeen)S.roomSeen={};
 function roomTour(page,force){
   if(!force&&S.roomSeen[page])return;
   S.roomSeen[page]=true;save();
-  if(ROOM_TOURS[page])fishSay(ROOM_TOURS[page],null,null,true);
+  if(DEMOS[page])playDemo(page);
+  else if(ROOM_TOURS[page])fishSay(ROOM_TOURS[page],null,null,true);
 }
 
-$('infoBtn').onclick=()=>roomTour(activeTab,true);
+$('infoBtn').onclick=()=>playDemo(activeTab);
 
 /* ============ EVENING REFLECTION — KOI asks, you answer, the book fills ============ */
 function startReflection(){
@@ -2356,7 +2484,7 @@ function handleReflection(text){
   if(r.q<4){ save();
     fishSay('Written. <b>'+pg.r[r.q]+'</b>',null,null,true);
   } else {
-    S.reflect=null; save(); renderAll();
+    S.reflect=null; grantXP(XP_RULES.reflect+XP_RULES.book,'answering the book'); save(); renderAll();
     fishSay('The page is full. <i>'+pg.c+'</i><br><br>One last thing — what’s tomorrow’s first meal? Say it, and tomorrow is already half-won.',null,null,true);
   }
 }
@@ -2425,7 +2553,7 @@ $('sealBtn').onclick=()=>{
   if(!S.days[tk].sessions)S.days[tk].sessions=[];
   S.days[tk].sessions.push({dur,sets:n,tonnage:ton,t:Date.now()});
   const best= n? ('Best of the session: '+S.session.sets.reduce((a,b)=>(a.w*a.r>b.w*b.r?a:b)).ex+'.') : '';
-  S.session=null;save();dropWake();clearInterval(sessTick);restEnd=0;
+  S.session=null;grantXP(XP_RULES.session,'sealing the forge');save();dropWake();clearInterval(sessTick);restEnd=0;
   $('sessPanel').style.display='none';$('sessBtn').style.display='block';
   renderAll();toneFall();
   fishSay('🔥 Session sealed — '+dur+' min, '+n+' sets, '+fmt(ton)+' lb moved, −'+kcal+' deposited. '+best);
@@ -2500,20 +2628,21 @@ document.querySelector('#boardSec .sec-head').addEventListener('click',async()=>
 });
 
 
-/* ============ THE OPENING — the why, in forty seconds ============ */
+/* ============ THE OPENING — through the cleft in the stone ============ */
 const SCENES=[
- {t:'Parents mark their children’s height on a doorframe.',sub:'A pencil line. A date. A little name.',d:'frame',ms:5200},
- {t:'Years later, those small lines become the most tender thing in the house.',sub:'“Look how small you were.”',d:'frame2',ms:5200},
- {t:'But there is another number.<br>The one nobody ever marks.',sub:'The one we hide, round down, look away from.',d:'dark',ms:5200},
- {t:'What if you measured it —<br>not to judge it. Just to <b>see</b> it.',d:'spark',ms:4800},
- {t:'Your body, written in caloric units.<br><b id="inNum">0</b>',sub:'your weight × 3,500 — one number that cannot lie',d:'number',ms:5600},
- {t:'Feed it, the water rises.<br>Move, it sinks.<br>Rest — it burns anyway.',d:'water',ms:5600},
- {t:'<b>Ninety days.</b> No diet. No demands.<br>One rule: honest numbers.',sub:'You cannot fail in here. You can only see clearly, or look away.',d:'water',ms:5600},
- {t:'A koi swims the climb with you.<br>At the top of the falls — the gate.',sub:'The fish that finishes the climb becomes a dragon.',d:'gate',ms:5600},
- {t:'Most people have never truly seen themselves.',sub:'You are about to.',d:'dim',ms:4600},
- {t:'<b style="font-size:34px;letter-spacing:.06em">MY CALORIC MIRROR</b>',sub:'Kingdom of Inner Light',d:'title',ms:5000}
+ {t:'',sub:'',d:'stone',ms:3600},
+ {t:'There is a light in the stone.',sub:'It has been there the whole time.',d:'stone',ms:4600},
+ {t:'Parents mark a child’s height on a doorframe.<br>Years later those little lines are the most tender thing in the house.',d:'walk',ms:6400},
+ {t:'But there is another number.<br>The one nobody ever marks.',sub:'The one we hide, round down, look away from.',d:'walk',ms:5600},
+ {t:'What if you measured it —<br>not to judge it. Just to <b>see</b> it.',d:'walk',ms:5000},
+ {t:'Your body, written in caloric units.<br><b id="inNum">0</b>',sub:'your weight × 3,500 — one number that cannot lie',d:'open',ms:5800},
+ {t:'Eat, the water rises. Move, it falls.<br>Rest — it burns anyway.',d:'water',ms:5400},
+ {t:'<b>Ninety days.</b> No diet. No demands.<br>One rule: honest numbers.',sub:'You cannot fail in here. You can only see clearly, or look away.',d:'water',ms:5800},
+ {t:'A koi swims the climb beside you.<br>At the top of the falls — the gate.',sub:'The fish that finishes the climb becomes a dragon.',d:'gate',ms:5600},
+ {t:'Most people have never truly seen themselves.',sub:'You are about to.',d:'gate',ms:4600},
+ {t:'<b style="font-size:32px;letter-spacing:.05em">MY CALORIC MIRROR</b>',sub:'A 90-Day Practice in Numeric Truth<br>Kingdom of Inner Light',d:'title',ms:5200}
 ];
-let inScene=-1,inT=null,inRAF=null,inStart=0;
+let inScene=-1,inT=null,inRAF=null,inStart=0,camZ=0;
 function playIntro(done){
   const box=$('intro');box.classList.add('show');
   const cv=$('introCv'),x=cv.getContext('2d');
@@ -2529,10 +2658,14 @@ function playIntro(done){
     if(inScene>=SCENES.length){finish();return;}
     const sc=SCENES[inScene];inStart=performance.now();
     const el=$('inText');el.classList.remove('on');
-    setTimeout(()=>{el.innerHTML=sc.t+(sc.sub?'<span class="in-sub">'+sc.sub+'</span>':'');el.classList.add('on');
-      if(sc.d==='number'&&S.profile){rollNum();}
-      else if(sc.d==='number'){const n=$('inNum');if(n)n.textContent='647,500';}
-    },350);
+    setTimeout(()=>{
+      el.innerHTML=sc.t+(sc.sub?'<span class="in-sub">'+sc.sub+'</span>':'');
+      if(sc.t)el.classList.add('on');
+      if(sc.t.indexOf('inNum')>-1)rollNum();
+      if(S.sound&&window.speechSynthesis&&sc.t){
+        const u=new SpeechSynthesisUtterance(el.textContent.replace(/\s+/g,' '));
+        u.rate=.88;u.pitch=.95;speechSynthesis.cancel();speechSynthesis.speak(u);}
+    },420);
     clearTimeout(inT);inT=setTimeout(next,sc.ms);
   }
   function rollNum(){
@@ -2542,52 +2675,286 @@ function playIntro(done){
       if(cur<target)setTimeout(step,40);};
     step();
   }
+  /* stone texture — deterministic mottling */
+  function rock(x0,y0,w,h,seed,ctx,W,H){
+    const g=ctx.createLinearGradient(x0,0,x0+w,0);
+    g.addColorStop(0,'#141A21');g.addColorStop(.5,'#2A3540');g.addColorStop(1,'#1B242D');
+    ctx.fillStyle=g;ctx.fillRect(x0,y0,w,h);
+    for(let i=0;i<90;i++){
+      const s=Math.sin(i*seed)*10000, r1=s-Math.floor(s), s2=Math.sin(i*seed*1.7)*10000, r2=s2-Math.floor(s2);
+      const px=x0+r1*w, py=y0+r2*h, sz=2+((i*7)%14);
+      ctx.fillStyle= (i%9===0)?'rgba(200,170,120,.06)':(i%3===0?'rgba(255,255,255,.025)':'rgba(0,0,0,.16)');
+      ctx.beginPath();ctx.ellipse(px,py,sz,sz*.6,i,0,7);ctx.fill();
+    }
+  }
+  /* the ochre sigil from the cover */
+  function sigil(ctx,cx,cy,s,a){
+    ctx.save();ctx.globalAlpha=a;ctx.strokeStyle='#8B2318';ctx.lineWidth=1.6*s;
+    ctx.beginPath();ctx.arc(cx,cy,26*s,0,7);ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,13*s,0,7);ctx.stroke();
+    ctx.fillStyle='#8B2318';ctx.beginPath();ctx.arc(cx,cy,3*s,0,7);ctx.fill();
+    ctx.beginPath();ctx.moveTo(cx-34*s,cy);ctx.lineTo(cx+34*s,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,cy+26*s);ctx.lineTo(cx,cy+96*s);ctx.stroke();
+    for(let i=1;i<=4;i++){const y=cy+26*s+i*17*s, wdt=(22-i*3)*s;
+      ctx.beginPath();ctx.moveTo(cx-wdt,y);ctx.lineTo(cx+wdt,y);ctx.stroke();}
+    ctx.restore();
+  }
   function draw(ts){
     const W=box.clientWidth,H=box.clientHeight,time=ts/1000;
     const sc=SCENES[Math.max(0,inScene)]||SCENES[0];
-    const g=x.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,'#0B1119');g.addColorStop(1,'#05080C');x.fillStyle=g;x.fillRect(0,0,W,H);
-    // motes always
-    x.fillStyle='rgba(232,196,107,.4)';
-    for(let i=0;i<26;i++){const yy=((time*12+i*47)%H);x.beginPath();
-      x.arc((i*97)%W, H-yy, 1.2+((i*7)%3)*0.5, 0, 7);x.fill();}
-    const p=Math.min(1,(performance.now()-inStart)/1600);
-    if(sc.d==='frame'||sc.d==='frame2'){
-      x.strokeStyle='#4A3C22';x.lineWidth=5;
-      x.beginPath();x.moveTo(W*0.5,H*0.12);x.lineTo(W*0.5,H*0.32);x.stroke();
-      const marks=sc.d==='frame2'?4:Math.ceil(p*2);
-      x.strokeStyle='#E8C46B';x.lineWidth=2;
-      for(let i=0;i<marks;i++){const y=H*0.30-i*H*0.045;
-        x.globalAlpha=Math.min(1,p*2-i*0.3);
-        x.beginPath();x.moveTo(W*0.5-2,y);x.lineTo(W*0.5+26,y);x.stroke();}
-      x.globalAlpha=1;
+    const p=Math.min(1,(performance.now()-inStart)/(sc.ms||4000));
+    x.fillStyle='#05080C';x.fillRect(0,0,W,H);
+
+    if(sc.d==='stone'||sc.d==='walk'||sc.d==='open'){
+      // camera pushes into the cleft: gap widens as we approach
+      const target = sc.d==='stone'?0 : sc.d==='walk'?0.55 : 1;
+      camZ += (target-camZ)*0.012;
+      const gap = W*(0.055 + camZ*0.95);            // cleft width
+      const lx = W/2 - gap/2, rx = W/2 + gap/2;
+      // rocks
+      rock(-20,0,lx+20,H,1.7,x,W,H);
+      rock(rx,0,W-rx+20,H,3.1,x,W,H);
+      // lintel stone across the top (from the cover)
+      if(camZ<0.5){const lh=H*0.22*(1-camZ*1.6);
+        if(lh>0){rock(-20,-10,W+40,lh,2.3,x,W,H);
+          x.fillStyle='rgba(0,0,0,.55)';x.fillRect(0,lh-6,W,8);}}
+      // the light between the rocks
+      const glow=x.createLinearGradient(lx,0,rx,0);
+      glow.addColorStop(0,'rgba(60,30,8,.9)');
+      glow.addColorStop(.30,'rgba(200,120,30,'+(0.75+Math.sin(time*1.4)*0.08)+')');
+      glow.addColorStop(.55,'rgba(255,210,130,'+(0.95+Math.sin(time*2.1)*0.05)+')');
+      glow.addColorStop(.75,'rgba(210,130,40,.8)');
+      glow.addColorStop(1,'rgba(50,25,6,.9)');
+      x.fillStyle=glow;x.fillRect(lx,0,gap,H);
+      // floor pool of light
+      const fl=x.createLinearGradient(0,H*0.86,0,H);
+      fl.addColorStop(0,'rgba(230,160,60,'+(0.12+camZ*0.35)+')');fl.addColorStop(1,'rgba(230,160,60,0)');
+      x.fillStyle=fl;x.fillRect(0,H*0.86,W,H*0.14);
+      // haze
+      const hz=x.createRadialGradient(W/2,H*0.55,10,W/2,H*0.55,W*0.8);
+      hz.addColorStop(0,'rgba(255,190,110,'+(0.10+camZ*0.25)+')');hz.addColorStop(1,'rgba(255,190,110,0)');
+      x.fillStyle=hz;x.fillRect(0,0,W,H);
+      // sigil on the right rock, fading as we pass
+      if(camZ<0.8) sigil(x, Math.min(W-40, rx+ (W-rx)*0.45), H*0.42, Math.max(0.6,1.1-camZ), 0.55*(1-camZ*0.9));
+      // doorframe marks appear on the left wall during the walk
+      if(sc.d==='walk'){
+        const fx=lx*0.45, marks=Math.min(5,Math.floor(p*6));
+        x.strokeStyle='rgba(232,196,107,.75)';x.lineWidth=2;
+        x.fillStyle='rgba(232,196,107,.5)';
+        for(let i=0;i<marks;i++){const y=H*0.62-i*H*0.055;
+          x.beginPath();x.moveTo(fx-14,y);x.lineTo(fx+16,y);x.stroke();}
+        x.strokeStyle='rgba(120,90,50,.7)';x.lineWidth=4;
+        x.beginPath();x.moveTo(fx,H*0.28);x.lineTo(fx,H*0.68);x.stroke();
+      }
+      // embers
+      for(let i=0;i<28;i++){
+        const yy=(H*1.1 - ((time*26+i*53)%(H*1.2)));
+        const xx=W/2 + Math.sin(time*0.7+i)*gap*0.42;
+        x.fillStyle='rgba(255,200,120,'+(0.25+((i*7)%5)*0.08)+')';
+        x.beginPath();x.arc(xx,yy,1+((i*3)%3)*0.7,0,7);x.fill();
+      }
     }
+
     if(sc.d==='water'||sc.d==='gate'||sc.d==='title'){
-      const lvl=sc.d==='water'? H*0.68+Math.sin(time*0.8)*14 : H*0.7;
-      x.fillStyle='rgba(20,32,46,.8)';x.fillRect(0,lvl,W,H-lvl);
-      x.strokeStyle='rgba(232,196,107,.35)';x.lineWidth=1.5;
+      const g=x.createLinearGradient(0,0,0,H);
+      g.addColorStop(0,'#131C28');g.addColorStop(1,'#05080C');x.fillStyle=g;x.fillRect(0,0,W,H);
+      // lingering warm light from the cleft behind
+      const back=x.createRadialGradient(W/2,H*0.1,10,W/2,H*0.1,W*0.7);
+      back.addColorStop(0,'rgba(232,160,70,.18)');back.addColorStop(1,'rgba(232,160,70,0)');
+      x.fillStyle=back;x.fillRect(0,0,W,H);
+      const lvl=H*0.66+Math.sin(time*0.8)*10;
+      x.fillStyle='rgba(18,30,44,.85)';x.fillRect(0,lvl,W,H-lvl);
+      x.strokeStyle='rgba(232,196,107,.32)';x.lineWidth=1.5;
       x.beginPath();for(let px=0;px<W;px+=6)x.lineTo(px,lvl+Math.sin(px/34+time*2)*3);x.stroke();
-      // koi
-      const kx=W*0.5+Math.sin(time*0.6)*W*0.22, ky=lvl+40+Math.sin(time*1.1)*10;
-      x.save();x.translate(kx,ky);x.scale(0.9,0.9);
-      x.shadowColor='#FF5A3C';x.shadowBlur=22;x.fillStyle='#C1121F';
+      const kx=W*0.5+Math.sin(time*0.55)*W*0.24, ky=lvl+46+Math.sin(time*1.1)*10;
+      x.save();x.translate(kx,ky);x.scale(1.05,1.05);
+      x.shadowColor='#FF5A3C';x.shadowBlur=26;x.fillStyle='#C1121F';
       x.beginPath();x.moveTo(30,0);x.quadraticCurveTo(16,-11,-6,-8);x.quadraticCurveTo(-20,-4,-26,0);
       x.quadraticCurveTo(-20,4,-6,8);x.quadraticCurveTo(16,11,30,0);x.fill();
       x.beginPath();x.moveTo(-24,0);x.quadraticCurveTo(-38,-11,-46,-7);x.quadraticCurveTo(-36,0,-46,7);
-      x.quadraticCurveTo(-38,11,-24,0);x.fill();x.restore();
-      if(sc.d==='gate'){x.fillStyle='rgba(232,196,107,'+(0.35+Math.sin(time*2)*0.12)+')';
-        x.fillRect(W*0.78,lvl-120,7,120);x.fillRect(W*0.9,lvl-120,7,120);
-        x.fillRect(W*0.78,lvl-128,W*0.12+7,7);}
+      x.quadraticCurveTo(-38,11,-24,0);x.fill();
+      x.shadowBlur=0;x.fillStyle='rgba(255,255,255,.75)';x.beginPath();x.ellipse(9,-2,7,4.4,.3,0,7);x.fill();
+      x.restore();
+      if(sc.d==='gate'||sc.d==='title'){
+        const a=0.4+Math.sin(time*1.8)*0.12;
+        x.fillStyle='rgba(232,196,107,'+a+')';
+        x.fillRect(W*0.76,lvl-150,8,150);x.fillRect(W*0.90,lvl-150,8,150);
+        x.fillRect(W*0.76,lvl-160,W*0.14+8,9);
+        const gg=x.createRadialGradient(W*0.83,lvl-80,5,W*0.83,lvl-80,90);
+        gg.addColorStop(0,'rgba(232,196,107,.18)');gg.addColorStop(1,'rgba(232,196,107,0)');
+        x.fillStyle=gg;x.fillRect(W*0.6,lvl-190,W*0.4,200);
+      }
+      for(let i=0;i<24;i++){const yy=((time*14+i*47)%H);
+        x.fillStyle='rgba(232,196,107,.35)';x.beginPath();
+        x.arc((i*97)%W,H-yy,1.2+((i*7)%3)*0.5,0,7);x.fill();}
     }
-    if(sc.d==='spark'){x.fillStyle='rgba(232,196,107,'+(0.5+Math.sin(time*3)*0.3)+')';
-      x.beginPath();x.arc(W/2,H*0.3,4+Math.sin(time*3)*2,0,7);x.fill();}
     inRAF=requestAnimationFrame(draw);
   }
-  inScene=-1;next();inRAF=requestAnimationFrame(draw);
+  inScene=-1;camZ=0;next();inRAF=requestAnimationFrame(draw);
 }
 
+
+/* ============ ROOM TUTORIALS — played, with KOI narrating ============ */
+const DEMOS={
+ pageHome:[
+  {t:'🪞 <b>The Mirror.</b> This number is you — your weight × 3,500 caloric units.',d:'num',ms:4200},
+  {t:'It falls every second, on its own. That’s your body burning at rest.',sub:'sleep included — never counted twice',d:'drain',ms:4600},
+  {t:'Say “ate two eggs” — the water <b>rises</b>.',d:'rise',ms:4200},
+  {t:'Say “50 push-ups” — the water <b>falls</b>.',d:'fall',ms:4200},
+  {t:'That’s the whole physics. Talk to me below; our conversation lives on this page.',d:'num',ms:4600}],
+ pageFood:[
+  {t:'🍲 <b>The Table.</b> Your marks sit on top — calories, protein, water, drawn from your goal.',d:'marks',ms:4600},
+  {t:'Snap a plate, drop a file, or just say it. I break it into foods, calories, and time.',d:'plate',ms:4800},
+  {t:'Every card wears its light: radiant, nourishing, supporting, traditional, neutral, dimming.',sub:'you read it — you choose',d:'spectrum',ms:5200},
+  {t:'Name anything I don’t know and I <b>grow its card</b> — forever.',d:'grow',ms:4400}],
+ pageStr:[
+  {t:'🔥 <b>The Forge.</b> This figure is the digital you.',d:'body',ms:4000},
+  {t:'Say “bench 185, 3 sets of 8.” Every set is recorded with its time.',d:'sets',ms:4600},
+  {t:'The muscles it worked turn <b>crimson</b>. Take all fourteen red — the bar rises.',d:'burn',ms:4800},
+  {t:'And you’re placed honestly: you · average · <b>elite</b>. The true opponent is yesterday’s you.',d:'ladder',ms:5000}],
+ pagePath:[
+  {t:'📜 <b>The Path.</b> Everything you say lands here with its exact time.',d:'time',ms:4400},
+  {t:'Walk back to any day. Tap ↻ on anything to live it again today.',d:'time',ms:4400},
+  {t:'📖 Book Page prints a day for the paper journal. 📊 Full Analysis is my complete reading.',d:'time',ms:4800}],
+ pageBook:[
+  {t:'📕 <b>The Book.</b> The paper journal itself — word for word, all ninety days.',d:'paper',ms:4400},
+  {t:'Your numbers fill the page on their own, from the day you actually lived.',d:'paper',ms:4600},
+  {t:'Each evening I ask you the four questions. Your answers write onto the page.',sub:'one tap copies it into the physical book',d:'paper',ms:5000}]
+};
+let dScene=-1,dT=null,dRAF=null,dNum=0,dTarget=0;
+function playDemo(page){
+  const seq=DEMOS[page]; if(!seq)return;
+  const box=$('intro');box.classList.add('show');
+  const cv=$('introCv'),x=cv.getContext('2d');
+  cv.width=box.clientWidth*devicePixelRatio;cv.height=box.clientHeight*devicePixelRatio;
+  x.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  const base=S.profile?Math.round(mirrorNow()):647500; dNum=base;dTarget=base;
+  const finish=()=>{clearTimeout(dT);cancelAnimationFrame(dRAF);box.classList.remove('show');
+    if(window.speechSynthesis)speechSynthesis.cancel();};
+  $('inSkip').onclick=finish;
+  box.onclick=e=>{if(e.target.id!=='inSkip')step();};
+  function step(){
+    dScene++;
+    if(dScene>=seq.length){finish();return;}
+    const sc=seq[dScene];
+    const el=$('inText');el.classList.remove('on');
+    setTimeout(()=>{el.innerHTML=sc.t+(sc.sub?'<span class="in-sub">'+sc.sub+'</span>':'');el.classList.add('on');
+      if(sc.d==='rise')dTarget=dNum+156;
+      if(sc.d==='fall')dTarget=dNum-18;
+      if(S.sound&&window.speechSynthesis){const u=new SpeechSynthesisUtterance(el.textContent.replace(/\s+/g,' '));
+        u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u);}
+    },380);
+    clearTimeout(dT);dT=setTimeout(step,sc.ms);
+  }
+  function d(ts){
+    const W=box.clientWidth,H=box.clientHeight,time=ts/1000;
+    const sc=seq[Math.max(0,dScene)]||seq[0];
+    const g=x.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#131C28');g.addColorStop(1,'#070A0E');x.fillStyle=g;x.fillRect(0,0,W,H);
+    const hz=x.createRadialGradient(W/2,-30,10,W/2,-30,W);
+    hz.addColorStop(0,'rgba(232,160,70,.12)');hz.addColorStop(1,'rgba(232,160,70,0)');
+    x.fillStyle=hz;x.fillRect(0,0,W,H);
+    // the number, always breathing
+    if(['num','drain','rise','fall'].includes(sc.d)){
+      if(sc.d==='drain')dTarget-=0.6;
+      dNum+=(dTarget-dNum)*0.08;
+      x.textAlign='center';x.fillStyle='#E8C46B';
+      x.shadowColor='rgba(232,196,107,.6)';x.shadowBlur=26;
+      x.font='300 44px "IBM Plex Mono", monospace';
+      x.fillText(fmt(dNum),W/2,H*0.30);x.shadowBlur=0;
+      x.fillStyle='#7E8A96';x.font='11px "IBM Plex Mono", monospace';
+      x.fillText('CALORIC UNITS',W/2,H*0.24);
+      if(sc.d==='rise'){x.fillStyle='#8FCB9B';x.font='16px "IBM Plex Mono", monospace';x.fillText('+156',W/2+110,H*0.30);}
+      if(sc.d==='fall'){x.fillStyle='#FF4D5E';x.font='16px "IBM Plex Mono", monospace';x.fillText('−18',W/2+110,H*0.30);}
+    }
+    if(sc.d==='marks'){
+      const rows=[['Calories in','2,100','1,240'],['Protein','148g','96g'],['Water','122 oz','64 oz']];
+      rows.forEach((r,i)=>{const y=H*0.24+i*46;
+        x.textAlign='left';x.fillStyle='#C9BFA9';x.font='15px Cormorant, serif';x.fillText(r[0],W*0.14,y);
+        x.textAlign='right';x.fillStyle='#E8C46B';x.font='13px "IBM Plex Mono", monospace';x.fillText(r[2]+' / '+r[1],W*0.86,y);
+        x.fillStyle='#1A2430';x.fillRect(W*0.14,y+8,W*0.72,5);
+        x.fillStyle='#8FCB9B';x.fillRect(W*0.14,y+8,W*0.72*Math.min(1,(0.4+i*0.15))*Math.min(1,time%3),5);});
+    }
+    if(sc.d==='plate'){
+      x.fillStyle='#1A2430';x.fillRect(W*0.16,H*0.18,W*0.28,H*0.14);
+      x.strokeStyle='#2A3A4C';x.strokeRect(W*0.16,H*0.18,W*0.28,H*0.14);
+      x.font='26px serif';x.textAlign='center';x.fillText('📷',W*0.30,H*0.27);
+      const items=[['8:14am  Salmon','+400'],['8:14am  Rice','+210'],['8:14am  Greens','+55']];
+      items.forEach((it,i)=>{const y=H*0.40+i*34;
+        if(time%4>i*0.6){x.textAlign='left';x.fillStyle='#EDE6D8';x.font='15px Cormorant, serif';x.fillText(it[0],W*0.16,y);
+          x.textAlign='right';x.fillStyle='#8FCB9B';x.font='13px "IBM Plex Mono", monospace';x.fillText(it[1],W*0.84,y);}});
+    }
+    if(sc.d==='spectrum'){
+      const cols=[['#FFF6E0','Radiant'],['#5FB06E','Nourishing'],['#D9A93C','Supports'],['#8E6FC4','Traditional'],['#B87A38','Neutral'],['#5A3E3B','Dimming']];
+      cols.forEach((c,i)=>{const y=H*0.22+i*38;
+        if(time*2%12>i){x.fillStyle=c[0];x.shadowColor=c[0];x.shadowBlur=12;
+          x.beginPath();x.arc(W*0.22,y,7,0,7);x.fill();x.shadowBlur=0;
+          x.textAlign='left';x.fillStyle='#C9BFA9';x.font='15px Cormorant, serif';x.fillText(c[1],W*0.30,y+5);}});
+    }
+    if(sc.d==='grow'){
+      x.textAlign='center';x.fillStyle='#7E8A96';x.font='italic 16px Cormorant, serif';
+      x.fillText('“moringa”',W/2,H*0.22);
+      if(time%3>1){x.fillStyle='#1A2430';x.fillRect(W*0.2,H*0.26,W*0.6,H*0.16);
+        x.strokeStyle='#8E6FC4';x.strokeRect(W*0.2,H*0.26,W*0.6,H*0.16);
+        x.fillStyle='#EDE6D8';x.font='16px Cormorant, serif';x.fillText('Moringa  🌱 grown here',W/2,H*0.33);
+        x.fillStyle='#8E6FC4';x.font='11px "IBM Plex Mono", monospace';x.fillText('TRADITIONAL · long human lineage',W/2,H*0.38);}
+    }
+    if(['body','sets','burn','ladder'].includes(sc.d)){
+      const heat = sc.d==='burn'||sc.d==='ladder' ? Math.min(1,(time%4)/2) : 0;
+      const cxp=W/2,cyp=H*0.30,s=Math.min(W,H)/380;
+      const M=(px,py,w,h,hot)=>{x.fillStyle= hot? 'rgb('+(26+167*heat)+','+(36-18*heat)+','+(48-17*heat)+')':'#1A2430';
+        if(hot&&heat>0.9){x.shadowColor='#FF4D5E';x.shadowBlur=10;}
+        x.fillRect(cxp+px*s,cyp+py*s,w*s,h*s);x.shadowBlur=0;};
+      M(-22,-46,44,10,false); M(-10,-34,20,8,false);       // head/neck
+      M(-34,-24,68,12,true);                                // shoulders
+      M(-26,-10,52,26,true);                                // chest
+      M(-20,18,40,30,true);                                 // core
+      M(-48,-10,12,28,true); M(36,-10,12,28,true);          // arms
+      M(-18,50,16,44,false); M(2,50,16,44,false);           // legs
+      if(sc.d==='sets'){x.textAlign='center';x.fillStyle='#EDE6D8';x.font='15px Cormorant, serif';
+        ['8:31pm  Bench 185 × 8','8:34pm  Bench 185 × 8','8:37pm  Bench 185 × 8'].forEach((t2,i)=>{
+          if(time%4>i*0.7)x.fillText(t2,W/2,H*0.56+i*26);});}
+      if(sc.d==='ladder'){
+        x.fillStyle='#1A2430';x.fillRect(W*0.14,H*0.56,W*0.72,6);
+        x.fillStyle='#C1121F';x.fillRect(W*0.14,H*0.56,W*0.72*0.61,6);
+        x.textAlign='left';x.fillStyle='#7E8A96';x.font='9px "IBM Plex Mono", monospace';
+        ['NOVICE','INTER','ADV','ELITE'].forEach((n,i)=>x.fillText(n,W*0.14+i*W*0.24,H*0.60));
+        x.textAlign='center';x.fillStyle='#E8C46B';x.font='13px "IBM Plex Mono", monospace';
+        x.fillText('you 340  ·  average 200  ·  elite 600+',W/2,H*0.68);}
+    }
+    if(sc.d==='time'){
+      const ev=[['8:05am','Sauna 20 min','−40','#FF4D5E'],['9:12am','Two eggs','+156','#8FCB9B'],['9:40am','16 oz water','💧','#7FD4E8'],['1:20pm','Chicken & rice','+490','#8FCB9B'],['6:02pm','Bench · 3 sets','−180','#FF4D5E']];
+      ev.forEach((e,i)=>{const y=H*0.20+i*40;
+        if(time*1.5%8>i){x.textAlign='left';x.fillStyle='#7E8A96';x.font='11px "IBM Plex Mono", monospace';x.fillText(e[0],W*0.12,y);
+          x.fillStyle=e[3];x.beginPath();x.arc(W*0.30,y-4,4,0,7);x.fill();
+          x.fillStyle='#EDE6D8';x.font='15px Cormorant, serif';x.fillText(e[1],W*0.36,y);
+          x.textAlign='right';x.fillStyle=e[3];x.font='12px "IBM Plex Mono", monospace';x.fillText(e[2],W*0.88,y);}});
+    }
+    if(sc.d==='paper'){
+      x.fillStyle='#F2EBDD';x.fillRect(W*0.12,H*0.14,W*0.76,H*0.46);
+      x.textAlign='center';x.fillStyle='#8A6F3C';x.font='11px "IBM Plex Mono", monospace';
+      x.fillText('DAY 2 OF 90',W/2,H*0.19);
+      x.fillStyle='#5A4A33';x.font='italic 15px Cormorant, serif';
+      x.fillText('“You came back. That is the whole victory.”',W/2,H*0.24);
+      const rows=[['Total Calories IN','+1,240'],['Basal Burn','−1,842'],['Movement','−340'],['New Mirror Total','645,318']];
+      rows.forEach((r,i)=>{const y=H*0.31+i*30;
+        if(time*1.5%6>i*0.8){x.textAlign='left';x.fillStyle='#5A4A33';x.font='13px Cormorant, serif';x.fillText(r[0],W*0.17,y);
+          x.textAlign='right';x.fillStyle= i===3?'#8A6F3C':'#2E2718';x.font='12px "IBM Plex Mono", monospace';x.fillText(r[1],W*0.83,y);}});
+      if(time%6>4){x.textAlign='center';x.fillStyle='#8A6F3C';x.font='italic 13px Cormorant, serif';
+        x.fillText('What did the mirror show you today?',W/2,H*0.55);}
+    }
+    dRAF=requestAnimationFrame(d);
+  }
+  dScene=-1;step();dRAF=requestAnimationFrame(d);
+}
+
+
+$('playIntroBtn').onclick=()=>{$('setup').classList.remove('show');playIntro();};
+$('vaultBtn').onclick=()=>{$('setup').classList.remove('show');openVault();};
+$('xpBar').onclick=openVault;
+
 /* ============ BOOT ============ */
-sizeCanvas();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();
+sizeCanvas();applySkins();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
 (function restoreChat(){
   const feed=$('feed'); if(!feed||!S.chat.length)return;
   const h=document.createElement('div');h.className='feed-head';h.textContent='THE CONVERSATION · KOI REMEMBERS';feed.appendChild(h);
