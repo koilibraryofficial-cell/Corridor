@@ -527,6 +527,27 @@ function walkContext(qi){
   return parts.join(" || ").slice(0,900);
 }
 function glanceRequest(qi, ans){
+  const mv=MOVEMENTS[movementOf(qi)];
+  const payload={
+    mode:"glance",
+    n:qi+1,
+    room:mv.name,
+    q:QUESTIONS[qi].slice(0,300),
+    a:ans,                                 /* THE WHOLE ANSWER — no truncation; POST body has room */
+    ctx:(LENS?("Their Lens walk named their current lens: "+LENS+". "):"")+walkContext(qi)
+  };
+  /* Primary path: POST the full answer in the body (no URL length limit). */
+  return fetch(MIRROR_URL,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain"},
+      body:JSON.stringify(payload)
+    })
+    .then(r=>r.json())
+    .then(data=>(data&&data.line)?data.line:"")
+    .catch(()=>glanceJSONP(qi, ans));   /* Fallback: old JSONP if POST is blocked/CORS */
+}
+/* Legacy JSONP fallback — only used if the POST path fails. Still capped to keep the URL legal. */
+function glanceJSONP(qi, ans){
   return new Promise(resolve=>{
     let done=false;
     const cbName="koiG"+Date.now()%100000;
@@ -587,30 +608,41 @@ function threshold(m){
     for(let i=prev.from;i<=prev.to;i++){
       if(i===SEALED) continue;
       const a=(draft.answers[i]||"").trim();
-      if(a) pages.push("Q"+(i+1)+": "+QUESTIONS[i].slice(0,90)+" -> "+a.slice(0,240));
+      if(a) pages.push("Q"+(i+1)+": "+QUESTIONS[i]+" -> "+a);   /* whole question, whole answer */
     }
     if(pages.length>=2){
       const holder=document.createElement("div");
       holder.className="glancewrap";
       holder.innerHTML='<div class="gdots" id="rg">&middot; &middot; &middot;</div>';
       document.getElementById("tbtn").before(holder);
-      const cbName="koiR"+Date.now()%100000;
       let rdone=false;
-      window[cbName]=function(data){
-        if(rdone) return; rdone=true; delete window[cbName];
+      const paint=function(line){
+        if(rdone) return; rdone=true;
         const rg=document.getElementById("rg");
         if(!rg) return;
-        const line=(data&&data.line)?data.line:"";
         rg.parentElement.innerHTML=line?
           '<div class="glance"><p>'+line.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"</p></div>":"";
       };
-      const tag=document.createElement("script");
-      tag.src=MIRROR_URL+"?mode=roomglance&callback="+cbName
-        +"&room="+encodeURIComponent(prev.name)
-        +"&pages="+encodeURIComponent((LENS?("Their Lens walk named their current lens: "+LENS+".\n"):"")+pages.join(" || ").slice(0,2400));
-      tag.onerror=function(){ window[cbName](null); };
-      document.body.appendChild(tag);
-      setTimeout(()=>{ window[cbName](null); }, 12000);
+      const rgPayload={
+        mode:"roomglance",
+        room:prev.name,
+        pages:(LENS?("Their Lens walk named their current lens: "+LENS+".\n"):"")+pages.join(" || ")   /* FULL pages, no cap */
+      };
+      fetch(MIRROR_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(rgPayload)})
+        .then(r=>r.json())
+        .then(data=>paint((data&&data.line)?data.line:""))
+        .catch(()=>{
+          /* JSONP fallback (still capped to keep URL legal) */
+          const cbName="koiR"+Date.now()%100000;
+          window[cbName]=function(data){ delete window[cbName]; paint((data&&data.line)?data.line:""); };
+          const tag=document.createElement("script");
+          tag.src=MIRROR_URL+"?mode=roomglance&callback="+cbName
+            +"&room="+encodeURIComponent(prev.name)
+            +"&pages="+encodeURIComponent(rgPayload.pages.slice(0,2400));
+          tag.onerror=function(){ paint(""); };
+          document.body.appendChild(tag);
+        });
+      setTimeout(()=>{ paint(""); }, 15000);
     }
   }
 }
