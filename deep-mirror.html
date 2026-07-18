@@ -203,7 +203,7 @@ const LENS=(function(){
   }catch(e){ return ""; }
 })();
 const GATE_REQUIRED = true; /* the door opens only with a thread code */
-const MAXLEN = 2000; /* per answer */
+const MAXLEN = 40000; /* per answer */
 
 /* ============ THE THIRTY-THREE ============ */
 const QUESTIONS=[
@@ -527,27 +527,6 @@ function walkContext(qi){
   return parts.join(" || ").slice(0,900);
 }
 function glanceRequest(qi, ans){
-  const mv=MOVEMENTS[movementOf(qi)];
-  const payload={
-    mode:"glance",
-    n:qi+1,
-    room:mv.name,
-    q:QUESTIONS[qi].slice(0,300),
-    a:ans,                                 /* THE WHOLE ANSWER — no truncation; POST body has room */
-    ctx:(LENS?("Their Lens walk named their current lens: "+LENS+". "):"")+walkContext(qi)
-  };
-  /* Primary path: POST the full answer in the body (no URL length limit). */
-  return fetch(MIRROR_URL,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain"},
-      body:JSON.stringify(payload)
-    })
-    .then(r=>r.json())
-    .then(data=>(data&&data.line)?data.line:"")
-    .catch(()=>glanceJSONP(qi, ans));   /* Fallback: old JSONP if POST is blocked/CORS */
-}
-/* Legacy JSONP fallback — only used if the POST path fails. Still capped to keep the URL legal. */
-function glanceJSONP(qi, ans){
   return new Promise(resolve=>{
     let done=false;
     const cbName="koiG"+Date.now()%100000;
@@ -608,41 +587,30 @@ function threshold(m){
     for(let i=prev.from;i<=prev.to;i++){
       if(i===SEALED) continue;
       const a=(draft.answers[i]||"").trim();
-      if(a) pages.push("Q"+(i+1)+": "+QUESTIONS[i]+" -> "+a);   /* whole question, whole answer */
+      if(a) pages.push("Q"+(i+1)+": "+QUESTIONS[i].slice(0,90)+" -> "+a.slice(0,240));
     }
     if(pages.length>=2){
       const holder=document.createElement("div");
       holder.className="glancewrap";
       holder.innerHTML='<div class="gdots" id="rg">&middot; &middot; &middot;</div>';
       document.getElementById("tbtn").before(holder);
+      const cbName="koiR"+Date.now()%100000;
       let rdone=false;
-      const paint=function(line){
-        if(rdone) return; rdone=true;
+      window[cbName]=function(data){
+        if(rdone) return; rdone=true; delete window[cbName];
         const rg=document.getElementById("rg");
         if(!rg) return;
+        const line=(data&&data.line)?data.line:"";
         rg.parentElement.innerHTML=line?
           '<div class="glance"><p>'+line.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"</p></div>":"";
       };
-      const rgPayload={
-        mode:"roomglance",
-        room:prev.name,
-        pages:(LENS?("Their Lens walk named their current lens: "+LENS+".\n"):"")+pages.join(" || ")   /* FULL pages, no cap */
-      };
-      fetch(MIRROR_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(rgPayload)})
-        .then(r=>r.json())
-        .then(data=>paint((data&&data.line)?data.line:""))
-        .catch(()=>{
-          /* JSONP fallback (still capped to keep URL legal) */
-          const cbName="koiR"+Date.now()%100000;
-          window[cbName]=function(data){ delete window[cbName]; paint((data&&data.line)?data.line:""); };
-          const tag=document.createElement("script");
-          tag.src=MIRROR_URL+"?mode=roomglance&callback="+cbName
-            +"&room="+encodeURIComponent(prev.name)
-            +"&pages="+encodeURIComponent(rgPayload.pages.slice(0,2400));
-          tag.onerror=function(){ paint(""); };
-          document.body.appendChild(tag);
-        });
-      setTimeout(()=>{ paint(""); }, 15000);
+      const tag=document.createElement("script");
+      tag.src=MIRROR_URL+"?mode=roomglance&callback="+cbName
+        +"&room="+encodeURIComponent(prev.name)
+        +"&pages="+encodeURIComponent((LENS?("Their Lens walk named their current lens: "+LENS+".\n"):"")+pages.join(" || ").slice(0,2400));
+      tag.onerror=function(){ window[cbName](null); };
+      document.body.appendChild(tag);
+      setTimeout(()=>{ window[cbName](null); }, 12000);
     }
   }
 }
@@ -862,6 +830,22 @@ function downloadCopy(){
   document.body.appendChild(a); a.click(); a.remove();
 }
 
+function downloadReading(){
+  let r=(window.__reading||"").trim();
+  if(!r){ return; }
+  /* strip markdown heading hashes and bold/italic stars for a clean keepsake */
+  r=r.replace(/^#{2,4}\s*/gm,"").replace(/\*\*(.+?)\*\*/g,"$1").replace(/\*(.+?)\*/g,"$1");
+  const when=new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
+  const head="THE SOUL MIRROR\nYour reading \u2014 "+when+"\nThread: "+(thread||"")+"\n\nThis reading exists once. It was built from thirty-three pages\nonly you could have written, on the days you wrote them.\n\n"+("\u2500".repeat(40))+"\n\n";
+  const foot="\n\n"+("\u2500".repeat(40))+"\n\nA reflection, not a verdict \u2014 you outrank the mirror.\n\u2014 Kingdom of Inner Light";
+  const blob=new Blob([head+r+foot],{type:"text/plain"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="my-soul-mirror-reading.txt";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+}
+
 let sending=false;
 function submitAll(){
   if(sending) return;
@@ -940,6 +924,7 @@ function rparas(bodyLines){
     .map(p=>'<p class="body" style="text-align:left">'+p.replace(/\n/g,"<br>")+"</p>").join("");
 }
 function renderReading(line){
+  window.__reading = line || "";
   let inner="";
   if(!line){
     inner=`<div class="rsec" style="--rd:.3s"><p class="body center">The mirror held its weaving this time — your pages are safe on your thread, nothing is lost. Take a breath and ask again.</p>
@@ -978,6 +963,7 @@ function renderReading(line){
     <div class="rsec" style="--rd:${line?(0.4+ (mirrorSections(line).length)*1.15).toFixed(2)+"s":"1s"};text-align:center">
       <p class="dim">This reading exists once. It was built from thirty-three pages only you could have written, on the days you wrote them. Your pages and this thread remain yours — nothing is lost.</p>
       <p class="dim" id="witnessline"></p>
+      <p class="dim"><a class="dl" id="rrd" href="#">Keep this reading on this device</a></p>
       <p class="dim"><a class="dl" id="rdl" href="#">Keep a copy of my pages on this device</a></p>
       <p class="dim foot">A reflection, not a verdict — you outrank the mirror. Not diagnosis or therapy; deep water deserves real support. In the U.S., call or text 988 any hour.<br><br><a href="/" style="color:#938BA6">Return to the corridor</a><br><br>&mdash; Kingdom of Inner Light</p>
     </div>
@@ -991,6 +977,8 @@ function renderReading(line){
   }
   const rdl=document.getElementById("rdl");
   if(rdl) rdl.addEventListener("click",(e)=>{ e.preventDefault(); downloadCopy(); });
+  const rrd=document.getElementById("rrd");
+  if(rrd) rrd.addEventListener("click",(e)=>{ e.preventDefault(); downloadReading(); });
   const rw=document.getElementById("reweave");
   if(rw) rw.addEventListener("click",(e)=>{ e.preventDefault(); weaveReading(); });
   window.scrollTo({top:0,behavior:"smooth"});
