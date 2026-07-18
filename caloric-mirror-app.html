@@ -699,7 +699,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v34</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v35</div>
   </div>
 </div>
 
@@ -1120,7 +1120,66 @@ function initAudio(){
   lfo.frequency.value=0.13;lg.gain.value=40;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();
   src.connect(lp);lp.connect(streamGain);streamGain.connect(AC.destination);src.start();
 }
-function setStream(on){if(!AC)return;streamGain.gain.linearRampToValueAtTime(on?0.045:0,AC.currentTime+1.2);}
+function setStream(on){if(!AC)return;streamGain.gain.linearRampToValueAtTime(on?0.04:0,AC.currentTime+1.2);
+  setMusic(on);}
+
+/* ============ THE TEMPLE SCORE — generative, never repeats, no files ============ */
+let musicGain=null,droneNodes=[],melodyTimer=null,musicOn=false;
+// a calm pentatonic drift in a low mode — meditative, never sad
+const SCALE=[146.83,174.61,196.00,220.00,261.63,293.66,329.63,392.00]; // D-ish pentatonic across octaves
+function initMusic(){
+  if(musicGain)return;
+  musicGain=AC.createGain();musicGain.gain.value=0;
+  const rev=AC.createConvolver();
+  // small synthetic reverb tail
+  const rl=AC.sampleRate*2.4,rb=AC.createBuffer(2,rl,AC.sampleRate);
+  for(let ch=0;ch<2;ch++){const d=rb.getChannelData(ch);
+    for(let i=0;i<rl;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/rl,2.6);}
+  rev.buffer=rb;
+  const wet=AC.createGain();wet.gain.value=0.5;
+  musicGain.connect(rev);rev.connect(wet);wet.connect(AC.destination);
+  musicGain.connect(AC.destination);
+  // two soft drone oscillators a fifth apart, slowly detuning — the temple's breath
+  [146.83,220.00].forEach((f,i)=>{
+    const o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();
+    o.type='sine';o.frequency.value=f;
+    lp.type='lowpass';lp.frequency.value=600;
+    g.gain.value=0.10;
+    const lfo=AC.createOscillator(),lg=AC.createGain();
+    lfo.frequency.value=0.05+i*0.02;lg.gain.value=2.2;
+    lfo.connect(lg);lg.connect(o.frequency);lfo.start();
+    o.connect(lp);lp.connect(g);g.connect(musicGain);o.start();
+    droneNodes.push(o,lfo);
+  });
+}
+function bell(freq,vol){
+  const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain();
+  o.type='sine';o2.type='sine';
+  o.frequency.value=freq;o2.frequency.value=freq*2.01; // shimmer
+  const g2=AC.createGain();g2.gain.value=0.35;o2.connect(g2);g2.connect(g);
+  g.gain.setValueAtTime(0.0001,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(vol,AC.currentTime+0.06);
+  g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+4.5);
+  o.connect(g);g.connect(musicGain);
+  o.start();o2.start();o.stop(AC.currentTime+4.6);o2.stop(AC.currentTime+4.6);
+}
+function scheduleMelody(){
+  if(!musicOn)return;
+  // a sparse, unhurried note — sometimes a gentle two-note fall
+  if(Math.random()<0.72){
+    const f=SCALE[Math.floor(Math.random()*SCALE.length)];
+    bell(f,0.06+Math.random()*0.05);
+    if(Math.random()<0.3){const f2=SCALE[Math.max(0,Math.floor(Math.random()*SCALE.length)-2)];
+      setTimeout(()=>musicOn&&bell(f2,0.05),700);}
+  }
+  melodyTimer=setTimeout(scheduleMelody, 2600+Math.random()*4200);
+}
+function setMusic(on){
+  if(!AC)return;initMusic();
+  musicOn=on;
+  musicGain.gain.linearRampToValueAtTime(on?0.5:0,AC.currentTime+2.0);
+  if(on){clearTimeout(melodyTimer);scheduleMelody();}
+}
 function tone(freq,dur,vol,type){
   if(!S.sound||!AC)return;
   const o=AC.createOscillator(),g=AC.createGain();
@@ -1135,7 +1194,8 @@ const bellMark=()=>{tone(520,1.6,0.1);tone(782,1.4,0.06);};
 $('sndBtn').onclick=()=>{
   initAudio();AC.resume();
   S.sound=!S.sound;save();
-  $('sndBtn').textContent=S.sound?'🔊':'🕯';
+  $('sndBtn').textContent=S.sound?'🎵':'🕯';
+  $('sndBtn').title=S.sound?'Sound & music on':'Silent';
   setStream(S.sound);
   if(S.sound)chimeRise();
 };
@@ -2961,7 +3021,8 @@ $('sealBtn').onclick=()=>{
   renderAll();toneFall();
   fishSay('🔥 Session sealed — '+dur+' min, '+n+' sets, '+fmt(ton)+' lb moved, −'+kcal+' deposited. '+best);
 };
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session)grabWake();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session)grabWake();
+  if(!document.hidden&&S.sound&&AC){AC.resume();}});
 
 
 /* ============ §5 PWA — install & the two honest knocks ============ */
