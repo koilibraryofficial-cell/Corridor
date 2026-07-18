@@ -387,15 +387,18 @@
   #intro{position:absolute;inset:0;background:#05080C;z-index:100;display:none;overflow:hidden;}
   #intro.show{display:block;}
   #introCv{position:absolute;inset:0;width:100%;height:100%;}
-  .in-text{position:absolute;left:7%;right:7%;bottom:16%;text-align:center;
-    font-family:'Cormorant',serif;font-weight:300;font-size:24px;line-height:1.5;color:#F3ECDE;
-    opacity:0;transition:opacity 1.1s;text-shadow:0 2px 18px rgba(0,0,0,.8);}
+  .in-text{position:absolute;left:5%;right:5%;bottom:13%;text-align:center;
+    font-family:'Cormorant',serif;font-weight:500;font-size:25px;line-height:1.5;color:#FBF6EA;
+    opacity:0;transition:opacity 1s;padding:22px 20px;border-radius:20px;
+    background:rgba(6,9,13,.72);backdrop-filter:blur(3px);
+    box-shadow:0 0 0 1px rgba(232,196,107,.14), 0 10px 40px rgba(0,0,0,.7);
+    text-shadow:0 2px 14px rgba(0,0,0,.95), 0 0 30px rgba(0,0,0,.85);}
   .in-text.on{opacity:1;}
-  .in-text{text-shadow:0 3px 26px rgba(0,0,0,.95),0 0 60px rgba(0,0,0,.8);}
+  
   .in-text b{color:var(--gold);font-weight:500;}
-  .in-sub{display:block;font-size:15px;font-style:italic;color:var(--mist);margin-top:12px;letter-spacing:.04em;}
+  .in-sub{display:block;font-size:15px;font-style:italic;color:#C9BFA9;margin-top:11px;letter-spacing:.04em;text-shadow:0 2px 10px rgba(0,0,0,.9);}
   .in-skip{position:absolute;top:14px;right:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;
-    letter-spacing:.2em;color:var(--mist);cursor:pointer;padding:8px 12px;border:1px solid #22303E;border-radius:10px;z-index:5;}
+    letter-spacing:.2em;color:#EDE6D8;cursor:pointer;padding:8px 12px;border:1px solid rgba(232,196,107,.4);border-radius:10px;z-index:5;background:rgba(6,9,13,.7);}
   .in-tap{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-family:'IBM Plex Mono',monospace;
     font-size:10px;letter-spacing:.35em;color:#3A4855;animation:glowpulse 2.6s infinite;}
 
@@ -446,10 +449,16 @@
   .lb-row button{padding:10px 16px;font-size:13px;}
   .gnote{font-size:12.5px;font-style:italic;color:var(--mist);text-align:center;margin:12px 0 0;line-height:1.5;}
 
+
+  #glyphRain{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.5;}
+  #scroll{position:relative;z-index:1;}
+  .dock{position:relative;z-index:2;}
+
 </style>
 </head>
 <body>
 <div id="app">
+  <canvas id="glyphRain"></canvas>
 <div id="scroll">
 
 <div class="page on" id="pageHome">
@@ -690,7 +699,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v31</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v34</div>
   </div>
 </div>
 
@@ -734,6 +743,7 @@
   <div id="mirrorPreview"></div>
   <div class="mid-note">Your resting burn drains the water continuously, in real time — sleep included, never counted twice.</div>
   <button class="big-btn" id="claimBtn">Claim My Mirror</button>
+  <button class="small-link" id="rainToggle" style="color:var(--gold)">✧ Glyph rain: on / off</button>
   <button class="small-link" id="playIntroBtn" style="color:var(--gold)">▶ Play the opening</button>
   <button class="small-link" id="vaultBtn" style="color:var(--gold)">✦ Open the Vault — XP &amp; skins</button>
   <button class="small-link" id="beginAgainBtn" style="color:var(--gold)">Begin the 90 again — Day 1 is today</button>
@@ -1004,7 +1014,7 @@ function localEstimate(text){
 /* ============ CLAUDE — the fish's living mind ============ */
 const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Caloric Mirror, a 90-day numeric truth practice by Mecca Tymes, part of the Kingdom of Inner Light. You are a legendary personal trainer and a warm daily companion; you build a real relationship across the 90 days, remembering what they tell you and guiding them through the journal. '+
 'You obey Four Laws: (1) The mirror reflects what it is given — honest numbers, never invented ones. (2) Calories IN and OUT are separate truths. (3) Inside the mirror no one can fail; only see clearly or look away. (4) The mirror is not the judge — never shame, never moralize food, never praise weight loss itself; praise honesty and showing up. The book asks only that a person witness for 90 days; exercise, the ladders, and every plan are a BONUS WING — offered, never demanded. Never imply someone must train to belong here. '+
-'VOICE: warm, brief, a little playful, plain enough for a child. One to three short sentences. No bullet points, no exclamation-mark pileups. '+
+'VOICE: warm, brief, a little playful, plain enough for a child. Two to four short sentences — always finish your thought; never trail off mid-sentence. Prioritize the numbers logged over commentary. No bullet points, no exclamation-mark pileups. '+
 'JOB: parse what they ate or did into calorie estimates. For movement, count ONLY calories above resting burn (basal is tracked separately — driving 45 min is roughly 10-15 above rest; say small truths plainly). Use their bodyweight. Close and consistent beats falsely precise. '+
 'PHOTOS: identify each food, speak a RANGE in the reply ("around 700, could be 850 if the kitchen was heavy with oil"), use the middle as the kcal number, and remind them gently that portions and hidden oils blur the lens — the kitchen scale holds the exact truth. Never fake precision. '+
 'If food is vague, estimate a middle value AND ask one short clarifying question — never more than one. Zero-calorie things (water, black coffee, fasting) are free — say so. '+
@@ -1040,7 +1050,7 @@ async function askClaude(text,images){
       const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':S.apiKey,
           'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:FISH_SOUL,
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1024,system:FISH_SOUL,
           messages:[{role:'user',content}]})});
       const body=await res.json();
       if(body.error){fishNote('The key was refused: '+(body.error.message||'check it in ⚙').slice(0,120));return null;}
@@ -1247,9 +1257,20 @@ function teachLine(item){
 }
 const HONESTY='Estimates are close, not gospel — portions and hidden oils blur the lens. If you want the exact truth, the kitchen scale is right there. I enhance the seeing; you stay the instrument.';
 
+let _lastMsg='',_lastMsgAt=0,_busy=false;
 async function handle(text,images,imgSrcs){
   text=(text||'').trim();
   if(!text&&!(images&&images.length))return;
+  const sig=(text||'📷')+((images&&images.length)||0);
+  const now0=Date.now();
+  if(_busy){return;}                                  // a reply is mid-flight
+  if(sig===_lastMsg && now0-_lastMsgAt<6000){         // same message within 6s = a double-send
+    return;
+  }
+  _lastMsg=sig;_lastMsgAt=now0;_busy=true;
+  try{ await _handle(text,images,imgSrcs); } finally { _busy=false; }
+}
+async function _handle(text,images,imgSrcs){
   addMe(text||'📷',imgSrcs);
   const tl=text.toLowerCase();
   if(S.reflect&&S.reflect.day){handleReflection(text);return;}
@@ -1260,16 +1281,28 @@ async function handle(text,images,imgSrcs){
   if(/^(tutorial|explain this|show me|demo)\b/.test(tl)){playDemo(activeTab);return;}
   const wm=text.toLowerCase().match(/weigh(?:ed)?(?:\s*in)?\s*(?:at)?\s*(\d{2,3}(?:\.\d+)?)/);
   if(wm){weighIn(parseFloat(wm[1]));return;}
-  const wat=text.toLowerCase().match(/(?:drank|had|drinking)?\s*(?:a\s+)?(?:(\d+(?:\.\d+)?)\s*(oz|ounces?|liters?|l\b|cups?|bottles?|glass(?:es)?)\s+(?:of\s+)?)?water(?!melon)/);
-  if(wat&&/water(?!melon)/.test(text.toLowerCase())&&!/with water|water the|boil|cook|sparkling|watermelon/.test(text.toLowerCase())){
-    let oz=16;
-    if(wat[1]){const n=parseFloat(wat[1]),u=wat[2]||'';
-      oz=/l/.test(u)&&!/glass|bottle/.test(u)?Math.round(n*33.8):/cup/.test(u)?n*8:/bottle/.test(u)?n*16.9:/glass/.test(u)?n*8:n;}
-    logWater(Math.round(oz));return;}
+  // WATER — only when an amount is actually given, and it never swallows the rest of the message
+  let waterOz=0;
+  {
+    const banned=/with water|water the|boil|cook|sparkling|watermelon|drinking water\b(?!\s*[,.]?\s*\d)/;
+    const amt=text.toLowerCase().match(/(?:drank|had|drank about|logged)?\s*(\d+(?:\.\d+)?)\s*(oz|ounces?|liters?|\bl\b|cups?|bottles?|glass(?:es)?)\s+(?:of\s+)?water(?!melon)/);
+    const named=text.toLowerCase().match(/\b(a|one|two|three|four)\s+(glass|bottle|cup)e?s?\s+(?:of\s+)?water(?!melon)/);
+    if(amt&&!banned.test(text.toLowerCase())){
+      const n=parseFloat(amt[1]),u=amt[2]||'';
+      waterOz=/l/.test(u)&&!/glass|bottle/.test(u)?Math.round(n*33.8):/cup/.test(u)?n*8:/bottle/.test(u)?n*16.9:/glass/.test(u)?n*8:n;
+    } else if(named){
+      const map={a:1,one:1,two:2,three:3,four:4}[named[1]]||1;
+      waterOz=(named[2]==='bottle'?16.9:8)*map;
+    }
+  }
+  // if the message is ONLY about water (nothing else to parse), log and stop
+  const wordCount=text.trim().split(/\s+/).length;
+  if(waterOz>0 && wordCount<=6){ logWater(Math.round(waterOz)); return; }
+
   const lift=detectLift(text);
   const setBlocks=detectSets(text);
   const prLine=setBlocks.length?recordSets(setBlocks)||'':'';
-  fishSay('…reading the water…',null,null,true);
+  fishSay('…reading the mirror…',null,null,true);
   const claude=await askClaude(text,images);
   if(fishNoteMsg){fishSay(fishNoteMsg);fishNoteMsg=null;return;}
   let items=[],reply='';
@@ -1282,6 +1315,7 @@ async function handle(text,images,imgSrcs){
     fishSay('Witnessed — '+setBlocks.length+' set'+(setBlocks.length>1?'s':'')+' of '+setBlocks[0].ex+' on the record.'+prLine+fireChallenge(),null,null);
     return;
   }
+  if(!items.length&&!lift&&waterOz>0){ logWater(Math.round(waterOz)); return; }
   if(!items.length&&!lift){
     if(claude&&claude.reply){fishSay(claude.reply+'<br><br>'+fishAsk());return;}
     fishSay('I couldn’t read that one'+((S.apiKey||CONFIG.SCRIPT_URL)?'':' — my full mind sleeps — a Mirror Key wakes it: photo-reading, any question, a dictionary that grows forever. KOIlibraryOfficial.com/mirror-key. Meanwhile, tell me plainly and I\u2019ve got you.')+'. Name the food or the movement, or give me the number straight: “pasta, 600 calories.”');return;}
@@ -1290,6 +1324,7 @@ async function handle(text,images,imgSrcs){
   const chips=[];
   const now=Date.now();for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal,p:it.p||0,t:now});
     chips.push({...it,t:it.type});}
+  if(waterOz>0){ logWater(Math.round(waterOz), true); } // silent — folded into this same reply
   if(lift)applyLift(lift);
   touchStreak();grantXP(XP_RULES.log*items.length,'logging honestly');save();renderAll();pulse();burst=1;
   if(items.some(i=>i.type==='in'&&i.kcal>0))chimeRise();
@@ -1794,16 +1829,17 @@ function drawPond(ts){
 
 /* ============ HYDRATION ============ */
 function waterGoal(){return S.profile?Math.round(S.profile.w*0.66):100;} // ~2/3 oz per lb
-function logWater(oz){
+function logWater(oz,silent){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   S.days[tk].water=(S.days[tk].water||0)+oz;
   if(!S.days[tk].waterLog)S.days[tk].waterLog=[];
   S.days[tk].waterLog.push({oz,t:Date.now()});
-  touchStreak();save();renderAll();chimeRise();
+  touchStreak();save();renderAll();if(!silent)chimeRise();
   const tot=S.days[tk].water,goal=waterGoal();
   grantXP(XP_RULES.log,'water');
   if(tot>=goal)grantXP(XP_RULES.water,'crossing your water mark','water');
+  if(silent)return;
   fishSay(tot>=goal
     ? 'That’s '+tot+' oz — you’ve crossed your '+goal+' oz mark for the day. The whole machine runs cleaner like this: skin, joints, thinking, kidneys.'
     : '+'+oz+' oz. '+tot+' of '+goal+' oz today. Zero calories, and every trade your body makes happens in this water.');
@@ -3186,6 +3222,10 @@ function playIntro(done){
     for(let i=0;i<18;i++){const yy=((time*10+i*61)%H);
       x.fillStyle='rgba(200,220,235,.18)';x.beginPath();
       x.arc((i*83)%W,H-yy,1.1,0,7);x.fill();}
+    // legibility band — darken the lower third where the words live
+    const band=x.createLinearGradient(0,H*0.55,0,H);
+    band.addColorStop(0,'rgba(5,8,12,0)');band.addColorStop(.6,'rgba(5,8,12,.55)');band.addColorStop(1,'rgba(5,8,12,.85)');
+    x.fillStyle=band;x.fillRect(0,H*0.55,W,H*0.45);
 
     inRAF=requestAnimationFrame(draw);
   }
@@ -3371,8 +3411,72 @@ addEventListener('popstate',()=>{
 });
 try{history.pushState(null,'','');}catch(e){}
 
+
+/* ============ THE GLYPH RAIN — hieroglyphic matrix behind the temple ============ */
+const GLYPHS='𓂀𓁿𓃰𓆃𓆚𓊹𓋹𓏢𓎼𓐍ᚠᚢᚦᚨᚱᚲᚷᚹᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ☥⚕☉☾♁⟁⟠✦✧◈◇0123456789'.split('');
+let rainCols=[],rainCv=null,rainCtx=null,rainW=0,rainH=0,rainLast=0;
+function initRain(){
+  rainCv=document.getElementById('glyphRain'); if(!rainCv)return;
+  rainCtx=rainCv.getContext('2d');
+  sizeRain();
+  requestAnimationFrame(rainFrame);
+}
+function sizeRain(){
+  if(!rainCv)return;
+  const app=document.getElementById('app');
+  rainW=app.clientWidth; rainH=app.clientHeight;
+  rainCv.width=rainW*devicePixelRatio; rainCv.height=rainH*devicePixelRatio;
+  rainCtx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  const fs=15, gap=fs+6;
+  const n=Math.max(12,Math.ceil(rainW/gap));
+  rainCols=[];
+  for(let i=0;i<n;i++){
+    rainCols.push({x:i*gap+3, y:Math.random()*rainH,
+      speed:0.5+Math.random()*1.4, fs, glyphs:[],
+      len:6+Math.floor(Math.random()*14)});
+  }
+}
+function rainFrame(ts){
+  if(!rainCtx){return;}
+  if(ts-rainLast<33){requestAnimationFrame(rainFrame);return;} // ~30fps, easy on battery
+  rainLast=ts;
+  const accent=getComputedStyle(document.documentElement).getPropertyValue('--gold').trim()||'#E8C46B';
+  // fade the previous frame (the classic matrix trail)
+  rainCtx.fillStyle='rgba(6,9,13,0.20)';
+  rainCtx.fillRect(0,0,rainW,rainH);
+  rainCtx.textAlign='center';
+  for(const c of rainCols){
+    c.y += c.speed*c.fs*0.5;
+    if(c.y-c.len*c.fs > rainH){ c.y=-(Math.random()*rainH*0.4); c.speed=0.5+Math.random()*1.4; }
+    for(let k=0;k<c.len;k++){
+      const gy=c.y-k*c.fs;
+      if(gy<-c.fs||gy>rainH+c.fs)continue;
+      const g=GLYPHS[(Math.floor(gy/c.fs)+c.x)%GLYPHS.length];
+      rainCtx.font=c.fs+'px "IBM Plex Mono", monospace';
+      if(k===0){ rainCtx.fillStyle='rgba(255,244,222,0.9)'; }       // bright head
+      else{ const a=Math.max(0,0.5-(k/c.len)*0.5);
+        rainCtx.fillStyle=accent.startsWith('#')?hexA(accent,a):'rgba(232,196,107,'+a+')'; }
+      rainCtx.fillText(g, c.x, gy);
+    }
+    // occasionally mutate a glyph so the field shimmers
+    if(Math.random()<0.02) c.len=6+Math.floor(Math.random()*14);
+  }
+  requestAnimationFrame(rainFrame);
+}
+function hexA(hex,a){
+  hex=hex.replace('#','');
+  if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
+  const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+}
+addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(sizeRain,200);});
+
+$('rainToggle').onclick=()=>{const c=document.getElementById('glyphRain');
+  const off=c.style.display==='none';c.style.display=off?'block':'none';
+  S.rainOff=!off;save();};
+if(S.rainOff){const c=document.getElementById('glyphRain');if(c)c.style.display='none';}
 /* ============ BOOT ============ */
-sizeCanvas();applySkins();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
+sizeCanvas();applySkins();initRain();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
 (function restoreChat(){
   const feed=$('feed'); if(!feed||!S.chat.length)return;
   const h=document.createElement('div');h.className='feed-head';h.textContent='THE CONVERSATION · KOI REMEMBERS';feed.appendChild(h);
