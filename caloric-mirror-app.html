@@ -755,7 +755,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v40</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v41</div>
   </div>
 </div>
 
@@ -791,7 +791,7 @@
   <h2>My Caloric Mirror</h2>
   <div class="tag">The first mark on the wall. Weight × 3,500 — your starting truth, not your permanent reality.</div>
   <div class="field"><label>Current weight (lbs)</label><input id="wIn" type="number" inputmode="decimal"></div>
-  <div class="field"><label>Height (inches)</label><input id="hIn" type="number" inputmode="decimal"></div>
+  <div class="field"><label>Height — 5′6″, 5.6, or 66: I read them all</label><input id="hIn" type="text" inputmode="text" autocomplete="off"></div>
   <div class="field"><label>Age</label><input id="aIn" type="number" inputmode="numeric"></div>
   <div class="field"><label>Body</label><select id="sSex"><option value="m">Male</option><option value="f">Female</option></select></div>
   <div class="field"><label>Target weight (optional — the mirror never requires a line)</label><input id="tIn" type="number" inputmode="decimal" placeholder="leave blank to simply witness — the Road appears only with a line"></div>
@@ -853,6 +853,33 @@ const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMo
 const dayIndex=()=>S.startDate?Math.floor((new Date(todayKey())-new Date(S.startDate))/864e5)+1:0;
 const fmt=n=>Math.round(n).toLocaleString('en-US');
 const $=id=>document.getElementById(id);
+
+/* ============ HONEST INPUTS — heights in any tongue, math that checks itself ============ */
+function parseHeight(v){
+  if(v==null)return NaN;
+  const s=String(v).trim().toLowerCase();
+  let m=s.match(/^(\d{2,3})\s*cm$/);
+  if(m)return Math.round(parseInt(m[1])/2.54);
+  m=s.match(/^(\d)\s*['’\.\s]\s*(\d{1,2})\b/);   // 5'6 · 5.6 · 5 6 → feet+inches
+  if(m){const ft=+m[1],inch=+m[2];if(inch<12)return ft*12+inch;}
+  const n=parseFloat(s);
+  if(isNaN(n))return NaN;
+  if(n<=9)return Math.round(n*12);
+  if(n>=48&&n<=90)return Math.round(n);
+  if(n>=120&&n<=230)return Math.round(n/2.54);
+  return NaN;
+}
+function healProfile(){
+  const p=S.profile;if(!p)return;
+  if(p.h&&p.h<48){const fixed=parseHeight(String(p.h));
+    if(!isNaN(fixed)&&fixed>=48){p.h=fixed;S.plan=null;save();
+      setTimeout(()=>fishNote('I re-read your height as '+Math.floor(fixed/12)+'′'+(fixed%12)+'″. Your resting burn is now '+fmt(bmr())+'/day — the mirror tells the truth from here.'),1200);}}
+}
+function bmrSane(){
+  if(!S.profile)return true;
+  const b=bmr();
+  return b>=1100&&b<=4500;
+}
 function bmr(){const p=S.profile,kg=p.w*0.4536,cm=p.h*2.54;
   return Math.round((10*kg+6.25*cm-5*p.a+(p.s==='m'?5:-161))*S.calib);}
 
@@ -1838,7 +1865,11 @@ function previewMirror(){const w=parseFloat($('wIn').value);
   $('mirrorPreview').textContent=w?'Mirror ID #'+fmt(w*CONFIG.CAL_PER_LB):'';}
 ['wIn','hIn','aIn'].forEach(id=>$(id).addEventListener('input',previewMirror));
 $('claimBtn').onclick=()=>{
-  const p={w:parseFloat($('wIn').value),h:parseFloat($('hIn').value),a:parseInt($('aIn').value),s:$('sSex').value};
+  const w0=parseFloat($('wIn').value), h0=parseHeight($('hIn').value), a0=parseInt($('aIn').value);
+  if(!(w0>=60&&w0<=600)){fishNote('Weight looks off — pounds, 60 to 600.');return;}
+  if(!(h0>=48&&h0<=90)){fishNote('Height looks off — say it any way: 5′6″, 5.6, or 66 inches. I read them all.');return;}
+  if(!(a0>=10&&a0<=110)){fishNote('Age looks off — years, 10 to 110.');return;}
+  const p={w:w0,h:h0,a:a0,s:$('sSex').value};
   if(!p.w||!p.h||!p.a){$('mirrorPreview').textContent='All three numbers required — the mirror reflects what you give it.';return;}
   const first=!S.profile;
   S.profile=p;S.targetW=parseFloat($('tIn').value)||S.targetW||null;
@@ -3186,7 +3217,7 @@ function buildBookPage(){
     +'CALORIES OUT\n  Basal burn (rest): −'+fmt(b)+'\n'+outLines+'\n  TOTAL OUT: −'+fmt(b+t.outMove)+'\n\n'
     +water
     +'NET: '+(net>0?'+':'')+fmt(net)+'\n'
-    +'NEW MIRROR TOTAL: '+fmt(newTotal)+'\n\n'
+    +(key===todayKey()?'MIRROR AT DAY’S CLOSE (projected — full day’s rest burn counted): ':'NEW MIRROR TOTAL: ')+fmt(newTotal)+'\n\n'
     +'REFLECTION:\n  ____________________________________\n  ____________________________________';
 }
 $('bookBtn').onclick=()=>{
@@ -3959,7 +3990,8 @@ $('fullResetBtn').onclick=async()=>{
 };
 
 /* ============ BOOT ============ */
-sizeCanvas();applySkins();tickDockNum();initRain();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
+healProfile();sizeCanvas();applySkins();tickDockNum();
+if(S.profile&&!bmrSane())setTimeout(()=>fishNote('⚠ My resting-burn math reads '+fmt(bmr())+'/day — that can’t be right. Open ⚙: weight in pounds, height (5′6″ or 66), age in years. Every projection leans on this.'),1800);initRain();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
 (function restoreChat(){
   const feed=$('feed'); if(!feed||!S.chat.length)return;
   const h=document.createElement('div');h.className='feed-head';h.textContent='THE CONVERSATION · KOI REMEMBERS';feed.appendChild(h);
