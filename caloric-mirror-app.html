@@ -454,6 +454,16 @@
   #scroll{position:relative;z-index:1;}
   .dock{position:relative;z-index:2;}
 
+
+  .mcell{position:relative;aspect-ratio:1;overflow:hidden;background:#0E1520;border:1px solid #16202B;cursor:pointer;}
+  .mcell img{width:100%;height:100%;object-fit:cover;display:block;}
+  .mcell .dstamp{position:absolute;left:3px;bottom:3px;font-family:'IBM Plex Mono',monospace;font-size:8px;
+    color:#EDE6D8;background:rgba(5,8,12,.65);padding:1px 5px;border-radius:4px;letter-spacing:.08em;}
+
+
+  .mcell .vbadge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:26px;color:#EDE6D8;text-shadow:0 2px 12px rgba(0,0,0,.9);background:rgba(5,8,12,.25);}
+
 </style>
 </head>
 <body>
@@ -630,10 +640,24 @@
 <div class="page" id="pageGal">
   <div class="gwrap">
     <div class="ghead">
+      <button class="btn" id="laneBody" style="color:var(--gold)">🧍 Body</button>
+      <button class="btn" id="laneMeals" style="color:#8FCB9B">🎞 Journey</button>
+    </div>
+    <div class="ghead" id="bodyActions">
       <button class="btn" id="shotBtn" style="color:var(--gold)">📸 Today's frame</button>
-      <button class="btn" id="sheetBtn" style="color:#7FD4E8">⬓ Export contact sheet</button>
+      <button class="btn" id="sheetBtn" style="color:#7FD4E8">⬓ Contact sheet</button>
     </div>
     <div class="grid" id="grid"></div>
+    <div id="mealLane" style="display:none">
+      <div class="ghead">
+        <button class="btn" id="addMediaBtn" style="color:var(--gold)">➕ Add to today</button>
+        <button class="btn" id="mealSheetBtn" style="color:#8FCB9B">⬓ Today</button>
+        <button class="btn" id="journeySheetBtn" style="color:#7FD4E8">⬓ Journey</button>
+      </div>
+      <input type="file" id="mediaInput" accept="image/*,video/*" multiple style="display:none">
+      <div class="grid" id="mealGrid"></div>
+      <div class="gnote" id="mealNote">Every plate you snap is kept here forever — gridded like the feed it will become. Tap any to view, share, or save.</div>
+    </div>
     <div class="gnote">Ninety frames, one per day. Fill as many as you choose — the grid is a witness, not a verdict. Photos never leave this device.</div>
   </div>
 </div>
@@ -699,7 +723,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v35</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v38</div>
   </div>
 </div>
 
@@ -713,6 +737,7 @@
 
 <div class="lightbox" id="lightbox">
   <img id="lbImg" alt="">
+  <video id="lbVid" controls playsinline style="display:none;max-width:100%;max-height:62%;border-radius:12px;border:1px solid #22303E"></video>
   <div class="lb-meta" id="lbMeta"></div>
   <div class="lb-row">
     <button class="btn" id="lbShare">Share</button>
@@ -1298,7 +1323,7 @@ function greetIfNewDay(){
 
 /* ============ KOI EXPLAINS HIMSELF ON REQUEST ============ */
 function koiHelp(){
-  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“intro”</b> to replay the opening, or <b>“tutorial”</b> (or tap ⓘ) for a played walkthrough of whatever room you’re standing in — turn on 🕯 sound and I narrate aloud. Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. The <b>📕 Book</b> tab is the paper journal itself, word for word — numbers auto-filled from your day, evening reflections answered in your own words, one tap to copy the whole page into the physical book. Witnessing earns <b>XP</b> — the Vault (tap the level bar) trades it for koi colors, waters, light, and sigils. Beauty only, never advantage. Ask me anything. I reflect; you choose.',null,null,true);
+  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“intro”</b> to replay the opening, or <b>“tutorial”</b> (or tap ⓘ) for a played walkthrough of whatever room you’re standing in — turn on 🕯 sound and I narrate aloud. Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. The <b>📕 Book</b> tab is the paper journal itself, word for word — numbers auto-filled from your day, evening reflections answered in your own words, one tap to copy the whole page into the physical book. Every deposit grows a living thing on the pond floor — kelp, stone, coral, light — the reef is your whole walk, visible. Snapped meals are kept in 📸 → 🍲 Meals, day by day, and one tap exports the day’s plates as one image for the feed. Witnessing earns <b>XP</b> — the Vault (tap the level bar) trades it for koi colors, waters, light, and sigils. Beauty only, never advantage. Ask me anything. I reflect; you choose.',null,null,true);
 }
 
 /* ============ HANDLE INPUT ============ */
@@ -1363,6 +1388,7 @@ async function _handle(text,images,imgSrcs){
   const setBlocks=detectSets(text);
   const prLine=setBlocks.length?recordSets(setBlocks)||'':'';
   fishSay('…reading the mirror…',null,null,true);
+  if(imgSrcs&&imgSrcs.length)keepMealShots(imgSrcs);
   const claude=await askClaude(text,images);
   if(fishNoteMsg){fishSay(fishNoteMsg);fishNoteMsg=null;return;}
   let items=[],reply='';
@@ -1386,7 +1412,7 @@ async function _handle(text,images,imgSrcs){
     chips.push({...it,t:it.type});}
   if(waterOz>0){ logWater(Math.round(waterOz), true); } // silent — folded into this same reply
   if(lift)applyLift(lift);
-  touchStreak();grantXP(XP_RULES.log*items.length,'logging honestly');save();renderAll();pulse();burst=1;
+  touchStreak();reefBloom=1;grantXP(XP_RULES.log*items.length,'logging honestly');save();renderAll();pulse();burst=1;
   if(items.some(i=>i.type==='in'&&i.kcal>0))chimeRise();
   if(items.some(i=>i.type==='out'&&i.kcal>0))toneFall();
   const photoLine=(images&&images.length&&items.length>1)?('I broke the plate into '+items.length+' items, each on your timeline with the time. '):'';
@@ -1815,6 +1841,64 @@ function sizeCanvas(){cv.width=cv.clientWidth*devicePixelRatio;cv.height=265*dev
 addEventListener('resize',sizeCanvas);
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const flakes=Array.from({length:38},()=>({x:Math.random(),y:Math.random(),r:0.7+Math.random()*1.8,s:0.15+Math.random()*0.35,d:Math.random()*6.28}));
+
+/* ============ THE REEF — the pond floor grows with every deposit ============ */
+let reefBloom=0;
+function depositCount(){
+  let n=0;
+  for(const k in S.days){const d=S.days[k];
+    n+=(d.in||[]).length+(d.out||[]).length+((d.waterLog||[]).length)+((d.sets||[]).length);}
+  return n;
+}
+function drawReef(cx,W,H,time){
+  const n=depositCount(); if(!n)return;
+  const shown=Math.min(80,n);
+  const density=1+Math.floor(n/80)*0.5;
+  const KS=(typeof koiSkin==='function')?koiSkin():{c:'#C1121F',g:'#FF5A3C'};
+  for(let i=0;i<shown;i++){
+    const r1=Math.abs(Math.sin(i*12.9898)*43758.5453)%1;
+    const r2=Math.abs(Math.sin(i*78.233)*12543.123)%1;
+    const px=8+r1*(W-16);
+    const base=H-4-r2*10;
+    const kind=i%4;
+    const sway=Math.sin(time*1.2+i)*3;
+    const grow=(i===shown-1&&reefBloom>0)?Math.max(.2,1-reefBloom):1;
+    if(kind===0){
+      const hgt=(14+r2*20)*grow*density;
+      cx.strokeStyle='rgba(46,139,111,'+(0.35+r1*0.25)+')';cx.lineWidth=2;
+      cx.beginPath();cx.moveTo(px,base);
+      cx.quadraticCurveTo(px+sway,base-hgt*0.5,px+sway*1.6,base-hgt);
+      cx.stroke();
+      cx.fillStyle='rgba(46,139,111,.4)';
+      cx.beginPath();cx.ellipse(px+sway*1.6,base-hgt,2.5,4,sway*0.1,0,7);cx.fill();
+    } else if(kind===1){
+      cx.fillStyle='rgba(58,72,85,'+(0.5+r2*0.3)+')';
+      cx.beginPath();cx.ellipse(px,base-2,(4+r1*5)*grow,(3+r2*3)*grow,r1,0,7);cx.fill();
+    } else if(kind===2){
+      cx.strokeStyle='rgba(193,84,60,'+(0.35+r1*0.25)+')';cx.lineWidth=1.6;
+      const hgt=(8+r1*10)*grow;
+      for(let b2=0;b2<3;b2++){
+        cx.beginPath();cx.moveTo(px,base);
+        cx.quadraticCurveTo(px+(b2-1)*4+sway*0.4,base-hgt*0.6,px+(b2-1)*7+sway*0.6,base-hgt);
+        cx.stroke();}
+    } else {
+      const pulse=0.3+Math.sin(time*2+i)*0.15;
+      cx.globalAlpha=pulse*grow;
+      cx.fillStyle=KS.g||'#FF5A3C';
+      cx.beginPath();cx.arc(px,base-4,2.6*grow,0,7);cx.fill();
+      cx.globalAlpha=1;
+    }
+  }
+  if(reefBloom>0){
+    reefBloom=Math.max(0,reefBloom-0.02);
+    cx.strokeStyle='rgba(232,196,107,'+reefBloom+')';cx.lineWidth=1.5;
+    cx.beginPath();cx.arc(W/2,H-8,(1-reefBloom)*26+4,0,7);cx.stroke();
+  }
+  cx.fillStyle='rgba(126,138,150,.5)';
+  cx.font='8px "IBM Plex Mono", monospace';cx.textAlign='right';
+  cx.fillText(n+' DEPOSITS GROWN',W-8,H-6);cx.textAlign='left';
+}
+
 function drawPond(ts){
   const W=cv.clientWidth,H=265,time=ts/1000;
   cx.clearRect(0,0,W,H);
@@ -1839,6 +1923,7 @@ function drawPond(ts){
   const cxr=W/2+Math.sin(time*(0.5+attnBoost))*W*0.18;
   const cyr=H*0.60+Math.sin(time*0.9)*14;
   const wig=a=>Math.sin(time*(3.4+attnBoost*2)+a)*(6+prog*4);
+  drawReef(cx,W,H,time);
   cx.save();cx.translate(cxr,cyr);cx.scale(scale,scale);cx.rotate(Math.sin(time*0.5)*0.12);
   const glow=burst>0?burst:(0.4+prog*0.4+attnBoost);
   const KS=koiSkin();
@@ -1897,7 +1982,7 @@ function logWater(oz,silent){
   S.days[tk].waterLog.push({oz,t:Date.now()});
   touchStreak();save();renderAll();if(!silent)chimeRise();
   const tot=S.days[tk].water,goal=waterGoal();
-  grantXP(XP_RULES.log,'water');
+  reefBloom=1;grantXP(XP_RULES.log,'water');
   if(tot>=goal)grantXP(XP_RULES.water,'crossing your water mark','water');
   if(silent)return;
   fishSay(tot>=goal
@@ -1951,7 +2036,7 @@ function logDirect(item){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,p:item.p||0,t:Date.now()});
-  touchStreak();grantXP(XP_RULES.log,'logging honestly');save();renderAll();pulse();burst=1;
+  touchStreak();reefBloom=1;grantXP(XP_RULES.log,'logging honestly');save();renderAll();pulse();burst=1;
   if(item.type==='in'&&item.kcal>0)chimeRise();else if(item.type==='out')toneFall();
   fishSay(teachLine(item)+(item.type==='out'&&item.kcal>0?fireChallenge():''),[{...item,t:item.type}]);
 }
@@ -2368,6 +2453,252 @@ $('sheetBtn').onclick=async()=>{
       }
     };
     img.src=all[d];
+  });
+};
+
+
+/* ============ MEAL MEMORY — the plates are kept, day by day ============ */
+async function mealPut(key,data){const db=await idb();
+  return new Promise((res,rej)=>{const tx=db.transaction('shots','readwrite');
+    tx.objectStore('shots').put(data,'meal-'+key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+async function mealAll(day){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readonly');
+    const st=tx.objectStore('shots');const out=[];
+    const q=st.openCursor();
+    q.onsuccess=e=>{const c=e.target.result;
+      if(c){if(String(c.key).startsWith('meal-'+day))out.push({k:String(c.key).replace('meal-',''),v:c.value});c.continue();}
+      else res(out.sort((a,b)=>a.k<b.k?-1:1));};
+    q.onerror=()=>res(out);});}
+async function mealDel(key){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readwrite');
+    tx.objectStore('shots').delete('meal-'+key);tx.oncomplete=res;});}
+function shrinkDataUrl(src,max,q){
+  return new Promise(res=>{const img=new Image();
+    img.onload=()=>{let w=img.width,h=img.height;
+      const s=Math.min(1,max/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      res(c.toDataURL('image/jpeg',q||0.7));};
+    img.onerror=()=>res(null);img.src=src;});}
+async function keepMealShots(imgSrcs){
+  if(!imgSrcs||!imgSrcs.length)return;
+  const day=todayKey();
+  for(const src of imgSrcs){
+    const small=await shrinkDataUrl(src,640,0.68);
+    if(small)await mealPut(day+'-'+Date.now()+'-'+Math.floor(Math.random()*999),small);
+  }
+  S.mealDays=S.mealDays||{};S.mealDays[day]=(S.mealDays[day]||0)+imgSrcs.length;save();
+}
+
+
+/* ---- the meals lane ---- */
+$('laneBody').onclick=()=>{$('grid').style.display='grid';$('bodyActions').style.display='flex';
+  $('mealLane').style.display='none';};
+$('laneMeals').onclick=()=>{$('grid').style.display='none';$('bodyActions').style.display='none';
+  $('mealLane').style.display='block';renderMeals();};
+
+/* ============ THE JOURNEY VAULT — photos and videos of any day ============ */
+async function mediaPut(key,val){const db=await idb();
+  return new Promise((res,rej)=>{const tx=db.transaction('shots','readwrite');
+    tx.objectStore('shots').put(val,'media-'+key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+async function mediaDel(key){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readwrite');
+    tx.objectStore('shots').delete(key);tx.oncomplete=res;});}
+function videoThumb(file){
+  return new Promise(res=>{
+    const url=URL.createObjectURL(file);
+    const v=document.createElement('video');
+    v.muted=true;v.playsInline=true;v.src=url;
+    v.onloadeddata=()=>{try{v.currentTime=Math.min(0.5,(v.duration||1)/2);}catch(e){res(null);}};
+    v.onseeked=()=>{
+      try{
+        const c=document.createElement('canvas');
+        const s=Math.min(1,640/Math.max(v.videoWidth,v.videoHeight));
+        c.width=v.videoWidth*s;c.height=v.videoHeight*s;
+        c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+        URL.revokeObjectURL(url);
+        res(c.toDataURL('image/jpeg',0.66));
+      }catch(e){res(null);}
+    };
+    v.onerror=()=>{URL.revokeObjectURL(url);res(null);};
+  });
+}
+$('addMediaBtn').onclick=()=>$('mediaInput').click();
+$('mediaInput').onchange=async e=>{
+  const files=[...e.target.files]; e.target.value='';
+  if(!files.length)return;
+  const day=todayKey();
+  let added=0,vids=0;
+  for(const f of files){
+    const key=day+'-'+Date.now()+'-'+Math.floor(Math.random()*999);
+    if(f.type.startsWith('video/')){
+      if(f.size>80*1024*1024){fishNote('That video is over 80MB — too heavy for the vault. Trim it and try again.');continue;}
+      const thumb=await videoThumb(f);
+      await mediaPut(key,{kind:'vid',data:f,thumb:thumb||''});
+      vids++;added++;
+    } else if(f.type.startsWith('image/')){
+      const fr=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
+      if(!fr)continue;
+      const small=await shrinkDataUrl(fr,900,0.72);
+      if(small){await mediaPut(key,{kind:'img',data:small});added++;}
+    }
+  }
+  if(added){
+    S.mealDays=S.mealDays||{};S.mealDays[day]=(S.mealDays[day]||0)+added;
+    reefBloom=1;grantXP(15*added,'documenting the day');save();
+    renderMeals();
+    fishSay(added+' '+(added===1?'piece':'pieces')+' added to Day '+dayIndex()+(vids?' — video plays right from the grid.':'.')+' The record grows.');
+  }
+};
+
+async function mealEvery(){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readonly');
+    const st=tx.objectStore('shots');const out=[];
+    const q=st.openCursor();
+    q.onsuccess=e=>{const c=e.target.result;
+      if(c){const key=String(c.key);
+        if(key.startsWith('meal-'))
+          out.push({k:key.replace('meal-',''),fullKey:key,kind:'img',src:c.value});
+        else if(key.startsWith('media-')){
+          const v=c.value||{};
+          out.push({k:key.replace('media-',''),fullKey:key,kind:v.kind||'img',
+                    src:v.kind==='vid'?(v.thumb||''):v.data, blob:v.kind==='vid'?v.data:null});
+        }
+        c.continue();}
+      else res(out.sort((a,b)=>a.k<b.k?1:-1));}; // newest first
+    q.onerror=()=>res(out);});}
+async function renderMeals(){
+  const host=$('mealGrid');if(!host)return;
+  const shots=await mealEvery();
+  if(!shots.length){host.innerHTML='';$('mealNote').textContent='Nothing documented yet. ➕ adds photos or videos of the day — body, plates, moments. Snapped meals land here on their own.';return;}
+  $('mealNote').textContent=shots.length+' pieces of the record · tap any to view, play, share, or save';
+  host.innerHTML=shots.map((s,i)=>{
+    const day=s.k.slice(0,10);
+    const dn=Math.max(1,Math.floor((new Date(day)-new Date(S.startDate))/864e5)+1);
+    return '<div class="mcell" data-i="'+i+'">'
+      +(s.src?'<img loading="lazy" src="'+s.src+'">':'')
+      +(s.kind==='vid'?'<span class="vbadge">▶</span>':'')
+      +'<span class="dstamp">D'+dn+'</span></div>';
+  }).join('');
+  host.querySelectorAll('.mcell').forEach(cell=>cell.onclick=async()=>{
+    const s=shots[+cell.dataset.i];
+    const day=s.k.slice(0,10);
+    const dn=Math.max(1,Math.floor((new Date(day)-new Date(S.startDate))/864e5)+1);
+    const t=dayTotals(day);
+    const lb=$('lightbox'),im=$('lbImg'),vd=$('lbVid');
+    if(s.kind==='vid'&&s.blob){
+      im.style.display='none';vd.style.display='block';
+      vd.src=URL.createObjectURL(s.blob);vd.play().catch(()=>{});
+    } else {
+      vd.style.display='none';if(vd.pause)vd.pause();
+      im.style.display='block';im.src=s.src;
+    }
+    $('lbMeta').textContent='DAY '+dn+(t.inC?' · +'+fmt(t.inC)+' IN THAT DAY':'');
+    lb.classList.add('show');
+    const close=()=>{lb.classList.remove('show');
+      if(vd.src){vd.pause();try{URL.revokeObjectURL(vd.src);}catch(e){}vd.removeAttribute('src');}};
+    $('lbClose').onclick=close;
+    lb.onclick=e=>{if(e.target===lb)close();};
+    $('lbSave').onclick=()=>{
+      const a=document.createElement('a');
+      if(s.kind==='vid'&&s.blob){a.href=URL.createObjectURL(s.blob);a.download='mirror-day'+dn+'.mp4';}
+      else{a.href=s.src;a.download='mirror-day'+dn+'.jpg';}
+      a.click();};
+    $('lbDel').onclick=async()=>{if(!confirm('Remove this from the record?'))return;
+      await mediaDel(s.fullKey);close();renderMeals();};
+    $('lbShare').onclick=async()=>{try{
+      let file;
+      if(s.kind==='vid'&&s.blob)file=new File([s.blob],'mirror-day'+dn+'.mp4',{type:s.blob.type||'video/mp4'});
+      else{const blob=await (await fetch(s.src)).blob();
+        file=new File([blob],'mirror-day'+dn+'.jpg',{type:'image/jpeg'});}
+      if(navigator.canShare&&navigator.canShare({files:[file]}))
+        await navigator.share({files:[file],text:'Day '+dn+' of 90. Witnessed. #MyCaloricMirror'});
+      else $('lbSave').click();
+    }catch(e){}};
+  });
+}
+
+
+$('journeySheetBtn').onclick=async()=>{
+  const shots=(await mealEvery()).reverse(); // oldest → newest for the story
+  if(!shots.length){fishSay('No plates yet — the journey grid begins with your next meal.');return;}
+  const cols=Math.min(6,Math.max(3,Math.ceil(Math.sqrt(shots.length))));
+  const rows=Math.ceil(shots.length/cols);
+  const S2=300,pad=6,head=130,foot=90;
+  const c=document.createElement('canvas');
+  c.width=cols*S2+pad*(cols+1);c.height=head+rows*S2+pad*(rows+1)+foot;
+  const x=c.getContext('2d');
+  x.fillStyle='#0A0E13';x.fillRect(0,0,c.width,c.height);
+  x.textAlign='center';x.fillStyle='#E8C46B';
+  x.font='300 40px Cormorant, serif';x.fillText('MY CALORIC MIRROR — THE JOURNEY',c.width/2,52);
+  x.fillStyle='#EDE6D8';x.font='16px "IBM Plex Mono", monospace';
+  x.fillText(shots.length+' PLATES · '+witnessedCount()+' DAYS WITNESSED · DAY '+dayIndex()+' OF 90',c.width/2,86);
+  x.fillStyle='#7E8A96';x.font='12px "IBM Plex Mono", monospace';
+  x.fillText('EVERY MEAL, WITNESSED — NOTHING HIDDEN',c.width/2,112);
+  let done=0;
+  shots.forEach((s,i)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const cx=pad+(i%cols)*(S2+pad), cy=head+pad+Math.floor(i/cols)*(S2+pad);
+      const sc=Math.max(S2/img.width,S2/img.height);
+      x.save();x.beginPath();x.rect(cx,cy,S2,S2);x.clip();
+      x.drawImage(img,cx+(S2-img.width*sc)/2,cy+(S2-img.height*sc)/2,img.width*sc,img.height*sc);x.restore();
+      x.strokeStyle='#1B2836';x.lineWidth=2;x.strokeRect(cx,cy,S2,S2);
+      const day=s.k.slice(0,10);
+      const dn=Math.max(1,Math.floor((new Date(day)-new Date(S.startDate))/864e5)+1);
+      x.fillStyle='rgba(5,8,12,.65)';x.fillRect(cx,cy+S2-24,46,24);
+      x.fillStyle='#EDE6D8';x.font='13px "IBM Plex Mono", monospace';x.textAlign='left';
+      x.fillText('D'+dn,cx+7,cy+S2-7);x.textAlign='center';
+      if(s.kind==='vid'){x.fillStyle='rgba(237,230,216,.9)';x.font='34px serif';
+        x.fillText('▶',cx+S2/2,cy+S2/2+12);}
+      if(++done===shots.length){
+        x.fillStyle='#7E8A96';x.font='italic 20px Cormorant, serif';
+        x.fillText('The book: My Caloric Mirror · Kingdom of Inner Light · KOIlibraryOfficial.com',c.width/2,c.height-32);
+        c.toBlob(bl=>{const a=document.createElement('a');a.href=URL.createObjectURL(bl);
+          a.download='caloric-mirror-journey.jpg';a.click();},'image/jpeg',0.85);
+        fishSay('The whole journey — '+shots.length+' plates — sealed into one image with the book’s name on it. That is proof and promotion in the same frame.');
+      }
+    };
+    img.src=s.src||s.v;
+  });
+};
+
+$('mealSheetBtn').onclick=async()=>{
+  const day=todayKey();
+  const shots=(await mealEvery()).filter(s=>s.k.slice(0,10)===day).reverse();
+  if(!shots.length){fishSay('Nothing documented today yet — ➕ add something or snap a meal.');return;}
+  const t=dayTotals(day), b=bmr();
+  const dn=dayIndex();
+  const cols=Math.min(3,shots.length), rows=Math.ceil(shots.length/cols);
+  const S2=340,pad=8,head=120,foot=84;
+  const c=document.createElement('canvas');
+  c.width=cols*S2+pad*(cols+1);c.height=head+rows*S2+pad*(rows+1)+foot;
+  const x=c.getContext('2d');
+  x.fillStyle='#0A0E13';x.fillRect(0,0,c.width,c.height);
+  x.textAlign='center';x.fillStyle='#E8C46B';
+  x.font='300 34px Cormorant, serif';x.fillText('MY CALORIC MIRROR · DAY '+dn,c.width/2,46);
+  x.fillStyle='#EDE6D8';x.font='16px "IBM Plex Mono", monospace';
+  x.fillText('+'+fmt(t.inC)+' in · −'+fmt(b+t.outMove)+' out · net '+((t.inC-b-t.outMove)>0?'+':'')+fmt(t.inC-b-t.outMove),c.width/2,78);
+  x.fillStyle='#7E8A96';x.font='12px "IBM Plex Mono", monospace';
+  x.fillText('EVERY PLATE WITNESSED',c.width/2,102);
+  let done=0;
+  shots.forEach((s,i)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const cx=pad+(i%cols)*(S2+pad), cy=head+pad+Math.floor(i/cols)*(S2+pad);
+      const sc=Math.max(S2/img.width,S2/img.height);
+      x.save();x.beginPath();x.rect(cx,cy,S2,S2);x.clip();
+      x.drawImage(img,cx+(S2-img.width*sc)/2,cy+(S2-img.height*sc)/2,img.width*sc,img.height*sc);x.restore();
+      x.strokeStyle='#1B2836';x.lineWidth=2;x.strokeRect(cx,cy,S2,S2);
+      if(++done===shots.length){
+        x.textAlign='center';x.fillStyle='#7E8A96';x.font='italic 18px Cormorant, serif';
+        x.fillText('Kingdom of Inner Light · KOIlibraryOfficial.com',c.width/2,c.height-30);
+        c.toBlob(bl=>{const a=document.createElement('a');a.href=URL.createObjectURL(bl);
+          a.download='mirror-day'+dn+'-plates.jpg';a.click();},'image/jpeg',0.85);
+        fishSay('Day '+dn+'’s plates are sealed into one image — numbers and photographs together, ready for the feed.');
+      }
+    };
+    img.src=s.src||s.v;
   });
 };
 
