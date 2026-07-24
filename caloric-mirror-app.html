@@ -464,6 +464,33 @@
   .mcell .vbadge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     font-size:26px;color:#EDE6D8;text-shadow:0 2px 12px rgba(0,0,0,.9);background:rgba(5,8,12,.25);}
 
+
+  /* ---------- the ever-present number ---------- */
+  #dockNum{display:flex;align-items:baseline;justify-content:center;gap:10px;padding:4px 0 7px;position:relative;}
+  #dockNum .dn-label{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.35em;color:var(--mist);}
+  #dockNum .dn-val{font-family:'IBM Plex Mono',monospace;font-weight:300;font-size:19px;color:var(--gold);
+    letter-spacing:.04em;text-shadow:0 0 14px rgba(232,196,107,.35);transition:transform .18s;}
+  #dockNum.pop .dn-val{transform:scale(1.22);}
+  #dockNum .dn-delta{position:absolute;right:10%;top:-4px;font-family:'IBM Plex Mono',monospace;font-size:14px;
+    opacity:0;pointer-events:none;}
+  #dockNum .dn-delta.fly{animation:dflys 1.4s ease forwards;}
+  @keyframes dflys{0%{opacity:0;transform:translateY(8px)}15%{opacity:1}100%{opacity:0;transform:translateY(-26px)}}
+  /* ---------- the deposit celebration ---------- */
+  #depFx{position:absolute;inset:0;z-index:70;pointer-events:none;display:none;}
+  #depFx.show{display:block;}
+  #depFx .card{position:absolute;left:50%;top:38%;width:130px;height:130px;border-radius:16px;overflow:hidden;
+    border:2px solid var(--gold);box-shadow:0 0 40px rgba(232,196,107,.5);
+    transform:translate(-50%,-50%) scale(1);animation:depfly 1.05s cubic-bezier(.5,-.1,.7,1) forwards;}
+  #depFx .card img{width:100%;height:100%;object-fit:cover;}
+  #depFx .card .ic{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    font-size:56px;background:rgba(16,24,33,.96);}
+  @keyframes depfly{0%{transform:translate(-50%,-50%) scale(1);opacity:1}
+    55%{transform:translate(-50%,-50%) scale(.9);opacity:1}
+    100%{transform:translate(-50%,220%) scale(.12);opacity:.2}}
+  #depFx .ring{position:absolute;left:50%;top:38%;width:20px;height:20px;border-radius:50%;
+    border:2px solid var(--gold);transform:translate(-50%,-50%);animation:depring 1s ease-out forwards;}
+  @keyframes depring{to{width:260px;height:260px;opacity:0}}
+
 </style>
 </head>
 <body>
@@ -704,6 +731,11 @@
 </div><!-- /scroll -->
 
 <div class="dock">
+  <div id="dockNum">
+    <span class="dn-label">MIRROR</span>
+    <span class="dn-val" id="dockNumVal">—</span>
+    <span class="dn-delta" id="dockDelta"></span>
+  </div>
   <div class="bubble" id="bubble"></div>
   <div class="tabs">
     <div class="tab on" data-page="pageHome"><span class="ic">🪞</span>Mirror</div>
@@ -723,7 +755,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v38</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v40</div>
   </div>
 </div>
 
@@ -735,6 +767,7 @@
   <div class="in-tap">TAP TO CONTINUE</div>
 </div>
 
+<div id="depFx"></div>
 <div class="lightbox" id="lightbox">
   <img id="lbImg" alt="">
   <video id="lbVid" controls playsinline style="display:none;max-width:100%;max-height:62%;border-radius:12px;border:1px solid #22303E"></video>
@@ -772,6 +805,7 @@
   <button class="small-link" id="playIntroBtn" style="color:var(--gold)">▶ Play the opening</button>
   <button class="small-link" id="vaultBtn" style="color:var(--gold)">✦ Open the Vault — XP &amp; skins</button>
   <button class="small-link" id="beginAgainBtn" style="color:var(--gold)">Begin the 90 again — Day 1 is today</button>
+  <button class="small-link" id="fullResetBtn" style="color:var(--ember-glow)">🗑 Reset the mirror completely — erase everything</button>
   <button class="small-link" id="exportBtn">Export thread token (backup / move devices)</button>
   <button class="small-link" id="importBtn">Import thread token</button>
 </div>
@@ -1398,6 +1432,7 @@ async function _handle(text,images,imgSrcs){
   else{const it=localEstimate(text);if(it)items=[it];}
   if(!items.length&&setBlocks.length){
     save();renderAll();
+    depositFX(-setBlocks.length,null,'sets');
     fishSay('Witnessed — '+setBlocks.length+' set'+(setBlocks.length>1?'s':'')+' of '+setBlocks[0].ex+' on the record.'+prLine+fireChallenge(),null,null);
     return;
   }
@@ -1412,7 +1447,10 @@ async function _handle(text,images,imgSrcs){
     chips.push({...it,t:it.type});}
   if(waterOz>0){ logWater(Math.round(waterOz), true); } // silent — folded into this same reply
   if(lift)applyLift(lift);
-  touchStreak();reefBloom=1;grantXP(XP_RULES.log*items.length,'logging honestly');save();renderAll();pulse();burst=1;
+  const inSum=items.filter(i=>i.type==='in').reduce((a,b2)=>a+b2.kcal,0);
+  const outSum=items.filter(i=>i.type==='out').reduce((a,b2)=>a+b2.kcal,0);
+  if(inSum||outSum)depositFX(inSum? inSum : -outSum, (imgSrcs&&imgSrcs[0])||null, inSum?'in':'out');
+  touchStreak();grantXP(XP_RULES.log*items.length,'logging honestly');save();renderAll();pulse();burst=1;
   if(items.some(i=>i.type==='in'&&i.kcal>0))chimeRise();
   if(items.some(i=>i.type==='out'&&i.kcal>0))toneFall();
   const photoLine=(images&&images.length&&items.length>1)?('I broke the plate into '+items.length+' items, each on your timeline with the time. '):'';
@@ -1982,7 +2020,8 @@ function logWater(oz,silent){
   S.days[tk].waterLog.push({oz,t:Date.now()});
   touchStreak();save();renderAll();if(!silent)chimeRise();
   const tot=S.days[tk].water,goal=waterGoal();
-  reefBloom=1;grantXP(XP_RULES.log,'water');
+  if(!silent)depositFX(oz,null,'water');
+  grantXP(XP_RULES.log,'water');
   if(tot>=goal)grantXP(XP_RULES.water,'crossing your water mark','water');
   if(silent)return;
   fishSay(tot>=goal
@@ -2036,7 +2075,8 @@ function logDirect(item){
   const tk=todayKey();
   if(!S.days[tk])S.days[tk]={in:[],out:[]};
   S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,p:item.p||0,t:Date.now()});
-  touchStreak();reefBloom=1;grantXP(XP_RULES.log,'logging honestly');save();renderAll();pulse();burst=1;
+  depositFX(item.type==='in'?item.kcal:-item.kcal,null,item.type);
+  touchStreak();grantXP(XP_RULES.log,'logging honestly');save();renderAll();pulse();burst=1;
   if(item.type==='in'&&item.kcal>0)chimeRise();else if(item.type==='out')toneFall();
   fishSay(teachLine(item)+(item.type==='out'&&item.kcal>0?fireChallenge():''),[{...item,t:item.type}]);
 }
@@ -2496,6 +2536,41 @@ $('laneBody').onclick=()=>{$('grid').style.display='grid';$('bodyActions').style
   $('mealLane').style.display='none';};
 $('laneMeals').onclick=()=>{$('grid').style.display='none';$('bodyActions').style.display='none';
   $('mealLane').style.display='block';renderMeals();};
+
+
+/* ============ THE DEPOSIT — feel every one, on every tab ============ */
+function tickDockNum(){
+  const el=$('dockNumVal');
+  if(el&&S.profile)el.textContent=fmt(mirrorNow());
+}
+setInterval(tickDockNum,1000);
+function depositFX(delta,thumb,kind){
+  // kind: 'in' | 'out' | 'water' | 'sets'
+  tickDockNum();
+  const dn=$('dockNum');dn.classList.remove('pop');void dn.offsetWidth;dn.classList.add('pop');
+  const d=$('dockDelta');
+  const col = kind==='in'?'#8FCB9B': kind==='water'?'#7FD4E8': '#FF5A3C';
+  d.style.color=col;
+  d.textContent = kind==='water' ? '+'+delta+' oz'
+                : (delta>0?'+':'−')+fmt(Math.abs(delta));
+  d.classList.remove('fly');void d.offsetWidth;d.classList.add('fly');
+  // the flying card
+  const fx=$('depFx');fx.innerHTML='';fx.classList.add('show');
+  const ring=document.createElement('div');ring.className='ring';
+  if(kind==='out'||kind==='sets')ring.style.borderColor='#FF5A3C';
+  if(kind==='water')ring.style.borderColor='#7FD4E8';
+  fx.appendChild(ring);
+  const card=document.createElement('div');card.className='card';
+  if(kind==='out'||kind==='sets')card.style.borderColor='#FF5A3C';
+  if(kind==='water')card.style.borderColor='#7FD4E8';
+  if(thumb){const im=document.createElement('img');im.src=thumb;card.appendChild(im);}
+  else{const ic=document.createElement('div');ic.className='ic';
+    ic.textContent = kind==='in'?'🍲': kind==='water'?'💧': kind==='sets'?'⚔':'🔥';
+    card.appendChild(ic);}
+  fx.appendChild(card);
+  reefBloom=1;
+  setTimeout(()=>{fx.classList.remove('show');fx.innerHTML='';},1200);
+}
 
 /* ============ THE JOURNEY VAULT — photos and videos of any day ============ */
 async function mediaPut(key,val){const db=await idb();
@@ -3236,6 +3311,7 @@ $('bkNext').onclick=()=>{if(bookDay<90){bookDay++;renderBook();}};
 $('beginAgainBtn').onclick=()=>{
   if(!confirm('Begin again? Day 1 becomes today. Your logs, book answers, and forge crowns reset. Your dictionary, key, goal, and profile stay. The old marks stay on the Wall — history is never erased, only continued.'))return;
   S.startDate=todayKey(); S.days={}; S.book={}; S.lastGreet=null; S.forgeCrowns=0; S.lastCrown=null;
+  S.streak={current:0,longest:0,lastSeen:null}; S.reflect=null; S.form=1; S.gateCrossed=false; S.xpLog={};
   S.mirrorStart=Math.round(S.profile.w*CONFIG.CAL_PER_LB);
   S.marks.push({date:todayKey(),weight:S.profile.w,mirror:S.mirrorStart});
   bookDay=1; save(); displayed=null; renderAll();
@@ -3326,6 +3402,7 @@ $('logSetBtn').onclick=()=>{
   const pr=recordSets([{ex,w,r}])||'';
   S.session.sets.push({ex,w,r,t:Date.now()});save();
   restEnd=Date.now()+restDur*1000;
+  depositFX(-1,null,'sets');
   touchStreak();renderForge();renderWeekWork();
   const last=lastPerformance(ex);
   const barks=[
@@ -3867,8 +3944,22 @@ $('rainToggle').onclick=()=>{const c=document.getElementById('glyphRain');
   const off=c.style.display==='none';c.style.display=off?'block':'none';
   S.rainOff=!off;save();};
 if(S.rainOff){const c=document.getElementById('glyphRain');if(c)c.style.display='none';}
+
+$('fullResetBtn').onclick=async()=>{
+  if(!confirm('Reset EVERYTHING? Profile, logs, book answers, streak, XP, Vault skins, marks, photos and videos — all of it, gone. This cannot be undone.'))return;
+  if(!confirm('Last door. Are you certain? The mirror returns to the very first moment, as if you never opened it.'))return;
+  try{ store.remove('caloricMirror'); }catch(e){}
+  try{ localStorage.removeItem('caloricMirror'); }catch(e){}
+  try{
+    if(IDB){IDB.close();IDB=null;}
+    await new Promise(res=>{const r=indexedDB.deleteDatabase('koil-mirror');
+      r.onsuccess=res;r.onerror=res;r.onblocked=res;});
+  }catch(e){}
+  location.reload();
+};
+
 /* ============ BOOT ============ */
-sizeCanvas();applySkins();initRain();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
+sizeCanvas();applySkins();tickDockNum();initRain();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
 (function restoreChat(){
   const feed=$('feed'); if(!feed||!S.chat.length)return;
   const h=document.createElement('div');h.className='feed-head';h.textContent='THE CONVERSATION · KOI REMEMBERS';feed.appendChild(h);
