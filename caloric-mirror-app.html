@@ -491,6 +491,11 @@
     border:2px solid var(--gold);transform:translate(-50%,-50%);animation:depring 1s ease-out forwards;}
   @keyframes depring{to{width:260px;height:260px;opacity:0}}
 
+
+  #pageGal .gwrap{overflow-x:hidden;}
+  #pageGal .ghead{flex-wrap:wrap;}
+  #pageGal .ghead button{min-width:0;flex:1 1 30%;font-size:11.5px;padding:10px 4px;}
+
 </style>
 </head>
 <body>
@@ -671,8 +676,9 @@
       <button class="btn" id="laneMeals" style="color:#8FCB9B">🎞 Journey</button>
     </div>
     <div class="ghead" id="bodyActions">
-      <button class="btn" id="shotBtn" style="color:var(--gold)">📸 Today's frame</button>
-      <button class="btn" id="sheetBtn" style="color:#7FD4E8">⬓ Contact sheet</button>
+      <button class="btn" id="shotBtn" style="color:var(--gold)">📸 Shoot</button>
+      <button class="btn" id="pickBtn" style="color:#8FCB9B">🖼 From photos</button>
+      <button class="btn" id="sheetBtn" style="color:#7FD4E8">⬓ Sheet</button>
     </div>
     <div class="grid" id="grid"></div>
     <div id="mealLane" style="display:none">
@@ -755,7 +761,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v41</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v42</div>
   </div>
 </div>
 
@@ -780,6 +786,7 @@
   </div>
 </div>
 <input type="file" id="shotInput" accept="image/*" capture="environment" style="display:none">
+<input type="file" id="shotPick" accept="image/*" style="display:none">
 
 <div class="panel" id="vault">
   <button class="pclose" id="vaultX">✕</button>
@@ -2422,7 +2429,9 @@ function compress(file,max=720,q=0.72){
 
 let shotDay=null, shotCache={};
 $('shotBtn').onclick=()=>{shotDay=Math.min(Math.max(dayIndex(),1),90);$('shotInput').click();};
-$('shotInput').onchange=async e=>{
+$('pickBtn').onclick=()=>{shotDay=Math.min(Math.max(dayIndex(),1),90);$('shotPick').click();};
+$('shotPick').onchange=e=>{ $('shotInput').files=null; handleShotFile(e); };
+async function handleShotFile(e){
   const f=e.target.files[0]; if(!f||!shotDay)return;
   try{
     const data=await compress(f);
@@ -2434,7 +2443,8 @@ $('shotInput').onchange=async e=>{
     fishSay('Day '+shotDay+' is in the grid. A frame is a witness, not a verdict — the body changes slower than the eye believes and faster than the mirror shows. Keep filling it.');
   }catch(err){fishNote('That image wouldn’t load. Try another.');}
   e.target.value='';
-};
+}
+$('shotInput').onchange=handleShotFile;
 async function renderGrid(){
   const g=$('grid'); if(!g)return;
   const today=Math.min(Math.max(dayIndex(),1),90);
@@ -2452,7 +2462,10 @@ async function renderGrid(){
   g.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{
     const d=+c.dataset.day;
     if(shotCache[d])openShot(d);
-    else if(d<=today){shotDay=d;$('shotInput').click();}
+    else if(d<=today){shotDay=d;
+      if(confirm('Day '+d+' — take a new photo?\n\nOK = camera · Cancel = choose from your photos'))
+        $('shotInput').click();
+      else $('shotPick').click();}
     else fishSay('Day '+d+' hasn’t been lived yet. The grid waits — it never rushes.');
   });
 }
