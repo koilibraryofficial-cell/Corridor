@@ -803,7 +803,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v44</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v45</div>
   </div>
 </div>
 
@@ -837,6 +837,19 @@
 
 <div class="panel" id="setup">
   <button class="pclose" id="setupClose">✕</button>
+  <div id="backupBox" style="margin:12px 0 18px;padding:13px 14px;border-radius:14px;
+    background:rgba(16,24,33,.8);border:1px solid rgba(232,196,107,.35)">
+    <div class="bk-h" style="margin:0 0 6px">💾 THE VAULT — never lose the walk</div>
+    <div id="backupStat" style="font-size:12.5px;color:var(--mist);font-style:italic;margin-bottom:10px"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn" id="bkFull" style="flex:1 1 46%;padding:11px 6px;color:var(--gold);font-size:12px">⬇ Back up everything</button>
+      <button class="btn" id="bkRestore" style="flex:1 1 46%;padding:11px 6px;color:#8FCB9B;font-size:12px">⬆ Restore from file</button>
+    </div>
+    <input type="file" id="bkFile" accept=".json,application/json" style="display:none">
+    <div style="font-size:11.5px;color:var(--mist);margin-top:8px;line-height:1.45">
+      Saves one file with your logs, book answers, streak, XP, marks <b>and every photo and video</b>. Do this before any update.
+    </div>
+  </div>
   <h2>My Caloric Mirror</h2>
   <div class="tag">The first mark on the wall. Weight × 3,500 — your starting truth, not your permanent reality.</div>
   <div class="field"><label>Current weight (lbs)</label><input id="wIn" type="number" inputmode="decimal"></div>
@@ -1932,7 +1945,7 @@ $('claimBtn').onclick=()=>{
   save();renderAll();bellMark();
   if(first)fishSay(`There it is — your first mark: <b style="font-family:'IBM Plex Mono',monospace;color:var(--gold)">${fmt(S.mirrorStart)}</b>. Your starting truth, not your permanent reality. Now — ${fishAsk()}`);
 };
-$('gearBtn').onclick=()=>{const p=S.profile;
+$('gearBtn').onclick=()=>{backupStat();const p=S.profile;
   $('setupClose').style.display=p?'block':'none';
   if(p){$('wIn').value=p.w;$('hIn').value=p.h;$('aIn').value=p.a;$('sSex').value=p.s;
     if(S.targetW)$('tIn').value=S.targetW;
@@ -2671,6 +2684,92 @@ function depositFX(delta,thumb,kind){
   setTimeout(()=>{fx.classList.remove('show');fx.innerHTML='';},1200);
 }
 
+
+
+/* ============ FULL BACKUP — state + every frame, one file ============ */
+async function vaultDump(){
+  const db=await idb();
+  return new Promise(res=>{
+    const tx=db.transaction('shots','readonly');
+    const st=tx.objectStore('shots');const out={};
+    const q=st.openCursor();
+    q.onsuccess=async e=>{
+      const c=e.target.result;
+      if(c){
+        const v=c.value;
+        if(v && v.kind==='vid'){
+          // videos are Blobs — carry the thumbnail only, note the loss honestly
+          out[c.key]={kind:'vid-thumb',thumb:v.thumb||''};
+        } else if(typeof v==='string'){ out[c.key]={kind:'img',data:v}; }
+        else if(v && v.data){ out[c.key]={kind:v.kind||'img',data:v.data,thumb:v.thumb||''}; }
+        c.continue();
+      } else res(out);
+    };
+    q.onerror=()=>res(out);
+  });
+}
+async function vaultLoad(obj){
+  const db=await idb();
+  const keys=Object.keys(obj||{});
+  for(const k of keys){
+    const v=obj[k];
+    await new Promise(res=>{
+      const tx=db.transaction('shots','readwrite');
+      const val = v.kind==='img'&&typeof v.data==='string' && k.startsWith('meal-') ? v.data : v;
+      tx.objectStore('shots').put(val,k);tx.oncomplete=res;tx.onerror=res;
+    });
+  }
+  return keys.length;
+}
+async function backupStat(){
+  const el=$('backupStat'); if(!el)return;
+  try{
+    const v=await vaultDump();
+    const n=Object.keys(v).length;
+    const days=Object.keys(S.days||{}).length;
+    el.textContent = (S.lastBackup? 'Last backup '+S.lastBackup+' · ' : 'Never backed up · ')
+      + days+' logged days · '+n+' frames held.';
+  }catch(e){ el.textContent='Vault ready.'; }
+}
+$('bkFull').onclick=async()=>{
+  fishNote('Packing the walk…');
+  try{
+    const media=await vaultDump();
+    const clean={...S}; delete clean.apiKey;
+    const pack={koil:'caloric-mirror',v:44,at:new Date().toISOString(),state:clean,media};
+    const blob=new Blob([JSON.stringify(pack)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='caloric-mirror-backup-'+todayKey()+'.json';
+    a.click();
+    S.lastBackup=todayKey();save();backupStat();
+    const vids=Object.values(media).filter(m=>m.kind==='vid-thumb').length;
+    fishSay('Backed up — logs, book answers, streak, XP, marks and '+Object.keys(media).length+' frames.'
+      +(vids?' ('+vids+' videos kept as still frames — video files are too heavy for one file; keep the originals in your camera roll.)':'')
+      +' Save that file to iCloud or email it to yourself. Your Mirror Key is not inside it.');
+  }catch(e){ fishNote('Backup failed — '+String(e).slice(0,80)); }
+};
+$('bkRestore').onclick=()=>$('bkFile').click();
+$('bkFile').onchange=e=>{
+  const f=e.target.files[0]; e.target.value='';
+  if(!f)return;
+  if(!confirm('Restore from this file? It replaces what is on this device with the backup.'))return;
+  const r=new FileReader();
+  r.onload=async()=>{
+    try{
+      const pack=JSON.parse(r.result);
+      if(!pack||!pack.state||!pack.state.stars&&!pack.state.days)throw new Error('not a mirror backup');
+      const key=S.apiKey;
+      S=pack.state; S.apiKey=key||S.apiKey;
+      normalizeState();
+      const n=await vaultLoad(pack.media||{});
+      save();
+      fishSay('Restored — '+Object.keys(S.days||{}).length+' days and '+n+' frames are back. Re-enter your Mirror Key if it was on another device.');
+      setTimeout(()=>location.reload(),1600);
+    }catch(err){ fishNote('That file is not a mirror backup.'); }
+  };
+  r.readAsText(f);
+};
 
 /* ============ THE SIX FRAMES — your daily shot list ============ */
 const FRAMES=[
@@ -4240,6 +4339,8 @@ $('fullResetBtn').onclick=async()=>{
 
 /* ============ BOOT ============ */
 healProfile();sizeCanvas();applySkins();tickDockNum();
+setTimeout(()=>{const days=Object.keys(S.days||{}).length;
+  if(days>=5&&!S.lastBackup)fishSay('⚠ '+days+' days walked and never backed up. Open ⚙ and tap <b>Back up everything</b> — it takes five seconds and saves the whole record.');},9000);
 if(S.profile&&!bmrSane())setTimeout(()=>fishNote('⚠ My resting-burn math reads '+fmt(bmr())+'/day — that can’t be right. Open ⚙: weight in pounds, height (5′6″ or 66), age in years. Every projection leans on this.'),1800);initRain();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
 (function restoreChat(){
   const feed=$('feed'); if(!feed||!S.chat.length)return;
