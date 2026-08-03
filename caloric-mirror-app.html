@@ -505,6 +505,22 @@
   .small-link:active{background:rgba(232,196,107,.08);border-radius:10px;}
   #setup{padding-bottom:60px;}
 
+
+  .fslot{display:flex;gap:11px;align-items:center;padding:9px;margin-bottom:6px;border-radius:14px;
+    background:rgba(16,24,33,.75);border:1px solid #16202B;cursor:pointer;}
+  .fslot.filled{border-color:rgba(183,155,224,.55);background:rgba(28,22,40,.6);}
+  .fslot:active{border-color:var(--gold);}
+  .fthumb{width:62px;height:62px;flex-shrink:0;border-radius:11px;overflow:hidden;position:relative;
+    background:rgba(10,14,19,.9);display:flex;align-items:center;justify-content:center;}
+  .fthumb img{width:100%;height:100%;object-fit:cover;}
+  .fthumb .fic{font-size:26px;opacity:.55;}
+  .fthumb .fvid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:20px;color:#EDE6D8;background:rgba(5,8,12,.3);}
+  .fmeta{flex:1;min-width:0;}
+  .fname{font-family:'Cormorant',serif;font-size:16px;color:var(--deep);}
+  .fwant{font-size:12.5px;line-height:1.4;color:var(--mist);font-style:italic;margin-top:2px;}
+  .fslot.filled .fwant{color:#B79BE0;font-style:normal;}
+
 </style>
 </head>
 <body>
@@ -681,15 +697,32 @@
 <div class="page" id="pageGal">
   <div class="gwrap">
     <div class="ghead">
+      <button class="btn" id="laneFrames" style="color:#B79BE0">🎬 Today</button>
       <button class="btn" id="laneBody" style="color:var(--gold)">🧍 Body</button>
-      <button class="btn" id="laneMeals" style="color:#8FCB9B">🎞 Journey</button>
+      <button class="btn" id="laneMeals" style="color:#8FCB9B">🎞 All</button>
     </div>
     <div class="ghead" id="bodyActions">
       <button class="btn" id="shotBtn" style="color:var(--gold)">📸 Shoot</button>
       <button class="btn" id="pickBtn" style="color:#8FCB9B">🖼 From photos</button>
       <button class="btn" id="sheetBtn" style="color:#7FD4E8">⬓ Sheet</button>
     </div>
-    <div class="grid" id="grid"></div>
+    <div id="frameLane">
+      <div class="daynav" style="margin:6px 0 8px">
+        <button id="fPrev">‹</button>
+        <div class="dlabel" id="frameDayLabel">DAY 1 · 0 OF 6 FRAMES</div>
+        <button id="fNext">›</button>
+      </div>
+      <div class="gnote" id="frameHint" style="margin:0 0 10px"></div>
+      <div id="frameList"></div>
+      <div class="ghead" style="margin-top:12px">
+        <button class="btn" id="cardBtn" style="color:#B79BE0">⬓ Build the day card</button>
+        <button class="btn" id="allDlBtn" style="color:#7FD4E8">⬇ All frames</button>
+      </div>
+      <div class="gnote">Six frames, one story. Deposit them as the day happens — the card assembles itself, and every frame stays downloadable for CapCut.</div>
+    </div>
+    <input type="file" id="frameShoot" accept="image/*,video/*" capture="environment" style="display:none">
+    <input type="file" id="framePick" accept="image/*,video/*" style="display:none">
+    <div class="grid" id="grid" style="display:none"></div>
     <div id="mealLane" style="display:none">
       <div class="ghead">
         <button class="btn" id="addMediaBtn" style="color:var(--gold)">➕ Add to today</button>
@@ -770,7 +803,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v43</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v44</div>
   </div>
 </div>
 
@@ -1400,7 +1433,7 @@ function greetIfNewDay(){
 
 /* ============ KOI EXPLAINS HIMSELF ON REQUEST ============ */
 function koiHelp(){
-  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“intro”</b> to replay the opening, or <b>“tutorial”</b> (or tap ⓘ) for a played walkthrough of whatever room you’re standing in — turn on 🕯 sound and I narrate aloud. Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. The <b>📕 Book</b> tab is the paper journal itself, word for word — numbers auto-filled from your day, evening reflections answered in your own words, one tap to copy the whole page into the physical book. Every deposit grows a living thing on the pond floor — kelp, stone, coral, light — the reef is your whole walk, visible. Snapped meals are kept in 📸 → 🍲 Meals, day by day, and one tap exports the day’s plates as one image for the feed. Witnessing earns <b>XP</b> — the Vault (tap the level bar) trades it for koi colors, waters, light, and sigils. Beauty only, never advantage. Ask me anything. I reflect; you choose.',null,null,true);
+  fishSay('I’m <b>KOI</b>, your guide. Here’s everything I do:<br>• <b>Food</b> — speak it, type it, or snap a photo / drop a file. I break a plate into items with calories and time.<br>• <b>Water</b> — say “drank 16 oz” or tap the chip; I track you toward your daily mark.<br>• <b>Movement</b> — “25 push-ups”, “ran 2 miles”, “benched 185 for 8”. I log calories, time, and your climb up the Ladders.<br>• <b>Supplements & herbs</b> — ask about anything in the Apothecary; I place it on the spectrum of light and name what comes first.<br>• <b>The dictionary grows</b> — name anything I don’t know and I’ll build its card and keep it.<br>• <b>Your day</b> — everything is stamped with the time and woven into Today’s Path. Tap ↻ on any entry to repeat it.<br>Say <b>“intro”</b> to replay the opening, or <b>“tutorial”</b> (or tap ⓘ) for a played walkthrough of whatever room you’re standing in — turn on 🕯 sound and I narrate aloud. Say <b>“analyze”</b> anywhere for my full reading of your mirror, marks, forge, and gaps. The <b>📕 Book</b> tab is the paper journal itself, word for word — numbers auto-filled from your day, evening reflections answered in your own words, one tap to copy the whole page into the physical book. The <b>🎬 Today</b> lane names the six frames of a day — Wake, Body, Fuel, Work, Page, Close — and tells you which are still missing. Fill them as the day happens, then build the day card or download every frame for editing. Every deposit grows a living thing on the pond floor — kelp, stone, coral, light — the reef is your whole walk, visible. Snapped meals are kept in 📸 → 🍲 Meals, day by day, and one tap exports the day’s plates as one image for the feed. Witnessing earns <b>XP</b> — the Vault (tap the level bar) trades it for koi colors, waters, light, and sigils. Beauty only, never advantage. Ask me anything. I reflect; you choose.',null,null,true);
 }
 
 /* ============ HANDLE INPUT ============ */
@@ -1588,7 +1621,7 @@ function renderAll(){
       <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
     lad.appendChild(el);}
   renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();renderWeekWork();renderStreak();renderXP();renderRoad();
-  if(activeTab==='pageGal')renderGrid();
+  if(activeTab==='pageGal'&&$('frameLane')&&$('frameLane').style.display!=='none')renderFrames();
 }
 function tick(){
   if(S.profile){
@@ -2585,10 +2618,23 @@ async function keepMealShots(imgSrcs){
 
 
 /* ---- the meals lane ---- */
-$('laneBody').onclick=()=>{$('grid').style.display='grid';$('bodyActions').style.display='flex';
-  $('mealLane').style.display='none';};
-$('laneMeals').onclick=()=>{$('grid').style.display='none';$('bodyActions').style.display='none';
-  $('mealLane').style.display='block';renderMeals();};
+function showLane(which){
+  $('frameLane').style.display = which==='frames'?'block':'none';
+  $('grid').style.display      = which==='body'?'grid':'none';
+  $('bodyActions').style.display=which==='body'?'flex':'none';
+  $('mealLane').style.display  = which==='all'?'block':'none';
+  if(which==='frames')renderFrames();
+  if(which==='body')renderGrid();
+  if(which==='all')renderMeals();
+}
+$('laneFrames').onclick=()=>showLane('frames');
+$('laneBody').onclick=()=>showLane('body');
+$('laneMeals').onclick=()=>showLane('all');
+$('fPrev').onclick=()=>{frameDay=Math.max(1,fDay()-1);renderFrames();};
+$('fNext').onclick=()=>{frameDay=Math.min(90,fDay()+1);renderFrames();};
+$('frameShoot').onchange=handleFrameFile;
+$('framePick').onchange=handleFrameFile;
+setTimeout(()=>{if($('frameLane'))showLane('frames');},500);
 
 
 /* ============ THE DEPOSIT — feel every one, on every tab ============ */
@@ -2624,6 +2670,187 @@ function depositFX(delta,thumb,kind){
   reefBloom=1;
   setTimeout(()=>{fx.classList.remove('show');fx.innerHTML='';},1200);
 }
+
+
+/* ============ THE SIX FRAMES — your daily shot list ============ */
+const FRAMES=[
+ {id:'wake', ic:'🌅', n:'The Wake',   want:'Your face, first light. One honest sentence about the day ahead.'},
+ {id:'body', ic:'🧍', n:'The Body',   want:'Same pose, same angle, every day. This is the one that becomes the 90-day transformation.'},
+ {id:'fuel', ic:'🍲', n:'The Fuel',   want:'A plate, a jug, a supplement — whatever went in. Shoot it before you eat it.'},
+ {id:'work', ic:'🔥', n:'The Work',   want:'Movement. The gym, the run, the shift, the sauna. Proof the body was spent.'},
+ {id:'page', ic:'📕', n:'The Page',   want:'The book, the pen, the numbers going onto paper. Overhead, hands only.'},
+ {id:'close',ic:'🌙', n:'The Close',  want:'Night face. Was it honest? Say it in one line.'}
+];
+function frameKey(day,id){return 'frame-'+day+'-'+id;}
+async function framePut(day,id,val){const db=await idb();
+  return new Promise((res,rej)=>{const tx=db.transaction('shots','readwrite');
+    tx.objectStore('shots').put(val,frameKey(day,id));tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+async function frameGetAll(day){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readonly');
+    const st=tx.objectStore('shots');const out={};
+    const q=st.openCursor();
+    q.onsuccess=e=>{const c=e.target.result;
+      if(c){const k=String(c.key);
+        if(k.startsWith('frame-'+day+'-'))out[k.split('-').pop()]=c.value;
+        c.continue();}
+      else res(out);};
+    q.onerror=()=>res(out);});}
+async function frameDel(day,id){const db=await idb();
+  return new Promise(res=>{const tx=db.transaction('shots','readwrite');
+    tx.objectStore('shots').delete(frameKey(day,id));tx.oncomplete=res;});}
+
+let frameDay=null, frameSlot=null, frameCache={};
+function fDay(){return frameDay||Math.min(Math.max(dayIndex(),1),90);}
+
+async function renderFrames(){
+  const host=$('frameList'); if(!host)return;
+  const d=fDay();
+  frameCache=await frameGetAll(d);
+  const have=Object.keys(frameCache).length;
+  $('frameDayLabel').textContent='DAY '+d+' · '+have+' OF 6 FRAMES';
+  $('frameHint').textContent = have===6
+    ? 'The day is fully documented. Build the card below.'
+    : 'Missing: '+FRAMES.filter(f=>!frameCache[f.id]).map(f=>f.n).join(' · ');
+  host.innerHTML=FRAMES.map(f=>{
+    const got=frameCache[f.id];
+    const isVid=got&&got.kind==='vid';
+    return '<div class="fslot'+(got?' filled':'')+'" data-id="'+f.id+'">'
+      +'<div class="fthumb">'+(got?('<img src="'+(isVid?got.thumb:got.data)+'">'+(isVid?'<span class="fvid">▶</span>':'')):('<span class="fic">'+f.ic+'</span>'))+'</div>'
+      +'<div class="fmeta"><div class="fname">'+f.ic+' '+f.n+'</div>'
+      +'<div class="fwant">'+(got?'✓ captured — tap to view or replace':f.want)+'</div></div>'
+      +'</div>';
+  }).join('');
+  host.querySelectorAll('.fslot').forEach(el=>el.onclick=()=>openSlot(el.dataset.id));
+}
+function openSlot(id){
+  frameSlot=id;
+  const got=frameCache[id];
+  const f=FRAMES.find(z=>z.id===id);
+  if(got){
+    const lb=$('lightbox'),im=$('lbImg'),vd=$('lbVid');
+    if(got.kind==='vid'){im.style.display='none';vd.style.display='block';
+      vd.src=URL.createObjectURL(got.data);vd.play().catch(()=>{});}
+    else{vd.style.display='none';im.style.display='block';im.src=got.data;}
+    $('lbMeta').textContent='DAY '+fDay()+' · '+f.n.toUpperCase();
+    lb.classList.add('show');
+    const close=()=>{lb.classList.remove('show');
+      if(vd.src){vd.pause();try{URL.revokeObjectURL(vd.src);}catch(e){}vd.removeAttribute('src');}};
+    $('lbClose').onclick=close; lb.onclick=e=>{if(e.target===lb)close();};
+    $('lbSave').onclick=()=>{const a=document.createElement('a');
+      a.href=got.kind==='vid'?URL.createObjectURL(got.data):got.data;
+      a.download='mirror-day'+fDay()+'-'+id+(got.kind==='vid'?'.mp4':'.jpg');a.click();};
+    $('lbDel').onclick=async()=>{if(!confirm('Replace this frame?'))return;
+      await frameDel(fDay(),id);close();renderFrames();};
+    $('lbShare').onclick=async()=>{try{
+      const blob=got.kind==='vid'?got.data:await (await fetch(got.data)).blob();
+      const file=new File([blob],'mirror-day'+fDay()+'-'+id+(got.kind==='vid'?'.mp4':'.jpg'),
+        {type:got.kind==='vid'?(got.data.type||'video/mp4'):'image/jpeg'});
+      if(navigator.canShare&&navigator.canShare({files:[file]}))
+        await navigator.share({files:[file],text:'Day '+fDay()+' of 90. #MyCaloricMirror'});
+      else $('lbSave').click();
+    }catch(e){}};
+    return;
+  }
+  if(confirm(f.ic+' '+f.n+'\n\n'+f.want+'\n\nOK = camera · Cancel = choose from your photos'))
+    $('frameShoot').click();
+  else $('framePick').click();
+}
+async function handleFrameFile(e){
+  const f=e.target.files[0]; e.target.value='';
+  if(!f||!frameSlot)return;
+  const d=fDay();
+  if(f.type.startsWith('video/')){
+    if(f.size>80*1024*1024){fishNote('That clip is over 80MB — trim it first.');return;}
+    const thumb=await videoThumb(f);
+    await framePut(d,frameSlot,{kind:'vid',data:f,thumb:thumb||''});
+  } else {
+    const raw=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
+    if(!raw)return;
+    const small=await shrinkDataUrl(raw,1100,0.78);
+    await framePut(d,frameSlot,{kind:'img',data:small});
+  }
+  reefBloom=1;grantXP(20,'documenting a frame');save();
+  await renderFrames();
+  const have=Object.keys(frameCache).length;
+  fishSay(have===6
+    ? '🎞 All six frames of Day '+d+' are captured. Build the card — it’s ready to post.'
+    : 'Frame kept. '+(6-have)+' left today: '+FRAMES.filter(z=>!frameCache[z.id]).map(z=>z.n).join(', ')+'.');
+}
+
+
+/* ---- the day card: six frames, the numbers, ready to post ---- */
+$('cardBtn').onclick=async()=>{
+  const d=fDay();
+  const got=await frameGetAll(d);
+  const keys=FRAMES.filter(f=>got[f.id]);
+  if(!keys.length){fishSay('No frames yet for Day '+d+'. Deposit at least one and the card can build.');return;}
+  const W=1080,H=1920;
+  const c=document.createElement('canvas');c.width=W;c.height=H;
+  const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#141C28');g.addColorStop(.55,'#0A0F16');g.addColorStop(1,'#05080C');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  const rg=x.createRadialGradient(W/2,H*.95,10,W/2,H*.95,H*.7);
+  rg.addColorStop(0,'rgba(232,160,70,.16)');rg.addColorStop(1,'rgba(232,160,70,0)');
+  x.fillStyle=rg;x.fillRect(0,0,W,H);
+  // header
+  x.textAlign='center';
+  x.fillStyle='#E8C46B';x.font='300 128px Cormorant, serif';
+  x.fillText('DAY '+String(d).padStart(2,'0'),W/2,190);
+  x.fillStyle='rgba(126,138,150,.9)';x.font='36px "IBM Plex Mono", monospace';
+  x.fillText('OF 90',W/2,244);
+  // the numbers of that day
+  const key=(()=>{const dt=new Date(S.startDate);dt.setDate(dt.getDate()+d-1);
+    return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');})();
+  const t=dayTotals(key),b=bmr();
+  x.fillStyle='#EDE6D8';x.font='34px "IBM Plex Mono", monospace';
+  x.fillText('+'+fmt(t.inC)+' IN   ·   −'+fmt(b+t.outMove)+' OUT',W/2,300);
+  const net=t.inC-b-t.outMove;
+  x.fillStyle=net<0?'#8FCB9B':'#FF5A3C';x.font='300 56px "IBM Plex Mono", monospace';
+  x.fillText((net>0?'+':'')+fmt(net),W/2,368);
+  // grid of frames 2 x 3
+  const cols=2,cw=460,ch=460,pad=30;
+  const startX=(W-(cols*cw+pad))/2, startY=430;
+  let done=0;
+  const total=keys.length;
+  keys.forEach((f,i)=>{
+    const src=got[f.id].kind==='vid'?got[f.id].thumb:got[f.id].data;
+    const img=new Image();
+    img.onload=()=>{
+      const cx=startX+(i%cols)*(cw+pad), cy=startY+Math.floor(i/cols)*(ch+pad);
+      const s=Math.max(cw/img.width,ch/img.height);
+      x.save();x.beginPath();x.roundRect?x.roundRect(cx,cy,cw,ch,20):x.rect(cx,cy,cw,ch);x.clip();
+      x.drawImage(img,cx+(cw-img.width*s)/2,cy+(ch-img.height*s)/2,img.width*s,img.height*s);
+      x.restore();
+      x.strokeStyle='rgba(232,196,107,.35)';x.lineWidth=3;
+      if(x.roundRect){x.beginPath();x.roundRect(cx,cy,cw,ch,20);x.stroke();}else x.strokeRect(cx,cy,cw,ch);
+      x.fillStyle='rgba(5,8,12,.7)';x.fillRect(cx,cy+ch-52,cw,52);
+      x.fillStyle='#EDE6D8';x.font='30px Cormorant, serif';x.textAlign='left';
+      x.fillText(f.ic+' '+f.n,cx+16,cy+ch-16);x.textAlign='center';
+      if(++done===total){
+        x.fillStyle='rgba(232,196,107,.9)';x.font='500 38px "IBM Plex Mono", monospace';
+        x.fillText('MY CALORIC MIRROR',W/2,H-96);
+        x.fillStyle='rgba(126,138,150,.9)';x.font='italic 34px "EB Garamond", serif';
+        x.fillText('the 90-day journal · KOIlibraryOfficial.com',W/2,H-50);
+        c.toBlob(bl=>{const a=document.createElement('a');a.href=URL.createObjectURL(bl);
+          a.download='mirror-day'+d+'-card.jpg';a.click();},'image/jpeg',.9);
+        fishSay('Day '+d+'’s card is built — six frames, the day’s numbers, ready to post as it is.');
+      }
+    };
+    img.src=src;
+  });
+};
+$('allDlBtn').onclick=async()=>{
+  const d=fDay();const got=await frameGetAll(d);
+  const ids=Object.keys(got);
+  if(!ids.length){fishSay('Nothing to download for Day '+d+' yet.');return;}
+  ids.forEach((id,i)=>setTimeout(()=>{
+    const v=got[id];const a=document.createElement('a');
+    a.href=v.kind==='vid'?URL.createObjectURL(v.data):v.data;
+    a.download='mirror-day'+d+'-'+id+(v.kind==='vid'?'.mp4':'.jpg');a.click();
+  },i*450));
+  fishSay('Sending '+ids.length+' frames to your downloads — take them into CapCut and cut the day however you want.');
+};
 
 /* ============ THE JOURNEY VAULT — photos and videos of any day ============ */
 async function mediaPut(key,val){const db=await idb();
