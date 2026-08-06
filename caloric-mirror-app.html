@@ -822,7 +822,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v50</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v51</div>
   </div>
 </div>
 
@@ -3979,8 +3979,29 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session
 /* ============ §5 PWA — install & the two honest knocks ============ */
 let deferredInstall=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
+/* ---- version guard: a new build purges the old shell cache, never the data ---- */
+const APP_V=51;
+(async()=>{
+  try{
+    const seen=+localStorage.getItem('koil-app-v')||0;
+    if(seen!==APP_V){
+      if('serviceWorker' in navigator){
+        const regs=await navigator.serviceWorker.getRegistrations();
+        for(const r of regs){ try{ await r.unregister(); }catch(e){} }
+      }
+      if(window.caches){
+        const keys=await caches.keys();
+        for(const k of keys){ try{ await caches.delete(k); }catch(e){} }
+      }
+      localStorage.setItem('koil-app-v',APP_V);   // logs, photos and marks are untouched
+      console.log('[mirror] shell cache purged for v'+APP_V);
+    }
+  }catch(e){}
+})();
 if(window===window.top&&'serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{
+    try{ r.update(); }catch(e){}
+  }).catch(()=>{});
 }
 function maybeOfferInstall(){
   if(S.installAsked||witnessedCount()<3)return;
