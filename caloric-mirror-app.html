@@ -521,6 +521,23 @@
   .fwant{font-size:12.5px;line-height:1.4;color:var(--mist);font-style:italic;margin-top:2px;}
   .fslot.filled .fwant{color:#B79BE0;font-style:normal;}
 
+
+  .fgroup{padding:11px 12px;margin-bottom:8px;border-radius:15px;
+    background:rgba(16,24,33,.75);border:1px solid #16202B;}
+  .fgroup.filled{border-color:rgba(183,155,224,.5);}
+  .fhead{display:flex;justify-content:space-between;align-items:baseline;cursor:pointer;}
+  .fcount{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--gold);}
+  .fstrip{display:flex;gap:6px;overflow-x:auto;margin-top:9px;padding-bottom:2px;}
+  .fpiece{position:relative;width:74px;height:74px;flex:0 0 74px;border-radius:11px;overflow:hidden;
+    background:rgba(10,14,19,.9);border:1px solid #1B2836;display:flex;align-items:center;
+    justify-content:center;cursor:pointer;}
+  .fpiece img{width:100%;height:100%;object-fit:cover;}
+  .fpiece .fic{font-size:24px;opacity:.5;}
+  .fpiece .fvid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:19px;color:#EDE6D8;background:rgba(5,8,12,.28);}
+  .fpiece.fadd{border-style:dashed;border-color:#2A3A4C;}
+  .fpiece.fadd .fic{color:var(--gold);opacity:.8;}
+
 </style>
 </head>
 <body>
@@ -619,6 +636,7 @@
       <span style="color:var(--mist)">×</span>
       <button class="btn" id="rDn">−1</button><span id="sessR" style="font-size:18px;color:var(--gold);min-width:34px;text-align:center">8</span><button class="btn" id="rUp">+1</button>
     </div>
+    <div id="sessLive" style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--gold);margin-top:8px;min-height:15px"></div>
     <button class="btn" id="logSetBtn" style="display:block;width:100%;margin-top:10px;padding:13px 0;color:#fff;
       background:var(--ember);border-color:var(--ember);font-family:'Cormorant',serif;font-weight:700;
       letter-spacing:.2em;text-transform:uppercase">Log Set</button>
@@ -721,7 +739,7 @@
       <div class="gnote">Six frames, one story. Deposit them as the day happens — the card assembles itself, and every frame stays downloadable for CapCut.</div>
     </div>
     <input type="file" id="frameShoot" accept="image/*,video/*" capture="environment" style="display:none">
-    <input type="file" id="framePick" accept="image/*,video/*" style="display:none">
+    <input type="file" id="framePick" accept="image/*,video/*" multiple style="display:none">
     <div class="grid" id="grid" style="display:none"></div>
     <div id="mealLane" style="display:none">
       <div class="ghead">
@@ -803,7 +821,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v45</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v49</div>
   </div>
 </div>
 
@@ -846,6 +864,15 @@
       <button class="btn" id="bkRestore" style="flex:1 1 46%;padding:11px 6px;color:#8FCB9B;font-size:12px">⬆ Restore from file</button>
     </div>
     <input type="file" id="bkFile" accept=".json,application/json" style="display:none">
+    <div id="bkResult" style="display:none;margin-top:10px">
+      <div id="bkMsg" style="font-size:12.5px;color:#8FCB9B;line-height:1.5;margin-bottom:7px"></div>
+      <textarea id="bkText" readonly style="width:100%;height:90px;background:rgba(10,14,19,.9);
+        border:1px solid #2A3A4C;border-radius:10px;color:var(--mist);font-family:'IBM Plex Mono',monospace;
+        font-size:9px;padding:8px;resize:vertical"></textarea>
+      <div style="font-size:11px;color:var(--mist);margin-top:5px;line-height:1.4">
+        If the share sheet didn’t open: press and hold in the box → Select All → Copy → paste into Notes.
+      </div>
+    </div>
     <div style="font-size:11.5px;color:var(--mist);margin-top:8px;line-height:1.45">
       Saves one file with your logs, book answers, streak, XP, marks <b>and every photo and video</b>. Do this before any update.
     </div>
@@ -1164,6 +1191,7 @@ const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Cal
 'You obey Four Laws: (1) The mirror reflects what it is given — honest numbers, never invented ones. (2) Calories IN and OUT are separate truths. (3) Inside the mirror no one can fail; only see clearly or look away. (4) The mirror is not the judge — never shame, never moralize food, never praise weight loss itself; praise honesty and showing up. The book asks only that a person witness for 90 days; exercise, the ladders, and every plan are a BONUS WING — offered, never demanded. Never imply someone must train to belong here. '+
 'VOICE: warm, brief, a little playful, plain enough for a child. Two to four short sentences — always finish your thought; never trail off mid-sentence. Prioritize the numbers logged over commentary. No bullet points, no exclamation-mark pileups. '+
 'JOB: parse what they ate or did into calorie estimates. For movement, count ONLY calories above resting burn (basal is tracked separately — driving 45 min is roughly 10-15 above rest; say small truths plainly). Use their bodyweight. Close and consistent beats falsely precise. '+
+'PHOTO DEPOSIT LAW: any attached image is a DEPOSIT, never small talk. ALWAYS return items extracted from the image with best middle estimates — plates and packaged food become "in" items (read labels when visible); treadmill screens, watch summaries, gym equipment readouts become "out" items; a scale photo is a weigh-in to acknowledge; supplements log at their real calories (usually 0-15). If several things show, log them all. Ask at most ONE short question in the reply while STILL logging your estimate — never log nothing because you are unsure. Only truly unreadable images may return empty items, and then say plainly what you could not read. '+
 'PHOTOS: identify each food, speak a RANGE in the reply ("around 700, could be 850 if the kitchen was heavy with oil"), use the middle as the kcal number, and remind them gently that portions and hidden oils blur the lens — the kitchen scale holds the exact truth. Never fake precision. '+
 'If food is vague, estimate a middle value AND ask one short clarifying question — never more than one. Zero-calorie things (water, black coffee, fasting) are free — say so. '+
 'HYDRATION: water is zero calories and tracked separately in ounces; the daily aim is roughly two-thirds of an ounce per pound of bodyweight, more with sweat. It carries skin fullness, joint lubrication, cognition, kidney and digestive function; thirst is a late signal. Encourage drinking ahead of thirst, never as punishment. '+
@@ -1171,6 +1199,7 @@ const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Cal
 'GAPS: when asked what to eat, what is missing, or what the body needs, compare TODAY SO FAR against their daily marks and name the exact gaps with numbers (e.g. 62g protein short, 40 oz water behind, 180 under your calorie mark) — then give 2-3 concrete picks from alive foods that close them, sized to their goal and bodyweight. Same for supplements: name what their day is missing before naming any pill. '+
 'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
 'OVERLOAD: when they log a lift, compare against their last performance of that exercise and their PR; if they matched last time, call the next small step (+5 lb or +1 rep). One line, drill-fire voice, never demand. '+
+'THE FORGE IS LIVE: sets update the ladders, the muscle heat and the tonnage the instant they are logged. Never tell a walker to refresh, reopen a tab, or wait for the screen — if something did not appear, say plainly that you will look again, and never claim a number you did not see. '+
 'THE GRID: they may keep a daily photo. Never comment on their body, never compare frames, never praise thinness — a frame is a witness, not a verdict. Encourage only the keeping of the record. '+
 'THE ROAD: if they have a chosen line, every entry moves their projected arrival date. When it shifts meaningfully, name the cost or the gift in one clause ("that pushed the line about three days out" / "pulled it two days closer") — as a fact of pace, never a scolding, and never a deadline. '+
 'COMPARISONS: whenever they log movement, place it honestly against the average person (~200 kcal purposeful movement a day) and the elite standard (600+ kcal and structured sets), and against THEIR OWN yesterday — the true opponent is always yesterday’s them. State the digital body growth percent when it moves. All comparisons are estimates; say so lightly, never let precision-theater in. '+
@@ -1190,7 +1219,9 @@ async function askClaude(text,images){
   const content=[];
   (images||[]).slice(0,4).forEach(img=>content.push({type:'image',
     source:{type:'base64',media_type:img.media_type||'image/jpeg',data:img.data}}));
-  content.push({type:'text',text:context+'\n\nTHEY SAID: "'+text+'"'});
+  const said = text ? 'THEY SAID: "'+text+'"'
+    : 'THEY SAID NOTHING — '+(images&&images.length||0)+' PHOTO(S) ATTACHED AS A DEPOSIT. Extract every item shown and log it now.';
+  content.push({type:'text',text:context+'\n\n'+said});
 
   // Door 1 — the keeper's own key, direct (starts with sk-ant)
   if(S.apiKey&&S.apiKey.indexOf('sk-ant')===0){
@@ -1212,7 +1243,7 @@ async function askClaude(text,images){
     try{
       const res=await fetch(CONFIG.SCRIPT_URL,{method:'POST',redirect:'follow',
         headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body:JSON.stringify({mode:'waiter',text,images:images||[],token:S.apiKey,
+        body:JSON.stringify({mode:'waiter',text:text||'[PHOTO DEPOSIT — extract and log every item shown in the attached photos]',images:images||[],token:S.apiKey,
           profile:S.profile,targetW:S.targetW,day:dayIndex(),calib:S.calib,
           today:S.days[todayKey()]||{in:[],out:[]},lifts:S.lifts,chat:S.chat.slice(-10)})});
       const out=await res.json();
@@ -1526,6 +1557,15 @@ async function _handle(text,images,imgSrcs){
     return;
   }
   if(!items.length&&!lift&&waterOz>0){ logWater(Math.round(waterOz)); return; }
+  if(!items.length&&!lift&&images&&images.length&&!handle._retried){
+    handle._retried=true;
+    const second=await askClaude('EXTRACTION PASS: the photos above are a deposit. Return the items array with your best middle estimates for everything visible — do not ask, do not describe, log.',images);
+    handle._retried=false;
+    if(second&&second.items&&second.items.length){
+      claude.items=second.items; claude.reply=second.reply||claude.reply;
+      items=second.items;
+    }
+  }
   if(!items.length&&!lift){
     if(claude&&claude.reply){fishSay(claude.reply+'<br><br>'+fishAsk());return;}
     fishSay('I couldn’t read that one'+((S.apiKey||CONFIG.SCRIPT_URL)?'':' — my full mind sleeps — a Mirror Key wakes it: photo-reading, any question, a dictionary that grows forever. KOIlibraryOfficial.com/mirror-key. Meanwhile, tell me plainly and I\u2019ve got you.')+'. Name the food or the movement, or give me the number straight: “pasta, 600 calories.”');return;}
@@ -1955,9 +1995,13 @@ $('gearBtn').onclick=()=>{backupStat();const p=S.profile;
 $('exportBtn').onclick=()=>{
   const clean={...S}; delete clean.apiKey;
   const tok=btoa(unescape(encodeURIComponent(JSON.stringify(clean))));
-  const done=()=>fishSay('Thread token copied — keep it somewhere safe. Your Mirror Key is NOT inside it; re-enter the key on any new device.');
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(tok).then(done).catch(()=>{fallbackCopy(tok);done();});}
-  else{fallbackCopy(tok);done();}
+  const box=$('bkResult'), msg=$('bkMsg'), area=$('bkText');
+  box.style.display='block';
+  area.value=tok;
+  msg.style.color='#8FCB9B';
+  msg.innerHTML='✓ Thread token below (state only — no photos). Press and hold → Select All → Copy.';
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(tok); }catch(e){}
+  try{ area.focus(); area.setSelectionRange(0,tok.length); }catch(e){}
 };
 $('importBtn').onclick=()=>{const t=prompt('Paste your thread token:');if(!t)return;
   try{const incoming=JSON.parse(decodeURIComponent(escape(atob(t.trim()))));
@@ -2362,6 +2406,8 @@ function renderStreak(){
 function musclesFor(name){
   const t=(name||'').toLowerCase();
   for(const [re,groups] of MUSCLE_KEYS){ if(re.test(t)) return groups.slice(); }
+  // an unnamed or unknown movement still counted work — spread it thin rather than lose it
+  if(t) return ['core'];
   return [];
 }
 function exerciseIn(text){
@@ -2395,6 +2441,15 @@ function recordSets(sets){
   for(const s of sets){
     const e1=s.w>0?Math.round(epley(s.w,s.r)):s.r;
     S.days[tk].sets.push({ex:s.ex,w:s.w,r:s.r,t:Date.now(),e1,mus});
+    // wake the ladder this movement belongs to
+    for(const key in LADDERS){
+      const L=LADDERS[key];
+      if(L.re.test((s.ex||'').toLowerCase())){
+        const val = L.reps ? s.r : Math.round(epley(s.w,s.r));
+        const cur = S.lifts[key];
+        if(!cur || val > cur.val){ S.lifts[key]={val, e1rm:val, when:tk}; }
+      }
+    }
     const prev=S.prs[s.ex];
     if(!prev||e1>prev.e1){
       S.prs[s.ex]={e1,w:s.w,r:s.r,date:tk};
@@ -2721,6 +2776,16 @@ async function vaultLoad(obj){
   }
   return keys.length;
 }
+async function storageMeter(){
+  try{
+    if(!navigator.storage||!navigator.storage.estimate)return '';
+    const est=await navigator.storage.estimate();
+    if(!est||!est.quota)return '';
+    const used=(est.usage/1048576), quota=(est.quota/1073741824);
+    return ' · using '+(used>1024?(used/1024).toFixed(1)+' GB':Math.round(used)+' MB')
+      +' of '+quota.toFixed(1)+' GB';
+  }catch(e){return '';}
+}
 async function backupStat(){
   const el=$('backupStat'); if(!el)return;
   try{
@@ -2728,26 +2793,56 @@ async function backupStat(){
     const n=Object.keys(v).length;
     const days=Object.keys(S.days||{}).length;
     el.textContent = (S.lastBackup? 'Last backup '+S.lastBackup+' · ' : 'Never backed up · ')
-      + days+' logged days · '+n+' frames held.';
+      + days+' logged days · '+n+' frames held'+(await storageMeter())+'.';
   }catch(e){ el.textContent='Vault ready.'; }
 }
 $('bkFull').onclick=async()=>{
-  fishNote('Packing the walk…');
+  const box=$('bkResult'), msg=$('bkMsg'), area=$('bkText');
+  box.style.display='block'; msg.style.color='#E8C46B';
+  msg.textContent='Packing the walk…'; area.value='';
   try{
     const media=await vaultDump();
     const clean={...S}; delete clean.apiKey;
-    const pack={koil:'caloric-mirror',v:44,at:new Date().toISOString(),state:clean,media};
-    const blob=new Blob([JSON.stringify(pack)],{type:'application/json'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='caloric-mirror-backup-'+todayKey()+'.json';
-    a.click();
-    S.lastBackup=todayKey();save();backupStat();
+    const pack={koil:'caloric-mirror',v:46,at:new Date().toISOString(),state:clean,media};
+    const json=JSON.stringify(pack);
+    const name='caloric-mirror-backup-'+todayKey()+'.json';
+    const blob=new Blob([json],{type:'application/json'});
+    const kb=Math.round(json.length/1024);
+    const frames=Object.keys(media).length;
     const vids=Object.values(media).filter(m=>m.kind==='vid-thumb').length;
-    fishSay('Backed up — logs, book answers, streak, XP, marks and '+Object.keys(media).length+' frames.'
-      +(vids?' ('+vids+' videos kept as still frames — video files are too heavy for one file; keep the originals in your camera roll.)':'')
-      +' Save that file to iCloud or email it to yourself. Your Mirror Key is not inside it.');
-  }catch(e){ fishNote('Backup failed — '+String(e).slice(0,80)); }
+    S.lastBackup=todayKey();save();backupStat();
+
+    let routed='';
+    // 1 — the share sheet: the most reliable path on iPhone
+    try{
+      const file=new File([blob],name,{type:'application/json'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:'My Caloric Mirror backup'});
+        routed='share';
+      }
+    }catch(e){ if(String(e).indexOf('AbortError')>-1) routed='cancelled'; }
+    // 2 — a plain download
+    if(!routed){
+      try{
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);a.download=name;
+        document.body.appendChild(a);a.click();a.remove();
+        routed='download';
+      }catch(e){}
+    }
+    // 3 — always show it, so there is never a silent failure
+    area.value=json;
+    msg.style.color='#8FCB9B';
+    msg.innerHTML=(routed==='share' ? '✓ Sent to your share sheet — choose <b>Save to Files</b> or Mail.'
+      : routed==='cancelled' ? 'Share cancelled — the backup is in the box below, and in your downloads if it saved.'
+      : routed==='download' ? '✓ Saved to your downloads as <b>'+name+'</b>.'
+      : '⚠ Your phone blocked the file. Copy the text below instead.')
+      +'<br>'+Object.keys(S.days||{}).length+' days · '+frames+' frames · '+kb+' KB.'
+      +(vids?'<br>'+vids+' videos kept as still frames — originals stay in your camera roll.':'');
+  }catch(e){
+    msg.style.color='#FF5A5E';
+    msg.textContent='Backup failed — '+String(e.message||e).slice(0,90);
+  }
 };
 $('bkRestore').onclick=()=>$('bkFile').click();
 $('bkFile').onchange=e=>{
@@ -2764,9 +2859,11 @@ $('bkFile').onchange=e=>{
       normalizeState();
       const n=await vaultLoad(pack.media||{});
       save();
-      fishSay('Restored — '+Object.keys(S.days||{}).length+' days and '+n+' frames are back. Re-enter your Mirror Key if it was on another device.');
+      const msg=$('bkMsg');if(msg){$('bkResult').style.display='block';msg.style.color='#8FCB9B';
+        msg.textContent='✓ Restored — '+Object.keys(S.days||{}).length+' days and '+n+' frames are back. Reloading…';}
       setTimeout(()=>location.reload(),1600);
-    }catch(err){ fishNote('That file is not a mirror backup.'); }
+    }catch(err){ const msg=$('bkMsg');if(msg){$('bkResult').style.display='block';
+        msg.style.color='#FF5A5E';msg.textContent='That file is not a mirror backup.';} }
   };
   r.readAsText(f);
 };
@@ -2780,23 +2877,29 @@ const FRAMES=[
  {id:'page', ic:'📕', n:'The Page',   want:'The book, the pen, the numbers going onto paper. Overhead, hands only.'},
  {id:'close',ic:'🌙', n:'The Close',  want:'Night face. Was it honest? Say it in one line.'}
 ];
-function frameKey(day,id){return 'frame-'+day+'-'+id;}
+function frameKey(day,id,uid){return 'frame-'+day+'-'+id+'-'+(uid||(Date.now()+''+Math.floor(Math.random()*999)));}
 async function framePut(day,id,val){const db=await idb();
+  const k=frameKey(day,id);
   return new Promise((res,rej)=>{const tx=db.transaction('shots','readwrite');
-    tx.objectStore('shots').put(val,frameKey(day,id));tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+    tx.objectStore('shots').put(val,k);tx.oncomplete=()=>res(k);tx.onerror=()=>rej(tx.error);});}
 async function frameGetAll(day){const db=await idb();
+  const pre='frame-'+day+'-';
   return new Promise(res=>{const tx=db.transaction('shots','readonly');
     const st=tx.objectStore('shots');const out={};
     const q=st.openCursor();
     q.onsuccess=e=>{const c=e.target.result;
       if(c){const k=String(c.key);
-        if(k.startsWith('frame-'+day+'-'))out[k.split('-').pop()]=c.value;
+        if(k.startsWith(pre)){
+          const rest=k.slice(pre.length);
+          const slot=FRAMES.map(f=>f.id).find(id=>rest===id||rest.startsWith(id+'-'));
+          if(slot){(out[slot]=out[slot]||[]).push({key:k,val:c.value});}
+        }
         c.continue();}
       else res(out);};
     q.onerror=()=>res(out);});}
-async function frameDel(day,id){const db=await idb();
+async function frameDelKey(k){const db=await idb();
   return new Promise(res=>{const tx=db.transaction('shots','readwrite');
-    tx.objectStore('shots').delete(frameKey(day,id));tx.oncomplete=res;});}
+    tx.objectStore('shots').delete(k);tx.oncomplete=res;});}
 
 let frameDay=null, frameSlot=null, frameCache={};
 function fDay(){return frameDay||Math.min(Math.max(dayIndex(),1),90);}
@@ -2805,83 +2908,107 @@ async function renderFrames(){
   const host=$('frameList'); if(!host)return;
   const d=fDay();
   frameCache=await frameGetAll(d);
-  const have=Object.keys(frameCache).length;
-  $('frameDayLabel').textContent='DAY '+d+' · '+have+' OF 6 FRAMES';
-  $('frameHint').textContent = have===6
-    ? 'The day is fully documented. Build the card below.'
-    : 'Missing: '+FRAMES.filter(f=>!frameCache[f.id]).map(f=>f.n).join(' · ');
+  const filled=FRAMES.filter(f=>(frameCache[f.id]||[]).length).length;
+  const total=Object.values(frameCache).reduce((a,b)=>a+b.length,0);
+  $('frameDayLabel').textContent='DAY '+d+' · '+filled+'/6 SLOTS · '+total+' PIECES';
+  $('frameHint').textContent = filled===6
+    ? 'Every slot has something. Add more to any of them, or build the card below.'
+    : 'Still empty: '+FRAMES.filter(f=>!(frameCache[f.id]||[]).length).map(f=>f.n).join(' · ');
   host.innerHTML=FRAMES.map(f=>{
-    const got=frameCache[f.id];
-    const isVid=got&&got.kind==='vid';
-    return '<div class="fslot'+(got?' filled':'')+'" data-id="'+f.id+'">'
-      +'<div class="fthumb">'+(got?('<img src="'+(isVid?got.thumb:got.data)+'">'+(isVid?'<span class="fvid">▶</span>':'')):('<span class="fic">'+f.ic+'</span>'))+'</div>'
-      +'<div class="fmeta"><div class="fname">'+f.ic+' '+f.n+'</div>'
-      +'<div class="fwant">'+(got?'✓ captured — tap to view or replace':f.want)+'</div></div>'
+    const items=frameCache[f.id]||[];
+    const strip=items.map((it,i)=>{
+      const v=it.val, isVid=v&&v.kind==='vid';
+      const src=isVid?(v.thumb||''):(v.data||v);
+      return '<div class="fpiece" data-slot="'+f.id+'" data-i="'+i+'">'
+        +(src?'<img src="'+src+'">':'<span class="fic">'+(isVid?'🎬':'🖼')+'</span>')
+        +(isVid?'<span class="fvid">▶</span>':'')+'</div>';
+    }).join('');
+    return '<div class="fgroup'+(items.length?' filled':'')+'">'
+      +'<div class="fhead" data-add="'+f.id+'">'
+        +'<span class="fname">'+f.ic+' '+f.n+'</span>'
+        +'<span class="fcount">'+(items.length?items.length+' · tap to add':'+ add')+'</span></div>'
+      +'<div class="fwant">'+f.want+'</div>'
+      +'<div class="fstrip">'+strip
+        +'<div class="fpiece fadd" data-add="'+f.id+'"><span class="fic">＋</span></div></div>'
       +'</div>';
   }).join('');
-  host.querySelectorAll('.fslot').forEach(el=>el.onclick=()=>openSlot(el.dataset.id));
+  host.querySelectorAll('[data-add]').forEach(el=>el.onclick=e=>{e.stopPropagation();addToSlot(el.dataset.add);});
+  host.querySelectorAll('.fpiece[data-slot]').forEach(el=>el.onclick=e=>{
+    e.stopPropagation();viewPiece(el.dataset.slot,+el.dataset.i);});
 }
-function openSlot(id){
+function addToSlot(id){
   frameSlot=id;
-  const got=frameCache[id];
   const f=FRAMES.find(z=>z.id===id);
-  if(got){
-    const lb=$('lightbox'),im=$('lbImg'),vd=$('lbVid');
-    if(got.kind==='vid'){im.style.display='none';vd.style.display='block';
-      vd.src=URL.createObjectURL(got.data);vd.play().catch(()=>{});}
-    else{vd.style.display='none';im.style.display='block';im.src=got.data;}
-    $('lbMeta').textContent='DAY '+fDay()+' · '+f.n.toUpperCase();
-    lb.classList.add('show');
-    const close=()=>{lb.classList.remove('show');
-      if(vd.src){vd.pause();try{URL.revokeObjectURL(vd.src);}catch(e){}vd.removeAttribute('src');}};
-    $('lbClose').onclick=close; lb.onclick=e=>{if(e.target===lb)close();};
-    $('lbSave').onclick=()=>{const a=document.createElement('a');
-      a.href=got.kind==='vid'?URL.createObjectURL(got.data):got.data;
-      a.download='mirror-day'+fDay()+'-'+id+(got.kind==='vid'?'.mp4':'.jpg');a.click();};
-    $('lbDel').onclick=async()=>{if(!confirm('Replace this frame?'))return;
-      await frameDel(fDay(),id);close();renderFrames();};
-    $('lbShare').onclick=async()=>{try{
-      const blob=got.kind==='vid'?got.data:await (await fetch(got.data)).blob();
-      const file=new File([blob],'mirror-day'+fDay()+'-'+id+(got.kind==='vid'?'.mp4':'.jpg'),
-        {type:got.kind==='vid'?(got.data.type||'video/mp4'):'image/jpeg'});
-      if(navigator.canShare&&navigator.canShare({files:[file]}))
-        await navigator.share({files:[file],text:'Day '+fDay()+' of 90. #MyCaloricMirror'});
-      else $('lbSave').click();
-    }catch(e){}};
-    return;
-  }
-  if(confirm(f.ic+' '+f.n+'\n\n'+f.want+'\n\nOK = camera · Cancel = choose from your photos'))
+  if(confirm(f.ic+' '+f.n+'\n\n'+f.want+'\n\nOK = camera (photo or video) · Cancel = choose from your library'))
     $('frameShoot').click();
   else $('framePick').click();
 }
-async function handleFrameFile(e){
-  const f=e.target.files[0]; e.target.value='';
-  if(!f||!frameSlot)return;
-  const d=fDay();
-  if(f.type.startsWith('video/')){
-    if(f.size>80*1024*1024){fishNote('That clip is over 80MB — trim it first.');return;}
-    const thumb=await videoThumb(f);
-    await framePut(d,frameSlot,{kind:'vid',data:f,thumb:thumb||''});
-  } else {
-    const raw=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
-    if(!raw)return;
-    const small=await shrinkDataUrl(raw,1100,0.78);
-    await framePut(d,frameSlot,{kind:'img',data:small});
-  }
-  reefBloom=1;grantXP(20,'documenting a frame');save();
-  await renderFrames();
-  const have=Object.keys(frameCache).length;
-  fishSay(have===6
-    ? '🎞 All six frames of Day '+d+' are captured. Build the card — it’s ready to post.'
-    : 'Frame kept. '+(6-have)+' left today: '+FRAMES.filter(z=>!frameCache[z.id]).map(z=>z.n).join(', ')+'.');
+function viewPiece(slot,i){
+  const items=frameCache[slot]||[];const it=items[i];if(!it)return;
+  const v=it.val, isVid=v&&v.kind==='vid';
+  const f=FRAMES.find(z=>z.id===slot);
+  const lb=$('lightbox'),im=$('lbImg'),vd=$('lbVid');
+  if(isVid&&v.data){im.style.display='none';vd.style.display='block';
+    vd.src=URL.createObjectURL(v.data);vd.play().catch(()=>{});}
+  else{vd.style.display='none';im.style.display='block';im.src=(v.data||v);}
+  $('lbMeta').textContent='DAY '+fDay()+' · '+f.n.toUpperCase()+' · '+(i+1)+' OF '+items.length;
+  lb.classList.add('show');
+  const close=()=>{lb.classList.remove('show');
+    if(vd.src){vd.pause();try{URL.revokeObjectURL(vd.src);}catch(e){}vd.removeAttribute('src');}};
+  $('lbClose').onclick=close; lb.onclick=e=>{if(e.target===lb)close();};
+  $('lbSave').onclick=()=>{const a=document.createElement('a');
+    a.href=isVid?URL.createObjectURL(v.data):(v.data||v);
+    a.download='mirror-day'+fDay()+'-'+slot+'-'+(i+1)+(isVid?'.mp4':'.jpg');a.click();};
+  $('lbDel').onclick=async()=>{if(!confirm('Remove this piece?'))return;
+    await frameDelKey(it.key);close();renderFrames();};
+  $('lbShare').onclick=async()=>{try{
+    const blob=isVid?v.data:await (await fetch(v.data||v)).blob();
+    const file=new File([blob],'mirror-day'+fDay()+'-'+slot+(isVid?'.mp4':'.jpg'),
+      {type:isVid?(v.data.type||'video/mp4'):'image/jpeg'});
+    if(navigator.canShare&&navigator.canShare({files:[file]}))
+      await navigator.share({files:[file],text:'Day '+fDay()+' of 90. #MyCaloricMirror'});
+    else $('lbSave').click();
+  }catch(e){}};
 }
+
+async function handleFrameFile(e){
+  const files=[...e.target.files]; e.target.value='';
+  if(!files.length||!frameSlot)return;
+  const d=fDay(); let added=0, vids=0;
+  for(const f of files){
+    try{
+      if(f.type.startsWith('video/')||/\.(mov|mp4|m4v)$/i.test(f.name)){
+        if(f.size>120*1024*1024){fishNote('“'+f.name+'” is over 120MB — trim it and try again.');continue;}
+        let thumb='';
+        try{ thumb=await videoThumb(f)||''; }catch(err){ thumb=''; }   // never block the save
+        await framePut(d,frameSlot,{kind:'vid',data:f,thumb});
+        vids++;added++;
+      } else if(f.type.startsWith('image/')||/\.(jpg|jpeg|png|heic|webp)$/i.test(f.name)){
+        const raw=await new Promise(res=>{const r=new FileReader();
+          r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
+        if(!raw)continue;
+        const small=await shrinkDataUrl(raw,1100,0.78)||raw;
+        await framePut(d,frameSlot,{kind:'img',data:small});
+        added++;
+      }
+    }catch(err){ fishNote('One file wouldn’t save — '+String(err.message||err).slice(0,60)); }
+  }
+  if(!added){fishNote('Nothing saved — that file type isn’t supported. Photos and videos only.');return;}
+  reefBloom=1;grantXP(20*added,'documenting the day');save();
+  await renderFrames();
+  const empty=FRAMES.filter(z=>!(frameCache[z.id]||[]).length);
+  fishSay(added+' piece'+(added>1?'s':'')+' kept'+(vids?' ('+vids+' video'+(vids>1?'s':'')+')':'')+'. '
+    +(empty.length?'Still empty: '+empty.map(z=>z.n).join(', ')+'.'
+      :'🎞 All six slots have something — build the card when you’re ready.'));
+}
+
 
 
 /* ---- the day card: six frames, the numbers, ready to post ---- */
 $('cardBtn').onclick=async()=>{
   const d=fDay();
   const got=await frameGetAll(d);
-  const keys=FRAMES.filter(f=>got[f.id]);
+  const keys=FRAMES.filter(f=>(got[f.id]||[]).length);
   if(!keys.length){fishSay('No frames yet for Day '+d+'. Deposit at least one and the card can build.');return;}
   const W=1080,H=1920;
   const c=document.createElement('canvas');c.width=W;c.height=H;
@@ -2913,7 +3040,7 @@ $('cardBtn').onclick=async()=>{
   let done=0;
   const total=keys.length;
   keys.forEach((f,i)=>{
-    const src=got[f.id].kind==='vid'?got[f.id].thumb:got[f.id].data;
+    const g0=got[f.id][0].val; const src=g0.kind==='vid'?(g0.thumb||''):(g0.data||g0);
     const img=new Image();
     img.onload=()=>{
       const cx=startX+(i%cols)*(cw+pad), cy=startY+Math.floor(i/cols)*(ch+pad);
@@ -2943,12 +3070,14 @@ $('allDlBtn').onclick=async()=>{
   const d=fDay();const got=await frameGetAll(d);
   const ids=Object.keys(got);
   if(!ids.length){fishSay('Nothing to download for Day '+d+' yet.');return;}
-  ids.forEach((id,i)=>setTimeout(()=>{
-    const v=got[id];const a=document.createElement('a');
-    a.href=v.kind==='vid'?URL.createObjectURL(v.data):v.data;
-    a.download='mirror-day'+d+'-'+id+(v.kind==='vid'?'.mp4':'.jpg');a.click();
-  },i*450));
-  fishSay('Sending '+ids.length+' frames to your downloads — take them into CapCut and cut the day however you want.');
+  let n=0;
+  ids.forEach(id=>(got[id]||[]).forEach((it,j)=>{
+    const v=it.val;
+    setTimeout(()=>{const a=document.createElement('a');
+      a.href=v.kind==='vid'?URL.createObjectURL(v.data):(v.data||v);
+      a.download='mirror-day'+d+'-'+id+'-'+(j+1)+(v.kind==='vid'?'.mp4':'.jpg');a.click();},(n++)*450);
+  }));
+  fishSay('Sending your frames to downloads — take them into CapCut and cut the day however you want.');
 };
 
 /* ============ THE JOURNEY VAULT — photos and videos of any day ============ */
@@ -3776,13 +3905,20 @@ function drawRest(){
 }
 $('logSetBtn').onclick=()=>{
   if(!S.session)return;
-  const ex=$('sessEx').value.trim()||'Lift';
+  let ex=$('sessEx').value.trim();
+  if(!ex){ ex=S.lastEx||''; }
+  if(!ex){
+    $('sessBark').textContent='Name the movement first — “bench press”, “squat”, “curl”. The ladders and the body can only wake if I know what you lifted.';
+    try{$('sessEx').focus();}catch(e){}
+    return;
+  }
+  S.lastEx=ex; $('sessEx').value=ex;
   const w=+$('sessW').textContent, r=+$('sessR').textContent;
   const pr=recordSets([{ex,w,r}])||'';
   S.session.sets.push({ex,w,r,t:Date.now()});save();
   restEnd=Date.now()+restDur*1000;
   depositFX(-1,null,'sets');
-  touchStreak();renderForge();renderWeekWork();
+  touchStreak();renderAll();renderForge();renderWeekWork();renderSession();
   const last=lastPerformance(ex);
   const barks=[
     pr||null,
@@ -3791,6 +3927,15 @@ $('logSetBtn').onclick=()=>{
   ].filter(Boolean);
   $('sessBark').textContent=(barks[0]||'Set held. Rest — the ring counts.').replace(/<[^>]+>/g,'');
 };
+function renderSession(){
+  const host=$('sessBark'); if(!host||!S.session)return;
+  const n=S.session.sets.length;
+  if(!n)return;
+  const ton=S.session.sets.reduce((a,s)=>a+s.w*s.r,0);
+  const best=S.session.sets.reduce((a,b)=>(a.w*a.r>b.w*b.r?a:b));
+  const live=$('sessLive');
+  if(live)live.innerHTML='<b>'+n+'</b> set'+(n>1?'s':'')+' · <b>'+fmt(ton)+'</b> lb moved · best '+best.w+'×'+best.r+' · '+best.ex;
+}
 $('sealBtn').onclick=()=>{
   if(!S.session)return;
   const dur=Math.round((Date.now()-S.session.start)/60000);
@@ -4338,9 +4483,11 @@ $('fullResetBtn').onclick=async()=>{
 };
 
 /* ============ BOOT ============ */
+try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); }catch(e){}
 healProfile();sizeCanvas();applySkins();tickDockNum();
 setTimeout(()=>{const days=Object.keys(S.days||{}).length;
-  if(days>=5&&!S.lastBackup)fishSay('⚠ '+days+' days walked and never backed up. Open ⚙ and tap <b>Back up everything</b> — it takes five seconds and saves the whole record.');},9000);
+  const since = S.lastBackup ? Math.floor((new Date(todayKey())-new Date(S.lastBackup))/864e5) : 999;
+  if(days>=3&&since>=7)fishSay('⚠ '+(S.lastBackup?'It has been '+since+' days since your last backup.':days+' days walked and never backed up.')+' Open ⚙ → <b>Back up everything</b> — five seconds protects the whole walk.');},9000);
 if(S.profile&&!bmrSane())setTimeout(()=>fishNote('⚠ My resting-burn math reads '+fmt(bmr())+'/day — that can’t be right. Open ⚙: weight in pounds, height (5′6″ or 66), age in years. Every projection leans on this.'),1800);initRain();if(S.profile&&!S.plan)S.plan=localPlan();renderAll();renderXP();
 (function restoreChat(){
   const feed=$('feed'); if(!feed||!S.chat.length)return;
