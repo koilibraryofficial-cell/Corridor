@@ -691,6 +691,19 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
 .speakbar button:active{transform:scale(.93)}
 body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 
+
+.speakbar .sbatt{
+  flex:0 0 auto;width:38px;height:38px;border-radius:50%;
+  border:1px solid var(--gold-dim);color:var(--gold);font-size:14px;
+  display:flex;align-items:center;justify-content:center;background:rgba(216,180,106,.06);
+}
+.speakbar .sbatt:active{transform:scale(.92)}
+.sbchip{
+  flex:0 0 auto;min-width:22px;height:22px;border-radius:11px;padding:0 6px;
+  background:var(--gold);color:var(--ink);font-family:var(--mono);font-size:11px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;
+}
+
 </style>
 </head>
 <body>
@@ -883,8 +896,11 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 </main>
 
 <div class="speakbar">
-  <input id="speakIn" placeholder="Say anything — it updates the record" autocomplete="off" enterkeyhint="send">
-  <button id="speakGo" aria-label="Speak to the Guardian">✦</button>
+  <button class="sbatt" id="sbCam" aria-label="Snap a picture">◉</button>
+  <button class="sbatt" id="sbFile" aria-label="Attach files">⌫</button>
+  <input id="speakIn" placeholder="Say anything — it updates the record" autocomplete="off" enterkeyhint="enter">
+  <span class="sbchip" id="sbChip" style="display:none">0</span>
+  <button id="speakGo" aria-label="Send to the Guardian">✦</button>
 </div>
 
 <nav>
@@ -948,7 +964,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.14";
+const BUILD = "2026-08-08.15";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1203,6 +1219,16 @@ function nextPayday(){
   }
   // stated income sources with a day of the month
   (fin.deep&&Array.isArray(fin.deep.income)?fin.deep.income:[]).forEach(x=>{
+    if((x.cadence==="weekly"||x.cadence==="biweekly") && x.anchor){
+      const step = x.cadence==="weekly"?7:14;
+      const d=new Date(x.anchor);
+      if(!isNaN(d)){
+        const dd=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+        while(dd<t0) dd.setDate(dd.getDate()+step);
+        cands.push({date:dd,from:x.name||"income"});
+        return;
+      }
+    }
     [x.day,x.day2].forEach(dv=>{
       const dn=parseInt(dv,10); if(!(dn>=1&&dn<=31)) return;
       const d = dn>=t ? new Date(Y,M,Math.min(dn,new Date(Y,M+1,0).getDate()))
@@ -1780,6 +1806,20 @@ function renderPlan(){
   const gs=deep().goals;
   $("listGoals").innerHTML = gs.length ? gs.map(g=>{
     const p=goalPlan(g), pct=Math.min(100,Math.round(((Number(g.saved)||0)/(Number(g.target)||1))*100));
+    /* the Caloric Mirror mechanic: intensity changes the reach date.
+       Feed the whole gap into this goal → when do you land? */
+    const gapNow=deep().income.length?Math.max(0,theGap()):0;
+    let reach="";
+    if(p.need>0 && gapNow>0){
+      const mo=Math.ceil(p.need/gapNow);
+      const rd=new Date(); rd.setMonth(rd.getMonth()+mo);
+      reach = "all of the gap → landed "+rd.toLocaleDateString("en-US",{month:"short",year:"numeric"});
+      if(gapNow/2>0){
+        const mo2=Math.ceil(p.need/(gapNow/2));
+        const rd2=new Date(); rd2.setMonth(rd2.getMonth()+mo2);
+        reach += " · half → "+rd2.toLocaleDateString("en-US",{month:"short",year:"numeric"});
+      }
+    }
     const C=2*Math.PI*14;
     return `<div class="row" data-id="${esc(g.id)}">
       <span class="arc"><svg width="34" height="34" viewBox="0 0 34 34">
@@ -1788,7 +1828,7 @@ function renderPlan(){
           stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/>
       </svg><span class="arcn">${pct}</span></span>
       <div class="body"><div class="name">${esc(g.name)}</div>
-        <div class="when">${p.months?money(p.perMonth)+" a month for "+p.months+" month"+(p.months>1?"s":""):"no date stated — set one and this becomes a plan"}</div></div>
+        <div class="when">${p.months?money(p.perMonth)+" a month makes the date":"no date stated"}${reach?"<br>"+reach:""}</div></div>
       <div class="amt">${money(Number(g.saved)||0)}<small>of ${money(g.target)}</small></div>
       <button class="edit" data-act="eg">›</button></div>`;
   }).join("") : `<div class="empty">Nothing named. A vacation, a buffer, a buyout — a goal with a date and a number stops being a wish and becomes a monthly line.</div>`;
@@ -2854,9 +2894,19 @@ function handsSummary(){
   L.push("INCOME: "+deep().income.map(x=>`${x.name} ${x.amount} ${x.cadence}`).join("; "));
   return L.join("\n");
 }
-async function guardianHands(msg,box){
+async function guardianHands(msg,box,files){
+  const content=[];
+  for(const f of (files||[])){
+    if(f.type==="application/pdf")
+      content.push({type:"document",source:{type:"base64",media_type:"application/pdf",data:await fileToB64(f)}});
+    else
+      content.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:await shrinkImage(f)}});
+  }
+  content.push({type:"text",text:"THE RECORD:\n"+handsSummary()+
+    (files&&files.length?"\n\nThey attached "+files.length+" image"+(files.length===1?"":"s")+" — bank screens, bills, statements. Read the figures exactly as printed. A checking or savings balance matches the asset account with the closest name — propose an update to its balance. Unmatched accounts on screen become add ops. Never invent a number that isn't printed.":"")+
+    "\n\nTHEIR WORDS:\n"+(msg||"Read what I attached and update the record to match it.")});
   const body={model:"claude-sonnet-4-6",max_tokens:900,system:HANDS_SYSTEM,
-    messages:[{role:"user",content:"THE RECORD:\n"+handsSummary()+"\n\nTHEIR WORDS:\n"+msg}]};
+    messages:[{role:"user",content}]};
   let res;
   if(PROXY_URL){
     res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body),redirect:"follow"});
@@ -2975,25 +3025,27 @@ function proposeHands(j,box){
    literally "say anything." */
 async function speak(){
   const q=($("speakIn").value||"").trim();
-  if(!q) return toast("Say something first.");
+  const files=speakAttached.slice();
+  if(!q && !files.length) return toast("Say something, or attach a picture.");
   if(!hasKey()){ openKeyDoor(); return; }
   $("speakIn").value=""; $("speakIn").blur();
+  speakAttached=[]; sbChip();
   openSheet(`<h3>The Guardian</h3><div class="chat" id="speakChat">
-    <div class="msg me"><div class="who">You</div><div class="txt">${esc(q)}</div></div>
+    <div class="msg me"><div class="who">You</div><div class="txt">${esc(q||"(reading what you attached)")}${files.length?` <span style="color:var(--gold-dim)">· ${files.length} attached</span>`:""}</div></div>
     <div class="msg" id="speakWait"><div class="who">The Guardian</div><div class="txt" style="color:var(--quiet)">reading…</div></div>
   </div>`);
   const box=$("speakChat");
   try{
-    const j=await guardianHands(q,box);
+    const j=await guardianHands(q,box,files);
     const wEl=$("speakWait"); if(wEl) wEl.outerHTML="";
     if((j.changes||[]).length || j.unclear){ proposeHands(j,box); }
     else{
       if(j.say) box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt">${esc(j.say)}</div></div>`);
-      ask(q,box);
+      if(q) ask(q,box,files);
     }
   }catch(e){
     const wEl=$("speakWait"); if(wEl) wEl.outerHTML="";
-    ask(q,box);
+    if(q) ask(q,box,files); else box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt" style="color:var(--warn)">Couldn't read that: ${esc(e.message)}</div></div>`);
   }
 }
 
@@ -3177,9 +3229,9 @@ function openIncome(x){
       <div class="hint">If it varies, state the number you can count on — the low one, not the good week.</div></div>
     <div class="field"><label>How often</label>
       <select id="iC">${Object.keys(cads).map(k=>`<option value="${k}" ${s.cadence===k?"selected":""}>${cads[k]}</option>`).join("")}</select></div>
-    <div class="field"><label>Day of the month it lands</label><input id="iD" inputmode="numeric" value="${esc(s.day||"")}" placeholder="15">
-      <div class="hint">Leave blank if it isn't on a fixed day.</div></div>
-    <div class="field"><label>Second day, if twice a month</label><input id="iD2" inputmode="numeric" value="${esc(s.day2||"")}" placeholder="30"></div>
+    <div class="field"><label id="iGridLab">When it lands</label>
+      <div class="daygrid" id="iGrid"></div>
+      <div class="hint" id="iGridHint"></div></div>
     <div class="field"><label>Tax to set aside — %</label><input id="iT" inputmode="decimal" value="${s.taxRate||""}" placeholder="0">
       <div class="hint">If tax isn't already withheld, this carves it off before the app calls it spendable. Money you owe was never yours to spend.</div></div>
     ${Vision.bar("iEdit")}
@@ -3188,15 +3240,55 @@ function openIncome(x){
   Vision.arm("iEdit",{context:"A pay stub or deposit screen.",fields:[
     {id:"name",el:"iN",kind:"string",label:"source name"},
     {id:"amount",el:"iA",kind:"number",label:"net amount each time"},
-    {id:"day",el:"iD",kind:"string",label:"day of month it lands"},
     {id:"taxRate",el:"iT",kind:"number",label:"tax withheld percent"}]});
+  /* Days are TAPPED, never typed — the iOS number pad has no comma, and
+     nobody should need one anyway. Cadence decides what the grid means:
+       weekly / biweekly → tap the day you were LAST paid; the app steps
+                           7 or 14 days from there forever. No dates needed.
+       twice a month     → tap both days.
+       monthly           → tap the day. */
+  const iSel=new Set();
+  if(s.day) iSel.add(parseInt(s.day,10));
+  if(s.day2) iSel.add(parseInt(s.day2,10));
+  if(s.anchor){ const d=new Date(s.anchor); if(!isNaN(d)) iSel.add(d.getDate()); }
+  function iMax(){ const c=$("iC").value; return c==="semimonthly"?2:1; }
+  function iLabel(){
+    const c=$("iC").value;
+    $("iGridLab").textContent = (c==="weekly"||c==="biweekly") ? "Tap the day you were last paid" : (c==="semimonthly"?"Tap both days it lands":"Tap the day it lands");
+    $("iGridHint").textContent = (c==="weekly"||c==="biweekly")
+      ? "That's the anchor — the app steps every "+(c==="weekly"?"7":"14")+" days from it on its own. No dates to manage."
+      : "Tap again to unmark.";
+  }
+  function iPaint(){
+    $("iGrid").innerHTML=Array.from({length:31},(_,i)=>`<button type="button" data-d="${i+1}" class="${iSel.has(i+1)?"on":""}">${i+1}</button>`).join("");
+    $("iGrid").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+      const d=+b.dataset.d;
+      if(iSel.has(d)) iSel.delete(d);
+      else { if(iSel.size>=iMax()) iSel.delete([...iSel][0]); iSel.add(d); }
+      iPaint(); buzz(8);
+    });
+  }
+  $("iC").onchange=()=>{ while(iSel.size>iMax()) iSel.delete([...iSel][0]); iLabel(); iPaint(); };
+  iLabel(); iPaint();
   $("iS").onclick=()=>{
     const nm=($("iN").value||"").trim(); if(!nm) return toast("Name where it comes from.");
     const rec = x || {id:uid()};
     rec.name=nm;
     rec.amount=Number(String($("iA").value||"").replace(/[^0-9.]/g,""))||0;
-    rec.cadence=$("iC").value; rec.day=($("iD").value||"").trim(); rec.day2=($("iD2").value||"").trim();
+    rec.cadence=$("iC").value;
     rec.taxRate=Number(String($("iT").value||"").replace(/[^0-9.]/g,""))||0;
+    const days=[...iSel].sort((a,b)=>a-b);
+    if(rec.cadence==="weekly"||rec.cadence==="biweekly"){
+      rec.day=""; rec.day2="";
+      if(days.length){
+        const now=new Date(); let d=new Date(now.getFullYear(),now.getMonth(),Math.min(days[0],new Date(now.getFullYear(),now.getMonth()+1,0).getDate()));
+        if(d>todayLocal()) d.setMonth(d.getMonth()-1);   // "last paid" can't be in the future
+        rec.anchor=d.toISOString();
+      } else delete rec.anchor;
+    }else{
+      delete rec.anchor;
+      rec.day=days[0]?String(days[0]):""; rec.day2=days[1]?String(days[1]):"";
+    }
     if(!x) deep().income.push(rec);
     closeSheet(); save(true); render();
   };
@@ -3473,12 +3565,26 @@ $("btnRefresh").onclick=()=>{load();render();toast(mode==="realm"?"Read the Real
 $("btnSaveNow").onclick=()=>{if(save())render();};
 $("keyDoor").onclick=openKeyDoor;
 $("speakGo").onclick=speak;
-$("speakIn").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); speak(); } });
+/* NO Enter-to-send. iOS dictation inserts line breaks mid-sentence and each
+   one was firing the send — shipping half-thoughts. Only the ✦ sends. Enter
+   in the field does nothing at all. */
+$("speakIn").addEventListener("keydown",e=>{ if(e.key==="Enter") e.preventDefault(); });
+let speakCollect=false, speakAttached=[];
+function sbChip(){
+  const c=$("sbChip");
+  if(!c) return;
+  c.style.display=speakAttached.length?"flex":"none";
+  c.textContent=speakAttached.length;
+}
+$("sbCam").onclick=()=>{ if(!hasKey())return openKeyDoor(); speakCollect=true; $("camIn").click(); };
+$("sbFile").onclick=()=>{ if(!hasKey())return openKeyDoor(); speakCollect=true; $("docIn").click(); };
 $("btnKeyLedger").onclick=openKeyDoor;
 $("btnReveal").onclick=()=>Reveal.open();
 $("btnRead").onclick=openReading;
 function routeFiles(f){
-  if(!f.length) return;
+  if(!f.length){ speakCollect=false; return; }
+  if(speakCollect){ speakCollect=false; speakAttached.push(...f); sbChip();
+    toast(speakAttached.length+" attached — say what to do with "+(speakAttached.length===1?"it":"them")+", or just send"); return; }
   if(visionPending) Vision.run(f);          // a specific question asked for this
   else if(guardianFiles!==null) attachToGuardian(f);
   else readDocuments(f);                    // the full-statement reader
