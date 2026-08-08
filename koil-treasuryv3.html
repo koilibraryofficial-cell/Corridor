@@ -242,7 +242,13 @@ body::after{ /* grain — keeps the dark from feeling like flat plastic */
   content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-header,main,nav,.sheet,.toast{position:relative;z-index:2}
+/* Lift page content above the grain overlay (z-index 1).
+   ONLY header and main — nav, .sheet, .toast and .scrim are position:fixed
+   with their own z-indexes already well above the grain. Including them here
+   overwrites `position:fixed` with `relative`, which un-pins the nav, drops
+   the sheet inline into every page, and leaves the scrim floating on top of
+   the sheet so every tap inside it just closes the sheet. */
+header,main{position:relative;z-index:2}
 
 /* ── the Guardian ── */
 .lantern{
@@ -360,7 +366,7 @@ nav button.on::before{
 
 /* ── the vessel ── */
 .orb{
-  position:relative;width:154px;height:154px;margin:6px auto 18px;border-radius:50%;
+  position:relative;width:min(196px,54vw);height:min(196px,54vw);margin:6px auto 18px;border-radius:50%;
   background:
     radial-gradient(60% 55% at 38% 30%, rgba(255,236,196,.30), transparent 62%),
     radial-gradient(100% 100% at 50% 50%, #1d1713 0%, #0b0908 72%);
@@ -376,7 +382,7 @@ nav button.on::before{
 }
 @keyframes swirl{to{transform:rotate(360deg)}}
 .orb .oq{
-  position:relative;z-index:2;padding:0 20px;font-size:16.5px;line-height:1.35;
+  position:relative;z-index:2;padding:0 26px;font-size:19px;line-height:1.24;
   color:var(--parchment);text-wrap:balance;text-shadow:0 0 22px rgba(0,0,0,.9);
 }
 .orb.shake{animation:orbShake .62s cubic-bezier(.3,.7,.2,1)}
@@ -618,6 +624,23 @@ h2.sec .tally{flex:0 0 auto}
 .milestone .mtitle{font-size:21px;margin:12px 0 8px}
 .milestone .mbody{font-size:14.5px;color:var(--muted);line-height:1.55}
 
+
+/* ═══ VISION — the camera lives under every question ═══ */
+.visbar{display:flex;align-items:center;gap:8px;margin:2px 0 14px;flex-wrap:wrap}
+.visbtn{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);border:1px solid var(--gold-dim);border-radius:999px;padding:9px 15px;
+  background:linear-gradient(180deg,rgba(216,180,106,.09),rgba(216,180,106,.02));
+}
+.visbtn:active{transform:scale(.97);background:rgba(216,180,106,.16)}
+.vishint{font-family:var(--mono);font-size:10.5px;color:var(--quiet);letter-spacing:.04em;flex:1;min-width:110px}
+input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
+@keyframes fillFlash{
+  0%{border-color:var(--gold);box-shadow:inset 0 2px 6px rgba(0,0,0,.45),0 0 0 4px rgba(216,180,106,.22)}
+  100%{border-color:var(--line);box-shadow:inset 0 2px 6px rgba(0,0,0,.45),0 0 0 0 rgba(216,180,106,0)}
+}
+.rask .visbar{margin-top:10px}
+
 </style>
 </head>
 <body>
@@ -684,12 +707,6 @@ h2.sec .tally{flex:0 0 auto}
     <div class="pocket" id="pocket"></div>
   </div>
 
-  <div class="headline" style="margin-top:14px">
-    <div class="lead">Free to spend, per day, until money lands</div>
-    <div class="big num" id="perDay">—</div>
-    <div class="under" id="perDayU">State what comes in to see this.</div>
-  </div>
-
   <h2 class="sec">The crossing</h2>
   <div id="runway"></div>
 
@@ -712,6 +729,7 @@ h2.sec .tally{flex:0 0 auto}
   <div id="listUn"></div>
 
   <button class="btn solid" onclick="openEditor(null,'debt')">Add a bill</button>
+  <button class="btn" id="btnRead">Read a statement instead</button>
   <div class="note"><b>Swipe a bill right to seal it paid. Swipe left to open it.</b> Or tap the circle. That mark clears itself when the month turns — the list refills the way the month does.</div>
 </section>
 
@@ -786,11 +804,19 @@ h2.sec .tally{flex:0 0 auto}
   <button class="btn solid" id="btnExport">Export the ledger</button>
   <button class="btn" id="btnImport">Import a ledger</button>
   <input type="file" id="fileIn" accept="application/json,.json" style="display:none">
+  <input type="file" id="camIn" accept="image/*" capture="environment" style="display:none">
+  <input type="file" id="docIn" accept="image/*,application/pdf" multiple style="display:none">
 
   <h2 class="sec">The bridge</h2>
   <div id="bridge"></div>
   <button class="btn quiet" id="btnRefresh">Read the Realm again</button>
   <button class="btn quiet" id="btnSaveNow">Write to the Realm now</button>
+
+  <h2 class="sec">This build</h2>
+  <div class="stat" style="padding:4px 14px">
+    <div class="kv"><div class="k">Version</div><div class="v ok" id="buildStamp"></div></div>
+    <div class="kv"><div class="k">Layout</div><div class="v" id="layoutCheck">checking…</div></div>
+  </div>
 
   <h2 class="sec">This app</h2>
   <div class="note">
@@ -861,6 +887,7 @@ h2.sec .tally{flex:0 0 auto}
    the gate disappears for everyone. */
 const PROXY_URL = "";
 
+const BUILD = "2026-08-08.7";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1377,7 +1404,10 @@ function importLedger(text){
     treeSource = tree.length ? "ledger" : "none";
     const incoming = Array.isArray(d.quests)?d.quests.map(q=>Object.assign({},q,{starId:"treasury"})):[];
     quests = quests.filter(q=>!q||q.starId!=="treasury").concat(incoming);
-    closeSheet(); save(); render(); toast("Treasury replaced.");
+    closeSheet(); save(); render();
+    const nA=fin.accounts.length, nQ=quests.filter(q=>q&&q.starId==="treasury").length;
+    milestone("◈","The ledger landed.",
+      nA+" account"+(nA===1?"":"s")+" and "+nQ+" vow"+(nQ===1?"":"s")+" are in the record. Everything else in the Realm was left alone.");
   };
 }
 
@@ -2052,22 +2082,29 @@ const Reveal=(function(){
      four and you still got the four that mattered most. */
   function build(){
     q=[
-      {ask:"What should this treasury call you?", pane:"who", type:"text", ph:"Your name",
+      {ask:"What should I call you?", pane:"who", type:"text", ph:"Your name",
        apply:v=>{ deep().who=v; }},
-      {ask:"What do you hold right now? Cash, checking, everything you could actually reach today.",
-       pane:"hold", type:"money", ph:"0", hint:"One number is fine. You can split it into accounts later.",
+      {ask:"What do you hold?", pane:"hold", type:"money", ph:"0",
+       hint:"Cash, checking — everything you could actually reach today. One number is fine; you can split it into accounts later.",
        apply:v=>{ fin.accounts.push(normalizeAccount({id:uid(),name:"Held",kind:"asset",balance:v})); }},
-      {ask:"Name one thing you owe. The one you think about most.", pane:"debts", type:"debt"},
-      {ask:"Anything else you owe?", pane:"debts", type:"debt", repeat:true},
-      {ask:"What comes in, and how often?", pane:"income", type:"income"},
-      {ask:"What number do you never want to drop below?", pane:"floor", type:"money", ph:"0",
-       hint:"Your floor. The app defends it in every forecast it makes.",
+      {ask:"What do you owe?", pane:"debts", type:"debt", hint:"Start with the one you think about most."},
+      {ask:"Anything else?", pane:"debts", type:"debt", repeat:true},
+      {ask:"What comes in?", pane:"income", type:"income"},
+      {ask:"Your floor?", pane:"floor", type:"money", ph:"0",
+       hint:"The number you never want to drop below. Every forecast defends it.",
        apply:v=>{ fin.bread=Object.assign({},fin.bread||{},{floor:v}); }},
-      {ask:"What are you saving toward?", pane:"goal", type:"goal"}
+      {ask:"Saving toward what?", pane:"goal", type:"goal"}
     ];
     i=0;
   }
 
+  /* No question may ever spill outside the sphere again. */
+  function fitOrb(text){
+    const el=$("orbQ"); if(!el) return;
+    el.textContent=text;
+    const n=text.length;
+    el.style.fontSize = n<=22 ? "21px" : n<=34 ? "18px" : n<=52 ? "15.5px" : "13.5px";
+  }
   function open(){
     build(); paint();
     $("reveal").classList.add("on"); document.body.style.overflow="hidden";
@@ -2081,7 +2118,7 @@ const Reveal=(function(){
   function step(){
     if(i>=q.length) return finish();
     const s=q[i];
-    $("orbQ").textContent=s.ask;
+    fitOrb(s.ask);
     const A=$("rAsk");
     if(s.type==="debt"){
       A.innerHTML=`
@@ -2091,8 +2128,16 @@ const Reveal=(function(){
         <div class="field"><input id="rv4" placeholder="Due date — 28 · 09/11/26 · unknown"></div>
         <div class="field"><input id="rv5" inputmode="decimal" placeholder="Interest rate % — skip if you don't know it"></div>
         <div class="seg" id="rvTier"><button data-t="survival">Survival</button><button data-t="luxury">Chosen</button><button data-t="">Not sure</button></div>
+        ${s.hint?`<div class="hint" style="margin-top:8px">${esc(s.hint)}</div>`:""}
+        ${Vision.bar("rvDebt")}
         <button class="btn solid" id="rvGo" style="margin-top:12px">Light it up</button>
         <button class="rskip" id="rvSkip">${s.repeat?"That's all of them":"Skip this"}</button>`;
+      Vision.arm("rvDebt",{context:"A bill, loan, or credit-card statement.",fields:[
+        {id:"name",el:"rv1",kind:"string",label:"what the bill is called"},
+        {id:"balance",el:"rv2",kind:"number",label:"total balance owed"},
+        {id:"min",el:"rv3",kind:"number",label:"payment due this period"},
+        {id:"due",el:"rv4",kind:"string",label:"due date, exactly as printed"},
+        {id:"apr",el:"rv5",kind:"number",label:"interest rate / APR if printed"}]});
       let tier=null;
       const seg=$("rvTier");
       seg.querySelectorAll("button").forEach(b=>b.onclick=()=>{tier=b.dataset.t||null;
@@ -2120,8 +2165,14 @@ const Reveal=(function(){
           <option value="semimonthly">Twice a month</option><option value="monthly">Every month</option></select></div>
         <div class="field"><input id="rv4" inputmode="numeric" placeholder="Day of month it lands — 15"></div>
         <div class="field"><input id="rv5" inputmode="decimal" placeholder="Tax to set aside % — skip if it's withheld"></div>
+        ${Vision.bar("rvInc")}
         <button class="btn solid" id="rvGo" style="margin-top:12px">Light it up</button>
         <button class="rskip" id="rvSkip">Skip this</button>`;
+      Vision.arm("rvInc",{context:"A pay stub, deposit screen, or invoice.",fields:[
+        {id:"name",el:"rv1",kind:"string",label:"employer or source name"},
+        {id:"amount",el:"rv2",kind:"number",label:"net amount received each time"},
+        {id:"day",el:"rv4",kind:"string",label:"day of month it lands"},
+        {id:"taxRate",el:"rv5",kind:"number",label:"tax withheld as a percent, if shown"}]});
       $("rvGo").onclick=()=>{
         const nm=($("rv1").value||"").trim(); if(!nm) return toast("Name where it comes from.");
         deep().income.push({id:uid(),name:nm,
@@ -2138,8 +2189,13 @@ const Reveal=(function(){
         <div class="field"><input id="rv1" placeholder="What it is — ten days somewhere warm"></div>
         <div class="field"><input id="rv2" inputmode="decimal" placeholder="What it costs"></div>
         <div class="field"><input id="rv3" placeholder="By when — 03/15/27"></div>
+        ${Vision.bar("rvGoal")}
         <button class="btn solid" id="rvGo" style="margin-top:12px">Light it up</button>
         <button class="rskip" id="rvSkip">Skip this</button>`;
+      Vision.arm("rvGoal",{context:"A quote, listing, price page, or booking.",fields:[
+        {id:"name",el:"rv1",kind:"string",label:"what the thing is"},
+        {id:"target",el:"rv2",kind:"number",label:"total cost"},
+        {id:"by",el:"rv3",kind:"string",label:"date it's needed by, as printed"}]});
       $("rvGo").onclick=()=>{
         const nm=($("rv1").value||"").trim(); if(!nm) return toast("Name it first.");
         deep().goals.push({id:uid(),name:nm,
@@ -2154,8 +2210,11 @@ const Reveal=(function(){
     A.innerHTML=`
       <div class="field"><input id="rv1" ${s.type==="money"?'inputmode="decimal"':""} placeholder="${esc(s.ph||"")}">
         ${s.hint?`<div class="hint">${esc(s.hint)}</div>`:""}</div>
+      ${Vision.bar("rvOne")}
       <button class="btn solid" id="rvGo">Light it up</button>
       <button class="rskip" id="rvSkip">Skip this</button>`;
+    Vision.arm("rvOne",{context:s.type==="money"?"A balance screen, receipt, or statement.":"Anything showing a name.",
+      fields:[{id:"value",el:"rv1",kind:s.type==="money"?"number":"string",label:s.ask}]});
     $("rvGo").onclick=()=>{
       const raw=($("rv1").value||"").trim(); if(!raw) return toast("Give it something.");
       s.apply(s.type==="money" ? (Number(raw.replace(/[^0-9.\-]/g,""))||0) : raw);
@@ -2171,7 +2230,7 @@ const Reveal=(function(){
   }
 
   function finish(){
-    $("orbQ").textContent="That's your picture.";
+    fitOrb("That's your picture.");
     const lit=document.querySelectorAll(".pane.lit").length, all=document.querySelectorAll(".pane").length;
     $("rAsk").innerHTML=`<div class="note">
       ${lit===all
@@ -2391,6 +2450,274 @@ function milestone(sig,title,body){
   chime(494,.06); setTimeout(()=>chime(660,.06),150); setTimeout(()=>chime(988,.05),320); setTimeout(()=>chime(1319,.04),520);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   THE READING — photograph a statement, the Guardian reads it
+   Images are compressed, sent once, and NEVER stored. Only the
+   lines you tick get written. Nothing lands unconfirmed.
+   ═══════════════════════════════════════════════════════════ */
+let readProposals=[];
+
+function shrinkImage(file,maxPx){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>rej(new Error("Couldn't read that file."));
+    fr.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>rej(new Error("That image wouldn't open."));
+      img.onload=()=>{
+        const M=maxPx||1568;
+        let {width:w,height:hh}=img;
+        const sc=Math.min(1,M/Math.max(w,hh));
+        w=Math.round(w*sc); hh=Math.round(hh*sc);
+        const cv=document.createElement("canvas"); cv.width=w; cv.height=hh;
+        cv.getContext("2d").drawImage(img,0,0,w,hh);
+        res(cv.toDataURL("image/jpeg",0.82).split(",")[1]);
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+function fileToB64(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>rej(new Error("Couldn't read that file."));
+    fr.onload=()=>res(fr.result.split(",")[1]);
+    fr.readAsDataURL(file);
+  });
+}
+
+const READ_SYSTEM = `You read financial documents — statements, bills, invoices, pay stubs, screenshots — and turn them into structured records.
+
+Return ONLY a JSON object. No preamble, no markdown fences, no commentary.
+
+{
+  "accounts":[{"name":"","kind":"debt|asset","balance":0,"min":0,"due":"","apr":0,"tier":"survival|luxury|null","note":""}],
+  "income":[{"name":"","amount":0,"cadence":"weekly|biweekly|semimonthly|monthly","day":"","taxRate":0}],
+  "unsure":["plain-language note about anything you could not read confidently"]
+}
+
+Rules that matter more than completeness:
+- NEVER invent a number. If a figure is unreadable or absent, omit the field or use 0 and add a line to "unsure".
+- "due" is copied as printed: a day like "28", a date like "09/11/26", or "unknown". Never guess a date.
+- "apr" only if an interest rate is actually printed. Otherwise 0.
+- "tier": "survival" for housing, utilities, transport, insurance, phone, minimum debt payments. "luxury" for subscriptions, entertainment, dining. null when genuinely unclear.
+- "min" is the amount due this period. "balance" is the total owed.
+- A checking or savings balance is kind "asset" with balance set and min 0.
+- If the document shows nothing financial, return empty arrays and say so in "unsure".`;
+
+async function readDocuments(files){
+  const box=$("readOut");
+  box.innerHTML=`<div class="empty">Reading ${files.length} ${files.length===1?"page":"pages"}…</div>`;
+  try{
+    const content=[];
+    for(const f of files){
+      if(f.type==="application/pdf"){
+        content.push({type:"document",source:{type:"base64",media_type:"application/pdf",data:await fileToB64(f)}});
+      }else{
+        content.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:await shrinkImage(f)}});
+      }
+    }
+    content.push({type:"text",text:"Read these and return the JSON object described. Only what is actually printed."});
+
+    const body={model:"claude-sonnet-4-6",max_tokens:1000,system:READ_SYSTEM,messages:[{role:"user",content}]};
+    let res;
+    if(PROXY_URL){
+      res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+                                 body:JSON.stringify(body),redirect:"follow"});
+    }else{
+      res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":localStorage.getItem("koil_api_key")||"",
+                 "anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify(body)});
+    }
+    const data=await res.json();
+    if(!res.ok) throw new Error((data&&data.error&&data.error.message)||("HTTP "+res.status));
+    let txt=(data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("").trim();
+    txt=txt.replace(/^```(?:json)?/i,"").replace(/```$/,"").trim();
+    const j=JSON.parse(txt);
+    proposeFromReading(j);
+  }catch(e){
+    box.innerHTML=`<div class="note" style="border-left-color:var(--warn)">Couldn't read it: ${esc(e.message)}<br><br>Nothing was written. Your record is untouched.</div>`;
+  }
+}
+
+function proposeFromReading(j){
+  readProposals=[];
+  (j.accounts||[]).forEach(a=>readProposals.push({t:"account",v:a,on:true}));
+  (j.income||[]).forEach(x=>readProposals.push({t:"income",v:x,on:true}));
+  const box=$("readOut");
+  if(!readProposals.length){
+    box.innerHTML=`<div class="note">Nothing financial came back from that.${(j.unsure||[]).length?"<br><br>"+esc(j.unsure.join(" ")):""}</div>`;
+    return;
+  }
+  box.innerHTML=`
+    <div class="note"><b>${readProposals.length} line${readProposals.length===1?"":"s"} found.</b> Nothing is in your record yet. Untick anything wrong, then confirm.
+    ${(j.unsure||[]).length?`<br><br><b>Couldn't read clearly:</b> ${esc(j.unsure.join(" "))}`:""}</div>
+    <div id="propList"></div>
+    <button class="btn solid" id="propAdd">Add the ticked lines</button>
+    <button class="btn quiet" id="propNo">Discard all of it</button>`;
+  paintProposals();
+  $("propAdd").onclick=commitProposals;
+  $("propNo").onclick=()=>{ readProposals=[]; $("readOut").innerHTML=`<div class="empty">Discarded. Nothing was written.</div>`; };
+}
+function paintProposals(){
+  $("propList").innerHTML=readProposals.map((p,i)=>{
+    const v=p.v;
+    const line = p.t==="account"
+      ? `${money(v.min||v.balance||0)}${v.min&&v.balance?" of "+money(v.balance):""} · ${esc(v.due||"date not stated")}${v.apr?" · "+v.apr+"%":""} · ${esc(v.tier||"unsorted")}`
+      : `${money(v.amount||0)} ${esc(v.cadence||"monthly")}${v.taxRate?" · "+v.taxRate+"% tax":""}`;
+    return `<div class="row" data-i="${i}">
+      <button class="check" data-act="tog" style="${p.on?"background:var(--gold-dim);border-color:var(--gold-dim);color:var(--ink)":""}">${p.on?"✓":""}</button>
+      <div class="body"><div class="name">${esc(v.name||"Unnamed")}</div><div class="when">${line}</div></div>
+      <div class="amt" style="font-size:11px;color:var(--quiet)">${p.t==="account"?(v.kind==="asset"?"HOLD":"OWED"):"IN"}</div>
+    </div>`;
+  }).join("");
+  $("propList").querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+    const i=+b.closest(".row").dataset.i; readProposals[i].on=!readProposals[i].on; paintProposals();
+  });
+}
+function commitProposals(){
+  const picked=readProposals.filter(p=>p.on);
+  if(!picked.length) return toast("Nothing ticked.");
+  let nA=0,nI=0;
+  picked.forEach(p=>{
+    if(p.t==="account"){
+      const v=p.v;
+      const a=normalizeAccount({id:uid(),name:v.name||"Unnamed",kind:v.kind==="asset"?"asset":"debt",
+        balance:Number(v.balance)||0,min:Number(v.min)||0,due:v.due||"",
+        tier:(v.tier==="survival"||v.tier==="luxury")?v.tier:null,note:v.note||""});
+      fin.accounts.push(a);
+      if(Number(v.apr)>0) deep().apr[a.id]=Number(v.apr);
+      nA++;
+    }else{
+      const v=p.v;
+      deep().income.push({id:uid(),name:v.name||"Income",amount:Number(v.amount)||0,
+        cadence:v.cadence||"monthly",day:v.day||"",day2:"",taxRate:Number(v.taxRate)||0});
+      nI++;
+    }
+  });
+  readProposals=[];
+  save(true); render(); closeSheet();
+  milestone("◈","The page is in the record.",
+    (nA?nA+" account"+(nA===1?"":"s"):"")+(nA&&nI?" and ":"")+(nI?nI+" income source"+(nI===1?"":"s"):"")+
+    " landed. The image itself was never stored — only what you confirmed.");
+}
+
+function openReading(){
+  if(!hasKey()){ openKeyDoor(); return; }
+  openSheet(`
+    <h3>Read a statement</h3>
+    <div class="sub">Photograph a bill, a statement, a pay stub — or pick a PDF. The Guardian reads it and proposes lines. You confirm every one before anything is written.</div>
+    <button class="btn solid" id="rdCam">Take a photo</button>
+    <button class="btn" id="rdFile">Choose files</button>
+    <div id="readOut" style="margin-top:14px"></div>
+    <div class="note">The image is compressed, sent once, and never saved — not to this device, not anywhere. Only the lines you tick are kept.</div>`);
+  $("rdCam").onclick=()=>$("camIn").click();
+  $("rdFile").onclick=()=>$("docIn").click();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VISION — answer anything with a picture
+   Any question in this app can be answered by pointing a camera
+   at it. Bank balance screen, a bill, a pay stub, a price tag,
+   a handwritten note. The Guardian reads it and FILLS THE FORM.
+   It never submits. You always see what it read and can correct
+   every character before it lands.
+   ═══════════════════════════════════════════════════════════ */
+let visionPending=null;
+let guardianFiles=null;   // null = not collecting; array = the Guardian sheet is open
+
+const Vision=(function(){
+  function sysFor(spec){
+    return `You extract specific fields from a photograph or document for a personal finance app.
+
+Return ONLY a JSON object with exactly these keys, nothing else — no prose, no markdown fences:
+${spec.fields.map(f=>`  "${f.id}": ${f.kind==="number"?"number":"string"}   — ${f.label}`).join("\n")}
+
+Absolute rules:
+- NEVER invent a value. If something isn't legibly present, use null for that key.
+- Copy dates exactly as printed ("28", "09/11/26"). If no date is shown, null. Never guess.
+- Numbers as plain numerals, no currency symbols, no commas.
+- Add a key "_note" (string or null) naming anything you could not read.
+${spec.context?"\nContext: "+spec.context:""}`;
+  }
+  async function ask(files,spec){
+    const content=[];
+    for(const f of files){
+      if(f.type==="application/pdf")
+        content.push({type:"document",source:{type:"base64",media_type:"application/pdf",data:await fileToB64(f)}});
+      else
+        content.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:await shrinkImage(f)}});
+    }
+    content.push({type:"text",text:"Extract the fields. Only what is actually shown."});
+    const body={model:"claude-sonnet-4-6",max_tokens:700,system:sysFor(spec),messages:[{role:"user",content}]};
+    let res;
+    if(PROXY_URL){
+      res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+                                 body:JSON.stringify(body),redirect:"follow"});
+    }else{
+      res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":localStorage.getItem("koil_api_key")||"",
+                 "anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify(body)});
+    }
+    const data=await res.json();
+    if(!res.ok) throw new Error((data&&data.error&&data.error.message)||("HTTP "+res.status));
+    let txt=(data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("").trim();
+    txt=txt.replace(/^```(?:json)?/i,"").replace(/```$/,"").trim();
+    return JSON.parse(txt);
+  }
+
+  /* The button that goes under any set of inputs. */
+  function bar(id){
+    return `<div class="visbar">
+      <button class="visbtn" data-vis="cam" data-for="${id}">◉ Snap it</button>
+      <button class="visbtn" data-vis="file" data-for="${id}">⌫ Attach</button>
+      <span class="vishint" id="vh-${id}">or type it below</span>
+    </div>`;
+  }
+  /* spec.fields[].el = the input element id to fill */
+  function arm(id,spec){
+    document.querySelectorAll(`[data-vis][data-for="${id}"]`).forEach(b=>{
+      b.onclick=e=>{
+        e.preventDefault();
+        if(!hasKey()){ toast("The Guardian needs a key to read pictures."); openKeyDoor(); return; }
+        visionPending={spec,hintId:"vh-"+id};
+        $(b.dataset.vis==="cam"?"camIn":"docIn").click();
+      };
+    });
+  }
+  async function run(files){
+    const p=visionPending; if(!p) return;
+    const hint=$(p.hintId);
+    if(hint){ hint.textContent="reading…"; hint.style.color="var(--gold)"; }
+    try{
+      const j=await ask(files,p.spec);
+      let filled=0;
+      p.spec.fields.forEach(f=>{
+        const v=j[f.id];
+        if(v===null||v===undefined||v==="") return;
+        const el=$(f.el); if(!el) return;
+        el.value=String(v); filled++;
+        el.classList.remove("filled"); void el.offsetWidth; el.classList.add("filled");
+        if(f.onFill) f.onFill(String(v));
+      });
+      if(hint){
+        hint.style.color = filled? "var(--held)" : "var(--warn)";
+        hint.textContent = filled
+          ? filled+" field"+(filled===1?"":"s")+" filled — check them"+(j._note?" · "+j._note:"")
+          : "couldn't read that"+(j._note?" — "+j._note:"");
+      }
+      if(filled){ buzz(14); chime(587,.045); }
+    }catch(e){
+      if(hint){ hint.style.color="var(--warn)"; hint.textContent="couldn't read it: "+e.message; }
+    }
+    visionPending=null;
+  }
+  return {bar,arm,run,ask};
+})();
+
 function renderWitness(){
   const tq=quests.filter(q=>q&&q.starId==="treasury");
   $("listVows").innerHTML = tq.length ? tq.map(q=>`
@@ -2421,7 +2748,25 @@ function renderWitness(){
   renderAIGate();
 }
 
+/* Runtime proof that the overlays are pinned. If a stylesheet edit ever
+   un-pins them again, this says so out loud instead of leaving you to
+   discover it by not being able to scroll. */
+function layoutSelfCheck(){
+  const bad=[];
+  [["nav","nav"],[".sheet","sheet"],[".scrim","scrim"]].forEach(([sel,name])=>{
+    const el=document.querySelector(sel);
+    if(el && getComputedStyle(el).position!=="fixed") bad.push(name);
+  });
+  return bad;
+}
 function renderBridge(){
+  const bs=$("buildStamp"); if(bs) bs.textContent=BUILD;
+  const lc=$("layoutCheck");
+  if(lc){
+    const bad=layoutSelfCheck();
+    lc.textContent = bad.length ? "BROKEN — "+bad.join(", ")+" not pinned" : "overlays pinned · ok";
+    lc.className = "v "+(bad.length?"no":"ok");
+  }
   const rows=bridgeLog.map(([k,v,ok])=>`<div class="kv"><div class="k">${esc(k)}</div><div class="v ${ok?"ok":"no"}">${esc(v)}</div></div>`).join("");
   $("bridge").innerHTML=`
     <div class="stat" style="padding:4px 14px">
@@ -2488,9 +2833,20 @@ function openEditor(acct,kindDefault){
       <div class="field"><label>Amount</label><input id="fBal" inputmode="decimal" value="${a.balance||""}" placeholder="0"></div>
     `}
     <div class="field"><label>Note</label><input id="fNote" value="${esc(a.note)}" placeholder="Optional"></div>
+    ${Vision.bar("fEdit")}
     <button class="btn solid" id="fSave">${a.id?"Save":"Add it"}</button>
     ${a.id?`<button class="btn quiet" id="fDel">Remove this from the record</button>`:""}
   `);
+  Vision.arm("fEdit", debt
+    ? {context:"A bill or statement.",fields:[
+        {id:"name",el:"fName",kind:"string",label:"what it's called"},
+        {id:"min",el:"fMin",kind:"number",label:"payment due this period"},
+        {id:"balance",el:"fBal",kind:"number",label:"total owed"},
+        {id:"due",el:"fDue",kind:"string",label:"due date exactly as printed"},
+        {id:"apr",el:"fApr",kind:"number",label:"APR if printed"}]}
+    : {context:"An account balance screen.",fields:[
+        {id:"name",el:"fName",kind:"string",label:"account name"},
+        {id:"balance",el:"fBal",kind:"number",label:"current balance"}]});
   const seg=$("segTier");
   if(seg){
     const mark=()=>seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.t||null)===(editTier||null)||(b.dataset.t===""&&!editTier)));
@@ -2542,8 +2898,14 @@ function openIncome(x){
     <div class="field"><label>Second day, if twice a month</label><input id="iD2" inputmode="numeric" value="${esc(s.day2||"")}" placeholder="30"></div>
     <div class="field"><label>Tax to set aside — %</label><input id="iT" inputmode="decimal" value="${s.taxRate||""}" placeholder="0">
       <div class="hint">If tax isn't already withheld, this carves it off before the app calls it spendable. Money you owe was never yours to spend.</div></div>
+    ${Vision.bar("iEdit")}
     <button class="btn solid" id="iS">${x?"Save":"Add it"}</button>
     ${x?`<button class="btn quiet" id="iX">Remove it</button>`:""}`);
+  Vision.arm("iEdit",{context:"A pay stub or deposit screen.",fields:[
+    {id:"name",el:"iN",kind:"string",label:"source name"},
+    {id:"amount",el:"iA",kind:"number",label:"net amount each time"},
+    {id:"day",el:"iD",kind:"string",label:"day of month it lands"},
+    {id:"taxRate",el:"iT",kind:"number",label:"tax withheld percent"}]});
   $("iS").onclick=()=>{
     const nm=($("iN").value||"").trim(); if(!nm) return toast("Name where it comes from.");
     const rec = x || {id:uid()};
@@ -2568,8 +2930,13 @@ function openGoal(g){
     <div class="field"><label>By when</label><input id="gB" value="${esc(s.by)}" placeholder="03/15/27 · end of month">
       <div class="hint">No date, no plan — just a number sitting there.</div></div>
     <div class="field"><label>Already set aside</label><input id="gS" inputmode="decimal" value="${s.saved||""}" placeholder="0"></div>
+    ${Vision.bar("gEdit")}
     <button class="btn solid" id="gSv">${g?"Save":"Name it"}</button>
     ${g?`<button class="btn quiet" id="gX">Let it go</button>`:""}`);
+  Vision.arm("gEdit",{context:"A price, quote, or listing.",fields:[
+    {id:"name",el:"gN",kind:"string",label:"what it is"},
+    {id:"target",el:"gT",kind:"number",label:"total cost"},
+    {id:"by",el:"gB",kind:"string",label:"date needed by"}]});
   $("gSv").onclick=()=>{
     const nm=($("gN").value||"").trim(); if(!nm) return toast("Name it first.");
     const rec = g || {id:uid()};
@@ -2640,7 +3007,12 @@ function openGuardian(){
   openSheet(`
     <h3>The Guardian</h3>
     <div class="sub">${esc(L.why)}</div>
-    <div class="field"><textarea id="gq" rows="3" placeholder="Ask about your own numbers."></textarea></div>
+    <div class="field"><textarea id="gq" rows="3" placeholder="Ask anything. Point the camera at it if that's easier."></textarea></div>
+    <div class="visbar">
+      <button class="visbtn" id="gCam">◉ Snap it</button>
+      <button class="visbtn" id="gFile">⌫ Attach</button>
+      <span class="vishint" id="gAtt">nothing attached</span>
+    </div>
     <div class="seg" style="grid-template-columns:1fr 1fr">
       <button data-q="What should I pay first this month, and why that order?">Pay order</button>
       <button data-q="Walk me through my gap. Where is the money actually going?">Where it goes</button>
@@ -2648,17 +3020,35 @@ function openGuardian(){
       <button data-q="What is the single smallest thing I could do this week that would change my numbers most?">One move</button>
     </div>
     <button class="btn solid" id="gAsk" style="margin-top:14px">Ask</button>
+    <button class="btn" id="gRead">Read a statement</button>
     <div class="chat" id="chat2"></div>`);
   document.querySelectorAll('.sheet .seg button[data-q]').forEach(b=>b.onclick=()=>{ $("gq").value=b.dataset.q; });
+  guardianFiles=[];
+  $("gCam").onclick=()=>{ if(!hasKey())return openKeyDoor(); $("camIn").click(); };
+  $("gFile").onclick=()=>{ if(!hasKey())return openKeyDoor(); $("docIn").click(); };
+  $("gRead").onclick=openReading;
   $("gAsk").onclick=()=>{
-    const q=($("gq").value||"").trim(); if(!q) return toast("Ask it something.");
-    $("gq").value=""; ask(q,$("chat2"));
+    const q=($("gq").value||"").trim();
+    const f=guardianFiles||[];
+    if(!q && !f.length) return toast("Ask it something, or attach a picture.");
+    $("gq").value="";
+    ask(q||"What am I looking at, and what does it mean for my numbers?",$("chat2"),f);
+    guardianFiles=[]; const a=$("gAtt"); if(a){a.textContent="nothing attached";a.style.color="";}
   };
 }
 
 /* ═══════════ SHEET PLUMBING ═══════════ */
 function openSheet(html){ $("sheetBody").innerHTML=html; $("scrim").classList.add("on"); requestAnimationFrame(()=>$("sheet").classList.add("on")); }
-function closeSheet(){ $("sheet").classList.remove("on"); setTimeout(()=>$("scrim").classList.remove("on"),240); }
+function attachToGuardian(files){
+  guardianFiles=(guardianFiles||[]).concat(files);
+  const a=$("gAtt");
+  if(a){ a.style.color="var(--held)";
+    a.textContent=guardianFiles.length+" attached — ask your question"; }
+  buzz(12);
+}
+function closeSheet(){
+  guardianFiles=null; visionPending=null;
+  document.body.style.overflow=""; $("sheet").classList.remove("on"); setTimeout(()=>$("scrim").classList.remove("on"),240); }
 $("scrim").onclick=closeSheet;
 
 /* ═══════════ THE ACCOUNTANT ═══════════ */
@@ -2719,14 +3109,24 @@ How you speak:
 - No legal or tax advice either. Plain arithmetic and the right questions to ask, nothing more.
 - Bills are averaged per month even when they land yearly. Say so when it matters, so a quarterly bill never ambushes them.
 - End with at most one concrete next move, and make it small enough to finish today.`;
-async function ask(q,box){
+async function ask(q,box,files){
   box = box || $("chat");
   box.insertAdjacentHTML("beforeend",`<div class="msg me"><div class="who">You</div><div class="txt">${esc(q)}</div></div>`);
   const id="m"+uid();
   box.insertAdjacentHTML("beforeend",`<div class="msg" id="${id}"><div class="who">The Guardian</div><div class="txt" style="color:var(--quiet)">reading the record…</div></div>`);
   box.lastElementChild.scrollIntoView({block:"nearest",behavior:"smooth"});
+  const content=[];
+  for(const f of (files||[])){
+    if(f.type==="application/pdf")
+      content.push({type:"document",source:{type:"base64",media_type:"application/pdf",data:await fileToB64(f)}});
+    else
+      content.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:await shrinkImage(f)}});
+  }
+  content.push({type:"text",text:"THE RECORD AS STATED:\n"+ledgerSummary()+
+    (files&&files.length?"\n\nThey also attached "+files.length+" image"+(files.length===1?"":"s")+". Read them as part of the question. Never invent anything they don't show.":"")+
+    "\n\nTHEIR QUESTION:\n"+q});
   const body={model:"claude-sonnet-4-6",max_tokens:1000,system:SYSTEM,
-    messages:[{role:"user",content:"THE RECORD AS STATED:\n"+ledgerSummary()+"\n\nTHEIR QUESTION:\n"+q}]};
+    messages:[{role:"user",content}]};
   try{
     let res;
     if(PROXY_URL){
@@ -2767,6 +3167,15 @@ $("btnRefresh").onclick=()=>{load();render();toast(mode==="realm"?"Read the Real
 $("btnSaveNow").onclick=()=>{if(save())render();};
 $("keyDoor").onclick=openKeyDoor;
 $("btnReveal").onclick=()=>Reveal.open();
+$("btnRead").onclick=openReading;
+function routeFiles(f){
+  if(!f.length) return;
+  if(visionPending) Vision.run(f);          // a specific question asked for this
+  else if(guardianFiles!==null) attachToGuardian(f);
+  else readDocuments(f);                    // the full-statement reader
+}
+$("camIn").onchange=e=>{const f=[...e.target.files];e.target.value="";routeFiles(f);};
+$("docIn").onchange=e=>{const f=[...e.target.files];e.target.value="";routeFiles(f);};
 $("lantern").addEventListener("pointerdown",vesselTouched);
 $("lantern").onclick=openGuardian;
 $("vWake").onclick=e=>{e.stopPropagation();openKeyDoor();};
@@ -2826,12 +3235,14 @@ $("btnAsk").onclick=()=>{
 /* the month can turn while the app sits open */
 let watchMonth=currentMonth();
 setInterval(()=>{ if(currentMonth()!==watchMonth){ watchMonth=currentMonth(); render(); toast("New month. The paid marks cleared."); } }, 60000);
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ load(); render();
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ document.body.style.overflow="";   // nothing may inherit a scroll lock across a reload
+load(); render();
 Lamp.start();
 // first run: nothing stated at all — open the Reveal instead of an empty room
 if(!fin.accounts.length && !deep().income.length) setTimeout(()=>Reveal.open(),420); Lamp.set(treasuryLight().v);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) Lamp.fit(); }); } });
 
+document.body.style.overflow="";   // nothing may inherit a scroll lock across a reload
 load(); render();
 Lamp.start();
 // first run: nothing stated at all — open the Reveal instead of an empty room
