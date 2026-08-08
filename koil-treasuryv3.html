@@ -704,6 +704,16 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
   display:flex;align-items:center;justify-content:center;
 }
 
+
+.sheetX{
+  position:absolute;top:14px;right:16px;z-index:5;
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--line);
+  color:var(--muted);font-size:18px;line-height:1;background:rgba(255,255,255,.03);
+  display:flex;align-items:center;justify-content:center;
+}
+.sheetX:active{transform:scale(.92)}
+.sheet .grabber{cursor:pointer;padding:8px 40px;margin:-8px auto 6px;box-sizing:content-box}
+
 </style>
 </head>
 <body>
@@ -801,6 +811,8 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
   <h2 class="sec">What you hold <span class="tally num" id="tHold"></span></h2>
   <div id="listHold"></div>
   <button class="btn solid" onclick="openEditor(null,'asset')">Add what you hold</button>
+  <button class="btn" id="btnReconcile">Reconcile from a photo</button>
+  <div class="note">Photograph your bank's account list. Every balance on screen is proposed against this list — matched by the last four digits — and nothing changes until you seal it. Accounts in your record that aren't on the screen are left alone and named, so you decide.</div>
 
   <h2 class="sec">Marked for the cull</h2>
   <div id="listCull"></div>
@@ -940,7 +952,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 </div></div>
 
 <div class="scrim" id="scrim"></div>
-<div class="sheet" id="sheet"><div class="grabber"></div><div id="sheetBody"></div></div>
+<div class="sheet" id="sheet"><div class="grabber" onclick="closeSheet()"></div><div id="sheetBody"></div></div>
 <div class="milestone" id="milestone"><div class="mcard">
   <div class="msig" id="mSig">◈</div><div class="mtitle" id="mTitle"></div><div class="mbody" id="mBody"></div>
   <button class="btn solid" id="mOk" style="margin-top:20px">Carry on</button>
@@ -964,7 +976,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.15";
+const BUILD = "2026-08-08.17";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -2884,7 +2896,15 @@ Rules:
 - "due" is stated as they said it: a day like "27", a date, or "unknown". Never invent one.
 - Never invent amounts. If they say "went up" without a number, ask via "unclear".
 - "remove" only when they clearly ask to delete/remove; paying off is "update" balance 0, not remove.
-- Empty changes array + "say" is fine when they're only asking a question.`;
+- Empty changes array + "say" is fine when they're only asking a question.
+
+READING A BANK / ACCOUNT SCREEN — this is the most common job:
+- Every account visible on screen becomes ONE change. No exceptions, no summarising.
+- Match to a record account by the last 4 digits first ("360 Checking ...0904" matches a record account whose name contains 0904), then by name similarity. Matched → {"op":"update","id":...,"fields":{"balance":<exact figure>}}.
+- Visible on screen but NOT in the record → {"op":"add","account":{"name":"<as printed, keep the digits>","kind":"asset","balance":<figure>,"min":0,"due":"","tier":null}}.
+- An asset IN the record but NOT on screen: do NOT change it and do NOT remove it — you cannot know it from this picture. Instead name it in "say" so they can decide, e.g. "Three accounts in your record weren't on this screen: X, Y, Z."
+- Use "Available balance" when both available and current are shown.
+- NEVER narrate, tabulate, or compare. Propose the changes. The list of changes IS the answer.`;
 
 let handsProposal=null;
 function handsSummary(){
@@ -3023,13 +3043,16 @@ function proposeHands(j,box){
    in a sheet; your tap seals. Questions fall through to the Guardian's
    voice in the same sheet. iOS dictation on the keyboard makes this
    literally "say anything." */
+let speakBusy=false;
 async function speak(){
+  if(speakBusy) return;
   const q=($("speakIn").value||"").trim();
   const files=speakAttached.slice();
   if(!q && !files.length) return toast("Say something, or attach a picture.");
   if(!hasKey()){ openKeyDoor(); return; }
   $("speakIn").value=""; $("speakIn").blur();
   speakAttached=[]; sbChip();
+  speakBusy=true; setTimeout(()=>{speakBusy=false;},1200);
   openSheet(`<h3>The Guardian</h3><div class="chat" id="speakChat">
     <div class="msg me"><div class="who">You</div><div class="txt">${esc(q||"(reading what you attached)")}${files.length?` <span style="color:var(--gold-dim)">· ${files.length} attached</span>`:""}</div></div>
     <div class="msg" id="speakWait"><div class="who">The Guardian</div><div class="txt" style="color:var(--quiet)">reading…</div></div>
@@ -3049,6 +3072,19 @@ async function speak(){
   }
 }
 
+/* The model is told plain-text-only; this is the net for what slips
+   through anyway. Strips markdown into readable lines. */
+function plainSpeech(t){
+  return String(t||"")
+    .replace(/^#{1,6}\s*/gm,"")
+    .replace(/\*\*([^*]+)\*\*/g,"$1")
+    .replace(/\*([^*\n]+)\*/g,"$1")
+    .replace(/^\s*\|?[-:\s|]+\|?\s*$/gm,"")
+    .replace(/^\s*\|/gm,"").replace(/\|\s*$/gm,"")
+    .replace(/\s*\|\s*/g,"  ·  ")
+    .replace(/^`{3}.*$/gm,"")
+    .replace(/\n{3,}/g,"\n\n").trim();
+}
 function renderWitness(){
   const tq=quests.filter(q=>q&&q.starId==="treasury");
   $("listVows").innerHTML = tq.length ? tq.map(q=>`
@@ -3436,7 +3472,11 @@ function openGuardian(){
 }
 
 /* ═══════════ SHEET PLUMBING ═══════════ */
-function openSheet(html){ $("sheetBody").innerHTML=html; $("scrim").classList.add("on"); requestAnimationFrame(()=>$("sheet").classList.add("on")); }
+function openSheet(html){
+  $("sheetBody").innerHTML=`<button class="sheetX" onclick="closeSheet()" aria-label="Close">×</button>`+html;
+  $("scrim").classList.add("on");
+  requestAnimationFrame(()=>$("sheet").classList.add("on"));
+}
 function attachToGuardian(files){
   guardianFiles=(guardianFiles||[]).concat(files);
   const a=$("gAtt");
@@ -3506,7 +3546,8 @@ How you speak:
 - NEVER name a specific investment, fund, ticker, crypto, account provider, or asset to buy. Not once, not "for example," not if they insist. You are not licensed and an app that tells someone what to own is the thing they should walk away from. Say that plainly, then give the arithmetic instead: a debt at X% APR returns X% guaranteed when killed, and nothing bought is guaranteed to beat it. Hand them their own surplus number to take to a licensed human.
 - No legal or tax advice either. Plain arithmetic and the right questions to ask, nothing more.
 - Bills are averaged per month even when they land yearly. Say so when it matters, so a quarterly bill never ambushes them.
-- End with at most one concrete next move, and make it small enough to finish today.`;
+- End with at most one concrete next move, and make it small enough to finish today.
+- PLAIN TEXT ONLY. Never markdown: no #, no ##, no **, no bullet syntax, no pipe tables. This renders in a plain chat bubble — markdown shows as garbage symbols. Numbers in short labeled lines, like "Checking 0904: $182.16".`;
 async function ask(q,box,files){
   box = box || $("chat");
   box.insertAdjacentHTML("beforeend",`<div class="msg me"><div class="who">You</div><div class="txt">${esc(q)}</div></div>`);
@@ -3542,7 +3583,7 @@ async function ask(q,box,files){
     }
     const data=await res.json();
     if(!res.ok) throw new Error((data&&data.error&&data.error.message)||("HTTP "+res.status));
-    const txt=(data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("\n").trim();
+    const txt=plainSpeech((data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("\n"));
     $(id).querySelector(".txt").outerHTML=`<div class="txt">${esc(txt||"No answer came back.")}</div>`;
   }catch(e){
     $(id).querySelector(".txt").outerHTML=`<div class="txt" style="color:var(--warn)">Couldn't reach the Guardian: ${esc(e.message)}. The record is untouched — everything on the other pages still works.</div>`;
@@ -3569,7 +3610,7 @@ $("speakGo").onclick=speak;
    one was firing the send — shipping half-thoughts. Only the ✦ sends. Enter
    in the field does nothing at all. */
 $("speakIn").addEventListener("keydown",e=>{ if(e.key==="Enter") e.preventDefault(); });
-let speakCollect=false, speakAttached=[];
+let speakCollect=false, speakAttached=[], speakPreset=null;
 function sbChip(){
   const c=$("sbChip");
   if(!c) return;
@@ -3577,14 +3618,24 @@ function sbChip(){
   c.textContent=speakAttached.length;
 }
 $("sbCam").onclick=()=>{ if(!hasKey())return openKeyDoor(); speakCollect=true; $("camIn").click(); };
+$("btnReconcile").onclick=()=>{
+  if(!hasKey()) return openKeyDoor();
+  speakCollect=true;
+  speakPreset="Update every balance in my record to match this bank screen. Match by the last four digits.";
+  $("docIn").click();
+};
 $("sbFile").onclick=()=>{ if(!hasKey())return openKeyDoor(); speakCollect=true; $("docIn").click(); };
 $("btnKeyLedger").onclick=openKeyDoor;
 $("btnReveal").onclick=()=>Reveal.open();
 $("btnRead").onclick=openReading;
 function routeFiles(f){
   if(!f.length){ speakCollect=false; return; }
-  if(speakCollect){ speakCollect=false; speakAttached.push(...f); sbChip();
-    toast(speakAttached.length+" attached — say what to do with "+(speakAttached.length===1?"it":"them")+", or just send"); return; }
+  if(speakCollect){
+    speakCollect=false; speakAttached.push(...f); sbChip();
+    if(speakPreset){ const m=speakPreset; speakPreset=null; $("speakIn").value=m; speak(); return; }
+    toast(speakAttached.length+" attached — say what to do with "+(speakAttached.length===1?"it":"them")+", or just send");
+    return;
+  }
   if(visionPending) Vision.run(f);          // a specific question asked for this
   else if(guardianFiles!==null) attachToGuardian(f);
   else readDocuments(f);                    // the full-statement reader
