@@ -916,7 +916,7 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.11";
+const BUILD = "2026-08-08.12";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1128,9 +1128,9 @@ function runway(){
   const np=nextPayday(); if(!np) return null;
   const floor=Number(fin.bread&&fin.bread.floor)||0;
   let bal=heldTotal(); const line=[]; let breaks=null;
-  const bills=unpaidBills().filter(a=>{const p=parseDue(a.due);return p.ok&&dueThisMonth(a);});
+  const bills=unpaidBills().filter(a=>{const p=parseDueFor(a);return p.ok&&dueThisMonth(a);});
   for(let d=new Date(todayLocal()); d<=np.date; d.setDate(d.getDate()+1)){
-    const hit=bills.filter(a=>{const p=parseDue(a.due);return p.date.getTime()===d.getTime();});
+    const hit=bills.filter(a=>{const p=parseDueFor(a);return p.date.getTime()===d.getTime();});
     hit.forEach(a=>bal-=amountDue(a));
     line.push({date:new Date(d), bal, hit:hit.map(a=>a.name)});
     if(breaks===null && bal<floor) breaks={date:new Date(d), bal, cause:hit.map(a=>a.name).join(", ")};
@@ -1465,8 +1465,22 @@ function render(){
   const kd=$("keyDoor"); if(kd) kd.classList.toggle("lit",hasKey());
 }
 
+/* A monthly bill whose stated full date has passed is not "past due"
+   forever — it recurs. Roll it to the same day in the current cycle.
+   Quarterly/yearly/once keep their literal date: those really do land
+   on the day printed. Witness Law is not violated — the DAY is exactly
+   what was stated; only the month advances, because "monthly" was
+   stated too. */
+function parseDueFor(a){
+  const p=parseDue(a.due);
+  const cad=cadenceOf(a);
+  if(!p.ok || !(cad==="monthly"||cad==="weekly"||cad==="biweekly")) return p;
+  if(p.days>=-1) return p;                    // today/yesterday still shows as due
+  const day=p.date.getDate();
+  return parseDue(String(day));               // roll to this month's same day
+}
 function rowHTML(a){
-  const p=parseDue(a.due), paid=isPaid(a), debt=isDebt(a);
+  const p=parseDueFor(a), paid=isPaid(a), debt=isDebt(a);
   const cadLbl = debt && cadenceOf(a)!=="monthly" ? " · "+CADENCE[cadenceOf(a)].label.toLowerCase() : "";
   const when = debt
     ? `<div class="when ${p.cls}">${paid?"paid this month":esc(p.label)+cadLbl}</div>`
@@ -1513,7 +1527,7 @@ function sortDue(list){
   return list.slice().sort((x,y)=>{
     const px=isPaid(x)?1:0, py=isPaid(y)?1:0;
     if(px!==py) return px-py;
-    const a=parseDue(x.due), b=parseDue(y.due);
+    const a=parseDueFor(x), b=parseDueFor(y);
     if(a.ok&&!b.ok) return -1; if(!a.ok&&b.ok) return 1;
     if(!a.ok&&!b.ok) return String(x.name).localeCompare(y.name);
     if(a.days!==b.days) return a.days-b.days;
@@ -1529,8 +1543,8 @@ function renderToday(){
 
   const un=unpaidBills();
   const un2=un.filter(dueThisMonth);
-  const dueToday=un2.filter(a=>{const p=parseDue(a.due);return p.ok&&p.days<=0;});
-  const due7=un2.filter(a=>{const p=parseDue(a.due);return p.ok&&p.days>0&&p.days<=7;});
+  const dueToday=un2.filter(a=>{const p=parseDueFor(a);return p.ok&&p.days<=0;});
+  const due7=un2.filter(a=>{const p=parseDueFor(a);return p.ok&&p.days>0&&p.days<=7;});
   tick($("sToday"),dueToday.reduce((s,a)=>s+amountDue(a),0));
   tick($("s7"),due7.reduce((s,a)=>s+amountDue(a),0));
   tick($("sOwed"),owed);
@@ -1540,7 +1554,7 @@ function renderToday(){
   const now=new Date(), Y=now.getFullYear(), M=now.getMonth(), last=new Date(Y,M+1,0).getDate(), t=now.getDate();
   const byDay={}; let unstated=0, unstatedAmt=0;
   fin.accounts.filter(isDebt).forEach(a=>{
-    const p=parseDue(a.due);
+    const p=parseDueFor(a);
     if(!p.ok){ unstated++; unstatedAmt+=amountDue(a); return; }
     if(!p.inMonth) return;
     (byDay[p.date.getDate()] = byDay[p.date.getDate()]||[]).push(a);
@@ -1599,7 +1613,7 @@ function renderToday(){
   $("nwBig").style.color = nw<0 ? "var(--warn)" : "var(--held)";
   recordNet(); drawSpark();
 
-  const standing=sortDue(un2.filter(a=>{const p=parseDue(a.due);return !p.ok||p.days<=7;}));
+  const standing=sortDue(un2.filter(a=>{const p=parseDueFor(a);return !p.ok||p.days<=7;}));
   const nDeb=fin.accounts.filter(isDebt).length;
   paint($("todayList"), standing, nDeb ? "Nothing standing in the next seven days." : "Add a bill on the Bills page and it shows up here.");
 
@@ -1761,7 +1775,7 @@ function treasuryLight(){
   const net=netMonthly(), gap=hasIncome?theGap():null;
   const rw=runway(), ds=dailySpendable(), bleed=bleedPerMonth();
   const debts=fin.accounts.filter(isDebt).length;
-  const dated=fin.accounts.filter(a=>isDebt(a)&&parseDue(a.due).ok).length;
+  const dated=fin.accounts.filter(a=>isDebt(a)&&parseDueFor(a).ok).length;
   const ord=killOrder(), rated=ord.filter(d=>d.apr>0).length;
 
   /* HYGIENE (max .28) — light for what you've faced, not for showing up.
@@ -2766,6 +2780,162 @@ ${spec.context?"\nContext: "+spec.context:""}`;
   return {bar,arm,run,ask};
 })();
 
+/* ═══════════════════════════════════════════════════════════
+   THE GUARDIAN'S HANDS
+   Say anything — "Capital One is due the 27th", "mark T-Mobile
+   paid", "GEICO went up to 600", "add a Netflix bill, 18 bucks,
+   the 5th, chosen" — and the Guardian proposes the exact change.
+   NOTHING is written until you tap Seal it. The AI proposes;
+   only your hand moves the record. That line never moves.
+   ═══════════════════════════════════════════════════════════ */
+const HANDS_SYSTEM = `You translate a person's plain words into changes to their financial record. You will receive their current record and their message.
+
+Return ONLY a JSON object, no fences, no prose:
+{
+ "changes":[
+   {"op":"update","id":"<account id from the record>","fields":{...}} |
+   {"op":"pay","id":"<account id>"} |
+   {"op":"unpay","id":"<account id>"} |
+   {"op":"add","account":{"name":"","kind":"debt|asset","balance":0,"min":0,"due":"","tier":"survival|luxury|null","apr":0}} |
+   {"op":"remove","id":"<account id>"} |
+   {"op":"floor","value":0} |
+   {"op":"income_add","income":{"name":"","amount":0,"cadence":"weekly|biweekly|semimonthly|monthly","day":"","taxRate":0}} |
+   {"op":"vow","text":"","when":""}
+ ],
+ "say":"one short plain sentence describing what you understood",
+ "unclear":"null, or one short question if their intent is genuinely ambiguous"
+}
+
+Rules:
+- Match accounts by the ids given in the record. Fuzzy-match names ("capital one", "the jeep", "my phone bill") to the closest account; if two match equally, ask via "unclear" instead of guessing.
+- updatable fields: name, balance, min, due, tier ("survival"|"luxury"|null), apr, note, cull.
+- "due" is stated as they said it: a day like "27", a date, or "unknown". Never invent one.
+- Never invent amounts. If they say "went up" without a number, ask via "unclear".
+- "remove" only when they clearly ask to delete/remove; paying off is "update" balance 0, not remove.
+- Empty changes array + "say" is fine when they're only asking a question.`;
+
+let handsProposal=null;
+function handsSummary(){
+  const L=["ACCOUNTS (id | name | kind | balance | pay-now | due | tier | apr | paid?):"];
+  fin.accounts.forEach(a=>L.push(`${a.id} | ${a.name} | ${a.kind} | ${a.balance} | ${a.min} | ${a.due||"?"} | ${tierOf(a)||"-"} | ${aprOf(a)||0} | ${isPaid(a)?"paid":"unpaid"}`));
+  L.push("FLOOR: "+(Number(fin.bread&&fin.bread.floor)||0));
+  L.push("INCOME: "+deep().income.map(x=>`${x.name} ${x.amount} ${x.cadence}`).join("; "));
+  return L.join("\n");
+}
+async function guardianHands(msg,box){
+  const body={model:"claude-sonnet-4-6",max_tokens:900,system:HANDS_SYSTEM,
+    messages:[{role:"user",content:"THE RECORD:\n"+handsSummary()+"\n\nTHEIR WORDS:\n"+msg}]};
+  let res;
+  if(PROXY_URL){
+    res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body),redirect:"follow"});
+  }else{
+    res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":localStorage.getItem("koil_api_key")||"",
+               "anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify(body)});
+  }
+  const data=await res.json();
+  if(!res.ok) throw new Error((data&&data.error&&data.error.message)||("HTTP "+res.status));
+  let txt=(data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("").trim()
+    .replace(/^```(?:json)?/i,"").replace(/```$/,"").trim();
+  return JSON.parse(txt);
+}
+function describeChange(c){
+  const acct=id=>fin.accounts.find(a=>a.id===id);
+  switch(c.op){
+    case "pay":   { const a=acct(c.id); return a?["✓","Mark "+a.name+" paid this month"]:null; }
+    case "unpay": { const a=acct(c.id); return a?["○","Unmark "+a.name+" — back to unpaid"]:null; }
+    case "remove":{ const a=acct(c.id); return a?["×","Remove "+a.name+" from the record"]:null; }
+    case "floor":   return ["◆","Set the floor to "+money(c.value)];
+    case "add":     return ["+","Add "+(c.account.kind==="asset"?"asset":"bill")+" "+c.account.name+
+                      (c.account.min?" · "+money(c.account.min):"")+(c.account.due?" · due "+c.account.due:"")];
+    case "income_add": return ["↓","Add income "+c.income.name+" · "+money(c.income.amount)+" "+(c.income.cadence||"monthly")];
+    case "vow":     return ["✦","Speak a vow: "+c.text];
+    case "update":{
+      const a=acct(c.id); if(!a) return null;
+      const bits=Object.entries(c.fields||{}).map(([k,v])=>
+        k==="balance"?"balance → "+money(v): k==="min"?"payment → "+money(v):
+        k==="due"?"due → "+v: k==="apr"?"rate → "+v+"%": k==="tier"?"tier → "+(v||"unsorted"): k+" → "+v);
+      return ["✎",a.name+": "+bits.join(", ")];
+    }
+  }
+  return null;
+}
+function applyChange(c){
+  const acct=id=>fin.accounts.find(a=>a.id===id);
+  switch(c.op){
+    case "pay":   { const a=acct(c.id); if(a) a.paidMonth=currentMonth(); break; }
+    case "unpay": { const a=acct(c.id); if(a) a.paidMonth=""; break; }
+    case "remove":{ const D=deep(); delete D.apr[c.id]; delete D.cadence[c.id];
+                    fin.accounts=fin.accounts.filter(a=>a.id!==c.id); break; }
+    case "floor": fin.bread=Object.assign({},fin.bread||{},{floor:Number(c.value)||0}); break;
+    case "add": {
+      const v=c.account||{};
+      const a=normalizeAccount({id:uid(),name:v.name||"Unnamed",kind:v.kind==="asset"?"asset":"debt",
+        balance:Number(v.balance)||0,min:Number(v.min)||0,due:v.due||"",
+        tier:(v.tier==="survival"||v.tier==="luxury")?v.tier:null});
+      fin.accounts.push(a);
+      if(Number(v.apr)>0) deep().apr[a.id]=Number(v.apr);
+      break; }
+    case "income_add": { const v=c.income||{};
+      deep().income.push({id:uid(),name:v.name||"Income",amount:Number(v.amount)||0,
+        cadence:v.cadence||"monthly",day:v.day||"",day2:"",taxRate:Number(v.taxRate)||0}); break; }
+    case "vow": quests.push({id:uid(),starId:"treasury",text:c.text||"",status:"open",
+      createdAt:new Date().toISOString(),when:c.when||undefined}); break;
+    case "update": { const a=acct(c.id); if(!a) break;
+      const f=c.fields||{};
+      if(f.name!==undefined) a.name=String(f.name);
+      if(f.balance!==undefined) a.balance=Number(f.balance)||0;
+      if(f.min!==undefined) a.min=Number(f.min)||0;
+      if(f.due!==undefined) a.due=String(f.due);
+      if(f.note!==undefined) a.note=String(f.note);
+      if(f.cull!==undefined) a.cull=String(f.cull);
+      if(f.tier!==undefined) a.tier=(f.tier==="survival"||f.tier==="luxury")?f.tier:null;
+      if(f.apr!==undefined){ const D=deep(); const n=Number(f.apr);
+        if(n>0) D.apr[a.id]=n; else delete D.apr[a.id]; }
+      break; }
+  }
+}
+function proposeHands(j,box){
+  const items=(j.changes||[]).map(describeChange).filter(Boolean);
+  handsProposal=(j.changes||[]).filter((c,i)=>describeChange(c));
+  let html="";
+  if(j.say) html+=`<div class="msg"><div class="who">The Guardian</div><div class="txt">${esc(j.say)}</div></div>`;
+  if(j.unclear) html+=`<div class="msg"><div class="who">The Guardian</div><div class="txt" style="color:var(--gold-dim)">${esc(j.unclear)}</div></div>`;
+  if(items.length){
+    html+=`<div class="note" style="margin-top:6px"><b>Proposed — nothing is written yet:</b></div>
+      <div id="handsList">`+items.map((it,i)=>`
+        <div class="vow" data-i="${i}">
+          <button class="box" data-act="ht">✓</button>
+          <div style="flex:1;min-width:0"><div class="vt">${esc(it[1])}</div></div>
+        </div>`).join("")+`</div>
+      <button class="btn solid" id="handsSeal">Seal ${items.length===1?"it":"the ticked ones"}</button>
+      <button class="btn quiet" id="handsNo">Leave the record alone</button>`;
+  }
+  box.insertAdjacentHTML("beforeend",html);
+  box.lastElementChild && box.lastElementChild.scrollIntoView && box.lastElementChild.scrollIntoView({block:"nearest"});
+  if(!items.length) return;
+  const on=items.map(()=>true);
+  box.querySelectorAll("#handsList [data-act]").forEach(b=>b.onclick=()=>{
+    const i=+b.closest(".vow").dataset.i; on[i]=!on[i];
+    b.textContent=on[i]?"✓":""; b.closest(".vow").classList.toggle("done",!on[i]);
+  });
+  $("handsSeal").onclick=()=>{
+    const picked=handsProposal.filter((c,i)=>on[i]);
+    if(!picked.length) return toast("Nothing ticked.");
+    picked.forEach(applyChange);
+    handsProposal=null; save(true); render();
+    $("handsList").outerHTML=""; $("handsSeal").outerHTML=""; $("handsNo").outerHTML="";
+    box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt" style="color:var(--held)">Sealed. ${picked.length} change${picked.length===1?"":"s"} in the record.</div></div>`);
+    Lamp.bloom(.6); buzz(16); chime(660,.05);
+  };
+  $("handsNo").onclick=()=>{
+    handsProposal=null;
+    $("handsList").outerHTML=""; $("handsSeal").outerHTML=""; $("handsNo").outerHTML="";
+    box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt">Left alone. Nothing was written.</div></div>`);
+  };
+}
+
 function renderWitness(){
   const tq=quests.filter(q=>q&&q.starId==="treasury");
   $("listVows").innerHTML = tq.length ? tq.map(q=>`
@@ -3060,7 +3230,7 @@ function openGuardian(){
   openSheet(`
     <h3>The Guardian</h3>
     <div class="sub">${esc(L.why)}</div>
-    <div class="field"><textarea id="gq" rows="3" placeholder="Ask anything. Point the camera at it if that's easier."></textarea></div>
+    <div class="field"><textarea id="gq" rows="3" placeholder="Say anything — mark T-Mobile paid · Capital One is due the 27th · GEICO went up to 600"></textarea></div>
     <div class="visbar">
       <button class="visbtn" id="gCam">◉ Snap it</button>
       <button class="visbtn" id="gFile">⌫ Attach</button>
@@ -3080,13 +3250,35 @@ function openGuardian(){
   $("gCam").onclick=()=>{ if(!hasKey())return openKeyDoor(); $("camIn").click(); };
   $("gFile").onclick=()=>{ if(!hasKey())return openKeyDoor(); $("docIn").click(); };
   $("gRead").onclick=openReading;
-  $("gAsk").onclick=()=>{
+  $("gAsk").onclick=async()=>{
     const q=($("gq").value||"").trim();
     const f=guardianFiles||[];
-    if(!q && !f.length) return toast("Ask it something, or attach a picture.");
+    if(!q && !f.length) return toast("Say something, or attach a picture.");
     $("gq").value="";
-    ask(q||"What am I looking at, and what does it mean for my numbers?",$("chat2"),f);
-    guardianFiles=[]; const a=$("gAtt"); if(a){a.textContent="nothing attached";a.style.color="";}
+    const box=$("chat2");
+    if(f.length){
+      ask(q||"What am I looking at, and what does it mean for my numbers?",box,f);
+      guardianFiles=[]; const a=$("gAtt"); if(a){a.textContent="nothing attached";a.style.color="";}
+      return;
+    }
+    /* Words with no picture: first ask the Hands whether this changes the
+       record. If it proposes changes, show them for sealing. If not, fall
+       through to the ordinary conversation. One utterance, right door. */
+    box.insertAdjacentHTML("beforeend",`<div class="msg me"><div class="who">You</div><div class="txt">${esc(q)}</div></div>`);
+    const tid="m"+uid();
+    box.insertAdjacentHTML("beforeend",`<div class="msg" id="${tid}"><div class="who">The Guardian</div><div class="txt" style="color:var(--quiet)">reading…</div></div>`);
+    try{
+      const j=await guardianHands(q,box);
+      $(tid).outerHTML="";
+      if((j.changes||[]).length || j.unclear){ proposeHands(j,box); }
+      else {
+        if(j.say) box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt">${esc(j.say)}</div></div>`);
+        ask(q,box);
+      }
+    }catch(e){
+      $(tid).outerHTML="";
+      ask(q,box);   // hands failed — the conversation still works
+    }
   };
 }
 
