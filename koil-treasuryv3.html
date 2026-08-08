@@ -641,6 +641,21 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
 }
 .rask .visbar{margin-top:10px}
 
+
+/* payday grid — a month you tap, no keyboard involved */
+.daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px}
+.daygrid button{
+  aspect-ratio:1;border:1px solid var(--line);border-radius:10px;
+  font-family:var(--mono);font-size:13px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+.daygrid button.on{
+  border-color:var(--gold);color:var(--ink);font-weight:500;
+  background:linear-gradient(180deg,#e7c67e,#cfa658);
+  box-shadow:0 0 12px rgba(216,180,106,.35);
+}
+.daygrid button:active{transform:scale(.94)}
+
 </style>
 </head>
 <body>
@@ -889,7 +904,7 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.9";
+const BUILD = "2026-08-08.10";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1478,12 +1493,19 @@ function paint(el, list, emptyMsg){
     };
   });
 }
+/* The order of the list IS the order of the month:
+     1. unpaid with a date — soonest (or most overdue) first
+     2. unpaid with no stated date — visible, never hidden, but after the dated
+     3. paid — sunk to the bottom, the month is done with them */
 function sortDue(list){
   return list.slice().sort((x,y)=>{
+    const px=isPaid(x)?1:0, py=isPaid(y)?1:0;
+    if(px!==py) return px-py;
     const a=parseDue(x.due), b=parseDue(y.due);
     if(a.ok&&!b.ok) return -1; if(!a.ok&&b.ok) return 1;
     if(!a.ok&&!b.ok) return String(x.name).localeCompare(y.name);
-    return a.days-b.days;
+    if(a.days!==b.days) return a.days-b.days;
+    return amountDue(y)-amountDue(x);
   });
 }
 
@@ -3227,15 +3249,27 @@ $("btnEntry").onclick=()=>{
 $("btnPaydays").onclick=()=>{
   const bread=fin.bread||{};
   openSheet(`<h3>When money comes in</h3><div class="sub">Kept inside your finances, so it travels in the ledger with everything else.</div>
-    <div class="field"><label>Paydays — days of the month</label><input id="pdIn" inputmode="numeric" value="${esc((fin.paydays||[]).join(", "))}" placeholder="1, 15">
-      <div class="hint">Separated by commas. Leave blank if your pay isn't on a schedule.</div></div>
+    <div class="field"><label>Paydays — tap the days money lands</label>
+      <div class="daygrid" id="pdGrid"></div>
+      <div class="hint">Tap again to unmark. Leave all dark if your pay isn't on a schedule.</div></div>
     <div class="field"><label>Next income date</label><input id="pdD" value="${esc(bread.incomeDate||"")}" placeholder="09/11/26 · 15 · end of month">
       <div class="hint">This is the Daily Bread aim's own field — changing it here changes it there.</div></div>
     <div class="field"><label>Your floor</label><input id="pdF" inputmode="decimal" value="${bread.floor||""}" placeholder="0">
       <div class="hint">The number you don't want to drop below. Also the Daily Bread aim's field.</div></div>
+    ${Vision.bar("pdSheet")}
     <button class="btn solid" id="pdS">Save it</button>`);
+  Vision.arm("pdSheet",{context:"A pay stub or deposit notification.",fields:[
+    {id:"incomeDate",el:"pdD",kind:"string",label:"next pay date exactly as printed"},
+    {id:"floor",el:"pdF",kind:"number",label:"minimum balance if shown"}]});
+  const pdSel=new Set((fin.paydays||[]).map(Number).filter(d=>d>=1&&d<=31));
+  $("pdGrid").innerHTML=Array.from({length:31},(_,i)=>`<button type="button" data-d="${i+1}" class="${pdSel.has(i+1)?"on":""}">${i+1}</button>`).join("");
+  $("pdGrid").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    const d=+b.dataset.d;
+    if(pdSel.has(d)) pdSel.delete(d); else pdSel.add(d);
+    b.classList.toggle("on",pdSel.has(d)); buzz(8);
+  });
   $("pdS").onclick=()=>{
-    fin.paydays=($("pdIn").value||"").split(",").map(s=>parseInt(s.trim(),10)).filter(d=>d>=1&&d<=31);
+    fin.paydays=[...pdSel].sort((a,b)=>a-b);
     fin.bread=Object.assign({},fin.bread||{});
     const d=($("pdD").value||"").trim(); const f=($("pdF").value||"").trim();
     if(d) fin.bread.incomeDate=d; else delete fin.bread.incomeDate;
