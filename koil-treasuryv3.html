@@ -816,6 +816,7 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
   <div class="stat" style="padding:4px 14px">
     <div class="kv"><div class="k">Version</div><div class="v ok" id="buildStamp"></div></div>
     <div class="kv"><div class="k">Layout</div><div class="v" id="layoutCheck">checking…</div></div>
+    <div class="kv"><div class="k">Render</div><div class="v" id="renderCheck">checking…</div></div>
   </div>
 
   <h2 class="sec">This app</h2>
@@ -887,7 +888,8 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
    the gate disappears for everyone. */
 const PROXY_URL = "";
 
-const BUILD = "2026-08-08.7";
+let renderErrors=[];
+const BUILD = "2026-08-08.9";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1415,12 +1417,24 @@ function importLedger(text){
 function render(){
   $("hdrMonth").textContent = new Date().toLocaleDateString("en-US",{month:"long",year:"numeric"}).toUpperCase();
   const who=deep().who; if(who) document.querySelector("header h1").textContent=who+"'s Treasury";
-  renderToday(); renderBills(); renderHold(); renderPlan(); renderWitness(); renderBridge();
-  const L=treasuryLight();
-  Lamp.set(growth());
-  const ll=$("lampLine"); if(ll) ll.textContent = greeting();
-  const vv=$("lantern"); if(vv) vv.classList.toggle("awake", hasKey());
-  renderStreak(); checkMilestones();
+  /* Each section renders inside its own guard. One section throwing must
+     never blank the five after it — that failure mode cost a whole debug
+     cycle, and it hid itself by looking like "loading forever". */
+  renderErrors=[];
+  const step=(name,fn)=>{ try{ fn(); }catch(e){ renderErrors.push(name+": "+e.message); console.error(name,e); } };
+  step("today",renderToday);
+  step("bills",renderBills);
+  step("hold",renderHold);
+  step("plan",renderPlan);
+  step("witness",renderWitness);
+  step("vessel",()=>{
+    Lamp.set(growth());
+    const ll=$("lampLine"); if(ll) ll.textContent = greeting();
+    const vv=$("lantern"); if(vv) vv.classList.toggle("awake", hasKey());
+  });
+  step("streak",renderStreak);
+  step("milestones",checkMilestones);
+  step("bridge",renderBridge);   // last, so it can report on everything above
   const kd=$("keyDoor"); if(kd) kd.classList.toggle("lit",hasKey());
 }
 
@@ -1475,12 +1489,9 @@ function sortDue(list){
 
 function renderToday(){
   const held=heldTotal(), owed=owedThisMonth(), left=held-owed;
-  tick($("hLeft"),left);
-  $("hLeft").className="big num "+(left<0?"thin":(left>0?"good":""));
-  const nDeb=fin.accounts.filter(isDebt).length;
-  $("hUnder").textContent = nDeb===0
-    ? "No bills stated yet. Add one and the room fills in."
-    : money(held)+" held, minus "+money(owed)+" still owed this month.";
+  /* #hLeft and #hUnder belonged to the old headline block, replaced by the
+     hero + pillars. Writing to them threw and killed every section after
+     this one — which looked exactly like the app hanging on load. */
 
   const un=unpaidBills();
   const un2=un.filter(dueThisMonth);
@@ -1511,7 +1522,7 @@ function renderToday(){
   $("pocket").innerHTML = unstated
     ? `Not on the wheel: <b>${unstated}</b> bill${unstated>1?"s":""} with no stated date · <b>${money(unstatedAmt)}</b>`
     : `<span style="color:var(--quiet)">Every bill you've stated has a date.</span>`;
-  requestAnimationFrame(()=>{const el=$("wheel").querySelector(".today"); if(el) el.scrollIntoView({inline:"center",block:"nearest"});});
+  requestAnimationFrame(()=>{const el=$("wheel").querySelector(".today"); if(el&&el.scrollIntoView) el.scrollIntoView({inline:"center",block:"nearest"});});
 
   // THE HERO — what you can actually spend today. Everything else is context.
   const ds=dailySpendable();
@@ -1555,6 +1566,7 @@ function renderToday(){
   recordNet(); drawSpark();
 
   const standing=sortDue(un2.filter(a=>{const p=parseDue(a.due);return !p.ok||p.days<=7;}));
+  const nDeb=fin.accounts.filter(isDebt).length;
   paint($("todayList"), standing, nDeb ? "Nothing standing in the next seven days." : "Add a bill on the Bills page and it shows up here.");
 
   // paydays — recurring days live in finances.paydays; a one-off next date
@@ -2767,6 +2779,11 @@ function renderBridge(){
     lc.textContent = bad.length ? "BROKEN — "+bad.join(", ")+" not pinned" : "overlays pinned · ok";
     lc.className = "v "+(bad.length?"no":"ok");
   }
+  const re=$("renderCheck");
+  if(re){
+    re.textContent = renderErrors.length ? renderErrors.join(" | ") : "all sections drew · ok";
+    re.className = "v "+(renderErrors.length?"no":"ok");
+  }
   const rows=bridgeLog.map(([k,v,ok])=>`<div class="kv"><div class="k">${esc(k)}</div><div class="v ${ok?"ok":"no"}">${esc(v)}</div></div>`).join("");
   $("bridge").innerHTML=`
     <div class="stat" style="padding:4px 14px">
@@ -3236,6 +3253,9 @@ $("btnAsk").onclick=()=>{
 let watchMonth=currentMonth();
 setInterval(()=>{ if(currentMonth()!==watchMonth){ watchMonth=currentMonth(); render(); toast("New month. The paid marks cleared."); } }, 60000);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ document.body.style.overflow="";   // nothing may inherit a scroll lock across a reload
+(function stampBuild(){
+  const b=$("buildStamp"); if(b) b.textContent=BUILD;
+})();
 load(); render();
 Lamp.start();
 // first run: nothing stated at all — open the Reveal instead of an empty room
@@ -3243,6 +3263,9 @@ if(!fin.accounts.length && !deep().income.length) setTimeout(()=>Reveal.open(),4
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) Lamp.fit(); }); } });
 
 document.body.style.overflow="";   // nothing may inherit a scroll lock across a reload
+(function stampBuild(){
+  const b=$("buildStamp"); if(b) b.textContent=BUILD;
+})();
 load(); render();
 Lamp.start();
 // first run: nothing stated at all — open the Reveal instead of an empty room
