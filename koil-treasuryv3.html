@@ -357,7 +357,7 @@ nav button.on::before{
 }
 .reveal.on{display:block}
 .reveal .rwrap{padding:calc(env(safe-area-inset-top,0px) + 20px) 16px 40px;max-width:640px;margin:0 auto}
-.reveal .rtop{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.reveal .rtop{display:flex;align-items:center;gap:10px;margin-bottom:4px}
 .reveal .rtitle{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dim);font-family:var(--mono)}
 .reveal .rlit{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--quiet)}
 .reveal .rbar{height:2px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:20px}
@@ -375,10 +375,18 @@ nav button.on::before{
   border:1px solid #2a2320;
   display:flex;align-items:center;justify-content:center;text-align:center;
 }
+/* No filter:blur on an animated layer — iOS Safari's compositor can
+   inflate blurred animated layers into screen-wide painted regions,
+   which showed up as a gold flood over the Reveal. Softness is baked
+   into the gradient stops instead, and the orb clips its children. */
+.orb{overflow:hidden}
 .orb::before{
-  content:"";position:absolute;inset:14px;border-radius:50%;
-  background:conic-gradient(from 0deg, rgba(216,180,106,.16), transparent 32%, rgba(216,180,106,.10) 55%, transparent 78%, rgba(216,180,106,.16));
-  animation:swirl 13s linear infinite;filter:blur(7px);
+  content:"";position:absolute;inset:10px;border-radius:50%;
+  background:conic-gradient(from 0deg,
+    rgba(216,180,106,.13), rgba(216,180,106,.02) 24%, transparent 34%,
+    rgba(216,180,106,.08) 52%, rgba(216,180,106,.01) 66%, transparent 76%,
+    rgba(216,180,106,.13));
+  animation:swirl 13s linear infinite;
 }
 @keyframes swirl{to{transform:rotate(360deg)}}
 .orb .oq{
@@ -610,7 +618,7 @@ h2.sec .tally{flex:0 0 auto}
 /* milestone flash */
 .milestone{
   position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
-  background:rgba(7,6,5,.78);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .4s;
+  background:rgba(7,6,5,.92);opacity:0;pointer-events:none;transition:opacity .4s;
 }
 .milestone.on{opacity:1;pointer-events:auto}
 .milestone .mcard{
@@ -810,6 +818,9 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
 
 <!-- ══════════════ LEDGER ══════════════ -->
 <section class="panel" id="p-ledger">
+  <h2 class="sec">The Guardian &amp; keys</h2>
+  <button class="btn solid" id="btnKeyLedger">API key · sound · the Guardian</button>
+
   <h2 class="sec">The picture</h2>
   <button class="btn" id="btnReveal">Open the Reveal</button>
   <div class="note">The Reveal asks for what's still dark and lights it as you answer. Nothing is required and nothing is ordered — stop whenever the picture is good enough.</div>
@@ -858,6 +869,7 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
   <div class="rtop">
     <span class="rtitle">The Reveal</span>
     <span class="rlit" id="rLit">0% lit</span>
+    <button id="rClose" aria-label="Leave the Reveal" style="margin-left:12px;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;color:var(--muted);font-size:16px;line-height:1;flex:0 0 auto">×</button>
   </div>
   <div class="rbar"><i id="rBar"></i></div>
 
@@ -904,7 +916,7 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.10";
+const BUILD = "2026-08-08.11";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1823,13 +1835,14 @@ const Lamp = (function(){
   let c,x,W,H,t=0,cur=0,target=0,boost=0,motes=[],shards=[],reduced=false,seeded=null;
   const rnd=(s)=>{let v=Math.sin(s*127.1)*43758.5453;return v-Math.floor(v);};
 
-  function fit(){ if(!c)return;
+  function fit(){ if(!c||!x)return;
     const r=c.getBoundingClientRect(), d=Math.min(2,window.devicePixelRatio||1);
     W=r.width;H=r.height;c.width=W*d;c.height=H*d;x.setTransform(d,0,0,d,0,0);
   }
   function start(){
     c=$("lampC"); if(!c||!c.getContext) return;
-    x=c.getContext("2d");
+    try{ x=c.getContext("2d"); }catch(e){ x=null; }
+    if(!x) return;   // no canvas, no vessel — the rest of the app is untouched
     reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     fit(); window.addEventListener("resize",fit);
     seedCracks();
@@ -2141,6 +2154,7 @@ const Reveal=(function(){
   }
   function open(){
     build(); paint();
+    const xc=$("rClose"); if(xc) xc.onclick=close;
     $("reveal").classList.add("on"); document.body.style.overflow="hidden";
     step();
   }
@@ -3205,6 +3219,7 @@ $("fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new File
 $("btnRefresh").onclick=()=>{load();render();toast(mode==="realm"?"Read the Realm.":"No Realm record here.");};
 $("btnSaveNow").onclick=()=>{if(save())render();};
 $("keyDoor").onclick=openKeyDoor;
+$("btnKeyLedger").onclick=openKeyDoor;
 $("btnReveal").onclick=()=>Reveal.open();
 $("btnRead").onclick=openReading;
 function routeFiles(f){
@@ -3286,24 +3301,23 @@ $("btnAsk").onclick=()=>{
 /* the month can turn while the app sits open */
 let watchMonth=currentMonth();
 setInterval(()=>{ if(currentMonth()!==watchMonth){ watchMonth=currentMonth(); render(); toast("New month. The paid marks cleared."); } }, 60000);
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ document.body.style.overflow="";   // nothing may inherit a scroll lock across a reload
-(function stampBuild(){
-  const b=$("buildStamp"); if(b) b.textContent=BUILD;
-})();
-load(); render();
-Lamp.start();
-// first run: nothing stated at all — open the Reveal instead of an empty room
-if(!fin.accounts.length && !deep().income.length) setTimeout(()=>Reveal.open(),420); Lamp.set(treasuryLight().v);
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden) Lamp.fit(); }); } });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ load(); render(); } });
 
 document.body.style.overflow="";   // nothing may inherit a scroll lock across a reload
 (function stampBuild(){
   const b=$("buildStamp"); if(b) b.textContent=BUILD;
 })();
 load(); render();
-Lamp.start();
-// first run: nothing stated at all — open the Reveal instead of an empty room
-if(!fin.accounts.length && !deep().income.length) setTimeout(()=>Reveal.open(),420); Lamp.set(treasuryLight().v);
+try{ Lamp.start(); Lamp.set(growth()); }catch(e){ console.error("vessel:",e); }
+/* First run only: the Reveal offers itself ONCE, ever, on this device —
+   and never when any record exists in this browser. A door held open,
+   not a wall: it always has an ×, and lives on the Ledger page after. */
+if(!fin.accounts.length && !deep().income.length
+   && !localStorage.getItem(REALM_KEY)
+   && !localStorage.getItem("koil_treasury_reveal_seen")){
+  localStorage.setItem("koil_treasury_reveal_seen","1");
+  setTimeout(()=>Reveal.open(),420);
+}
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) Lamp.fit(); });
 </script>
 </body>
