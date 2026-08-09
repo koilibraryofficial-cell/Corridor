@@ -812,6 +812,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
   <div id="listHold"></div>
   <button class="btn solid" onclick="openEditor(null,'asset')">Add what you hold</button>
   <button class="btn" id="btnReconcile">Reconcile from a photo</button>
+  <button class="btn quiet" id="btnSeedCap">Add my Capital One accounts</button>
   <div class="note">Photograph your bank's account list. Every balance on screen is proposed against this list — matched by the last four digits — and nothing changes until you seal it. Accounts in your record that aren't on the screen are left alone and named, so you decide.</div>
 
   <h2 class="sec">Marked for the cull</h2>
@@ -976,7 +977,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.17";
+const BUILD = "2026-08-08.18";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -3618,6 +3619,59 @@ function sbChip(){
   c.textContent=speakAttached.length;
 }
 $("sbCam").onclick=()=>{ if(!hasKey())return openKeyDoor(); speakCollect=true; $("camIn").click(); };
+/* The five accounts from the Capital One home screen, by their last four.
+   Balances start at what that screen showed; "Reconcile from a photo" or a
+   tap on any row keeps them current. Matching later is by last-four, so the
+   names must keep their digits. */
+const CAP_ONE_SEED=[
+  {name:"360 Checking 0904",            balance:182.16},
+  {name:"360 Performance Savings 6022", balance:20.90},
+  {name:"360 Performance Savings 5150", balance:20.82},
+  {name:"360 Performance Savings 6308", balance:20.14},
+  {name:"360 Performance Savings 6399", balance:562.27}
+];
+function last4(s){ const m=String(s||"").match(/(\d{4})(?!.*\d{4})/); return m?m[1]:null; }
+$("btnSeedCap").onclick=()=>{
+  const existing=fin.accounts.filter(a=>!isDebt(a));
+  const rows=CAP_ONE_SEED.map(s=>{
+    const four=last4(s.name);
+    const match=existing.find(a=>four && last4(a.name)===four);
+    return {seed:s, match, on:true};
+  });
+  const total=CAP_ONE_SEED.reduce((t,s)=>t+s.balance,0);
+  const strays=existing.filter(a=>!CAP_ONE_SEED.some(s=>last4(s.name)===last4(a.name)));
+  openSheet(`
+    <h3>Your Capital One accounts</h3>
+    <div class="sub">Five accounts, ${money(total)} in total. Nothing is written until you seal it.</div>
+    <div id="seedList">`+rows.map((r,i)=>`
+      <div class="vow" data-i="${i}">
+        <button class="box" data-act="st">✓</button>
+        <div style="flex:1;min-width:0">
+          <div class="vt">${esc(r.seed.name)} — ${money(r.seed.balance)}</div>
+          <div class="vw">${r.match?"updates the one you already have ("+money(r.match.balance)+" now)":"new account"}</div>
+        </div>
+      </div>`).join("")+`</div>
+    ${strays.length?`<div class="note"><b>${strays.length} other account${strays.length===1?"":"s"} in your record</b> won't be touched: ${esc(strays.map(a=>a.name+" "+money(a.balance)).join(", "))}.<br><br>If ${strays.length===1?"it isn't":"they aren't"} real, remove ${strays.length===1?"it":"them"} on this page after — that phantom money is what's making Expendable wrong.</div>`:""}
+    <button class="btn solid" id="seedGo">Seal them</button>
+    <button class="btn quiet" onclick="closeSheet()">Not now</button>`);
+  const on=rows.map(()=>true);
+  $("seedList").querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+    const i=+b.closest(".vow").dataset.i; on[i]=!on[i];
+    b.textContent=on[i]?"✓":""; b.closest(".vow").classList.toggle("done",!on[i]);
+  });
+  $("seedGo").onclick=()=>{
+    let added=0,updated=0;
+    rows.forEach((r,i)=>{
+      if(!on[i]) return;
+      if(r.match){ r.match.balance=r.seed.balance; r.match.kind="asset"; updated++; }
+      else { fin.accounts.push(normalizeAccount({id:uid(),name:r.seed.name,kind:"asset",balance:r.seed.balance})); added++; }
+    });
+    closeSheet(); save(true); render();
+    milestone("◈","Your accounts are in.",
+      (added?added+" added":"")+(added&&updated?", ":"")+(updated?updated+" updated":"")+
+      ". Held now reads "+money(heldTotal())+".");
+  };
+};
 $("btnReconcile").onclick=()=>{
   if(!hasKey()) return openKeyDoor();
   speakCollect=true;
