@@ -700,6 +700,17 @@
     font-size:18px;cursor:pointer;color:var(--deep);}
   #bmCam:active{border-color:var(--gold);}
 
+
+  .bm-mus{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;}
+  .mus{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 9px;border-radius:8px;background:rgba(26,36,48,.8);color:var(--mist);
+    border:1px solid #1E2A36;}
+  .mus.prime{background:rgba(255,90,60,.14);color:#FF8A6B;border-color:rgba(255,90,60,.3);}
+  .bm-rec{font-family:'EB Garamond',serif;font-size:14px;line-height:1.5;color:#B79BE0;
+    background:rgba(28,22,40,.5);border:1px solid rgba(183,155,224,.25);border-radius:11px;
+    padding:9px 12px;margin-bottom:9px;}
+  .bm-rec b{color:#D6C4F0;font-weight:400;}
+
 </style>
 </head>
 <body>
@@ -1009,7 +1020,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v58</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v60</div>
   </div>
 </div>
 
@@ -1037,6 +1048,8 @@
         <div class="bm-next" id="bmNext"></div>
       </div>
     </div>
+    <div class="bm-mus" id="bmMus"></div>
+    <div class="bm-rec" id="bmRec"></div>
     <div class="bm-last" id="bmLast"></div>
     <div class="bm-teach" id="bmBuilds"></div>
     <div class="bm-teach" id="bmForm"></div>
@@ -3192,13 +3205,21 @@ function blockHeat(id){ const h=blockHours(id);
 function lifetimeTonnage(){ let t=0; const bl=S.blocks||{};
   for(const k in bl)t+=bl[k].ton||0; return t; }
 
+const BW_FRAC={pushup:0.64,pullup:1.0,'chest-dip':1.0,'tricep-dip':1.0,situp:0.30,
+  'hanging-leg-raise':0.45,plank:0.55,burpee:0.70};
+function bwLoad(b){
+  if(b.g!=='bodyweight')return 0;
+  const bw=(S.profile&&S.profile.w)||185;
+  return Math.round(bw*(BW_FRAC[b.id]||0.6));
+}
 function logToBlock(id,sets){
   const b=blockById(id); if(!b||!sets.length)return null;
   const rec=blockRec(id);
   let ton=0,best=null;
+  const bwl=bwLoad(b);
   sets.forEach(s=>{
     const w=+s.w||0, r=+s.r||0;
-    ton+=w*r;
+    ton+=(w||bwl)*r;
     const v=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery')?r:e1rm(w,r);
     if(!best||v>best.v)best={v,w,r};
   });
@@ -3314,10 +3335,39 @@ function openBlock(id){
   $('bmRegion').textContent=(REGIONS[b.r]?REGIONS[b.r][0]:b.r)+' · '+b.g;
   $('bmBuilds').innerHTML='<b>What it builds.</b> '+b.b;
   $('bmForm').innerHTML='<b>The rep.</b> '+b.f;
+  // muscles this block builds
+  let mus=[]; try{ mus=musclesFor(b.n)||[]; }catch(e){}
+  if(!mus.length)mus=[b.r];
+  const MUS_LABEL={chest:'Chest',back:'Back',shoulders:'Shoulders',biceps:'Biceps',triceps:'Triceps',
+    forearms:'Forearms',quads:'Quads',hamstrings:'Hamstrings',glutes:'Glutes',calves:'Calves',
+    core:'Core',lowback:'Lower back',heart:'Heart & lungs'};
+  $('bmMus').innerHTML=mus.slice(0,5).map((m,i)=>
+    '<span class="mus'+(i===0?' prime':'')+'">'+(MUS_LABEL[m]||m)+'</span>').join('');
+  // lifetime burn on this block
+  const kcalLife=Math.round((rec.sessions||[]).reduce((a,ss)=>
+    a+ss.sets.reduce((x,s)=>x+((s.w||bwLoad(b))*(s.r||0))*0.0006+(s.r||0)*(isRep?4.5:0.32),0),0));
+  // goal-aware recommendation
+  const goal=((S.goalText||'')+' '+(S.plan&&S.plan.guidance||'')).toLowerCase();
+  const shred=/shred|lean|cut|aesthetic|定|tone|definition/.test(goal);
+  const strong=/strength|strong|power|max/.test(goal);
+  const repBand = strong?'4–6':(shred?'10–15':'8–12');
+  let recLine='';
+  if(rec.pr&&!isRep){
+    const p=rec.prSet||{w:rec.pr,r:8};
+    const pct = strong?0.85:(shred?0.68:0.75);
+    const target=Math.round((rec.pr*pct)/2.5)*2.5;
+    recLine='For your goal — <b>'+target+' lb × '+repBand+'</b>, 3–4 sets.';
+  } else if(rec.pr&&isRep){
+    recLine='For your goal — <b>'+Math.max(1,Math.round(rec.pr*0.8))+'–'+rec.pr+'</b> per set, 3–4 sets.';
+  } else {
+    recLine='Start moderate — a weight you could do '+repBand+' times with two left in the tank.';
+  }
+  $('bmRec').innerHTML='🎯 '+recLine;
   $('bmStats').innerHTML=
     '<div class="bm-stat"><span>PR</span><b>'+(rec.pr?(isRep?rec.pr+' reps':rec.pr+' lb'):'—')+'</b></div>'
    +'<div class="bm-stat"><span>LIFETIME</span><b>'+fmt(rec.ton||0)+' lb</b></div>'
-   +'<div class="bm-stat"><span>SESSIONS</span><b>'+((rec.sessions||[]).length)+'</b></div>';
+   +'<div class="bm-stat"><span>SESSIONS</span><b>'+((rec.sessions||[]).length)+'</b></div>'
+   +'<div class="bm-stat"><span>BURNED</span><b>'+fmt(kcalLife)+'</b></div>';
   $('bmLast').innerHTML= last
     ? '<span class="bm-lbl">LAST TIME · '+(h<24?'today':Math.floor(h/24)+'d ago')+'</span>'
       +last.sets.map(s=>s.w?(s.w+'×'+s.r):(s.r+' reps')).join('  ·  ')
@@ -3544,7 +3594,9 @@ function openDoorway(seen,ids){
       +tag+'</div>';
   }).join('');
   host.querySelectorAll('.dw-row').forEach(el=>el.onclick=()=>{
-    $('doorway').classList.remove('show'); openBlock(el.dataset.b);});
+    $('doorway').classList.remove('show'); openBlock(el.dataset.b);
+    if(pendingSets){const t=pendingSets;pendingSets=null;
+      setTimeout(()=>{$('bmInput').value=t;submitBlock();},350);}});
   $('doorway').classList.add('show');
 }
 
@@ -5577,46 +5629,79 @@ $('foodTog').onclick=e=>{e.stopPropagation();
   S.shareFood=!S.shareFood;save();paintFoodTog();
   fishNote(S.shareFood?'Food will appear on shared cards.':'Food stays private — cards show effort only.');};
 paintFoodTog();
+try{
 $('shareFab').onclick=e=>{e.stopPropagation();
   const m=$('shareMenu');
   if(m.classList.contains('show')){m.classList.remove('show');return;}
   m.classList.add('show');};
 $('shareMenu').querySelectorAll('button').forEach(b=>b.onclick=e=>{
   e.stopPropagation();$('shareMenu').classList.remove('show');shareCard(b.dataset.k);});
+}catch(e){console.warn('wire skipped',e);}
 document.addEventListener('click',()=>{const m=$('shareMenu');if(m)m.classList.remove('show');});
 
 
 
+try{
 $('bmCam').onclick=()=>$('bmFile').click();
 $('bmFile').onchange=e=>{const fs=[...e.target.files];e.target.value='';blockPhotoLog(fs);};
+}catch(e){console.warn('wire skipped',e);}
 $('bmClose').onclick=closeBlock;
 $('blockModal').onclick=e=>{if(e.target===$('blockModal'))closeBlock();};
 $('bmSend').onclick=submitBlock;
 $('bmInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitBlock();}});
 $('blockSearch').addEventListener('input',()=>renderBlocks());
+const BLOCK_ALIAS={'dip':['chest-dip','tricep-dip'],'dips':['chest-dip','tricep-dip'],
+  'curl':['dumbbell-curl','barbell-curl','hammer-curl'],'curls':['dumbbell-curl','barbell-curl'],
+  'press':['bench-press','overhead-press','db-shoulder-press'],'pullup':['pullup'],'pullups':['pullup'],
+  'pushup':['pushup'],'pushups':['pushup'],'situp':['situp'],'situps':['situp'],
+  'pulldown':['lat-pulldown','tricep-pushdown'],'row':['barbell-row','dumbbell-row','seated-row'],
+  'squat':['squat','front-squat'],'deadlift':['deadlift','romanian-deadlift'],
+  'raise':['lateral-raise','front-raise','calf-raise'],'fly':['chest-fly','rear-delt-fly'],
+  'flys':['chest-fly'],'flies':['chest-fly'],'plank':['plank'],'run':['run'],'walk':['walk'],
+  'sauna':['sauna'],'plunge':['cold-plunge'],'steam':['steam-room'],'stretch':['stretching'],
+  'stretching':['stretching'],'bench':['bench-press'],'incline':['incline-bench','incline-db-press']};
+const singular=w=>w.replace(/ies$/,'y').replace(/([^s])s$/,'$1');
+function findBlocks(txt){
+  const t=txt.toLowerCase().replace(/[^a-z0-9 ]/g,' ');
+  const words=t.split(/\s+/).filter(w=>w.length>2&&!/^\d+$/.test(w)).map(singular);
+  if(!words.length)return [];
+  const scored=allBlocks().map(b=>{
+    const nameWords=b.n.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).map(singular);
+    let score=0;
+    words.forEach(w=>{
+      if(nameWords.includes(w))score+=3;
+      else if(nameWords.some(nw=>nw.startsWith(w)||w.startsWith(nw)))score+=2;
+    });
+    if(b.n.toLowerCase().includes(t.trim()))score+=4;
+    return {b,score};
+  }).filter(x=>x.score>0).sort((a,c)=>c.score-a.score);
+  // alias net catches "dips", "curls" etc.
+  const aliasIds=[];
+  words.forEach(w=>{ (BLOCK_ALIAS[w]||[]).forEach(id=>{if(!aliasIds.includes(id))aliasIds.push(id);}); });
+  aliasIds.forEach(id=>{ if(!scored.some(x=>x.b.id===id)){const b=blockById(id);if(b)scored.push({b,score:2});} });
+  return scored.map(x=>x.b);
+}
 function findResolve(txt){
   txt=txt.trim(); if(!txt)return;
   const sets=parseBlockSets(txt);
-  // name match: longest block name found inside the text
-  const t=txt.toLowerCase();
-  let hit=null;
-  allBlocks().forEach(b=>{
-    const n=b.n.toLowerCase();
-    const first=n.split(' ')[0];
-    if(t.includes(n)||t.includes(first)){
-      if(!hit||n.length>hit.n.length)hit=b;
-    }
-  });
-  if(hit&&sets.length){            // "curls 25x10" → open AND log
-    openBlock(hit.id);
-    setTimeout(()=>{$('bmInput').value=txt;submitBlock();},350);
+  const hits=findBlocks(txt);
+  if(hits.length===1||(hits.length>1&&hits[0]&&sets.length===0&&false)){ }
+  if(hits.length===1){
+    openBlock(hits[0].id);
+    if(sets.length)setTimeout(()=>{$('bmInput').value=txt;submitBlock();},350);
     $('blockSearch').value='';renderBlocks();return;
   }
-  if(hit){ openBlock(hit.id); $('blockSearch').value='';renderBlocks(); return; }
+  if(hits.length>1){
+    // several doors — let him pick, carry the sets through
+    pendingSets = sets.length? txt : null;
+    openDoorway('“'+txt.replace(/[<>]/g,'')+'” — which station?', hits.slice(0,6).map(b=>b.id));
+    $('blockSearch').value='';return;
+  }
   if(sets.length&&blockOpen){ $('bmInput').value=txt;submitBlock();return; }
-  // no block found — offer to forge one by name
   fishSay('No block called “'+txt.replace(/[<>]/g,'')+'” yet. Say <b>forge '+txt.replace(/[<>]/g,'')+'</b> and I’ll build it, or 📷 photograph the equipment.');
 }
+let pendingSets=null;
+
 $('blockSearch').addEventListener('keydown',e=>{
   if(e.key==='Enter'){e.preventDefault();findResolve($('blockSearch').value);}});
 $('findCam').onclick=()=>$('mintIn').click();
@@ -5634,7 +5719,7 @@ $('findMic').onclick=()=>{
   }catch(e){$('blockSearch').focus();}
 };
 
-$('mintBtn').onclick=()=>$('mintIn').click();
+if($('mintBtn'))$('mintBtn').onclick=()=>$('mintIn').click();
 $('mintIn').onchange=async e=>{
   const f=e.target.files[0]; e.target.value=''; if(!f)return;
   const raw=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
@@ -5644,12 +5729,21 @@ $('mintIn').onchange=async e=>{
 };
 
 
+try{
 $('dwClose').onclick=()=>$('doorway').classList.remove('show');
 $('doorway').onclick=e=>{if(e.target===$('doorway'))$('doorway').classList.remove('show');};
+}catch(e){console.warn('wire skipped',e);}
+
+
+/* boot armor: one missing element must never kill the temple */
+function wire(id,ev,fn){const el=$(id);if(!el)return;if(ev==='click')el.onclick=fn;else el.addEventListener(ev,fn);}
 
 /* ============ BOOT ============ */
 try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); }catch(e){}
-healProfile();sizeCanvas();applySkins();tickDockNum();
+try{healProfile();}catch(e){console.warn(e);}
+try{sizeCanvas();}catch(e){console.warn(e);}
+try{applySkins();}catch(e){console.warn(e);}
+try{tickDockNum();}catch(e){console.warn(e);}
 setTimeout(()=>{const days=Object.keys(S.days||{}).length;
   const since = S.lastBackup ? Math.floor((new Date(todayKey())-new Date(S.lastBackup))/864e5) : 999;
   if(days>=3&&since>=7)fishSay('⚠ '+(S.lastBackup?'It has been '+since+' days since your last backup.':days+' days walked and never backed up.')+' Open ⚙ → <b>Back up everything</b> — five seconds protects the whole walk.');},9000);
