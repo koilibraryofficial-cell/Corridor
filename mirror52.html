@@ -695,6 +695,11 @@
     background:radial-gradient(ellipse at 50% 120%,rgba(255,120,60,calc(var(--heat)*.18)),transparent 60%);}
   .blk-crown{position:absolute;top:8px;right:9px;font-size:12px;opacity:.9;}
 
+
+  #bmCam{flex:0 0 50px;background:rgba(16,24,33,.9);border:1px solid #22303E;border-radius:13px;
+    font-size:18px;cursor:pointer;color:var(--deep);}
+  #bmCam:active{border-color:var(--gold);}
+
 </style>
 </head>
 <body>
@@ -1004,7 +1009,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v57</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v58</div>
   </div>
 </div>
 
@@ -1037,9 +1042,11 @@
     <div class="bm-teach" id="bmForm"></div>
     <div class="bm-note" id="bmNote"></div>
     <div class="bm-bar">
+      <button id="bmCam" title="Photo of the machine screen">📷</button>
       <input id="bmInput" placeholder="185×8   ·   3 sets of 10 at 135   ·   30" autocomplete="off">
       <button id="bmSend">→</button>
     </div>
+    <input type="file" id="bmFile" accept="image/*" multiple style="display:none">
   </div>
 </div>
 
@@ -3343,6 +3350,9 @@ function openBlock(id){
     : 'Reps are the ladder here. Every rep past your best is a new floor.';
   $('blockModal').classList.add('show');
   $('bmInput').value='';
+  $('bmInput').placeholder = isRep
+    ? (b.g==='recovery' ? '20 min   ·   15' : (b.id==='run'?'30 min   ·   3 miles':'30 reps   ·   3 sets of 15'))
+    : '185×8   ·   3 sets of 10 at 135';
   setTimeout(()=>{try{$('bmInput').focus();}catch(e){}},300);
 }
 function closeBlock(){ $('blockModal').classList.remove('show'); blockOpen=null; renderBlocks(); renderRegionRail(); }
@@ -3362,6 +3372,10 @@ function parseBlockSets(text){
     m=c.match(/\b(\d{1,3}(?:\.\d)?)\s*(?:x|×)\s*(\d{1,3})\b/);
     if(m){const a=+m[1],b2=+m[2];
       if(a>=12||String(m[1]).indexOf('.')>-1)push(a,b2,1);else push(0,b2,a);continue;}
+    m=c.match(/\b(\d{1,3}(?:\.\d)?)\s*(?:min|minutes?|mins?)\b/);
+    if(m){push(0,Math.round(+m[1]),1);continue;}
+    m=c.match(/\b(\d{1,2}(?:\.\d{1,2})?)\s*(?:mi|miles?)\b/);
+    if(m){push(0,Math.round(+m[1]*10)/10,1);continue;}
     m=c.match(/\b(\d{1,3})\s*(?:reps?)\b/);
     if(m){push(0,+m[1],1);continue;}
     m=c.match(/^\s*(\d{1,3})\s*$/);
@@ -3404,6 +3418,56 @@ function blockFlash(pr){
 }
 
 /* ---------- a photo mints a new block ---------- */
+
+
+async function blockPhotoLog(files){
+  if(!blockOpen||!files.length)return;
+  const b=blockById(blockOpen);
+  fishNote('Reading the screen…');
+  const imgs=[];
+  for(const f of files.slice(0,3)){
+    const raw=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
+    if(raw){const small=await shrinkDataUrl(raw,1100,0.8)||raw;imgs.push(small);}
+  }
+  if(!imgs.length){fishNote('Couldn’t read that file.');return;}
+  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+  try{
+    const r=await askClaude('STATION READ for "'+b.n+'" ('+b.g+'). The photo shows a machine display, watch summary, '
+      +'weight stack, timer, or handwritten log. Extract the work shown. Reply ONLY compact JSON: '
+      +(isRep
+        ? '{"sets":[{"w":0,"r":MINUTES_OR_REPS}],"read":"what the screen showed, one line"} — r is minutes for cardio/recovery (a 32:14 run = 32), reps for bodyweight.'
+        : '{"sets":[{"w":WEIGHT_LB,"r":REPS}],"read":"what the screen showed, one line"} — one entry per set if several are visible.')
+      +' If truly unreadable: {"sets":[],"read":"what you saw"}.',imgs);
+    let raw=(r&&(r.reply||r.text))||'';
+    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
+    if(!j)throw new Error('no read');
+    const got=JSON.parse(j[0]);
+    const sets=(got.sets||[]).filter(s=>(+s.r||0)>0).slice(0,12)
+      .map(s=>({w:+s.w||0,r:Math.round(+s.r)}));
+    if(!sets.length){
+      fishSay('I could see it — '+(got.read||'the screen')+' — but no numbers I could log. Say them plain and I’ll take them.');
+      return;
+    }
+    const prevPR=blockRec(blockOpen).pr||0;
+    const res=logToBlock(blockOpen,sets);
+    try{
+      const kcal=Math.round(sets.reduce((a,s)=>a+((s.w||0)*(s.r||0))*0.0006+(s.r||0)*(isRep?4.5:0.32),0));
+      if(kcal>0){const day=S.days[todayKey()];day.items=(day.items||[]);
+        day.items.push({type:'out',name:b.n,kcal:-Math.abs(kcal),t:Date.now()});}
+    }catch(e){}
+    grantXP(sets.length*8+(res.wasPR?XP_RULES.pr:0),res.wasPR?'a new record':'logging the work');
+    reefBloom=1;save();renderAll();
+    blockFlash(res.wasPR);
+    openBlock(blockOpen);
+    fishSay((got.read?'📷 '+got.read+' — ':'')
+      +(res.wasPR
+        ? '🔥 <b>NEW RECORD</b> — '+(isRep?res.best.v+(b.g==='recovery'||b.g==='cardio'?' min':' reps'):res.best.w+'×'+res.best.r)+' (past '+prevPR+').'
+        : 'logged. '+(isRep?res.best.v+(b.g==='recovery'||b.g==='cardio'?' minutes':' reps')+' held; your best is '+res.rec.pr+'.'
+                    : fmt(res.ton)+' lb moved. The record stands at '+res.rec.pr+'.')));
+  }catch(e){
+    fishNote('Couldn’t read that screen — say the numbers and I’ll log them.');
+  }
+}
 
 async function forgeByName(name){
   fishNote('Forging “'+name+'”…');
@@ -5522,6 +5586,9 @@ $('shareMenu').querySelectorAll('button').forEach(b=>b.onclick=e=>{
 document.addEventListener('click',()=>{const m=$('shareMenu');if(m)m.classList.remove('show');});
 
 
+
+$('bmCam').onclick=()=>$('bmFile').click();
+$('bmFile').onchange=e=>{const fs=[...e.target.files];e.target.value='';blockPhotoLog(fs);};
 $('bmClose').onclick=closeBlock;
 $('blockModal').onclick=e=>{if(e.target===$('blockModal'))closeBlock();};
 $('bmSend').onclick=submitBlock;
