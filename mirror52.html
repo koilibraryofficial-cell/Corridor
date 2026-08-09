@@ -556,6 +556,133 @@
   .dock-seal{position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;
     background:var(--gold);box-shadow:0 0 8px var(--gold);}
 
+
+  #shareFab{position:fixed;right:14px;bottom:104px;z-index:60;width:50px;height:50px;border-radius:50%;
+    border:1px solid rgba(232,196,107,.45);background:rgba(10,16,23,.92);color:var(--gold);
+    font-size:21px;cursor:pointer;box-shadow:0 6px 22px rgba(0,0,0,.6);
+    padding-bottom:2px;backdrop-filter:blur(8px);}
+  #shareFab:active{background:rgba(232,196,107,.15);}
+  #shareMenu{position:fixed;right:14px;bottom:162px;z-index:61;display:none;flex-direction:column;gap:6px;
+    background:rgba(8,13,19,.97);border:1px solid #22303E;border-radius:15px;padding:8px;
+    box-shadow:0 12px 40px rgba(0,0,0,.75);}
+  #shareMenu.show{display:flex;}
+  #shareMenu button{background:none;border:none;color:var(--deep);font-family:'Cormorant',serif;
+    font-size:16px;text-align:left;padding:11px 14px;border-radius:10px;cursor:pointer;white-space:nowrap;}
+  #shareMenu button:active{background:rgba(232,196,107,.12);}
+
+
+  /* ---------- the stations ---------- */
+  .life-ton{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:11px;
+    font-family:'IBM Plex Mono',monospace;}
+  .life-ton span{font-size:9px;letter-spacing:.28em;color:var(--mist);}
+  .life-ton b{font-size:34px;font-weight:300;color:var(--gold);
+    text-shadow:0 0 26px rgba(232,196,107,.4);font-variant-numeric:tabular-nums;}
+  #blockSearch{width:100%;background:rgba(10,14,19,.85);border:1px solid #22303E;border-radius:12px;
+    color:var(--deep);font-family:'Cormorant',serif;font-size:16px;padding:11px 14px;margin-bottom:9px;}
+  #regionRail{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px;margin-bottom:9px;}
+  #regionRail button{flex:0 0 auto;background:rgba(16,24,33,.85);border:1px solid #22303E;
+    color:var(--mist);font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;
+    padding:8px 11px;border-radius:9px;cursor:pointer;white-space:nowrap;text-transform:uppercase;}
+  #regionRail button.on{border-color:var(--gold);color:var(--gold);background:rgba(232,196,107,.1);}
+  #blockGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+  .blk{position:relative;padding:11px 12px 12px;border-radius:14px;cursor:pointer;overflow:hidden;
+    background:rgba(14,21,29,.85);border:1px solid #1A2530;transition:transform .12s,border-color .2s;}
+  .blk:active{transform:scale(.97);}
+  .blk.lit{border-color:rgba(255,90,60,calc(.15 + var(--heat) * .5));
+    background:linear-gradient(160deg,rgba(45,22,16,calc(var(--heat)*.55)),rgba(14,21,29,.9));
+    box-shadow:0 0 calc(var(--heat) * 22px) rgba(255,90,60,calc(var(--heat)*.16));}
+  .blk.cold{border-color:#1E2A36;background:rgba(12,17,23,.9);}
+  .blk.cold .blk-n{color:#7E8A96;}
+  .blk-n{font-family:'Cormorant',serif;font-size:16px;line-height:1.15;color:var(--deep);margin-bottom:2px;}
+  .blk-sub{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.18em;
+    color:var(--mist);text-transform:uppercase;}
+  .blk-pr{font-family:'IBM Plex Mono',monospace;font-size:19px;color:var(--gold);margin-top:7px;
+    font-variant-numeric:tabular-nums;}
+  .blk-pr span{font-size:8.5px;letter-spacing:.12em;color:var(--mist);}
+  .blk-zero{font-family:'EB Garamond',serif;font-style:italic;font-size:12.5px;color:#4E5A66;margin-top:8px;}
+  .blk-rail{height:3px;border-radius:2px;background:rgba(26,36,48,.9);margin-top:6px;overflow:hidden;}
+  .blk-fill{height:100%;background:linear-gradient(90deg,#C1121F,#E8C46B);border-radius:2px;}
+  .blk-lvl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.15em;
+    color:var(--gold);margin-top:5px;text-transform:uppercase;}
+  .blk.cold .blk-lvl{color:#5E6B78;}
+
+  /* ---------- the opened station ---------- */
+  #blockModal{position:fixed;inset:0;z-index:120;background:rgba(4,7,11,.9);backdrop-filter:blur(9px);
+    display:none;align-items:flex-end;justify-content:center;}
+  #blockModal.show{display:flex;}
+  #blockModal.flash-log .bm-sheet{animation:bmLog .9s ease;}
+  #blockModal.flash-pr .bm-sheet{animation:bmPR .9s ease;}
+  @keyframes bmLog{0%{box-shadow:0 0 0 rgba(232,196,107,0)}25%{box-shadow:0 0 60px rgba(232,196,107,.45)}100%{box-shadow:0 0 0 rgba(232,196,107,0)}}
+  @keyframes bmPR{0%{box-shadow:0 0 0 rgba(255,90,60,0);transform:scale(1)}
+    18%{box-shadow:0 0 90px rgba(255,90,60,.7);transform:scale(1.012)}
+    100%{box-shadow:0 0 0 rgba(255,90,60,0);transform:scale(1)}}
+  .bm-sheet{width:100%;max-width:520px;max-height:92vh;overflow-y:auto;background:#0A0F16;
+    border:1px solid rgba(232,196,107,.28);border-radius:22px 22px 0 0;padding:20px 18px 16px;
+    position:relative;box-shadow:0 -14px 60px rgba(0,0,0,.8);}
+  .bm-x{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--mist);
+    font-size:19px;cursor:pointer;padding:6px 10px;}
+  .bm-name{font-family:'Cormorant',serif;font-size:29px;font-weight:300;color:var(--deep);line-height:1.1;}
+  .bm-region{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.24em;
+    color:var(--mist);text-transform:uppercase;margin-top:4px;}
+  .bm-cold{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;margin-top:6px;}
+  .bm-body{display:flex;gap:14px;margin:16px 0 12px;}
+  #bmLadder{flex:0 0 96px;}
+  .lad{position:relative;height:210px;width:100%;border-left:2px solid #1E2A36;}
+  .lad-fill{position:absolute;left:-2px;bottom:0;width:2px;
+    background:linear-gradient(0deg,#C1121F,#E8C46B);box-shadow:0 0 12px rgba(232,196,107,.5);}
+  .lad-mark{position:absolute;left:6px;transform:translateY(50%);white-space:nowrap;}
+  .lad-lab{display:block;font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:.14em;color:var(--mist);}
+  .lad-val{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(240,233,216,.75);}
+  .lad-mark.past .lad-lab{color:var(--gold);}
+  .lad-koi{position:absolute;left:-13px;transform:translateY(50%);font-size:19px;
+    filter:drop-shadow(0 0 9px rgba(255,90,60,.75));transition:bottom .8s cubic-bezier(.2,.9,.3,1);}
+  .bm-right{flex:1;min-width:0;}
+  .bm-stat{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;
+    border-bottom:1px solid #16202B;}
+  .bm-stat span{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.2em;color:var(--mist);}
+  .bm-stat b{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:300;color:var(--gold);
+    font-variant-numeric:tabular-nums;}
+  .bm-next{margin-top:11px;font-family:'EB Garamond',serif;font-size:14px;line-height:1.5;color:#8FCB9B;}
+  .bm-next b{color:#B7E5C2;}
+  .bm-last{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:rgba(240,233,216,.85);
+    background:rgba(16,24,33,.7);border:1px solid #16202B;border-radius:12px;padding:10px 12px;margin-bottom:9px;}
+  .bm-lbl{display:block;font-size:8px;letter-spacing:.24em;color:var(--mist);margin-bottom:4px;}
+  .bm-teach{font-family:'EB Garamond',serif;font-size:14.5px;line-height:1.55;color:#9FB0BF;
+    margin-bottom:8px;}
+  .bm-teach b{color:var(--gold);font-weight:400;}
+  .bm-note{font-family:'EB Garamond',serif;font-style:italic;font-size:12px;color:#5E6B78;margin-bottom:12px;}
+  .bm-bar{display:flex;gap:7px;position:sticky;bottom:0;background:#0A0F16;padding-top:8px;}
+  #bmInput{flex:1;background:rgba(10,14,19,.9);border:1px solid rgba(232,196,107,.3);border-radius:13px;
+    color:var(--deep);font-family:'Cormorant',serif;font-size:17px;padding:13px 15px;}
+  #bmSend{flex:0 0 52px;background:linear-gradient(180deg,#E8C46B,#C89B3C);border:none;border-radius:13px;
+    color:#1A1206;font-size:19px;cursor:pointer;}
+  #bmSend:active{transform:scale(.95);}
+
+
+  .quest{font-family:'EB Garamond',serif;font-size:14.5px;line-height:1.6;color:#C9BFA9;
+    background:linear-gradient(160deg,rgba(45,22,16,.4),rgba(14,21,29,.7));
+    border:1px solid rgba(255,90,60,.25);border-radius:13px;padding:11px 14px;margin-bottom:11px;}
+  .quest b{color:var(--gold);font-weight:400;}
+  #doorway{position:fixed;inset:0;z-index:125;background:rgba(4,7,11,.9);backdrop-filter:blur(9px);
+    display:none;align-items:flex-end;justify-content:center;}
+  #doorway.show{display:flex;}
+  .dw-sheet{width:100%;max-width:520px;max-height:80vh;overflow-y:auto;background:#0A0F16;
+    border:1px solid rgba(183,155,224,.35);border-radius:22px 22px 0 0;padding:20px 18px 22px;position:relative;}
+  .dw-head{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.3em;color:#B79BE0;
+    text-transform:uppercase;}
+  .dw-seen{font-family:'Cormorant',serif;font-size:23px;color:var(--deep);margin:6px 0 14px;line-height:1.2;}
+  .dw-row{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:12px 13px;margin-bottom:7px;border-radius:13px;cursor:pointer;
+    background:rgba(16,24,33,.75);border:1px solid #1A2530;}
+  .dw-row:active{border-color:var(--gold);}
+  .dw-n{font-family:'Cormorant',serif;font-size:17.5px;color:var(--deep);}
+  .dw-s{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mist);margin-top:2px;}
+  .dw-tag{flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.14em;
+    padding:5px 8px;border-radius:7px;}
+  .dw-tag.warm{color:#FF8A6B;background:rgba(255,90,60,.12);}
+  .dw-tag.cold{color:#7FA8C4;background:rgba(127,168,196,.1);}
+  .dw-tag.new{color:#B79BE0;background:rgba(183,155,224,.12);}
+
 </style>
 </head>
 <body>
@@ -628,6 +755,20 @@
 </div>
 
 <div class="page" id="pageStr">
+  <div class="section open" id="blockSection">
+    <div class="sec-head"><h3>The Stations · Each One Remembers You</h3><span class="car">›</span></div>
+    <div class="sec-body">
+      <div class="life-ton"><span>LIFETIME MOVED</span><b id="lifeTon">0</b><span>LB</span></div>
+      <div id="questLine" class="quest"></div>
+      <input id="blockSearch" placeholder="Search any movement…" autocomplete="off">
+      <div id="regionRail"></div>
+      <div id="blockGrid"></div>
+      <button class="btn" id="mintBtn" style="width:100%;margin-top:10px;color:#B79BE0">📷 Point at any equipment — I’ll open its doors</button>
+      <input type="file" id="mintIn" accept="image/*" capture="environment" style="display:none">
+      <div class="gnote">Tap a station to open it. Log a set and the koi climbs. Leave it three days and it goes cold — your floor never falls.</div>
+    </div>
+  </div>
+
   <div class="ribbon-wrap"><canvas class="ribbon" id="ribStr"></canvas><div class="ribbon-title">The Forge</div></div>
   <div class="dsearch">
     <input id="moveSearch" placeholder="Speak below, or search / name any movement…" autocomplete="off">
@@ -848,7 +989,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v52</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v56</div>
   </div>
 </div>
 
@@ -860,7 +1001,53 @@
   <div class="in-tap">TAP TO CONTINUE</div>
 </div>
 
+
+<div id="blockModal">
+  <div class="bm-sheet">
+    <button class="bm-x" id="bmClose">✕</button>
+    <div class="bm-head">
+      <div class="bm-name" id="bmName"></div>
+      <div class="bm-region" id="bmRegion"></div>
+      <div class="bm-cold" id="bmCold"></div>
+    </div>
+    <div class="bm-body">
+      <div id="bmLadder"></div>
+      <div class="bm-right">
+        <div id="bmStats"></div>
+        <div class="bm-next" id="bmNext"></div>
+      </div>
+    </div>
+    <div class="bm-last" id="bmLast"></div>
+    <div class="bm-teach" id="bmBuilds"></div>
+    <div class="bm-teach" id="bmForm"></div>
+    <div class="bm-note" id="bmNote"></div>
+    <div class="bm-bar">
+      <input id="bmInput" placeholder="185×8   ·   3 sets of 10 at 135   ·   30" autocomplete="off">
+      <button id="bmSend">→</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="doorway">
+  <div class="dw-sheet">
+    <button class="bm-x" id="dwClose">✕</button>
+    <div class="dw-head">THE STATION OPENS</div>
+    <div class="dw-seen" id="doorSeen"></div>
+    <div id="doorList"></div>
+  </div>
+</div>
+
 <div id="depFx"></div>
+<button id="shareFab" title="Share this page">⇪</button>
+<div id="shareMenu">
+  <button id="foodTog" style="color:var(--mist);border-bottom:1px solid #22303E;border-radius:0;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em">🍲 FOOD: HIDDEN</button>
+  <button data-k="mirror">🪞 The Mirror — today’s number</button>
+  <button data-k="forge">🔥 The Forge — today’s work</button>
+  <button data-k="move">🏃 The Road — movement</button>
+  <button data-k="week">📅 The Week — seven days</button>
+</div>
 <div class="lightbox" id="lightbox">
   <img id="lbImg" alt="">
   <video id="lbVid" controls playsinline style="display:none;max-width:100%;max-height:62%;border-radius:12px;border:1px solid #22303E"></video>
@@ -951,7 +1138,7 @@ const store=(()=>{let mem={},ok=false;
 let S=JSON.parse(store.get('caloricMirror')||'null')||{
   profile:null,targetW:null,startDate:null,mirrorStart:0,calib:1.0,
   marks:[],days:{},lifts:{},chat:[],lastGreet:null,toured:false,sound:false,
-  book:{},roomSeen:{},forgeCrowns:0,lastCrown:null,registered:false,reflect:null,goalText:null,plan:null,apiKey:null,
+  book:{},roomSeen:{},shareFood:false,forgeCrowns:0,lastCrown:null,registered:false,reflect:null,goalText:null,plan:null,apiKey:null,
   prs:{},streak:{current:0,longest:0,lastSeen:null},form:1,gateCrossed:false,session:null,installAsked:false,notifAsked:false,boardName:null,
   xp:0,owned:['crimson','corridor','gold','sigil-mirror'],equip:{koi:'crimson',water:'corridor',accent:'gold',sigil:'sigil-mirror'},xpLog:{}
 };
@@ -1669,6 +1856,7 @@ function pulse(){$('mirrorNumber').classList.add('moving');clearTimeout(pulseT);
   pulseT=setTimeout(()=>$('mirrorNumber').classList.remove('moving'),1200);}
 function renderAll(){
   try{renderSeal();}catch(e){}
+  try{renderBlocks();renderRegionRail();renderQuest();}catch(e){}
   if(!S.profile){if(!S.toured)return;$('setup').classList.add('show');return;}
   $('setup').classList.remove('show');
   $('dayLabel').textContent='DAY '+dayIndex()+' · MY CALORIC MIRROR';
@@ -2933,6 +3121,607 @@ $('bkFile').onchange=e=>{
 };
 
 
+
+
+/* ============ THE LIVING BLOCKS — every station remembers you ============ */
+const BLOCK_LIB=[{"id":"bench-press","n":"Bench Press","r":"chest","g":"barbell","m":2.0,"b":"The foundation of upper-body pressing. Builds the thick middle of the chest, the front delts, and the triceps together.","f":"Elbows about 45° from your ribs, bar to the lower chest, feet planted. No bounce — the pause is where the chest earns it."},{"id":"incline-bench","n":"Incline Bench Press","r":"chest","g":"barbell","m":1.6,"b":"Angles the press upward to load the upper chest — the shelf under the collarbone that makes a chest look built rather than wide.","f":"Bench at 30°, not 45 — steeper turns it into a shoulder press. Bar to the top of the chest."},{"id":"dumbbell-press","n":"Dumbbell Bench Press","r":"chest","g":"dumbbell","m":0.8,"b":"Each arm works alone, so the weaker side can't hide. Deeper stretch than a bar allows, which builds the inner chest.","f":"Let the dumbbells come level with your chest, then press up and slightly together."},{"id":"incline-db-press","n":"Incline Dumbbell Press","r":"chest","g":"dumbbell","m":0.65,"b":"Upper chest with a free range of motion. The single best movement for the shelf if the bar bothers your shoulders.","f":"30° bench, palms angled slightly in, deep stretch at the bottom."},{"id":"chest-fly","n":"Chest Fly","r":"chest","g":"dumbbell","m":0.35,"b":"Pure stretch and squeeze — no triceps helping. Widens the outer chest and carves the line down the middle.","f":"Soft bend in the elbow held all the way. Wide arc, not a press. Feel the stretch, don't chase weight."},{"id":"cable-crossover","n":"Cable Crossover","r":"chest","g":"cable","m":0.5,"b":"Constant tension the whole arc. Set high it hits the lower chest line; set low it hits the upper.","f":"Step forward so tension never dies. Cross the hands slightly past centre at the end."},{"id":"chest-dip","n":"Chest Dip","r":"chest","g":"bodyweight","m":null,"b":"Bodyweight pressing at a downward angle — the strongest builder of the lower chest line and the sweep under the pec.","f":"Lean the torso forward about 30°, elbows flare slightly. Upright turns it into a triceps movement."},{"id":"pushup","n":"Push-Up","r":"chest","g":"bodyweight","m":null,"b":"The floor of all pressing. Chest, triceps, front delts and a braced core in one movement, anywhere, forever.","f":"Body in one line from heel to head. Hands under the shoulders, elbows back at 45°."},{"id":"machine-press","n":"Machine Chest Press","r":"chest","g":"machine","m":1.2,"b":"The path is fixed, so you can push close to failure safely. Good for finishing the chest when the stabilisers are spent.","f":"Set the handles level with mid-chest. Full stretch back, full squeeze forward."},{"id":"pec-deck","n":"Pec Deck","r":"chest","g":"machine","m":0.5,"b":"An isolated squeeze on a fixed arc. Targets the inner chest with no balance demand at all.","f":"Pads at chest height, elbows slightly below the shoulder line. Hold the squeeze for a beat."},{"id":"deadlift","n":"Deadlift","r":"back","g":"barbell","m":3.25,"b":"The whole posterior chain in one pull — spinal erectors, lats, glutes, hamstrings, grip. The single heaviest thing a body can do.","f":"Bar over mid-foot, chest up, back flat. Push the floor away rather than pulling the bar up."},{"id":"pullup","n":"Pull-Up","r":"back","g":"bodyweight","m":null,"b":"The width builder. Lats, rear delts, biceps and grip, moving your whole bodyweight through space.","f":"Full hang at the bottom, chest to the bar at the top. Pull with the elbows, not the hands."},{"id":"lat-pulldown","n":"Lat Pulldown","r":"back","g":"machine","m":1.0,"b":"The pull-up made scalable. Builds the outer lats — the taper that makes a back look wide from the front.","f":"Slight lean back, bar to the collarbone. Drive the elbows down and back."},{"id":"barbell-row","n":"Barbell Row","r":"back","g":"barbell","m":1.5,"b":"Horizontal pulling for the thickness of the mid-back — rhomboids, mid-traps, lats.","f":"Torso around 45°, bar to the navel. Squeeze the shoulder blades at the top."},{"id":"dumbbell-row","n":"Dumbbell Row","r":"back","g":"dumbbell","m":0.6,"b":"One side at a time with a longer range than a bar allows. Evens out a back that pulls harder on one side.","f":"Flat back, pull the dumbbell to the hip, not the shoulder. Full stretch at the bottom."},{"id":"seated-row","n":"Seated Cable Row","r":"back","g":"cable","m":1.2,"b":"Constant tension across the mid-back. Best movement for posture — pulls the shoulders out of a desk.","f":"Chest tall, pull to the belly button, elbows brushing the ribs."},{"id":"face-pull","n":"Face Pull","r":"back","g":"cable","m":0.4,"b":"Rear delts and mid-traps — the small muscles that hold your shoulders back and keep them healthy under pressing.","f":"Rope to the forehead, elbows high, external rotation at the end. Light weight, high reps."},{"id":"shrug","n":"Shrug","r":"back","g":"dumbbell","m":0.9,"b":"Direct upper-trap work — the muscle that frames the neck and carries everything you pick up.","f":"Straight up, not rolling. Pause at the top for a beat."},{"id":"overhead-press","n":"Overhead Press","r":"shoulders","g":"barbell","m":1.3,"b":"Vertical pressing from the floor up. Front and side delts, triceps, and a braced core holding it all together.","f":"Bar from the collarbone, head moves back then through. Squeeze the glutes so the back doesn't arch."},{"id":"db-shoulder-press","n":"Dumbbell Shoulder Press","r":"shoulders","g":"dumbbell","m":0.6,"b":"Free-range overhead pressing. Each shoulder works alone, which builds the front and side head evenly.","f":"Start at ear height, press up and slightly in. Don't clang them at the top."},{"id":"lateral-raise","n":"Lateral Raise","r":"shoulders","g":"dumbbell","m":0.22,"b":"The width maker. Isolates the side delt — the muscle that gives shoulders their round, capped look.","f":"Lead with the elbow, stop at shoulder height. Light weight; momentum steals the whole movement."},{"id":"rear-delt-fly","n":"Rear Delt Fly","r":"shoulders","g":"dumbbell","m":0.2,"b":"The back of the shoulder — the head almost everyone neglects. Balances a chest-heavy build and protects the joint.","f":"Hinge at the hips, arms wide, thumbs down. Squeeze the rear delts, not the traps."},{"id":"front-raise","n":"Front Raise","r":"shoulders","g":"dumbbell","m":0.25,"b":"Isolates the front delt. Usually already worked by pressing, so treat it as a finisher rather than a main lift.","f":"Raise to eye level, controlled all the way down."},{"id":"arnold-press","n":"Arnold Press","r":"shoulders","g":"dumbbell","m":0.5,"b":"A rotating press that runs the shoulder through its full arc — front and side heads in one movement.","f":"Start palms facing you, rotate out as you press. Reverse it on the way down."},{"id":"upright-row","n":"Upright Row","r":"shoulders","g":"barbell","m":0.6,"b":"Side delts and traps together. Effective but demanding on the shoulder joint — go moderate.","f":"Wide grip, elbows lead, stop at chest height. Narrow grips pinch the joint."},{"id":"barbell-curl","n":"Barbell Curl","r":"biceps","g":"barbell","m":0.65,"b":"The classic mass builder for the biceps. Both heads loaded heavy in one movement.","f":"Elbows pinned at your sides. No swing — if the hips move, the weight is too heavy."},{"id":"dumbbell-curl","n":"Dumbbell Curl","r":"biceps","g":"dumbbell","m":0.25,"b":"One arm at a time with rotation. Builds the peak and evens out arm-to-arm strength.","f":"Supinate as you curl — turn the pinky up at the top."},{"id":"hammer-curl","n":"Hammer Curl","r":"biceps","g":"dumbbell","m":0.3,"b":"Neutral grip loads the brachialis underneath the bicep, which pushes the peak higher, plus the forearm.","f":"Palms face each other the whole way. Controlled, no swinging."},{"id":"preacher-curl","n":"Preacher Curl","r":"biceps","g":"machine","m":0.4,"b":"Locks the elbow in place so the bicep can't cheat. Builds the lower bicep and the tie-in near the elbow.","f":"Full stretch at the bottom — that's where this movement earns its keep."},{"id":"tricep-pushdown","n":"Tricep Pushdown","r":"triceps","g":"cable","m":0.5,"b":"Constant tension on the outer and medial triceps head. The workhorse of arm-day pressing.","f":"Elbows locked at your sides, full extension, squeeze at the bottom."},{"id":"skullcrusher","n":"Skullcrusher","r":"triceps","g":"barbell","m":0.5,"b":"Loads the long head of the triceps — the mass along the back of the arm that shows from the side.","f":"Lower to the forehead, elbows pointing at the ceiling and staying there."},{"id":"overhead-tricep","n":"Overhead Tricep Extension","r":"triceps","g":"dumbbell","m":0.35,"b":"The deepest stretch the long head can get. Best single movement for arm thickness from behind.","f":"Elbows close to the head, full stretch behind the neck."},{"id":"close-grip-bench","n":"Close-Grip Bench Press","r":"triceps","g":"barbell","m":1.5,"b":"Heavy compound pressing shifted onto the triceps. Builds arms and carries straight over to your bench.","f":"Hands shoulder-width, elbows tucked tight. Bar to the lower chest."},{"id":"tricep-dip","n":"Tricep Dip","r":"triceps","g":"bodyweight","m":null,"b":"Bodyweight triceps at full load. Stay upright and it becomes the strongest arm builder you own.","f":"Torso vertical, elbows straight back. Leaning forward turns it into a chest movement."},{"id":"wrist-curl","n":"Wrist Curl","r":"forearms","g":"dumbbell","m":0.25,"b":"Direct forearm work. Builds grip strength that carries into every pull you'll ever do.","f":"Forearms on a bench, wrists hanging free. Full curl, slow release."},{"id":"squat","n":"Back Squat","r":"quads","g":"barbell","m":2.75,"b":"The king of leg movements. Quads, glutes, hamstrings, spinal erectors and core under one bar.","f":"Break at the hips and knees together, knees tracking over the toes, hips below parallel."},{"id":"front-squat","n":"Front Squat","r":"quads","g":"barbell","m":2.0,"b":"Bar in front shifts the load onto the quads and forces an upright torso. Brutal on the core.","f":"Elbows high the whole rep. The moment they drop, the bar rolls forward."},{"id":"leg-press","n":"Leg Press","r":"quads","g":"machine","m":3.5,"b":"Heavy leg loading with the back supported. Lets you push near failure without balance limiting you.","f":"Feet shoulder-width, knees to 90°, never lock out hard at the top."},{"id":"lunge","n":"Lunge","r":"quads","g":"dumbbell","m":0.5,"b":"One leg at a time — quads, glutes and balance. Exposes and fixes side-to-side differences.","f":"Long step, back knee toward the floor, front knee over the ankle."},{"id":"leg-extension","n":"Leg Extension","r":"quads","g":"machine","m":0.8,"b":"Isolates the quads with zero help. Builds the teardrop above the knee.","f":"Full extension, pause at the top, slow on the way down."},{"id":"romanian-deadlift","n":"Romanian Deadlift","r":"hamstrings","g":"barbell","m":2.0,"b":"Hip hinge under load — the best hamstring and glute builder there is.","f":"Push the hips back, bar close to the legs, slight knee bend held throughout."},{"id":"leg-curl","n":"Leg Curl","r":"hamstrings","g":"machine","m":0.7,"b":"Isolates the hamstrings by bending the knee. Balances a body that squats more than it hinges.","f":"Full range, squeeze at the top, control the return."},{"id":"hip-thrust","n":"Hip Thrust","r":"glutes","g":"barbell","m":2.0,"b":"The strongest direct glute movement. Loads the glute at full contraction, which squats never do.","f":"Shoulders on a bench, chin tucked, squeeze hard at the top for a full second."},{"id":"calf-raise","n":"Calf Raise","r":"calves","g":"machine","m":1.5,"b":"Direct calf work. Stubborn muscle — needs high reps and a full stretch at the bottom.","f":"Heels drop below the platform, rise all the way to the toes, pause both ends."},{"id":"plank","n":"Plank","r":"core","g":"bodyweight","m":null,"b":"Isometric bracing — teaches the whole midsection to hold under pressure, which protects every heavy lift.","f":"Straight line from heel to head. Squeeze the glutes; don't let the hips sag."},{"id":"hanging-leg-raise","n":"Hanging Leg Raise","r":"core","g":"bodyweight","m":null,"b":"The lower abs, plus grip and lats. Hardest bodyweight core movement worth doing.","f":"Curl the pelvis up rather than just lifting the legs. No swinging."},{"id":"cable-crunch","n":"Cable Crunch","r":"core","g":"cable","m":0.6,"b":"Weighted ab work. The only reliable way to make abs thicker rather than just more endurance-trained.","f":"Crunch the ribs to the hips. Hips stay still — this is spinal flexion, not a hip movement."},{"id":"russian-twist","n":"Russian Twist","r":"core","g":"dumbbell","m":0.2,"b":"Rotation for the obliques — the muscles that frame the waist and drive every twisting movement.","f":"Slow rotation, chest up. Speed here does nothing."},{"id":"situp","n":"Sit-Up","r":"core","g":"bodyweight","m":null,"b":"Classic full-range ab flexion. Simple, scalable, and needs nothing but the floor.","f":"Feet down, hands light at the temples. Don't pull on the neck."},{"id":"run","n":"Run","r":"heart","g":"cardio","m":null,"b":"Steady-state cardio. Builds the aerobic base that makes recovery between sets faster.","f":"Land under the hips, easy cadence. Conversation pace builds the base; sprints build the ceiling."},{"id":"row-machine","n":"Rowing Machine","r":"heart","g":"cardio","m":null,"b":"Full-body conditioning — legs drive, back pulls, everything works. Hardest cardio per minute in most gyms.","f":"Legs, then back, then arms. Reverse exactly on the return."},{"id":"burpee","n":"Burpee","r":"heart","g":"bodyweight","m":null,"b":"Chest, legs, and lungs in one movement. Maximum conditioning with zero equipment.","f":"Chest to floor, explode up. Pace yourself — this one lies about how easy it is."},{"id":"jump-rope","n":"Jump Rope","r":"calves","g":"cardio","m":null,"b":"Calves, coordination and heart rate. The cheapest conditioning tool that exists.","f":"Small jumps, wrists doing the turning, stay on the balls of the feet."}];
+const REGIONS={chest:['Chest','🫀'],back:['Back','🔺'],shoulders:['Shoulders','🛡'],
+  biceps:['Biceps','💪'],triceps:['Triceps','🔱'],forearms:['Forearms','✊'],
+  quads:['Legs · Quads','🦵'],hamstrings:['Legs · Hams','🦵'],glutes:['Glutes','🍑'],
+  calves:['Calves','🐾'],core:['Core','◈'],heart:['Conditioning','🫁']};
+const RUNGS=['BEGINNER','INTERMEDIATE','ADVANCED','ELITE'];
+const RUNG_MULT=[0.25,0.5,0.75,1.0];
+const COLD_HOURS=72;
+
+function allBlocks(){ return BLOCK_LIB.concat(S.customBlocks||[]); }
+function blockById(id){ return allBlocks().find(b=>b.id===id); }
+function blockRec(id){ S.blocks=S.blocks||{};
+  return S.blocks[id]||(S.blocks[id]={pr:0,prSet:null,prWhen:null,ton:0,sessions:[],last:null,best:null}); }
+const e1rm=(w,r)=>r>1?Math.round(w*(1+r/30)):w;
+
+function blockCeiling(b){
+  const bw=(S.profile&&S.profile.w)||185;
+  if(b.g==='bodyweight'||b.g==='cardio')return null;      // reps are the ladder
+  return Math.round(bw*(b.m||0.5));
+}
+function blockMarks(b){
+  const c=blockCeiling(b); if(!c)return null;
+  return RUNG_MULT.map(m=>Math.round(c*m));
+}
+function blockLevel(b,val){
+  const marks=blockMarks(b);
+  if(!marks)return {i:-1,name:'',pct:0};
+  if(val>=marks[3])return {i:3,name:'ELITE',pct:1,past:val>marks[3]};
+  for(let i=0;i<4;i++) if(val<marks[i])
+    return {i:i-1,name:i===0?'':RUNGS[i-1],pct:val/marks[3]};
+  return {i:3,name:'ELITE',pct:1};
+}
+function blockHours(id){ const r=blockRec(id);
+  if(!r.last)return null; return (Date.now()-r.last)/36e5; }
+function blockHeat(id){ const h=blockHours(id);
+  if(h===null)return 0;
+  if(h<=COLD_HOURS)return 1;
+  return Math.max(0,1-(h-COLD_HOURS)/(24*14));            // fades over two weeks, never below cold
+}
+function lifetimeTonnage(){ let t=0; const bl=S.blocks||{};
+  for(const k in bl)t+=bl[k].ton||0; return t; }
+
+function logToBlock(id,sets){
+  const b=blockById(id); if(!b||!sets.length)return null;
+  const rec=blockRec(id);
+  let ton=0,best=null;
+  sets.forEach(s=>{
+    const w=+s.w||0, r=+s.r||0;
+    ton+=w*r;
+    const v=(b.g==='bodyweight'||b.g==='cardio')?r:e1rm(w,r);
+    if(!best||v>best.v)best={v,w,r};
+  });
+  rec.ton=(rec.ton||0)+ton;
+  rec.last=Date.now();
+  rec.sessions=(rec.sessions||[]).concat([{t:Date.now(),sets:sets.slice(0,12),ton}]).slice(-40);
+  const wasPR=best&&best.v>(rec.pr||0);
+  if(wasPR){rec.pr=best.v;rec.prSet={w:best.w,r:best.r};rec.prWhen=todayKey();}
+  // feed the day ledger so the mirror, muscles and week all stay true
+  const day=(S.days[todayKey()]=S.days[todayKey()]||{});
+  day.sets=(day.sets||[]).concat(sets.map(s=>({ex:b.n,w:+s.w||0,r:+s.r||0,t:Date.now(),block:id})));
+  save();
+  return {ton,best,wasPR,rec,b};
+}
+
+
+/* ---------- today's quest: the forge names the fight ---------- */
+function forgeQuest(){
+  const bl=allBlocks(); const touched=bl.filter(b=>blockRec(b.id).last);
+  if(!touched.length)return 'The stations wait. Tap one, log one set — that set becomes your floor, and everything after it is a climb.';
+  // the warmest block close to a rung, and the coldest region
+  let fight=null;
+  touched.forEach(b=>{
+    const rec=blockRec(b.id); if(!rec.pr)return;
+    const marks=blockMarks(b);
+    if(marks){
+      const next=marks.find(m=>m>rec.pr);
+      if(next){ const gap=(next-rec.pr)/next;
+        if(gap<0.12 && (!fight||gap<fight.gap)) fight={b,rec,next,gap,rung:RUNGS[marks.indexOf(next)]}; }
+    }
+  });
+  const cold=touched.map(b=>({b,h:blockHours(b.id)})).filter(x=>x.h>COLD_HOURS)
+    .sort((a,c)=>c.h-a.h)[0];
+  const recent=touched.sort((a,c)=>blockRec(c.id).last-blockRec(a.id).last)[0];
+  const parts=[];
+  if(fight)parts.push('⚔ <b>'+fight.b.n+'</b> sits '+(fight.next-fight.rec.pr)+' from <b>'+fight.rung+'</b> — that rung falls today if you take it.');
+  else if(recent){const rec=blockRec(recent.id);
+    const p=rec.prSet||{w:rec.pr,r:1};
+    parts.push('⚔ <b>'+recent.n+'</b> — the record stands at '+(rec.pr||0)+'. '+(p.w?p.w+'×'+(p.r+1)+' takes it.':'One more rep takes it.'));}
+  if(cold)parts.push('❄ <b>'+cold.b.n+'</b> has gone '+Math.floor(cold.h/24)+' days cold. Relight it and the fire spreads.');
+  return parts.join('<br>')||'Every station warm. Pick one and push the ceiling.';
+}
+function renderQuest(){ const el=$('questLine'); if(el)el.innerHTML=forgeQuest(); }
+
+/* ---------- the grid ---------- */
+let blockFilter='warm', blockOpen=null;
+function renderBlocks(){
+  const host=$('blockGrid'); if(!host)return;
+  const lt=lifetimeTonnage();
+  const ltEl=$('lifeTon'); if(ltEl)ltEl.textContent=fmt(lt);
+  let list=allBlocks();
+  if(blockFilter==='warm'){
+    list=list.filter(b=>blockRec(b.id).last).sort((a,c)=>blockRec(c.id).last-blockRec(a.id).last);
+    if(!list.length){blockFilter='all';return renderBlocks();}
+  } else if(blockFilter!=='all'){
+    list=list.filter(b=>b.r===blockFilter);
+  }
+  const q=($('blockSearch')&&$('blockSearch').value||'').toLowerCase().trim();
+  if(q)list=allBlocks().filter(b=>b.n.toLowerCase().includes(q));
+  host.innerHTML=list.map(b=>{
+    const rec=blockRec(b.id), heat=blockHeat(b.id);
+    const lvl=blockLevel(b,rec.pr||0);
+    const h=blockHours(b.id);
+    const cold = h!==null && h>COLD_HOURS;
+    const days = h!==null?Math.floor(h/24):null;
+    return '<div class="blk'+(rec.last?' lit':'')+(cold?' cold':'')+'" data-b="'+b.id+'" '
+      +'style="--heat:'+heat.toFixed(2)+'">'
+      +'<div class="blk-n">'+b.n+'</div>'
+      +'<div class="blk-sub">'+(REGIONS[b.r]?REGIONS[b.r][0]:b.r)+'</div>'
+      +(rec.pr? '<div class="blk-pr">'+(b.g==='bodyweight'||b.g==='cardio'
+            ? rec.pr+' reps' : rec.pr+' <span>e1RM</span>')+'</div>'
+          +'<div class="blk-rail"><div class="blk-fill" style="width:'+Math.min(100,lvl.pct*100)+'%"></div></div>'
+          +'<div class="blk-lvl">'+(lvl.name||'CLIMBING')+(cold?' · '+days+'d cold':'')+'</div>'
+        : '<div class="blk-zero">untouched</div>')
+      +'</div>';
+  }).join('');
+  host.querySelectorAll('.blk').forEach(el=>el.onclick=()=>openBlock(el.dataset.b));
+}
+function renderRegionRail(){
+  const host=$('regionRail'); if(!host)return;
+  const regions=[...new Set(allBlocks().map(b=>b.r))];
+  const heatOf=r=>{const bs=allBlocks().filter(b=>b.r===r);
+    return Math.max(0,...bs.map(b=>blockHeat(b.id)));};
+  host.innerHTML='<button data-f="warm" class="'+(blockFilter==='warm'?'on':'')+'">◆ Warm</button>'
+    +'<button data-f="all" class="'+(blockFilter==='all'?'on':'')+'">All</button>'
+    +regions.map(r=>{const h=heatOf(r);
+      return '<button data-f="'+r+'" class="'+(blockFilter===r?'on':'')+'" '
+        +'style="border-color:'+(h>.6?'rgba(255,90,60,.6)':h>0?'rgba(232,196,107,.35)':'#22303E')
+        +';color:'+(h>.6?'#FF8A6B':h>0?'var(--gold)':'var(--mist)')+'">'
+        +(REGIONS[r]?REGIONS[r][1]:'')+' '+(REGIONS[r]?REGIONS[r][0].split(' · ')[0]:r)+'</button>';}).join('');
+  host.querySelectorAll('button').forEach(b=>b.onclick=()=>{blockFilter=b.dataset.f;
+    if($('blockSearch'))$('blockSearch').value='';renderRegionRail();renderBlocks();});
+}
+
+/* ---------- one block, opened ---------- */
+function openBlock(id){
+  const b=blockById(id); if(!b)return;
+  blockOpen=id;
+  const rec=blockRec(id), marks=blockMarks(b), lvl=blockLevel(b,rec.pr||0);
+  const isRep=(b.g==='bodyweight'||b.g==='cardio');
+  const h=blockHours(id), cold=h!==null&&h>COLD_HOURS;
+  const last=(rec.sessions||[]).slice(-1)[0];
+  const nextTargets=(()=>{
+    if(!rec.pr)return 'Log your first set — that becomes your floor.';
+    if(isRep)return 'Beat it with <b>'+(rec.pr+1)+' reps</b>.';
+    const p=rec.prSet||{w:rec.pr,r:1};
+    return 'Beat it with <b>'+p.w+'×'+(p.r+1)+'</b>, or <b>'+(Math.round((p.w+5)/2.5)*2.5)+'×'+p.r+'</b>.';
+  })();
+  $('bmName').textContent=b.n;
+  $('bmRegion').textContent=(REGIONS[b.r]?REGIONS[b.r][0]:b.r)+' · '+b.g;
+  $('bmBuilds').innerHTML='<b>What it builds.</b> '+b.b;
+  $('bmForm').innerHTML='<b>The rep.</b> '+b.f;
+  $('bmStats').innerHTML=
+    '<div class="bm-stat"><span>PR</span><b>'+(rec.pr?(isRep?rec.pr+' reps':rec.pr+' lb'):'—')+'</b></div>'
+   +'<div class="bm-stat"><span>LIFETIME</span><b>'+fmt(rec.ton||0)+' lb</b></div>'
+   +'<div class="bm-stat"><span>SESSIONS</span><b>'+((rec.sessions||[]).length)+'</b></div>';
+  $('bmLast').innerHTML= last
+    ? '<span class="bm-lbl">LAST TIME · '+(h<24?'today':Math.floor(h/24)+'d ago')+'</span>'
+      +last.sets.map(s=>s.w?(s.w+'×'+s.r):(s.r+' reps')).join('  ·  ')
+      +'  <span style="color:var(--mist)">('+fmt(last.ton)+' lb)</span>'
+    : '<span class="bm-lbl">NO HISTORY</span>This block has never been touched. Whatever you log becomes the floor.';
+  $('bmNext').innerHTML=nextTargets;
+  $('bmCold').innerHTML = cold
+    ? '<span style="color:#6B7A88">❄ '+Math.floor(h/24)+' days cold — your floor is still yours. Relight it.</span>'
+    : (rec.last?'<span style="color:#FF8A6B">🔥 warm</span>':'');
+  // the ladder
+  const ladder=$('bmLadder');
+  if(marks){
+    const top=Math.max(marks[3],rec.pr||0);
+    const pos=Math.min(1,(rec.pr||0)/top);
+    ladder.innerHTML='<div class="lad">'
+      +marks.map((m,i)=>'<div class="lad-mark" style="bottom:'+(m/top*100)+'%">'
+        +'<span class="lad-lab">'+RUNGS[i]+'</span><span class="lad-val">'+fmt(m)+'</span></div>').join('')
+      +(rec.pr>marks[3]?'<div class="lad-mark past" style="bottom:100%"><span class="lad-lab">YOU · PAST ELITE</span></div>':'')
+      +'<div class="lad-koi" style="bottom:'+(pos*100)+'%">🐟</div>'
+      +'<div class="lad-fill" style="height:'+(pos*100)+'%"></div></div>';
+  } else {
+    const top=Math.max(1,(rec.pr||0)*1.25);
+    ladder.innerHTML='<div class="lad"><div class="lad-mark" style="bottom:'+((rec.pr||0)/top*100)+'%">'
+      +'<span class="lad-lab">YOUR BEST</span><span class="lad-val">'+(rec.pr||0)+' reps</span></div>'
+      +'<div class="lad-koi" style="bottom:'+((rec.pr||0)/top*100)+'%">🐟</div>'
+      +'<div class="lad-fill" style="height:'+((rec.pr||0)/top*100)+'%"></div></div>';
+  }
+  $('bmNote').textContent = marks
+    ? 'Marks are estimates from your bodyweight — close, not gospel. The ceiling is meant to be broken.'
+    : 'Reps are the ladder here. Every rep past your best is a new floor.';
+  $('blockModal').classList.add('show');
+  $('bmInput').value='';
+  setTimeout(()=>{try{$('bmInput').focus();}catch(e){}},300);
+}
+function closeBlock(){ $('blockModal').classList.remove('show'); blockOpen=null; renderBlocks(); renderRegionRail(); }
+
+/* ---------- logging into an open block ---------- */
+function parseBlockSets(text){
+  const out=[]; const t=text.toLowerCase();
+  const clauses=t.split(/,|\bthen\b|\band\b/);
+  const push=(w,r,n)=>{const c=Math.min(12,Math.max(1,n||1));for(let i=0;i<c;i++)out.push({w,r});};
+  for(const c of clauses){
+    let m=c.match(/(\d{1,3}(?:\.\d)?)\s*(?:lbs?|pounds?)\s*[,\s]*(\d{1,2})\s*(?:x|×|sets? of)\s*(\d{1,3})/);
+    if(m){push(+m[1],+m[3],+m[2]);continue;}
+    m=c.match(/\b(\d{1,2})\s*sets? of\s*(\d{1,3})(?:\s*(?:at|@|with)\s*(\d{1,3}(?:\.\d)?))?/);
+    if(m){push(m[3]?+m[3]:0,+m[2],+m[1]);continue;}
+    m=c.match(/(\d{1,3}(?:\.\d)?)\s*(?:lbs?|pounds?)?\s*(?:for|@)\s*(\d{1,3})\b/);
+    if(m){push(+m[1],+m[2],1);continue;}
+    m=c.match(/\b(\d{1,3}(?:\.\d)?)\s*(?:x|×)\s*(\d{1,3})\b/);
+    if(m){const a=+m[1],b2=+m[2];
+      if(a>=12||String(m[1]).indexOf('.')>-1)push(a,b2,1);else push(0,b2,a);continue;}
+    m=c.match(/\b(\d{1,3})\s*(?:reps?)\b/);
+    if(m){push(0,+m[1],1);continue;}
+    m=c.match(/^\s*(\d{1,3})\s*$/);
+    if(m){push(0,+m[1],1);continue;}
+  }
+  return out;
+}
+function submitBlock(){
+  if(!blockOpen)return;
+  const txt=$('bmInput').value.trim(); if(!txt)return;
+  const sets=parseBlockSets(txt);
+  if(!sets.length){ $('bmNext').innerHTML='Say it like <b>185×8</b>, <b>3 sets of 10 at 135</b>, or just <b>30</b> for reps.'; return; }
+  const b=blockById(blockOpen);
+  const prevPR=blockRec(blockOpen).pr||0;
+  const res=logToBlock(blockOpen,sets);
+  const isRep=(b.g==='bodyweight'||b.g==='cardio');
+  // burn + muscles into the mirror
+  try{
+    const kcal=Math.round(sets.reduce((a,s)=>a+((s.w||0)*(s.r||0))*0.0006+ (s.r||0)*0.32,0));
+    if(kcal>0){ const day=S.days[todayKey()]; day.items=(day.items||[]);
+      day.items.push({type:'out',name:b.n,kcal:-Math.abs(kcal),t:Date.now()}); }
+  }catch(e){}
+  grantXP(sets.length*8+(res.wasPR?XP_RULES.pr:0),res.wasPR?'a new record':'logging the work');
+  reefBloom=1; save(); renderAll();
+  blockFlash(res.wasPR);
+  openBlock(blockOpen);
+  const line = res.wasPR
+    ? '🔥 <b>NEW RECORD</b> — '+(isRep?res.best.v+' reps':res.best.w+'×'+res.best.r+' · '+res.best.v+' e1RM')
+      +' (past '+(prevPR||0)+'). '+fmt(res.ton)+' lb moved. Lifetime on this block: '+fmt(res.rec.ton)+' lb.'
+    : (isRep? res.best.v+' reps held. Your best is '+res.rec.pr+' — '+(res.rec.pr-res.best.v+1)+' more takes it.'
+            : fmt(res.ton)+' lb moved. Best set '+res.best.w+'×'+res.best.r+' ('+res.best.v+' e1RM). Your record stands at '+res.rec.pr+'.');
+  fishSay(line);
+  $('bmInput').value='';
+}
+function blockFlash(pr){
+  const m=$('blockModal'); if(!m)return;
+  m.classList.add(pr?'flash-pr':'flash-log');
+  setTimeout(()=>m.classList.remove('flash-pr','flash-log'),900);
+  if(pr){try{bellMark&&bellMark();}catch(e){}}
+}
+
+/* ---------- a photo mints a new block ---------- */
+async function stationSight(dataUrl){
+  fishNote('Reading the station…');
+  const lib=allBlocks().map(b=>b.id+' = '+b.n).join('; ');
+  try{
+    const r=await askClaude('STATION SIGHT: the photo shows gym equipment (a machine, rack, dumbbells, cables, bench, or a space). '
+      +'KNOWN STATIONS: ['+lib+']. '
+      +'Reply ONLY compact JSON, no prose, no markdown: '
+      +'{"seen":"what the equipment is, plainly",'
+      +'"matches":["ids of known stations this equipment serves, best first, up to 5"],'
+      +'"mint":null OR {"n":"name","r":"chest|back|shoulders|biceps|triceps|forearms|quads|hamstrings|glutes|calves|core|heart","g":"barbell|dumbbell|machine|cable|bodyweight|cardio","m":0.8,"b":"two sentences on what it builds and which part","f":"one or two sentences on the rep"}}. '
+      +'RULES: prefer matching known ids over minting; mint ONLY if nothing in the list fits this equipment. '
+      +'A dumbbell rack or cable tower matches MANY stations. m is a plausible elite load as bodyweight multiple; omit for bodyweight/cardio.',[dataUrl]);
+    let raw=(r&&(r.reply||r.text))||'';
+    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
+    if(!j)throw new Error('no reading');
+    const sight=JSON.parse(j[0]);
+    const ids=(sight.matches||[]).filter(id=>blockById(id));
+    if(!ids.length && sight.mint && sight.mint.n){
+      const card=sight.mint; card.id='custom-'+Date.now();
+      S.customBlocks=(S.customBlocks||[]).concat([card]);
+      save(); renderRegionRail(); renderBlocks();
+      fishSay('🔨 New station forged — <b>'+card.n+'</b>. '+(card.b||'')+' It remembers you from here on.');
+      openBlock(card.id); return;
+    }
+    if(!ids.length)throw new Error('nothing recognized');
+    if(ids.length===1){
+      const b=blockById(ids[0]), rec=blockRec(ids[0]);
+      const h=blockHours(ids[0]);
+      fishSay('That’s the <b>'+b.n+'</b>'
+        +(rec.pr?' — your floor here is <b>'+rec.pr+(b.g==='bodyweight'||b.g==='cardio'?' reps':' e1RM')+'</b>'
+          +(h&&h>COLD_HOURS?', '+Math.floor(h/24)+' days cold. Relight it.':'. Beat it.')
+        :' — untouched. Whatever you log becomes the floor.'));
+      openBlock(ids[0]); return;
+    }
+    // several doors — the equipment is a doorway
+    openDoorway(sight.seen||'This equipment', ids);
+  }catch(e){
+    fishNote('Couldn’t read that station — name the movement and I’ll open or build its block.');
+  }
+}
+function openDoorway(seen,ids){
+  const host=$('doorList');
+  $('doorSeen').textContent=seen;
+  host.innerHTML=ids.map(id=>{
+    const b=blockById(id), rec=blockRec(id), h=blockHours(id);
+    const cold=h!==null&&h>COLD_HOURS, un=!rec.last;
+    const tag= un?'<span class="dw-tag new">UNTOUCHED</span>'
+      : cold?'<span class="dw-tag cold">'+Math.floor(h/24)+'D COLD</span>'
+      : '<span class="dw-tag warm">WARM</span>';
+    return '<div class="dw-row" data-b="'+id+'">'
+      +'<div><div class="dw-n">'+b.n+'</div>'
+      +'<div class="dw-s">'+(rec.pr?('floor '+rec.pr+(b.g==='bodyweight'||b.g==='cardio'?' reps':' e1RM')):'no floor yet')+'</div></div>'
+      +tag+'</div>';
+  }).join('');
+  host.querySelectorAll('.dw-row').forEach(el=>el.onclick=()=>{
+    $('doorway').classList.remove('show'); openBlock(el.dataset.b);});
+  $('doorway').classList.add('show');
+}
+
+
+/* ============ THE SHARE FORGE — every page becomes a card worth sending ============ */
+const SHARE_W=1080, SHARE_H=1920;
+function sSeed(i,a){const s=Math.sin(i*a)*43758.5453;return s-Math.floor(s);}
+function sStone(c,W,H){
+  const g=c.createLinearGradient(0,0,W*.4,H);
+  g.addColorStop(0,'#232E39');g.addColorStop(.45,'#17202A');g.addColorStop(1,'#0B121A');
+  c.fillStyle=g;c.fillRect(0,0,W,H);
+  for(let i=0;i<160;i++){
+    const px=sSeed(i,12.9898)*W,py=sSeed(i,78.233)*H,sz=W*.006+sSeed(i,3.7)*W*.03;
+    c.fillStyle=i%13===0?'rgba(216,182,124,.05)':i%3===0?'rgba(255,255,255,.017)':'rgba(0,0,0,.17)';
+    c.beginPath();c.ellipse(px,py,sz,sz*.55,sSeed(i,5.1)*3,0,7);c.fill();
+  }
+  c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=W*.004;
+  for(let i=0;i<5;i++){const sx=sSeed(i,9.1)*W;
+    c.beginPath();c.moveTo(sx,0);
+    for(let y=0;y<H;y+=H*.03)c.lineTo(sx+Math.sin(y*.012+i)*W*.02,y);c.stroke();}
+}
+function sCleft(c,W,H,ow){
+  const gw=W*(ow||.05),lx=W/2-gw/2;
+  const g=c.createLinearGradient(lx,0,lx+gw,0);
+  g.addColorStop(0,'rgba(44,20,5,.96)');g.addColorStop(.3,'rgba(190,110,26,.75)');
+  g.addColorStop(.55,'rgba(255,216,142,.95)');g.addColorStop(.8,'rgba(204,124,36,.8)');
+  g.addColorStop(1,'rgba(38,17,4,.96)');
+  c.fillStyle=g;c.fillRect(lx,0,gw,H);
+  const sp=c.createRadialGradient(W/2,H*.62,W*.02,W/2,H*.62,W*.95);
+  sp.addColorStop(0,'rgba(255,186,102,.11)');sp.addColorStop(1,'rgba(255,186,102,0)');
+  c.fillStyle=sp;c.fillRect(0,0,W,H);
+}
+function sKoi(c,px,py,s){
+  c.save();c.translate(px,py);c.scale(s,s);
+  c.shadowColor='#FF5A3C';c.shadowBlur=34;c.fillStyle='#C1121F';
+  c.beginPath();c.moveTo(32,0);c.quadraticCurveTo(17,-11,-6,-8);
+  c.quadraticCurveTo(-21,-4,-28,0);c.quadraticCurveTo(-21,4,-6,8);
+  c.quadraticCurveTo(17,11,32,0);c.fill();
+  c.beginPath();c.moveTo(-26,0);c.quadraticCurveTo(-40,-12,-50,-8);
+  c.quadraticCurveTo(-38,0,-50,8);c.quadraticCurveTo(-40,12,-26,0);
+  c.globalAlpha=.85;c.fill();c.globalAlpha=1;c.shadowBlur=0;
+  c.fillStyle='rgba(255,255,255,.82)';c.beginPath();c.ellipse(10,-2,7.5,4.6,.3,0,7);c.fill();
+  c.fillStyle='#060A0E';c.beginPath();c.arc(25,-3,2.2,0,7);c.fill();
+  c.restore();
+}
+function sGrain(c,W,H){for(let i=0;i<110;i++){
+  c.fillStyle='rgba(255,255,255,'+(Math.random()*.02)+')';
+  c.fillRect(Math.random()*W,Math.random()*H,W*.003,W*.003);}}
+function sVign(c,W,H,s){
+  const g=c.createRadialGradient(W/2,H*.45,H*.2,W/2,H*.5,H*.8);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,'+(s||.7)+')');
+  c.fillStyle=g;c.fillRect(0,0,W,H);}
+function sWrap(c,text,cx,cy,maxW,lh){
+  const ws=String(text).split(' ');let line='',y=cy;
+  for(const w of ws){const t=line?line+' '+w:w;
+    if(c.measureText(t).width>maxW&&line){c.fillText(line,cx,y);line=w;y+=lh;}else line=t;}
+  if(line)c.fillText(line,cx,y);return y;}
+function sHead(c,W,H,kicker,title){
+  c.textAlign='center';
+  c.fillStyle='rgba(126,138,150,.9)';
+  c.font='400 34px "IBM Plex Mono", monospace';
+  c.fillText(kicker,W/2,132);
+  c.fillStyle='#F0E9D8';
+  c.font='300 96px Cormorant, serif';
+  c.fillText(title,W/2,232);
+  c.strokeStyle='rgba(232,196,107,.3)';c.lineWidth=2;
+  c.beginPath();c.moveTo(W*.30,272);c.lineTo(W*.70,272);c.stroke();
+}
+function sFoot(c,W,H,line){
+  c.textAlign='center';
+  c.strokeStyle='rgba(232,196,107,.25)';c.lineWidth=2;
+  c.beginPath();c.moveTo(W*.28,H-176);c.lineTo(W*.72,H-176);c.stroke();
+  c.fillStyle='rgba(232,196,107,.9)';
+  c.font='500 36px "IBM Plex Mono", monospace';
+  c.fillText('MY CALORIC MIRROR',W/2,H-118);
+  c.fillStyle='rgba(126,138,150,.85)';
+  c.font='italic 34px "EB Garamond", serif';
+  c.fillText(line||'KOIlibraryOfficial.com',W/2,H-64);
+}
+function sStat(c,x,y,w,label,value,col){
+  c.textAlign='center';
+  c.fillStyle='rgba(126,138,150,.85)';
+  c.font='400 28px "IBM Plex Mono", monospace';
+  c.fillText(label,x+w/2,y);
+  c.fillStyle=col||'#F0E9D8';
+  c.font='300 68px "IBM Plex Mono", monospace';
+  c.fillText(value,x+w/2,y+74);
+}
+function sPanel(c,x,y,w,h){
+  c.fillStyle='rgba(10,16,23,.55)';
+  c.strokeStyle='rgba(232,196,107,.22)';c.lineWidth=2;
+  if(c.roundRect){c.beginPath();c.roundRect(x,y,w,h,26);c.fill();c.stroke();}
+  else{c.fillRect(x,y,w,h);c.strokeRect(x,y,w,h);}
+}
+
+/* ---------- the cards ---------- */
+function cardMirror(c,W,H){
+  const s=daySeal(), key=todayKey(), t=dayTotals(key), b=bmr();
+  sStone(c,W,H);sCleft(c,W,H,.05);sVign(c,W,H,.72);
+  sHead(c,W,H,'D A Y  '+s.n+'  O F  9 0','The Mirror');
+  c.textAlign='center';
+  c.fillStyle='#E8C46B';c.shadowColor='rgba(232,196,107,.55)';c.shadowBlur=110;
+  c.font='300 168px "IBM Plex Mono", monospace';
+  c.fillText(fmt(s.close),W/2,470);c.shadowBlur=0;
+  c.fillStyle='rgba(126,138,150,.9)';
+  c.font='400 30px "IBM Plex Mono", monospace';
+  c.fillText('C A L O R I C   U N I T S',W/2,528);
+  if(S.shareFood){
+    const net=s.net;
+    c.fillStyle=net<0?'#8FCB9B':'#FF7A5E';
+    c.font='300 84px "IBM Plex Mono", monospace';
+    c.fillText((net>0?'+':'')+fmt(net)+' today',W/2,640);
+  } else {
+    c.fillStyle='rgba(201,191,169,.9)';
+    c.font='italic 46px "EB Garamond", serif';
+    c.fillText('Day '+s.n+' witnessed',W/2,632);
+  }
+  sPanel(c,90,720,W-180,250);
+  if(S.shareFood){
+    sStat(c,110,800,290,'IN','+'+fmt(t.inC),'#8FCB9B');
+    sStat(c,395,800,290,'REST','−'+fmt(b),'#FF7A5E');
+    sStat(c,680,800,290,'MOVE','−'+fmt(t.outMove),'#FF7A5E');
+  } else {
+    sStat(c,150,800,380,'REST BURN','−'+fmt(b),'#FF7A5E');
+    sStat(c,550,800,380,'MOVEMENT','−'+fmt(t.outMove),'#FF7A5E');
+  }
+  sPanel(c,90,1010,W-180,180);
+  c.textAlign='left';
+  c.fillStyle='rgba(240,233,216,.9)';c.font='400 40px Cormorant, serif';
+  c.fillText('Sealed  '+s.done+' / '+s.total,140,1078);
+  c.textAlign='right';
+  c.fillStyle=s.sealed?'#8FCB9B':'#E8C46B';
+  c.font='500 40px "IBM Plex Mono", monospace';
+  c.fillText(s.sealed?'COMPLETE':'OPEN',W-140,1078);
+  const rw=W-280, rx=140;
+  c.fillStyle='rgba(26,36,48,.9)';c.fillRect(rx,1116,rw,10);
+  c.fillStyle=s.sealed?'#8FCB9B':'#E8C46B';c.fillRect(rx,1116,rw*(s.done/s.total),10);
+  sKoi(c,W/2,1330,5.4);
+  c.textAlign='center';
+  c.fillStyle='rgba(201,191,169,.9)';
+  c.font='italic 42px "EB Garamond", serif';
+  sWrap(c,'Honest numbers only. Nothing hidden.',W/2,1470,W*.8,56);
+  sGrain(c,W,H);sFoot(c,W,H);
+}
+function cardForge(c,W,H){
+  const key=todayKey(), d=S.days[key]||{}, sets=(d.sets||[]);
+  const ton=sets.reduce((a,x)=>a+(x.w||0)*(x.r||0),0);
+  const byEx={};
+  sets.forEach(x=>{const k=x.ex||'Lift';(byEx[k]=byEx[k]||[]).push(x);});
+  const best=sets.length?sets.reduce((a,b2)=>((a.w||0)*(a.r||0)>(b2.w||0)*(b2.r||0)?a:b2)):null;
+  sStone(c,W,H);sCleft(c,W,H,.04);sVign(c,W,H,.74);
+  sHead(c,W,H,'D A Y  '+daySeal().n+'  ·  T H E  F O R G E','The Work');
+  sPanel(c,90,330,W-180,210);
+  sStat(c,110,410,290,'SETS',String(sets.length));
+  sStat(c,395,410,290,'MOVED',fmt(ton)+'','#E8C46B');
+  sStat(c,680,410,290,'BURN','−'+fmt(dayTotals(key).outMove),'#FF7A5E');
+  c.textAlign='center';
+  c.fillStyle='rgba(126,138,150,.8)';c.font='400 26px "IBM Plex Mono", monospace';
+  c.fillText('LB',W/2+40,516);
+  let y=630;
+  const keys=Object.keys(byEx).slice(0,6);
+  keys.forEach(k=>{
+    const list=byEx[k];
+    const top=list.reduce((a,b2)=>((a.w||0)*(a.r||0)>(b2.w||0)*(b2.r||0)?a:b2));
+    sPanel(c,90,y,W-180,104);
+    c.textAlign='left';c.fillStyle='#F0E9D8';c.font='400 46px Cormorant, serif';
+    c.fillText(k.length>22?k.slice(0,21)+'…':k,140,y+66);
+    c.textAlign='right';c.fillStyle='#E8C46B';c.font='300 44px "IBM Plex Mono", monospace';
+    c.fillText(list.length+' × '+(top.w?top.w+'×'+top.r:top.r+' reps'),W-140,y+66);
+    y+=122;
+  });
+  if(best&&best.w){
+    c.textAlign='center';
+    c.fillStyle='rgba(201,191,169,.9)';c.font='italic 40px "EB Garamond", serif';
+    c.fillText('Best of the day — '+best.ex+' '+best.w+'×'+best.r,W/2,y+66);
+  }
+  sKoi(c,W/2,H-330,5.0);
+  sGrain(c,W,H);sFoot(c,W,H);
+}
+function cardMove(c,W,H){
+  const key=todayKey(), d=S.days[key]||{};
+  const moves=(d.items||[]).filter(i=>i.type==='out');
+  const total=moves.reduce((a,m)=>a+Math.abs(m.kcal||0),0);
+  sStone(c,W,H);sCleft(c,W,H,.05);sVign(c,W,H,.72);
+  sHead(c,W,H,'D A Y  '+daySeal().n+'  ·  M O V E M E N T','The Road');
+  c.textAlign='center';
+  c.fillStyle='#FF7A5E';c.shadowColor='rgba(255,122,94,.4)';c.shadowBlur=90;
+  c.font='300 158px "IBM Plex Mono", monospace';
+  c.fillText('−'+fmt(total),W/2,470);c.shadowBlur=0;
+  c.fillStyle='rgba(126,138,150,.9)';c.font='400 30px "IBM Plex Mono", monospace';
+  c.fillText('C A L O R I C   U N I T S   S P E N T',W/2,528);
+  let y=620;
+  moves.slice(0,7).forEach(m=>{
+    sPanel(c,90,y,W-180,100);
+    c.textAlign='left';c.fillStyle='#F0E9D8';c.font='400 44px Cormorant, serif';
+    c.fillText((m.name||'movement').slice(0,24),140,y+64);
+    c.textAlign='right';c.fillStyle='#FF7A5E';c.font='300 44px "IBM Plex Mono", monospace';
+    c.fillText('−'+fmt(Math.abs(m.kcal||0)),W-140,y+64);
+    y+=116;
+  });
+  sKoi(c,W/2,H-340,5.0);
+  sGrain(c,W,H);sFoot(c,W,H);
+}
+function cardWeek(c,W,H){
+  const days=[];
+  for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);
+    const k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    const t=dayTotals(k);days.push({k,net:t.inC-bmr()-t.outMove,lab:['S','M','T','W','T','F','S'][dt.getDay()]});}
+  const tot=days.reduce((a,d)=>a+d.net,0);
+  sStone(c,W,H);sCleft(c,W,H,.05);sVign(c,W,H,.72);
+  sHead(c,W,H,'S E V E N   D A Y S','The Week');
+  c.textAlign='center';
+  if(S.shareFood){
+    c.fillStyle=tot<0?'#8FCB9B':'#FF7A5E';c.shadowColor='rgba(143,203,155,.35)';c.shadowBlur=90;
+    c.font='300 148px "IBM Plex Mono", monospace';
+    c.fillText((tot>0?'+':'')+fmt(tot),W/2,460);c.shadowBlur=0;
+    c.fillStyle='rgba(126,138,150,.9)';c.font='400 30px "IBM Plex Mono", monospace';
+    c.fillText('N E T   T H I S   W E E K',W/2,516);
+  } else {
+    const witnessed=days.filter(d=>d.net!==0).length;
+    c.fillStyle='#E8C46B';c.shadowColor='rgba(232,196,107,.45)';c.shadowBlur=90;
+    c.font='300 148px "IBM Plex Mono", monospace';
+    c.fillText(witnessed+' / 7',W/2,460);c.shadowBlur=0;
+    c.fillStyle='rgba(126,138,150,.9)';c.font='400 30px "IBM Plex Mono", monospace';
+    c.fillText('D A Y S   W I T N E S S E D',W/2,516);
+  }
+  // bars
+  const max=Math.max(...days.map(d=>Math.abs(d.net)),1);
+  const bw=W*.09, gap=(W-180-bw*7)/6, mid=1030;
+  days.forEach((d,i)=>{
+    const x=90+i*(bw+gap);
+    const h=Math.min(230,Math.abs(d.net)/max*230);
+    c.fillStyle=d.net<0?'#8FCB9B':'#FF7A5E';
+    if(d.net<0)c.fillRect(x,mid-h,bw,h); else c.fillRect(x,mid,bw,h);
+    c.textAlign='center';c.fillStyle='rgba(126,138,150,.85)';
+    c.font='400 30px "IBM Plex Mono", monospace';
+    c.fillText(d.lab,x+bw/2,mid+300);
+  });
+  c.strokeStyle='rgba(232,196,107,.35)';c.lineWidth=2;
+  c.beginPath();c.moveTo(80,mid);c.lineTo(W-80,mid);c.stroke();
+  const sealedN=days.filter(d=>d.net!==0).length;
+  c.textAlign='center';
+  c.fillStyle='rgba(201,191,169,.9)';c.font='italic 42px "EB Garamond", serif';
+  c.fillText(sealedN+' of 7 days witnessed',W/2,1420);
+  sKoi(c,W/2,1530,5.0);
+  sGrain(c,W,H);sFoot(c,W,H);
+}
+const CARDS_S={mirror:cardMirror,forge:cardForge,move:cardMove,week:cardWeek};
+const CARD_NAME={mirror:'the mirror',forge:'the forge',move:'the road',week:'the week'};
+
+async function shareCard(kind){
+  kind=kind||'mirror';
+  const fn=CARDS_S[kind]||cardMirror;
+  fishNote('Forging the card…');
+  const cv2=document.createElement('canvas');cv2.width=SHARE_W;cv2.height=SHARE_H;
+  const c=cv2.getContext('2d');
+  try{ fn(c,SHARE_W,SHARE_H); }catch(e){ fishNote('Card failed — '+String(e.message||e).slice(0,60)); return; }
+  const s=daySeal();
+  const text='Day '+s.n+' of 90 · My Caloric Mirror';
+  cv2.toBlob(async blob=>{
+    if(!blob){fishNote('Card failed to render.');return;}
+    const file=new File([blob],'mirror-day'+s.n+'-'+kind+'.jpg',{type:'image/jpeg'});
+    let sent=false;
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],text});sent=true;
+      }
+    }catch(e){ if(String(e).indexOf('AbortError')>-1)sent=true; }
+    if(!sent){
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download=file.name;
+      document.body.appendChild(a);a.click();a.remove();
+    }
+    grantXP(15,'sharing the walk');
+    fishSay('Card forged — '+CARD_NAME[kind]+', Day '+s.n+'. Send it to whoever walks with you.');
+  },'image/jpeg',.92);
+}
+function shareKindForTab(){
+  if(activeTab==='pageForge')return 'forge';
+  if(activeTab==='pagePath')return 'move';
+  if(activeTab==='pageBook')return 'week';
+  return 'mirror';
+}
+
 /* ============ THE SEALING — a day is not done until the page is full ============ */
 function dayKeyFor(n){const d=new Date(S.startDate);d.setDate(d.getDate()+n-1);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -4108,6 +4897,7 @@ $('sealBtn').onclick=()=>{
   S.session=null;grantXP(XP_RULES.session,'sealing the forge');save();dropWake();clearInterval(sessTick);restEnd=0;
   $('sessPanel').style.display='none';$('sessBtn').style.display='block';
   renderAll();toneFall();
+  setTimeout(()=>fishSay('That session is card-ready — tap ⇪ and send <b>The Forge</b> to whoever trains with you.'),2600);
   fishSay('🔥 Session sealed — '+dur+' min, '+n+' sets, '+fmt(ton)+' lb moved, −'+kcal+' deposited. '+best);
 };
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session)grabWake();
@@ -4671,6 +5461,41 @@ $('clearSetsBtn').onclick=()=>{
   save();renderAll();renderForge();renderWeekWork();
   fishSay('Today’s '+n+' sets are cleared and the ladders reset. Log them again and they’ll read true.');
 };
+
+
+
+function paintFoodTog(){const b=$('foodTog');if(b)
+  b.textContent='🍲 FOOD: '+(S.shareFood?'SHOWN':'HIDDEN');}
+$('foodTog').onclick=e=>{e.stopPropagation();
+  S.shareFood=!S.shareFood;save();paintFoodTog();
+  fishNote(S.shareFood?'Food will appear on shared cards.':'Food stays private — cards show effort only.');};
+paintFoodTog();
+$('shareFab').onclick=e=>{e.stopPropagation();
+  const m=$('shareMenu');
+  if(m.classList.contains('show')){m.classList.remove('show');return;}
+  m.classList.add('show');};
+$('shareMenu').querySelectorAll('button').forEach(b=>b.onclick=e=>{
+  e.stopPropagation();$('shareMenu').classList.remove('show');shareCard(b.dataset.k);});
+document.addEventListener('click',()=>{const m=$('shareMenu');if(m)m.classList.remove('show');});
+
+
+$('bmClose').onclick=closeBlock;
+$('blockModal').onclick=e=>{if(e.target===$('blockModal'))closeBlock();};
+$('bmSend').onclick=submitBlock;
+$('bmInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitBlock();}});
+$('blockSearch').addEventListener('input',()=>renderBlocks());
+$('mintBtn').onclick=()=>$('mintIn').click();
+$('mintIn').onchange=async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f)return;
+  const raw=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
+  if(!raw)return;
+  const small=await shrinkDataUrl(raw,1100,0.8)||raw;
+  stationSight(small);
+};
+
+
+$('dwClose').onclick=()=>$('doorway').classList.remove('show');
+$('doorway').onclick=e=>{if(e.target===$('doorway'))$('doorway').classList.remove('show');};
 
 /* ============ BOOT ============ */
 try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); }catch(e){}
