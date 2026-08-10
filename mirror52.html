@@ -804,6 +804,8 @@
       <div class="life-ton"><span>LIFETIME MOVED</span><b id="lifeTon">0</b><span>LB</span></div>
       <div id="questLine" class="quest"></div>
       <input id="blockSearch" type="text" style="display:none">
+      <button id="findMic" type="button" style="display:none"></button>
+      <button id="findCam" type="button" style="display:none"></button>
       <div class="onebox-note">Everything goes through the box at the bottom — speak it, type it, paste a whole workout, or photograph the machine. KOI sorts it into these stations.</div>
       <div id="regionRail"></div>
       <div id="blockGrid"></div>
@@ -1029,7 +1031,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v67</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v68</div>
   </div>
 </div>
 
@@ -1199,7 +1201,19 @@ const save=()=>store.set('caloricMirror',JSON.stringify(S));
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const dayIndex=()=>S.startDate?Math.floor((new Date(todayKey())-new Date(S.startDate))/864e5)+1:0;
 const fmt=n=>Math.round(n).toLocaleString('en-US');
-const $=id=>document.getElementById(id);
+const __ghost=new Proxy(function(){},{get:(t,p)=>{
+  if(p==='classList')return{add(){},remove(){},toggle(){},contains(){return false;}};
+  if(p==='style')return new Proxy({},{get:()=>'',set:()=>true});
+  if(p==='addEventListener'||p==='removeEventListener'||p==='focus'||p==='click'||p==='select'||p==='setSelectionRange'||p==='appendChild'||p==='querySelectorAll')
+    return p==='querySelectorAll'?()=>[]:function(){};
+  if(p==='value'||p==='textContent'||p==='innerHTML'||p==='placeholder')return '';
+  return undefined;
+},set:()=>true,apply:()=>undefined});
+const $=id=>{const el=document.getElementById(id);
+  if(el)return el;
+  console.warn('[mirror] missing element:',id);
+  return __ghost;};
+const $real=id=>document.getElementById(id);
 
 /* ============ HONEST INPUTS — heights in any tongue, math that checks itself ============ */
 function parseHeight(v){
@@ -2007,7 +2021,7 @@ function renderAll(){
       <div class="mdate">${new Date(m.date+'T12:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>`;
     fr.appendChild(el);});
   if(!$('ladders')){} else {
-  const lad=$('ladders');if(lad){lad.innerHTML='';}
+  const lad=$real('ladders');if(lad){lad.innerHTML='';}
   for(const key in LADDERS){const L=LADDERS[key],rec=S.lifts[key];
     const bw=S.profile.w,elite=L.rungs[3];
     const val=rec?rec.val:0,pct=Math.min(100,val/elite*100);
@@ -3096,7 +3110,7 @@ setTimeout(()=>{if($('frameLane'))showLane('frames');},500);
 /* ============ THE DEPOSIT — feel every one, on every tab ============ */
 function markDock(){
   try{
-    const tab=document.querySelector('.tab[data-go="pageBook"]')||document.getElementById('bookTab');
+    const tab=document.querySelector('.tab[data-go="pageBook"]')||$real('bookTab');
     if(!tab)return;
     let dot=tab.querySelector('.dock-seal');
     const s=daySeal();
@@ -3187,7 +3201,7 @@ async function storageMeter(){
   }catch(e){return '';}
 }
 async function backupStat(){
-  const el=$('backupStat'); if(!el)return;
+  const el=$real('backupStat'); if(!el)return;
   try{
     const v=await vaultDump();
     const n=Object.keys(v).length;
@@ -3375,7 +3389,7 @@ function forgeQuest(){
   if(cold)parts.push('❄ <b>'+cold.b.n+'</b> has gone '+Math.floor(cold.h/24)+' days cold. Relight it and the fire spreads.');
   return parts.join('<br>')||'Every station warm. Pick one and push the ceiling.';
 }
-function renderQuest(){ const el=$('questLine'); if(el)el.innerHTML=forgeQuest(); }
+function renderQuest(){ const el=$real('questLine'); if(el)el.innerHTML=forgeQuest(); }
 
 
 
@@ -3508,9 +3522,9 @@ async function bulkLog(text){
 /* ---------- the grid ---------- */
 let blockFilter='warm', blockOpen=null;
 function renderBlocks(){
-  const host=$('blockGrid'); if(!host)return;
+  const host=$real('blockGrid'); if(!host)return;
   const lt=lifetimeTonnage();
-  const ltEl=$('lifeTon'); if(ltEl)ltEl.textContent=fmt(lt);
+  const ltEl=$real('lifeTon'); if(ltEl)ltEl.textContent=fmt(lt);
   let list=allBlocks();
   if(blockFilter==='warm'){
     list=list.filter(b=>blockRec(b.id).last).sort((a,c)=>blockRec(c.id).last-blockRec(a.id).last);
@@ -3543,7 +3557,7 @@ function renderBlocks(){
   host.querySelectorAll('.blk').forEach(el=>el.onclick=()=>openBlock(el.dataset.b));
 }
 function renderRegionRail(){
-  const host=$('regionRail'); if(!host)return;
+  const host=$real('regionRail'); if(!host)return;
   const regions=[...new Set(allBlocks().map(b=>b.r))];
   const heatOf=r=>{const bs=allBlocks().filter(b=>b.r===r);
     return Math.max(0,...bs.map(b=>blockHeat(b.id)));};
@@ -3770,7 +3784,7 @@ async function submitBlock(){
 }
 
 function blockFlash(pr){
-  const m=$('blockModal'); if(!m)return;
+  const m=$real('blockModal'); if(!m)return;
   m.classList.add(pr?'flash-pr':'flash-log');
   setTimeout(()=>m.classList.remove('flash-pr','flash-log'),900);
   if(pr){try{bellMark&&bellMark();}catch(e){}}
@@ -4213,7 +4227,7 @@ function daySeal(n){
           net:t.inC-bmr()-t.outMove, close:mirrorAtClose(key)};
 }
 function renderSeal(){
-  const host=$('sealBox'); if(!host)return;
+  const host=$real('sealBox'); if(!host)return;
   const s=daySeal();
   const pct=Math.round(s.done/s.total*100);
   host.innerHTML=
@@ -4230,8 +4244,8 @@ function renderSeal(){
       ? '<button class="btn seal-btn" id="carryBtn" style="color:var(--green)">⧉ Carry Day '+s.n+' to the paper book</button>'
       : '<button class="btn seal-btn" id="sealBtn2" style="color:var(--gold)">✦ Seal Day '+s.n+' — '+(s.total-s.done)+' left</button>');
   host.querySelectorAll('.seal-row').forEach(el=>el.onclick=()=>sealJump(el.dataset.go));
-  const sb=$('sealBtn2'); if(sb)sb.onclick=sealWalk;
-  const cb=$('carryBtn'); if(cb)cb.onclick=carryPage;
+  const sb=$real('sealBtn2'); if(sb)sb.onclick=sealWalk;
+  const cb=$real('carryBtn'); if(cb)cb.onclick=carryPage;
 }
 function sealJump(id){
   if(id==='page'){startReflection();go('pageMirror');return;}
@@ -4270,7 +4284,7 @@ function carryPage(){
   ];
   (pg.r||[]).forEach((q,i)=>{lines.push(q);lines.push('  '+(ans[i]||'—'));lines.push('');});
   const txt=lines.join('\n');
-  const box=$('carryBox');
+  const box=$real('carryBox');
   if(box){box.style.display='block';box.value=txt;
     try{box.focus();box.setSelectionRange(0,txt.length);}catch(e){}}
   try{ if(navigator.clipboard)navigator.clipboard.writeText(txt); }catch(e){}
@@ -4315,7 +4329,7 @@ let frameDay=null, frameSlot=null, frameCache={};
 function fDay(){return frameDay||Math.min(Math.max(dayIndex(),1),90);}
 
 async function renderFrames(){
-  const host=$('frameList'); if(!host)return;
+  const host=$real('frameList'); if(!host)return;
   const d=fDay();
   frameCache=await frameGetAll(d);
   const filled=FRAMES.filter(f=>(frameCache[f.id]||[]).length).length;
@@ -5344,7 +5358,7 @@ function renderSession(){
   if(!n)return;
   const ton=S.session.sets.reduce((a,s)=>a+s.w*s.r,0);
   const best=S.session.sets.reduce((a,b)=>(a.w*a.r>b.w*b.r?a:b));
-  const live=$('sessLive');
+  const live=$real('sessLive');
   if(live)live.innerHTML='<b>'+n+'</b> set'+(n>1?'s':'')+' · <b>'+fmt(ton)+'</b> lb moved · best '+best.w+'×'+best.r+' · '+best.ex;
 }
 $('sealBtn').onclick=()=>{
@@ -5373,7 +5387,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session
 let deferredInstall=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
 /* ---- version guard: a new build purges the old shell cache, never the data ---- */
-const APP_V=65;
+const APP_V=68;
 (async()=>{
   try{
     const seen=+localStorage.getItem('koil-app-v')||0;
@@ -5929,7 +5943,7 @@ $('clearSetsBtn').onclick=()=>{
 
 
 
-function paintFoodTog(){const b=$('foodTog');if(b)
+function paintFoodTog(){const b=$real('foodTog');if(b)
   b.textContent='🍲 FOOD: '+(S.shareFood?'SHOWN':'HIDDEN');}
 $('foodTog').onclick=e=>{e.stopPropagation();
   S.shareFood=!S.shareFood;save();paintFoodTog();
@@ -6026,7 +6040,7 @@ $('findMic').onclick=()=>{
   }catch(e){$('blockSearch').focus();}
 };
 
-if($('mintBtn'))$('mintBtn').onclick=()=>$('mintIn').click();
+if($real('mintBtn'))$('mintBtn').onclick=()=>$('mintIn').click();
 $('mintIn').onchange=async e=>{
   const f=e.target.files[0]; e.target.value=''; if(!f)return;
   const raw=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
@@ -6043,14 +6057,25 @@ $('doorway').onclick=e=>{if(e.target===$('doorway'))$('doorway').classList.remov
 
 
 /* boot armor: one missing element must never kill the temple */
-function wire(id,ev,fn){const el=$(id);if(!el)return;if(ev==='click')el.onclick=fn;else el.addEventListener(ev,fn);}
+function wire(id,ev,fn){const el=$real(id);if(!el)return;if(ev==='click')el.onclick=fn;else el.addEventListener(ev,fn);}
 
 
-if($('pasteSessionBtn'))$('pasteSessionBtn').onclick=()=>{
+if($real('pasteSessionBtn'))$('pasteSessionBtn').onclick=()=>{
   const t=prompt('Paste your workout — one movement per line. Put the date on the first line if it isn’t today.\n\nExample:\n8-9-26\nDip: 12, 12, 12\nSquat: bar x 12, 135x12\nCardio: 20 minutes');
   if(t&&t.trim())bulkLog(t.trim());
 };
 
+window.addEventListener('error',e=>{
+  try{
+    const el=$real('feed');
+    const note=document.createElement('div');
+    note.style.cssText='margin:8px 12px;padding:9px 12px;border-radius:10px;font-size:12px;line-height:1.4;'
+      +'background:rgba(80,20,20,.5);border:1px solid rgba(255,90,60,.4);color:#FFB4A0;'
+      +"font-family:'IBM Plex Mono',monospace";
+    note.textContent='⚠ '+String(e.message||'error').slice(0,140);
+    (el||document.body).appendChild(note);
+  }catch(err){}
+});
 /* ============ BOOT ============ */
 try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); }catch(e){}
 try{healDays();}catch(e){console.warn(e);}
