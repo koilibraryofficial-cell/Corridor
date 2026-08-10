@@ -714,6 +714,26 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 .sheetX:active{transform:scale(.92)}
 .sheet .grabber{cursor:pointer;padding:8px 40px;margin:-8px auto 6px;box-sizing:content-box}
 
+
+/* the two schedules, side by side */
+.sched{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.schcol{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.012)}
+.schcol.opt{border-color:rgba(216,180,106,.34)}
+.schhead{padding:11px 12px;border-bottom:1px solid var(--line)}
+.schhead .t{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--quiet)}
+.schcol.opt .schhead .t{color:var(--gold-dim)}
+.schhead .v{font-family:var(--mono);font-size:15px;margin-top:5px;letter-spacing:-.02em}
+.schhead .s{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+.schrow{display:flex;gap:7px;align-items:baseline;padding:8px 11px;border-bottom:1px solid rgba(41,35,32,.55);font-size:12px}
+.schrow:last-child{border-bottom:none}
+.schrow .d{font-family:var(--mono);font-size:10px;color:var(--quiet);flex:0 0 22px}
+.schrow .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schrow .b{font-family:var(--mono);font-size:11px;flex:0 0 auto}
+.schrow.under{background:rgba(201,138,90,.10)}
+.schrow.under .b{color:var(--warn)}
+.schrow.gain .b{color:var(--held)}
+.schrow.moved .n{color:var(--gold)}
+
 </style>
 </head>
 <body>
@@ -834,6 +854,9 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
     <div class="stat"><div class="k">Chosen</div><div class="v num" id="gLux">$0</div></div>
   </div>
   <div class="note" id="gapNote"></div>
+
+  <h2 class="sec">The month, two ways</h2>
+  <div id="schedWrap"></div>
 
   <h2 class="sec">Money coming in</h2>
   <div id="listIncome"></div>
@@ -977,7 +1000,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.18";
+const BUILD = "2026-08-08.19";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1524,6 +1547,7 @@ function render(){
   step("bills",renderBills);
   step("hold",renderHold);
   step("plan",renderPlan);
+  step("schedule",renderSchedule);
   step("witness",renderWitness);
   step("vessel",()=>{
     Lamp.set(growth());
@@ -2875,6 +2899,22 @@ ${spec.context?"\nContext: "+spec.context:""}`;
    ═══════════════════════════════════════════════════════════ */
 const HANDS_SYSTEM = `You translate a person's plain words into changes to their financial record. You will receive their current record and their message.
 
+HOW THEY WILL TALK TO YOU. They are dictating on a phone, often mid-thought, often
+half a sentence, often with no punctuation and no command words. There is no correct
+phrasing and you must never wait for one. Interpret intent from anything:
+  "paid tmobile"                     → mark T-Mobile paid
+  "capital one 27th"                 → set that account's due date to 27
+  "geico went up 600"                → update GEICO's payment to 600
+  "got 1400 today"                   → income landed; propose the matching update
+  "kill the storage unit"            → remove Public Storage
+  "i need 2500 for a trip in october"→ propose a goal
+  "cant pay rent this month"         → no record change; answer with the arithmetic
+  bare photo, no words               → read it and propose what it shows
+Dictation garbles words. "Cap one", "capitol 1", "the capital" all mean Capital One.
+"T mobile", "tee mobile", "my phone" all mean T-Mobile. Match generously.
+If you are 80% sure, propose it — they see every proposal before it is sealed and can
+untick it. Only use "unclear" when two record entries fit equally well.
+
 Return ONLY a JSON object, no fences, no prose:
 {
  "changes":[
@@ -3086,6 +3126,107 @@ function plainSpeech(t){
     .replace(/^`{3}.*$/gm,"")
     .replace(/\n{3,}/g,"\n\n").trim();
 }
+/* ═══════════════════════════════════════════════════════════
+   THE MONTH, TWO WAYS
+   Left: what your month actually does — bills on their stated days,
+   balance falling day by day, and the day it breaks the floor.
+   Right: the same bills, re-timed by three plain rules:
+     1. Survival bills never move. Rent and insurance don't negotiate.
+     2. Chosen bills slide to just after the next money lands.
+     3. Whatever sits above the floor at the end goes to the highest
+        rate, because that's the only dollar that pays you back.
+   No magic. You can read every move it made.
+   ═══════════════════════════════════════════════════════════ */
+function scheduleRuns(){
+  const floor=Number(fin.bread&&fin.bread.floor)||0;
+  const start=heldTotal();
+  const np=nextPayday();
+  const horizon=new Date(todayLocal()); horizon.setDate(horizon.getDate()+30);
+  const bills=unpaidBills().filter(a=>dueThisMonth(a)).map(a=>{
+    const p=parseDueFor(a);
+    return {a, date:p.ok?p.date:null, amt:amountDue(a), tier:tierOf(a), name:a.name};
+  }).filter(b=>b.date && b.date<=horizon);
+
+  const income=[];
+  if(np) income.push({date:np.date, amt:(function(){
+    const src=deep().income; if(!src.length) return 0;
+    // the source landing that day, after its stated tax
+    const one=src[0];
+    return (Number(one.amount)||0)*(1-((Number(one.taxRate)||0)/100));
+  })(), name:"money in"});
+
+  function run(list){
+    const ev=list.map(b=>({...b,kind:"bill"})).concat(income.map(i=>({...i,kind:"in"})))
+      .sort((x,y)=>x.date-y.date);
+    let bal=start, rows=[], broke=null, low=start, lowAt=null;
+    ev.forEach(e=>{
+      bal += e.kind==="in" ? e.amt : -e.amt;
+      const under = bal<floor;
+      if(under && !broke) broke={date:e.date, name:e.name};
+      if(bal<low){ low=bal; lowAt=e.date; }
+      rows.push({date:e.date, name:e.name, bal, under, kind:e.kind, moved:e.moved});
+    });
+    return {rows, end:bal, broke, low, lowAt, floor};
+  }
+
+  const mine=run(bills);
+
+  // optimal: chosen bills slide to the day after money lands
+  const slid=bills.map(b=>{
+    if(b.tier==="luxury" && np && b.date < np.date){
+      const d=new Date(np.date); d.setDate(d.getDate()+1);
+      return {...b, date:d, moved:true};
+    }
+    return b;
+  });
+  const opt=run(slid);
+  // surplus above the floor goes to the top rate
+  const ord=killOrder().filter(d=>d.apr>0);
+  const surplus=Math.max(0, opt.end-floor);
+  const target=ord[0]||null;
+  const saved = (target && surplus>0)
+    ? (function(){
+        const base=payoff(target.bal,target.apr,Number(target.a.min)||0);
+        const plus=payoff(target.bal,target.apr,(Number(target.a.min)||0)+surplus);
+        return (!base.never&&!plus.never) ? {months:base.months-plus.months, interest:base.interest-plus.interest} : null;
+      })() : null;
+  return {mine, opt, moved:slid.filter(b=>b.moved).length, surplus, target, saved, floor};
+}
+
+function renderSchedule(){
+  const el=$("schedWrap"); if(!el) return;
+  const s=scheduleRuns();
+  if(!s.mine.rows.length){
+    el.innerHTML=`<div class="empty">Nothing dated in the next thirty days yet. Give your bills their dates and this fills in — two columns, your month against its best version.</div>`;
+    return;
+  }
+  const md=d=>d.getDate();
+  const col=(run,opt)=>`
+    <div class="schcol ${opt?"opt":""}">
+      <div class="schhead">
+        <div class="t">${opt?"Optimal":"Yours"}</div>
+        <div class="v" style="color:${run.low<run.floor?"var(--warn)":"var(--held)"}">${money(run.low)}</div>
+        <div class="s">lowest point${run.lowAt?" · "+run.lowAt.toLocaleDateString("en-US",{month:"short",day:"numeric"}):""}<br>${run.broke?"under your floor":"stays above the floor"} · ends ${money(run.end)}</div>
+      </div>
+      ${run.rows.slice(0,12).map(r=>`
+        <div class="schrow ${r.under?"under":""} ${r.kind==="in"?"gain":""} ${r.moved?"moved":""}">
+          <span class="d">${md(r.date)}</span>
+          <span class="n">${r.kind==="in"?"↓ ":""}${esc(r.name)}${r.moved?" ⤍":""}</span>
+          <span class="b">${money(r.bal)}</span>
+        </div>`).join("")}
+    </div>`;
+  el.innerHTML=`<div class="sched">${col(s.mine,false)}${col(s.opt,true)}</div>`;
+
+  const bits=[];
+  if(s.moved) bits.push(`<b>${s.moved} chosen bill${s.moved===1?"":"s"} moved</b> to just after money lands — survival bills never move.`);
+  if(s.surplus>0 && s.target) bits.push(`<b>${money(s.surplus)} left above your floor</b> goes to ${esc(s.target.a.name)} at ${s.target.apr}%${s.saved?` — that kills it ${s.saved.months} month${s.saved.months===1?"":"s"} sooner and keeps ${money(s.saved.interest)} out of the furnace`:""}.`);
+  const diff=s.opt.low-s.mine.low;
+  if(diff>0.5) bits.unshift(`<b>${money(diff)} of breathing room</b> — same bills, same money, different order. Your month bottoms at ${money(s.mine.low)}; re-timed it bottoms at ${money(s.opt.low)}.`);
+  if(s.mine.broke && !s.opt.broke) bits.push(`<b>And yours breaks the floor while the optimal one doesn't.</b>`);
+  if(!bits.length) bits.push(`Both columns clear. Nothing to re-time — the month already works.`);
+  el.insertAdjacentHTML("beforeend",`<div class="note">${bits.join("<br><br>")}</div>`);
+}
+
 function renderWitness(){
   const tq=quests.filter(q=>q&&q.starId==="treasury");
   $("listVows").innerHTML = tq.length ? tq.map(q=>`
