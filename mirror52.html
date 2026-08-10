@@ -807,6 +807,7 @@
       <div id="blockGrid"></div>
       <input type="file" id="mintIn" accept="image/*" capture="environment" style="display:none">
       <div class="gnote">Tap a block. Beat yourself. That’s the whole game.</div>
+      <button class="small-link" id="pasteSessionBtn" style="color:#B79BE0;margin-top:8px">📖 Paste a whole workout — any date</button>
       <button class="small-link" id="clearSetsBtn" style="color:var(--ember-glow);margin-top:6px">✕ Clear today’s sets</button>
     </div>
   </div>
@@ -1026,7 +1027,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v65</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v66</div>
   </div>
 </div>
 
@@ -1785,6 +1786,9 @@ async function _handle(text,images,imgSrcs){
   if(S.reflect&&S.reflect.day){handleReflection(text);return;}
   if(/^(help|what can you do|who are you|how do (i|you) work|what do you do|guide me)\b/.test(tl)){koiHelp();return;}
   if(/^(reflect|evening|close the day|seal the day)\b/.test(tl)){startReflection();return;}
+  if(looksLikeSession(text)&&/\d/.test(text)&&!/\b(ate|eaten|breakfast|lunch|dinner|calorie)\b/i.test(text)){
+    bulkLog(text); return;
+  }
   if(/^forge\s+/.test(tl)){
     const name=text.replace(/^forge\s+/i,'').trim();
     if(name){forgeByName(name);return;}
@@ -3254,7 +3258,7 @@ function bwLoad(b){
   const bw=(S.profile&&S.profile.w)||185;
   return Math.round(bw*(BW_FRAC[b.id]||0.6));
 }
-function logToBlock(id,sets){
+function logToBlock(id,sets,whenKey){
   const b=blockById(id); if(!b||!sets.length)return null;
   const rec=blockRec(id);
   let ton=0,best=null;
@@ -3265,16 +3269,18 @@ function logToBlock(id,sets){
     const v=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery')?r:e1rm(w,r);
     if(!best||v>best.v)best={v,w,r};
   });
+  const when = whenKey ? new Date(whenKey+'T12:00:00').getTime() : Date.now();
   rec.ton=(rec.ton||0)+ton;
-  rec.last=Date.now();
-  rec.sessions=(rec.sessions||[]).concat([{t:Date.now(),sets:sets.slice(0,12),ton}]).slice(-40);
+  rec.last=Math.max(rec.last||0,when);
+  rec.sessions=(rec.sessions||[]).concat([{t:when,sets:sets.slice(0,12),ton}])
+    .sort((a,b)=>a.t-b.t).slice(-60);
   const wasPR=best&&best.v>(rec.pr||0);
   if(wasPR){rec.pr=best.v;rec.prSet={w:best.w,r:best.r};rec.prWhen=todayKey();}
   // feed the day ledger so the mirror, muscles and week all stay true
-  const day=dayOf(todayKey());
+  const day=dayOf(whenKey||todayKey());
   let bmus=[]; try{ bmus=musclesFor(b.n)||[]; }catch(e){}
   if(!bmus.length)bmus=[b.r||'core'];
-  day.sets=day.sets.concat(sets.map(s=>({ex:b.n,w:+s.w||0,r:+s.r||0,t:Date.now(),block:id,mus:bmus.slice()})));
+  day.sets=day.sets.concat(sets.map(s=>({ex:b.n,w:+s.w||0,r:+s.r||0,t:when,block:id,mus:bmus.slice()})));
   save();
   return {ton,best,wasPR,rec,b};
 }
@@ -3358,6 +3364,83 @@ function undoSession(id,idx){
   rec.last=(rec.sessions||[]).length?rec.sessions[rec.sessions.length-1].t:null;
   save();renderAll();openBlock(id);
   fishSay('Taken back out. '+b.n+(pr?' record now stands at '+pr+'.':' has no record — the block is clean again.'));
+}
+
+
+/* ============ THE SESSION IMPORT — paste a whole workout, any day ============ */
+function looksLikeSession(t){
+  if(!t)return false;
+  const lines=t.split(/\n/).filter(x=>x.trim()).length;
+  const colons=(t.match(/:/g)||[]).length;
+  const names=(()=>{try{ return allBlocks().filter(b=>
+    t.toLowerCase().includes(b.n.toLowerCase().split(' ')[0])).length; }catch(e){return 0;}})();
+  return lines>=3 || colons>=3 || names>=3;
+}
+async function bulkLog(text){
+  const lib=allBlocks().map(b=>b.id+' = '+b.n).join('; ');
+  fishSay('📖 Reading the whole session…');
+  try{
+    const r=await askClaude('SESSION IMPORT. The walker pasted a full workout log, possibly for a past date. '
+      +'KNOWN BLOCKS: ['+lib+']. Today is '+todayKey()+'. '
+      +'Return ONLY compact JSON, no prose:\n'
+      +'{"date":"YYYY-MM-DD","entries":[{"id":"known block id OR null","name":"movement as they wrote it",'
+      +'"g":"barbell|dumbbell|machine|cable|bodyweight|cardio|recovery",'
+      +'"r":"chest|back|shoulders|biceps|triceps|forearms|quads|hamstrings|glutes|calves|core|heart",'
+      +'"m":0.8,"b":"two sentences on what it builds","f":"one sentence on the rep",'
+      +'"sets":[{"w":WEIGHT_LB,"r":REPS}]}],"note":"one short line back"}\n'
+      +'RULES: match to a known id whenever the movement exists in the list — set id and omit g/r/m/b/f. '
+      +'Only when nothing fits, set id to null and fill g/r/m/b/f so a new block can be forged. '
+      +'For bodyweight movements w is 0 and r is reps. For cardio/recovery w is 0 and r is MINUTES '
+      +'("1:10" or "20 minutes" = 20 if minutes are stated; a time like 1:10 alongside minutes means pace, use the minutes). '
+      +'"bar" alone means an empty barbell — w 45. '
+      +'"12 reps, 12, 12" is THREE sets of 12. "25 x 12" is 25 lb for 12 reps. '
+      +'A date written like 8-9-26 means 2026-08-09. If no date is given use today.',[]);
+    let raw=(r&&(r.reply||r.text))||'';
+    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
+    if(!j)throw new Error('no read');
+    const got=JSON.parse(j[0]);
+    const dateKey=/^\d{4}-\d{2}-\d{2}$/.test(got.date||'')?got.date:todayKey();
+    const entries=(got.entries||[]).filter(e=>e&&(e.sets||[]).length);
+    if(!entries.length){fishSay('I couldn’t find sets in that. Paste it with one movement per line — “Dip: 12, 12, 12”.');return;}
+    let logged=0,forged=[],prs=[],totalTon=0,totalKcal=0;
+    for(const e of entries){
+      let b=e.id?blockById(e.id):null;
+      if(!b){ const hits=findBlocks(e.name||''); if(hits&&hits.length)b=hits[0]; }
+      if(!b){
+        const card={id:'custom-'+Date.now()+'-'+Math.floor(Math.random()*999),
+          n:(e.name||'Movement').replace(/\b\w/g,c=>c.toUpperCase()),
+          r:e.r||'core',g:e.g||'dumbbell',m:e.m||null,
+          b:e.b||'Logged from your session.',f:e.f||'Move it well.'};
+        S.customBlocks=(S.customBlocks||[]).concat([card]);
+        b=card; forged.push(card.n);
+      }
+      const sets=(e.sets||[]).filter(s=>(+s.r||0)>0).slice(0,12)
+        .map(s=>({w:+s.w||0,r:+s.r||0}));
+      if(!sets.length)continue;
+      const prev=blockRec(b.id).pr||0;
+      const res=logToBlock(b.id,sets,dateKey);
+      totalTon+=res.ton;
+      if(res.wasPR&&res.best.v>prev)prs.push(b.n+' → '+(res.best.w?res.best.w+'×'+res.best.r:res.best.v));
+      try{
+        const kcal=blockBurn(b,sets);
+        if(kcal>0){const d=dayOf(dateKey);
+          d.out.push({name:b.n,kcal:Math.abs(kcal),t:new Date(dateKey+'T12:00:00').getTime(),block:b.id});
+          totalKcal+=kcal;}
+      }catch(err){}
+      logged++;
+    }
+    grantXP(logged*10,'importing a whole session');
+    reefBloom=1; save(); renderAll(); renderBlocks(); renderRegionRail(); renderQuest();
+    const dLabel = dateKey===todayKey()?'today':dateKey;
+    fishSay('📖 <b>'+logged+' movements logged</b> for '+dLabel+'. '
+      +fmt(totalTon)+' lb moved · '+fmt(totalKcal)+' burned.'
+      +(forged.length?'<br>🔨 New stations forged: <b>'+forged.join(', ')+'</b>.':'')
+      +(prs.length?'<br>🔥 Records: '+prs.join(' · '):'')
+      +(got.note?'<br>'+got.note:''));
+  }catch(e){
+    fishSay('That session didn’t read cleanly — '+String(e.message||e).slice(0,60)
+      +'. Try one movement per line, like “Dip: 12, 12, 12”.');
+  }
 }
 
 /* ---------- the grid ---------- */
@@ -5854,6 +5937,7 @@ function findBlocks(txt){
 }
 function findResolve(txt){
   txt=txt.trim(); if(!txt)return;
+  if(looksLikeSession(txt)){ $('blockSearch').value=''; bulkLog(txt); return; }
   const sets=parseBlockSets(txt);
   const hits=findBlocks(txt);
   if(hits.length===1||(hits.length>1&&hits[0]&&sets.length===0&&false)){ }
@@ -5908,6 +5992,12 @@ $('doorway').onclick=e=>{if(e.target===$('doorway'))$('doorway').classList.remov
 
 /* boot armor: one missing element must never kill the temple */
 function wire(id,ev,fn){const el=$(id);if(!el)return;if(ev==='click')el.onclick=fn;else el.addEventListener(ev,fn);}
+
+
+if($('pasteSessionBtn'))$('pasteSessionBtn').onclick=()=>{
+  const t=prompt('Paste your workout — one movement per line. Put the date on the first line if it isn’t today.\n\nExample:\n8-9-26\nDip: 12, 12, 12\nSquat: bar x 12, 135x12\nCardio: 20 minutes');
+  if(t&&t.trim())bulkLog(t.trim());
+};
 
 /* ============ BOOT ============ */
 try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); }catch(e){}
