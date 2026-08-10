@@ -721,6 +721,11 @@
   .hist-x{flex:0 0 26px;background:none;border:none;color:#5E6B78;font-size:13px;cursor:pointer;padding:4px;}
   .hist-x:active{color:var(--ember-glow);}
 
+
+  .onebox-note{font-family:'EB Garamond',serif;font-style:italic;font-size:12.5px;line-height:1.5;
+    color:var(--mist);background:rgba(16,24,33,.5);border:1px solid #16202B;border-radius:11px;
+    padding:9px 12px;margin-bottom:9px;}
+
 </style>
 </head>
 <body>
@@ -798,11 +803,8 @@
     <div class="sec-body">
       <div class="life-ton"><span>LIFETIME MOVED</span><b id="lifeTon">0</b><span>LB</span></div>
       <div id="questLine" class="quest"></div>
-      <div class="findbar">
-        <input id="blockSearch" placeholder="Speak or type the workout — “bench”, “sauna 20 min”, “curls 25×10”" autocomplete="off">
-        <button id="findMic" title="Speak">🎙</button>
-        <button id="findCam" title="Photograph the equipment">📷</button>
-      </div>
+      <input id="blockSearch" type="text" style="display:none">
+      <div class="onebox-note">Everything goes through the box at the bottom — speak it, type it, paste a whole workout, or photograph the machine. KOI sorts it into these stations.</div>
       <div id="regionRail"></div>
       <div id="blockGrid"></div>
       <input type="file" id="mintIn" accept="image/*" capture="environment" style="display:none">
@@ -1022,12 +1024,12 @@
   <div class="bar">
     <div class="bar-inner">
       <button class="btn mic" id="micBtn" title="Speak">🎙</button>
-      <input id="speak" placeholder="Talk to me. Food, movement, questions…" autocomplete="off">
+      <input id="speak" placeholder="Tell me anything — food, a set, a whole workout, a question" autocomplete="off">
       <button class="btn" id="camBtn" title="Photo of your plate">📷</button>
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v66</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v67</div>
   </div>
 </div>
 
@@ -1524,6 +1526,43 @@ let fishNoteMsg=null; function fishNote(m){fishNoteMsg=m;}
 
 
 /* ============ RAW PIPE — for cards and plans, exact JSON out ============ */
+
+async function askJSON(prompt,images,maxTok){
+  const tok=maxTok||2000;
+  if(S.apiKey&&S.apiKey.indexOf('sk-ant')===0){
+    try{
+      const content=[];
+      (images||[]).slice(0,4).forEach(img=>content.push({type:'image',
+        source:{type:'base64',media_type:'image/jpeg',data:String(img).split(',')[1]}}));
+      content.push({type:'text',text:prompt});
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':S.apiKey,
+          'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:tok,
+          system:'You output RAW JSON only. No markdown, no fences, no commentary, no explanation. Begin with { and end with }.',
+          messages:[{role:'user',content}]})});
+      const body=await res.json();
+      if(body.error){fishNote('Key refused: '+(body.error.message||'check ⚙').slice(0,100));return null;}
+      let t=(body.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('')
+        .replace(/```json|```/g,'').trim();
+      const m=t.match(/\{[\s\S]*\}/); if(!m)return null;
+      try{return JSON.parse(m[0]);}catch(e){ console.warn('json parse',t.slice(0,200)); return null; }
+    }catch(e){ console.warn(e); return null; }
+  }
+  if(CONFIG.SCRIPT_URL&&S.apiKey){
+    try{
+      const res=await fetch(CONFIG.SCRIPT_URL,{method:'POST',redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({mode:'json',token:S.apiKey,prompt,images:images||[],max:tok})});
+      const out=await res.json();
+      if(out&&out.error==='key'){fishNote(out.reply);return null;}
+      return out;
+    }catch(e){return null;}
+  }
+  fishNote('KOI needs a Mirror Key for this — add it in ⚙.');
+  return null;
+}
+
 async function askClaudeRaw(prompt){
   if(S.apiKey&&S.apiKey.indexOf('sk-ant')===0){
     try{
@@ -1788,6 +1827,30 @@ async function _handle(text,images,imgSrcs){
   if(/^(reflect|evening|close the day|seal the day)\b/.test(tl)){startReflection();return;}
   if(looksLikeSession(text)&&/\d/.test(text)&&!/\b(ate|eaten|breakfast|lunch|dinner|calorie)\b/i.test(text)){
     bulkLog(text); return;
+  }
+  // a named movement with numbers, spoken to the librarian, goes to its station
+  if(/\d/.test(text)&&!/\b(ate|eaten|drank|breakfast|lunch|dinner|snack|calorie|water|oz|weigh)\b/i.test(tl)){
+    try{
+      const hits=findBlocks(text);
+      if(hits&&hits.length===1){
+        const b=hits[0];
+        const {sets,note}=await smartSets(text,b);
+        if(sets&&sets.length){
+          const prev=blockRec(b.id).pr||0;
+          const res=logToBlock(b.id,sets);
+          try{ const k=blockBurn(b,sets);
+            if(k>0)dayOf(todayKey()).out.push({name:b.n,kcal:Math.abs(k),t:Date.now(),block:b.id}); }catch(e){}
+          grantXP(sets.length*8+(res.wasPR?XP_RULES.pr:0),res.wasPR?'a new record':'logging the work');
+          reefBloom=1;save();renderAll();
+          const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+          fishSay((note?note+' ':'')+'🔥 <b>'+b.n+'</b> — '
+            +(res.wasPR?'NEW RECORD, past '+prev+'. ':'')
+            +fmt(res.ton)+' lb moved. '+(isRep?'Best '+res.best.v:'Best set '+res.best.w+'×'+res.best.r)
+            +'. Lifetime here: '+fmt(res.rec.ton)+' lb.');
+          return;
+        }
+      }
+    }catch(e){}
   }
   if(/^forge\s+/.test(tl)){
     const name=text.replace(/^forge\s+/i,'').trim();
@@ -3380,7 +3443,7 @@ async function bulkLog(text){
   const lib=allBlocks().map(b=>b.id+' = '+b.n).join('; ');
   fishSay('📖 Reading the whole session…');
   try{
-    const r=await askClaude('SESSION IMPORT. The walker pasted a full workout log, possibly for a past date. '
+    const got0=await askJSON('SESSION IMPORT. The walker pasted a full workout log, possibly for a past date. '
       +'KNOWN BLOCKS: ['+lib+']. Today is '+todayKey()+'. '
       +'Return ONLY compact JSON, no prose:\n'
       +'{"date":"YYYY-MM-DD","entries":[{"id":"known block id OR null","name":"movement as they wrote it",'
@@ -3394,11 +3457,10 @@ async function bulkLog(text){
       +'("1:10" or "20 minutes" = 20 if minutes are stated; a time like 1:10 alongside minutes means pace, use the minutes). '
       +'"bar" alone means an empty barbell — w 45. '
       +'"12 reps, 12, 12" is THREE sets of 12. "25 x 12" is 25 lb for 12 reps. '
-      +'A date written like 8-9-26 means 2026-08-09. If no date is given use today.',[]);
-    let raw=(r&&(r.reply||r.text))||'';
-    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
-    if(!j)throw new Error('no read');
-    const got=JSON.parse(j[0]);
+      +'A date written like 8-9-26 means 2026-08-09. If no date is given use today. '
+      +'Keep b and f to one short sentence each — brevity matters, the response must fit.',[],3000);
+    if(!got0)throw new Error('the reader returned nothing — check your Mirror Key in ⚙');
+    const got=got0;
     const dateKey=/^\d{4}-\d{2}-\d{2}$/.test(got.date||'')?got.date:todayKey();
     const entries=(got.entries||[]).filter(e=>e&&(e.sets||[]).length);
     if(!entries.length){fishSay('I couldn’t find sets in that. Paste it with one movement per line — “Dip: 12, 12, 12”.');return;}
@@ -3652,7 +3714,7 @@ async function smartSets(text,b){
     return {sets:quick,via:'fast'};
   // hand it to KOI — he reads what rules can't
   try{
-    const r=await askClaude('SET READING for the "'+b.n+'" block ('+b.g+'). '
+    const got=await askJSON('SET READING for the "'+b.n+'" block ('+b.g+'). '
       +'The walker said: "'+text.replace(/"/g,"'")+'". '
       +'Return ONLY compact JSON, no prose: {"sets":[{"w":WEIGHT_LB,"r":REPS}],"note":"one short line back to them"}. '
       +(isRep
@@ -3661,11 +3723,8 @@ async function smartSets(text,b){
         : 'w is the weight in pounds per set, r is reps in that set. ')
       +'One object per set actually performed — "3 sets of 10" is three objects. '
       +'Dumbbell work stated as a single number is the weight per hand as they said it. '
-      +'If they truly gave no numbers, return {"sets":[],"note":"what you need from them"}.',[]);
-    let raw=(r&&(r.reply||r.text))||'';
-    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
-    if(!j)throw new Error('no read');
-    const got=JSON.parse(j[0]);
+      +'If they truly gave no numbers, return {"sets":[],"note":"what you need from them"}.',[],600);
+    if(!got)throw new Error('no read');
     const sets=(got.sets||[]).filter(s=>(+s.r||0)>0).slice(0,12)
       .map(s=>({w:+s.w||0,r:Math.round((+s.r)*10)/10}));
     return {sets,via:'koi',note:got.note||''};
@@ -3732,16 +3791,13 @@ async function blockPhotoLog(files){
   if(!imgs.length){fishNote('Couldn’t read that file.');return;}
   const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
   try{
-    const r=await askClaude('STATION READ for "'+b.n+'" ('+b.g+'). The photo shows a machine display, watch summary, '
+    const got=await askJSON('STATION READ for "'+b.n+'" ('+b.g+'). The photo shows a machine display, watch summary, '
       +'weight stack, timer, or handwritten log. Extract the work shown. Reply ONLY compact JSON: '
       +(isRep
         ? '{"sets":[{"w":0,"r":MINUTES_OR_REPS}],"read":"what the screen showed, one line"} — r is minutes for cardio/recovery (a 32:14 run = 32), reps for bodyweight.'
         : '{"sets":[{"w":WEIGHT_LB,"r":REPS}],"read":"what the screen showed, one line"} — one entry per set if several are visible.')
-      +' If truly unreadable: {"sets":[],"read":"what you saw"}.',imgs);
-    let raw=(r&&(r.reply||r.text))||'';
-    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
-    if(!j)throw new Error('no read');
-    const got=JSON.parse(j[0]);
+      +' If truly unreadable: {"sets":[],"read":"what you saw"}.',imgs,800);
+    if(!got)throw new Error('no read');
     const sets=(got.sets||[]).filter(s=>(+s.r||0)>0).slice(0,12)
       .map(s=>({w:+s.w||0,r:Math.round(+s.r)}));
     if(!sets.length){
@@ -3772,15 +3828,13 @@ async function blockPhotoLog(files){
 async function forgeByName(name){
   fishNote('Forging “'+name+'”…');
   try{
-    const r=await askClaude('BLOCK FORGING: build an exercise card for "'+name+'". Reply ONLY compact JSON: '
+    const card0=await askJSON('BLOCK FORGING: build an exercise card for "'+name+'". Reply ONLY compact JSON: '
       +'{"n":"proper name","r":"chest|back|shoulders|biceps|triceps|forearms|quads|hamstrings|glutes|calves|core|heart",'
       +'"g":"barbell|dumbbell|machine|cable|bodyweight|cardio|recovery","m":0.8,'
       +'"b":"two sentences on what it builds and which part","f":"one or two sentences on the rep"} '
-      +'m = plausible elite bodyweight multiple; omit for bodyweight/cardio/recovery.',[]);
-    let raw=(r&&(r.reply||r.text))||'';
-    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
-    if(!j)throw new Error('no card');
-    const card=JSON.parse(j[0]); if(!card.n)throw new Error('no name');
+      +'m = plausible elite bodyweight multiple; omit for bodyweight/cardio/recovery.',[],700);
+    if(!card0||!card0.n)throw new Error('no card');
+    const card=card0;
     card.id='custom-'+Date.now();
     S.customBlocks=(S.customBlocks||[]).concat([card]);
     save();renderRegionRail();renderBlocks();
@@ -3793,18 +3847,16 @@ async function stationSight(dataUrl){
   fishNote('Reading the station…');
   const lib=allBlocks().map(b=>b.id+' = '+b.n).join('; ');
   try{
-    const r=await askClaude('STATION SIGHT: the photo shows gym equipment (a machine, rack, dumbbells, cables, bench, or a space). '
+    const sight0=await askJSON('STATION SIGHT: the photo shows gym equipment (a machine, rack, dumbbells, cables, bench, or a space). '
       +'KNOWN STATIONS: ['+lib+']. '
       +'Reply ONLY compact JSON, no prose, no markdown: '
       +'{"seen":"what the equipment is, plainly",'
       +'"matches":["ids of known stations this equipment serves, best first, up to 5"],'
       +'"mint":null OR {"n":"name","r":"chest|back|shoulders|biceps|triceps|forearms|quads|hamstrings|glutes|calves|core|heart","g":"barbell|dumbbell|machine|cable|bodyweight|cardio","m":0.8,"b":"two sentences on what it builds and which part","f":"one or two sentences on the rep"}}. '
       +'RULES: prefer matching known ids over minting; mint ONLY if nothing in the list fits this equipment. '
-      +'A dumbbell rack or cable tower matches MANY stations. m is a plausible elite load as bodyweight multiple; omit for bodyweight/cardio.',[dataUrl]);
-    let raw=(r&&(r.reply||r.text))||'';
-    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
-    if(!j)throw new Error('no reading');
-    const sight=JSON.parse(j[0]);
+      +'A dumbbell rack or cable tower matches MANY stations. m is a plausible elite load as bodyweight multiple; omit for bodyweight/cardio.',[dataUrl],1200);
+    if(!sight0)throw new Error('no reading');
+    const sight=sight0;
     const ids=(sight.matches||[]).filter(id=>blockById(id));
     if(!ids.length && sight.mint && sight.mint.n){
       const card=sight.mint; card.id='custom-'+Date.now();
