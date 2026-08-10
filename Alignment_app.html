@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101423">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>The Optimal Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..800,0..100,0..1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101423; --ink-2:#171C2E; --card:#1B2136; --raise:#242B44;
+  --ivory:#EDEAE2; --mute:#9AA2BC; --faint:#5F6885; --line:rgba(237,234,226,.10);
+  --gold:#F0C24A; --gold-soft:rgba(240,194,74,.14);
+  --acc-hot:#FFE9AE; --acc-deep:#C79A2E; --acc-ink:#241B06; --acc-glow:rgba(240,194,74,.3);
+  --sage:#8FBF6A;
+  --r:16px; --pad:18px; --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--ink);color:var(--ivory);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.5;min-height:100dvh}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(110% 46% at 50% 0%,rgba(240,194,74,.055),transparent 62%)}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 40,'WONK' 1;margin:0;font-weight:600;letter-spacing:-.015em}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+
+#app{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:0 var(--pad) calc(148px + var(--safe-b))}
+header.top{position:sticky;top:0;z-index:20;margin:0 calc(var(--pad)*-1);padding:15px var(--pad) 11px;
+  background:linear-gradient(180deg,var(--ink) 76%,transparent);display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.top h1{font-size:26px}
+.top .sub{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.gear{width:38px;height:38px;border-radius:50%;background:var(--card);display:grid;place-items:center;flex:none;font-size:15px}
+
+/* ── toggle ── */
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:14px}
+.seg button{padding:9px;border-radius:9px;font-size:13px;font-weight:500;color:var(--mute);transition:.16s}
+.seg button.on{background:var(--raise);color:var(--ivory);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+
+/* ── side by side ── */
+.dual{display:grid;grid-template-columns:46px 1fr 1fr;gap:7px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 10px}
+.dhead{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);text-align:center;padding-bottom:7px}
+.daxis{position:relative}
+.daxis b{position:absolute;right:6px;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:400;color:var(--faint)}
+.dcol{position:relative;background:var(--ink-2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.dtick{position:absolute;left:0;right:0;border-top:1px dashed rgba(237,234,226,.06)}
+.dblk{position:absolute;left:4px;right:4px;border-radius:5px;padding:3px 6px;overflow:hidden;background:rgba(var(--p),.2);border:1px solid rgba(var(--p),.45);border-left:3px solid rgb(var(--p))}
+.dblk .dn{font-size:9.5px;line-height:1.25;color:var(--ivory);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dblk .dt{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--mute)}
+.dnow{position:absolute;left:0;right:0;border-top:1.5px solid var(--gold);z-index:5;box-shadow:0 0 8px var(--acc-glow)}
+.dempty{position:absolute;top:40%;left:0;right:0;text-align:center;font-size:10.5px;color:var(--faint)}
+
+/* ── librarian's reply ── */
+.libsay{display:flex;gap:10px;align-items:flex-start;background:var(--gold-soft);border:1px solid rgba(240,194,74,.25);border-radius:13px;padding:12px 14px;margin-bottom:13px;font-size:13.5px;line-height:1.5;color:var(--ivory)}
+.libsay .lamp{flex:none;font-size:15px;margin-top:1px}
+
+/* ── coverage ── */
+.cov{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.covhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px}
+.covhead h3{font-size:18px}
+.covscore{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--sage);font-weight:500}
+.covscore.warn{color:var(--gold)}
+.covsay{font-size:12.5px;color:var(--mute);line-height:1.5;margin-bottom:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.pill{background:var(--ink-2);border:1px solid var(--line);border-radius:11px;padding:9px 9px 8px;position:relative;overflow:hidden;min-height:70px;display:flex;flex-direction:column;justify-content:space-between}
+.pill .bg{position:absolute;left:0;bottom:0;right:0;background:rgba(var(--p),.16);transition:height .6s cubic-bezier(.2,.8,.2,1)}
+.pill .nm{position:relative;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mute);line-height:1.3}
+.pill .vl{position:relative;font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--faint)}
+.pill.met{border-color:rgba(var(--p),.5)}
+.pill.met .nm{color:rgb(var(--p))}
+.pill.met .vl{color:var(--ivory)}
+.pill .tick{position:absolute;top:7px;right:8px;font-size:10px;color:rgb(var(--p));opacity:0;transition:.3s}
+.pill.met .tick{opacity:1}
+
+/* ── schedule ── */
+.sched{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.slot{display:grid;grid-template-columns:66px 1fr;gap:12px;padding:13px 15px;border-top:1px solid var(--line);align-items:start;position:relative}
+.slot:first-child{border-top:0}
+.slot .time{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint);line-height:1.4;padding-top:2px}
+.slot .time b{display:block;color:var(--mute);font-weight:500;font-size:12.5px}
+.slot .body{min-width:0}
+.slot .ttl{font-family:'Fraunces',serif;font-size:16.5px;font-weight:600;line-height:1.25;display:flex;align-items:center;gap:7px}
+.slot .ttl i{width:7px;height:7px;border-radius:50%;background:rgb(var(--p));flex:none;box-shadow:0 0 9px rgba(var(--p),.7)}
+.slot .why{font-size:12.5px;color:var(--mute);margin-top:3px;line-height:1.45}
+.slot .len{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);margin-top:5px;letter-spacing:.08em;text-transform:uppercase}
+.slot.fixed{background:rgba(237,234,226,.025)}
+.slot.now::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);box-shadow:0 0 12px rgba(240,194,74,.6)}
+.slot.gap{opacity:.55}
+.slot.gap .ttl{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:400;color:var(--faint);font-style:italic}
+/* the payoff: when you speak, the day visibly re-lays itself */
+@keyframes relayIn{0%{opacity:0;transform:translateY(7px)}100%{opacity:1;transform:none}}
+.sched.relay .slot{animation:relayIn .5s cubic-bezier(.2,.8,.2,1) both}
+.sched.relay .slot:nth-child(2){animation-delay:.04s}.sched.relay .slot:nth-child(3){animation-delay:.08s}
+.sched.relay .slot:nth-child(4){animation-delay:.12s}.sched.relay .slot:nth-child(5){animation-delay:.16s}
+.sched.relay .slot:nth-child(6){animation-delay:.2s}.sched.relay .slot:nth-child(7){animation-delay:.24s}
+.sched.relay .slot:nth-child(8){animation-delay:.28s}.sched.relay .slot:nth-child(9){animation-delay:.32s}
+.sched.relay .slot:nth-child(10){animation-delay:.36s}.sched.relay .slot:nth-child(n+11){animation-delay:.4s}
+.dayline{display:flex;height:9px;border-radius:5px;overflow:hidden;margin:12px 0 0;border:1px solid var(--line)}
+.dayline span{display:block;background:rgba(var(--p),.75)}
+
+/* ── generic ── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:11px}
+.card h3{font-size:17px;margin-bottom:4px}
+.meta{font-size:12.5px;color:var(--mute);line-height:1.5}
+.sect{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:22px 0 9px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 15px;border-radius:11px;background:var(--raise);font-size:13.5px;font-weight:500;transition:.15s}
+.btn:active{transform:scale(.975)}
+.btn.primary{background:var(--gold);color:var(--acc-ink);font-weight:600}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--mute)}
+.btn.wide{width:100%}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+label.f{display:block;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin:0 0 6px}
+input[type=text],input[type=time],input[type=number],input[type=url],select{width:100%;background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:11px;color:var(--ivory);font:inherit}
+textarea{width:100%;min-height:122px;background:var(--ink-2);border:1px solid var(--line);border-radius:11px;padding:12px;color:var(--ivory);font:inherit;resize:vertical}
+textarea::placeholder,input::placeholder{color:var(--faint)}
+.fld{margin-bottom:13px}
+.hint{font-size:12.5px;color:var(--mute);line-height:1.5;margin-top:9px}
+.hint b{color:var(--gold);font-weight:500}
+.chip{display:inline-block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:20px;background:var(--raise);color:var(--mute);margin:0 5px 5px 0}
+.chip.on{background:var(--gold-soft);color:var(--gold)}
+.taskrow{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line)}
+.taskrow:first-child{border-top:0}
+.box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--faint);flex:none;margin-top:2px;display:grid;place-items:center;font-size:11px;color:transparent;transition:.18s}
+.box.on{background:var(--sage);border-color:var(--sage);color:#0E1A06}
+.bar{flex:1;height:8px;border-radius:4px;background:var(--raise);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#6E8F4C,var(--sage));border-radius:4px;transition:width .6s}
+
+/* ── sheet / nav ── */
+.scrim{position:fixed;inset:0;background:rgba(8,10,18,.72);backdrop-filter:blur(6px);z-index:60;opacity:0;pointer-events:none;transition:.22s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;max-width:600px;margin:0 auto;background:var(--ink-2);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:18px var(--pad) calc(20px + var(--safe-b));transform:translateY(102%);transition:transform .3s cubic-bezier(.2,.9,.25,1);max-height:92dvh;overflow-y:auto;box-shadow:0 -24px 60px rgba(0,0,0,.6)}
+.sheet.on{transform:translateY(0)}
+.grab{width:38px;height:4px;border-radius:3px;background:var(--faint);margin:0 auto 15px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:600px;margin:0 auto;padding:8px var(--pad) calc(8px + var(--safe-b));background:linear-gradient(180deg,transparent,var(--ink) 34%);display:grid;grid-template-columns:1fr 1fr 74px 1fr 1fr;align-items:end;gap:2px}
+.tab{display:grid;justify-items:center;gap:4px;padding:7px 0;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);border-radius:10px}
+.tab .ic{font-size:16px;line-height:1;opacity:.6}
+.tab.on{color:var(--gold)}
+.tab.on .ic{opacity:1}
+.mic{width:60px;height:60px;border-radius:50%;justify-self:center;margin-bottom:4px;background:radial-gradient(circle at 38% 32%,var(--acc-hot),var(--gold) 62%,var(--acc-deep));color:var(--acc-ink);display:grid;place-items:center;font-size:23px;box-shadow:0 8px 26px var(--acc-glow)}
+.mic:active{transform:scale(.94)}
+.view{display:none}.view.on{display:block}
+.empty{text-align:center;padding:44px 18px;color:var(--mute)}
+.empty .big{font-family:'Fraunces',serif;font-size:19px;color:var(--ivory);margin-bottom:8px}
+.toast{position:fixed;left:50%;bottom:calc(102px + var(--safe-b));transform:translate(-50%,18px);z-index:90;background:var(--raise);border:1px solid var(--line);padding:11px 17px;border-radius:26px;font-size:13px;opacity:0;transition:.24s;pointer-events:none;max-width:88vw;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(240,194,74,.25);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.msg{padding:11px 13px;border-radius:12px;margin-bottom:8px;font-size:13.5px;max-width:88%;line-height:1.5}
+.msg.me{background:var(--raise);margin-left:auto}
+.msg.ai{background:var(--gold-soft);border:1px solid rgba(240,194,74,.2);white-space:pre-wrap}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div><h1 id="hdr">Today</h1><div class="sub mono" id="hdrsub">—</div></div>
+    <button class="gear" id="gearBtn" aria-label="Settings">⚙</button>
+  </header>
+
+  <!-- TODAY -->
+  <section class="view on" id="v-today">
+    <div class="seg"><button class="on" data-mode="optimal">Optimal</button><button data-mode="both">Side by side</button><button data-mode="actual">What I did</button></div>
+    <div class="libsay" id="libsay" style="display:none"><span class="lamp">🏮</span><span id="libsayTxt"></span></div>
+    <div class="cov" id="cov"></div>
+    <div class="sched" id="sched"></div>
+    <div class="row2">
+      <button class="btn ghost" id="rebuild">Rebuild the day</button>
+      <button class="btn ghost" id="logBtn">Log what I did</button>
+    </div>
+  </section>
+
+  <!-- BLUEPRINT -->
+  <section class="view" id="v-blueprint"><div id="bpBody"></div></section>
+
+  <!-- LIST -->
+  <section class="view" id="v-list"><div id="listBody"></div></section>
+
+  <!-- PROGRESS -->
+  <section class="view" id="v-progress"><div id="progBody"></div></section>
+</div>
+
+<nav>
+  <button class="tab on" data-v="today"><span class="ic">◷</span>Today</button>
+  <button class="tab" data-v="blueprint"><span class="ic">◈</span>Blueprint</button>
+  <button class="mic" id="micBtn" aria-label="Say something">🎙</button>
+  <button class="tab" data-v="list"><span class="ic">☰</span>List</button>
+  <button class="tab" data-v="progress"><span class="ic">◪</span>Progress</button>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const MODEL='claude-sonnet-4-6';
+
+/* the librarian can repaint the mirror */
+const THEMES={
+  gold:  {gold:'#F0C24A',soft:'rgba(240,194,74,.14)', hot:'#FFE9AE',deep:'#C79A2E',ink:'#241B06',glow:'rgba(240,194,74,.3)'},
+  blue:  {gold:'#6FA8F0',soft:'rgba(111,168,240,.14)',hot:'#C7DEFF',deep:'#3F6FB8',ink:'#0A1524',glow:'rgba(111,168,240,.3)'},
+  green: {gold:'#7FC96C',soft:'rgba(127,201,108,.14)',hot:'#D2F5C2',deep:'#4E8F3E',ink:'#0D1A08',glow:'rgba(127,201,108,.3)'},
+  purple:{gold:'#B78CF0',soft:'rgba(183,140,240,.14)',hot:'#E4D2FF',deep:'#8156C0',ink:'#160C24',glow:'rgba(183,140,240,.3)'},
+  rose:  {gold:'#F08CAC',soft:'rgba(240,140,172,.14)',hot:'#FFD2E0',deep:'#C05678',ink:'#240C14',glow:'rgba(240,140,172,.3)'},
+  teal:  {gold:'#5FC4C0',soft:'rgba(95,196,192,.14)', hot:'#C6F1EF',deep:'#3A8C89',ink:'#07201F',glow:'rgba(95,196,192,.3)'},
+  orange:{gold:'#F09A5A',soft:'rgba(240,154,90,.14)', hot:'#FFD9BC',deep:'#C06A2E',ink:'#241204',glow:'rgba(240,154,90,.3)'},
+  red:   {gold:'#EE7B6E',soft:'rgba(238,123,110,.14)',hot:'#FFCFC8',deep:'#B84A3E',ink:'#240A06',glow:'rgba(238,123,110,.3)'}
+};
+function applyTheme(name){
+  const t=THEMES[name]||THEMES.gold, r=document.documentElement.style;
+  r.setProperty('--gold',t.gold); r.setProperty('--gold-soft',t.soft);
+  r.setProperty('--acc-hot',t.hot); r.setProperty('--acc-deep',t.deep);
+  r.setProperty('--acc-ink',t.ink); r.setProperty('--acc-glow',t.glow);
+}
+function librarianSays(msg){
+  const el=document.getElementById('libsay');
+  if(!msg){el.style.display='none';return}
+  document.getElementById('libsayTxt').textContent=msg; el.style.display='flex';
+}
+
+/* ── storage ── */
+const mem={};
+const Store={
+  async get(k){try{if(window.storage){const r=await window.storage.get(k);return r?JSON.parse(r.value):null}}catch(e){}
+    try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){}return mem[k]??null},
+  async set(k,v){mem[k]=v;try{if(window.storage){await window.storage.set(k,JSON.stringify(v));return}}catch(e){}
+    try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+
+/* ══════════════════════════════════════════════
+   THE NINE PILLARS
+   What a day has to contain for a human to be
+   both high-performing and still healthy at 60.
+   ══════════════════════════════════════════════ */
+const P = {
+  sleep:     {n:'Sleep',      c:'110,143,214', target:450, why:'Everything else is built on this. Under 7h and your judgement, appetite and mood all degrade before you notice.'},
+  daylight:  {n:'Daylight',   c:'240,194,74',  target:30,  why:'Outdoor light early sets the clock that decides when you get tired tonight. Indoor light is 100× too dim to count.'},
+  movement:  {n:'Movement',   c:'231,124,78',  target:40,  why:'The single strongest lever on energy, mood and long-term health. Forty minutes clears the bar.'},
+  fuel:      {n:'Fuel',       c:'143,191,106', target:75,  why:'Three real eating windows, spaced. Skipping and then eating at 9pm is what wrecks the next morning.'},
+  deep:      {n:'Deep work',  c:'201,160,240', target:90,  why:'Uninterrupted time on the thing that compounds — your work, not your employer\'s. This is the block that changes your life.'},
+  job:       {n:'The job',    c:'138,147,181', target:0,   why:'Fixed. The point is to contain it so it does not eat the other eight.'},
+  people:    {n:'People',     c:'232,143,168', target:30,  why:'Isolation reads on health outcomes like smoking. One real conversation a day.'},
+  reset:     {n:'Reset',      c:'95,196,192',  target:30,  why:'Unstructured, no screen, no output expected. This is where the nervous system actually comes down.'},
+  winddown:  {n:'Wind-down',  c:'155,138,212', target:40,  why:'Screens down, lights low, before bed. Without it the sleep block is 7 hours of poor sleep instead of good.'}
+};
+const ORDER = ['sleep','daylight','movement','fuel','deep','job','people','reset','winddown'];
+
+let S = {
+  v:3, mode:'optimal',
+  bp:{ wake:'06:00', sleep:'22:00', workStart:'09:00', workEnd:'17:00', commute:30,
+       workDays:['MO','TU','WE','TH','FR'], mission:'', trainWhen:'morning' },
+  days:{}, tasks:[], goals:[], settings:{endpoint:'',apiKey:'',accent:'gold'}
+};
+const uid=()=>Math.random().toString(36).slice(2,10);
+const dkey=(d=new Date())=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const day=k=>(S.days[k] ||= {optimal:[],actual:[]});
+const m2t=m=>`${String(Math.floor(((m%1440)+1440)%1440/60)).padStart(2,'0')}:${String(Math.round(m)%60).padStart(2,'0')}`;
+const t2m=t=>{const[h,m]=String(t||'0:00').split(':').map(Number);return (h||0)*60+(m||0)};
+const dur=m=>{m=Math.round(m);const h=Math.floor(m/60),r=m%60;return h?(r?`${h}h ${r}m`:`${h}h`):`${r}m`};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nowM=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
+const DOW=['SU','MO','TU','WE','TH','FR','SA'];
+async function save(){await Store.set('optimalday_v3',S)}
+async function load(){const d=await Store.get('optimalday_v3');if(d)S=Object.assign(S,d,{bp:Object.assign(S.bp,d.bp||{}),settings:Object.assign(S.settings,d.settings||{})})}
+let tT;function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>e.classList.remove('on'),2800)}
+
+/* ══════════════════════════════════════════════
+   THE BUILDER — runs instantly, no AI needed.
+   Anchors first. Then the nine, by priority,
+   into whatever windows the anchors leave behind.
+   ══════════════════════════════════════════════ */
+function buildDay(dateKey){
+  const b=S.bp, out=[];
+  const isWork = b.workDays.includes(DOW[new Date(dateKey+'T12:00').getDay()]);
+  const wake=t2m(b.wake); let sleepAt=t2m(b.sleep); if(sleepAt<=wake) sleepAt+=1440;
+  const cm=+b.commute||0;
+  const add=(s,e,p,title,why)=>{ if(e-s>=10) out.push({id:uid(),start:m2t(s),end:m2t(e),pillar:p,title,why,fixed:p==='job'||p==='sleep'}); };
+
+  /* ── anchors ── */
+  add(sleepAt%1440,(sleepAt%1440)+(wake+1440-sleepAt),'sleep','Sleep',`${dur(wake+1440-sleepAt)} in bed`);
+
+  let mornEnd, eveStart;
+  if(isWork){
+    const wS=t2m(b.workStart), wE=t2m(b.workEnd);
+    if(cm) add(wS-cm,wS,'job','Commute out','Podcast or silence — not email');
+    if(wE-wS>=300){
+      const ls=Math.round((wS+wE)/2/15)*15;
+      add(wS,ls,'job','Work · first half','Hardest task in the first ninety minutes');
+      add(ls,ls+30,'fuel','Lunch','Away from the desk, actually');
+      add(ls+30,ls+45,'daylight','Walk outside','Fifteen minutes resets the afternoon');
+      add(ls+45,wE,'job','Work · second half','Meetings and admin land better here');
+    } else add(wS,wE,'job',`Work · ${b.workStart}–${b.workEnd}`,'Contained. It ends when it ends');
+    if(cm) add(wE,wE+cm,'job','Commute home','Decompress before the door');
+    mornEnd = wS-cm; eveStart = wE+cm;
+  }else{
+    /* day off: morning, a real midday, a long open middle, then the evening */
+    mornEnd = wake+240;
+    const ls = wake+300;
+    add(ls,ls+40,'fuel','Lunch','Sit down for it');
+    add(ls+40,ls+60,'daylight','Get outside','Longer today — you have the room');
+    eveStart = Math.max(ls+60, (sleepAt%1440||1440)-330);
+    if(eveStart-(ls+60)>=30) add(ls+60,eveStart,'reset','Open','Yours. Do not fill it out of guilt');
+  }
+
+  /* ── morning window ── */
+  const mornRoom = mornEnd-wake;
+  let plan;
+  if(mornRoom < 100){
+    plan = [['daylight',12,'Step outside','Light on your eyes early — it sets tonight'],
+            ['fuel',20,'Breakfast','Protein first, even if it is quick']];
+  } else if(b.trainWhen==='morning'){
+    plan = [['daylight',15,'Step outside','Light on your eyes within an hour of waking'],
+            ['movement',45,'Train','Hardest physical thing while willpower is full'],
+            ['fuel',30,'Breakfast','Protein first'],
+            ['deep',45,'Your own work','Before the job gets a claim on you']];
+  } else {
+    plan = [['daylight',15,'Step outside','Light on your eyes within an hour of waking'],
+            ['fuel',30,'Breakfast','Protein first'],
+            ['deep',60,'Your own work','Before the job gets a claim on you']];
+  }
+  let c=wake;
+  for(const [p,mins,title,why] of plan){
+    const room=mornEnd-c; if(room<15) break;
+    const len=Math.min(mins,room);
+    if(len < (p==='deep'?25:12)) continue;   /* a 15-minute deep block is not deep work */
+    add(c,c+len,p,title,why); c+=len+5;
+  }
+  if(mornEnd-c>=20) add(c,mornEnd,'reset','Slack','Buffer. Do not fill this');
+
+  /* ── evening window, scaled to whatever room is left ── */
+  const eEnd = sleepAt%1440||1440;
+  let e=eveStart;
+  const evePlan=[
+    ['reset',30,'Reset','No screen, no output. Shower, sit, cook'],
+    ...(b.trainWhen==='evening'?[['movement',45,'Train','The day\'s physical block']]:[]),
+    ['fuel',45,'Dinner','Real food, sitting down'],
+    ['deep',90,'Your own work',(b.mission||'The block that compounds')],
+    ['people',30,'Someone','Call, visit, or be in a room with a person'],
+    ['winddown',40,'Wind-down','Screens down, lights low']
+  ];
+  const need=evePlan.reduce((a,x)=>a+x[1],0), room=eEnd-e;
+  const scale = room<need ? Math.max(.45,room/need) : 1;
+  evePlan.forEach(([p,mins,title,why])=>{
+    if(e>=eEnd) return;
+    let len=Math.round(mins*scale/5)*5;
+    if(p==='winddown') len=Math.max(len,Math.min(30,eEnd-e));
+    len=Math.min(len,eEnd-e);
+    if(len < (p==='deep'?25:12)) return;
+    add(e,e+len,p,title,why); e+=len;
+  });
+  if(eEnd-e>=20) add(e,eEnd,'reset','Slack','Buffer before bed');
+
+  return out.sort((a,b)=>t2m(a.start)-t2m(b.start));
+}
+
+/* ── coverage: does this schedule contain a whole human? ── */
+function coverage(blocks){
+  const got={}; ORDER.forEach(p=>got[p]=0);
+  (blocks||[]).forEach(b=>{
+    let s=t2m(b.start),e=t2m(b.end); if(e<=s)e+=1440;
+    got[b.pillar||'job']=(got[b.pillar||'job']||0)+(e-s);
+  });
+  const scored=ORDER.filter(p=>P[p].target>0);
+  const met=scored.filter(p=>got[p]>=P[p].target*0.75);
+  return {got, met:met.length, of:scored.length, missing:scored.filter(p=>got[p]<P[p].target*0.75)};
+}
+
+/* ══════════════ STEWARD (optional polish) ══════════════ */
+async function ask(system,content,{json=true}={}){
+  const url=S.settings.endpoint||'https://api.anthropic.com/v1/messages';
+  const headers={'Content-Type':'application/json'};
+  if(S.settings.apiKey){
+    headers['x-api-key']=S.settings.apiKey;
+    headers['anthropic-version']='2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access']='true';
+  }
+  const res=await fetch(url,{method:'POST',headers,
+    body:JSON.stringify({model:MODEL,max_tokens:2000,system,messages:[{role:'user',content}]})});
+  if(!res.ok) throw new Error('Could not reach the assistant ('+res.status+')');
+  const d=await res.json(); let t=(d.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n').trim();
+  if(!json) return t;
+  t=t.replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
+  const a=t.indexOf('{'),z=t.lastIndexOf('}'); if(a>=0&&z>a)t=t.slice(a,z+1);
+  return JSON.parse(t);
+}
+const NOWSTR=()=>`${dkey()} ${m2t(nowM())} (${new Date().toLocaleDateString(undefined,{weekday:'long'})})`;
+const PILLARLINE=`pillar must be one of: sleep, daylight, movement, fuel, deep, job, people, reset, winddown.`;
+
+async function tuneDay(base){
+  const open=S.tasks.filter(t=>!t.done).slice(0,25).map(t=>({text:t.text,when:t.when,mins:t.minutes}));
+  const sys=`You take a solid default daily schedule and fold this person's actual errands and commitments into it — without breaking what makes the day healthy.
+Return ONLY JSON: {"blocks":[{"start":"HH:MM","end":"HH:MM","title":"short","pillar":"...","why":"under 9 words"}],"say":"one sentence, under 20 words"}
+${PILLARLINE}
+Rules:
+- Keep sleep, work and commute exactly where they are. Those are fixed.
+- Keep every pillar that was already covered still covered. Do not delete movement to make room for an errand.
+- Errands go into slack, or ride along with an existing block (groceries after work, calls on the commute).
+- If an errand genuinely doesn't fit today, leave it out rather than cramming the day.
+- Blocks must not overlap and must run in order.`;
+  return ask(sys,`Now: ${NOWSTR()}\nTheir own mission: ${S.bp.mission||'not stated'}\n\nDefault schedule:\n${JSON.stringify(base.map(b=>({start:b.start,end:b.end,title:b.title,pillar:b.pillar})))}\n\nOpen errands and tasks:\n${JSON.stringify(open)}`);
+}
+/* ══════ INSTANT EAR — runs on the phone, zero network ══════
+   Time and shape commands are math, not conversation. These
+   apply the moment the button is tapped, even fully offline. */
+function clock(h,m,ap,assume){
+  h=+h; m=+(m||0);
+  if(ap==='p'&&h<12)h+=12; if(ap==='a'&&h===12)h=0;
+  if(!ap){
+    if(assume==='sleep'&&h>=5&&h<=11)h+=12;           /* "sleep at 10" → 22:00 */
+    else if(assume==='pmIfEarly'&&h>=1&&h<=11)h+=12;  /* work END "to 5" → 17:00 */
+  }
+  return `${String(h%24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+function localParse(raw){
+  const t=' '+raw.toLowerCase().replace(/\./g,'')+' ';
+  const out={settings:{},logged:[],said:[]};
+  const T='(\\d{1,2})(?::(\\d{2}))?\\s*([ap])?m?\\b';
+  let m;
+
+  /* wake — present tense only ("woke" is a log) */
+  if(m=t.match(new RegExp('\\b(?:wake(?:s)?(?:\\s+up)?|get(?:s)?\\s+up|be\\s+up)\\s*(?:at|by|@)?\\s*'+T))){
+    out.settings.wake=clock(m[1],m[2],m[3],'wake'); out.said.push('wake '+out.settings.wake);
+  }
+  /* sleep / bed / lights out */
+  if(m=t.match(new RegExp('\\b(?:sleep(?:s)?|bed|lights\\s*out|asleep)\\s*(?:at|by|@)?\\s*'+T))){
+    out.settings.sleep=clock(m[1],m[2],m[3],'sleep'); out.said.push('lights out '+out.settings.sleep);
+  }
+  /* work hours — "work 9 to 5", NOT "worked" */
+  if(m=t.match(new RegExp('\\bwork(?:ing)?\\s*(?:from)?\\s*'+T+'\\s*(?:to|till|until|-|–)\\s*'+T))){
+    const s=clock(m[1],m[2],m[3],'wake'); let e=clock(m[4],m[5],m[6], m[6]?null:'pmIfEarly');
+    out.settings.workStart=s; out.settings.workEnd=e; out.said.push('work '+s+'–'+e);
+  }
+  /* worked X to Y — past tense → a logged block */
+  if(m=t.match(new RegExp('\\bworked\\s*(?:from)?\\s*'+T+'\\s*(?:to|till|until|-|–)\\s*'+T))){
+    out.logged.push({start:clock(m[1],m[2],m[3],'wake'),end:clock(m[4],m[5],m[6],m[6]?null:'pmIfEarly'),title:'Work',pillar:'job'});
+    out.said.push('logged work');
+  }
+  /* woke at X — past tense wake log */
+  if(m=t.match(new RegExp('\\bwoke(?:\\s+up)?\\s*(?:at|around)?\\s*'+T))){
+    const w=clock(m[1],m[2],m[3],'wake');
+    out.logged.push({start:w,end:m2t(t2m(w)+15),title:'Woke up',pillar:'rest'}); out.said.push('woke '+w);
+  }
+  /* commute */
+  if((m=t.match(/\bcommute\s*(?:is|of|takes)?\s*(?:about|around)?\s*(\d{1,3})\s*(?:min|minute)/))
+    || (m=t.match(/\b(\d{1,3})\s*(?:min|minute)s?\s*commute/))){
+    out.settings.commute=+m[1]; out.said.push('commute '+m[1]+'m');
+  }
+  /* train morning / evening */
+  if(m=t.match(/\b(?:train(?:ing)?|gym|work\s*out)\s*(?:in\s+the\s+)?(morning|evening)s?/)){
+    out.settings.trainWhen=m[1]; out.said.push('training '+m[1]+'s');
+  }
+  out.hit = Object.keys(out.settings).length>0 || out.logged.length>0;
+  return out;
+}
+
+/* ══════ ONE MOUTH, ONE BRAIN ══════
+   Everything the user says goes through here. The steward
+   decides what it was: a change to their day's shape, a task,
+   an account of what they did, or a goal — often several at once. */
+async function steward(userContent){
+  const openTasks=S.tasks.filter(t=>!t.done).slice(0,20).map(t=>t.text);
+  const goalList=S.goals.map(g=>g.title);
+  const sys=`You are the librarian of a personal scheduling app. The person speaks to you in completely natural language — any phrasing, any order, several things at once, typos, voice-to-text errors. You interpret intent generously and return ACTIONS. You control everything: the schedule, the log, the tasks, the goals, the tabs, even the app's colors. The person never edits anything by hand — you do it all.
+
+Return ONLY JSON:
+{"actions":[ ...zero or more of:
+ {"type":"shape","wake":"HH:MM?","sleep":"HH:MM?","workStart":"HH:MM?","workEnd":"HH:MM?","commute":minutes?,"trainWhen":"morning|evening?","mission":"string?","workDays":["MO",...]?}
+ {"type":"tasks","items":[{"text":"3-8 word imperative","when":"YYYY-MM-DD or empty","time":"HH:MM or empty","minutes":n,"pillar":"...","note":""}]}
+ {"type":"log","date":"YYYY-MM-DD","blocks":[{"start":"HH:MM","end":"HH:MM","title":"short","pillar":"..."}]}
+ {"type":"goal","text":"the multi-week ambition"}
+ {"type":"done","match":"words identifying which task or step they finished"}
+ {"type":"theme","accent":"gold|blue|green|purple|rose|teal|orange|red"}
+ {"type":"view","name":"today|blueprint|list|progress"}
+ {"type":"mode","name":"optimal|both|actual"}
+],"say":"one warm sentence naming what you did, under 18 words"}
+${PILLARLINE}
+
+How to interpret — never require exact phrasing:
+- Present-tense facts about their life ("I work 9 to 5", "up at 5 these days", "commute's about 40") → shape.
+- Past tense ("yesterday I...", "this morning I...", "worked till 6 then gym") → log. Resolve the date: "yesterday" is the day before the given date. Infer sane end times. Never invent activity.
+- Wants and errands ("need groceries", "gotta call the dentist tuesday") → tasks. Never invent deadlines.
+- Big ambitions ("I want to publish my book") → goal.
+- "did the groceries" / "finished the cover" → done, matching their open items.
+- "make it blue" / "I'm feeling green today" → theme.
+- "show me side by side" / "compare them" → mode "both". "show my plan" → "optimal". "what did I do" → "actual".
+- "show my goals" / "open the list" → view.
+- Questions ("how am I doing this week?") → no actions, answer in say using the state below.
+- Several intents in one breath → several actions. When unsure between two readings, pick the likelier one and name your choice in say.
+
+Their open tasks: ${JSON.stringify(openTasks)}
+Their goals: ${JSON.stringify(goalList)}`;
+  return ask(sys,`Now: ${NOWSTR()}\nCurrent shape: wake ${S.bp.wake}, sleep ${S.bp.sleep}, work ${S.bp.workStart}-${S.bp.workEnd} on ${S.bp.workDays.join('/')}, commute ${S.bp.commute}m, trains ${S.bp.trainWhen}, mission "${S.bp.mission||'unset'}", theme ${S.settings.accent}\n\nThey said:\n"""${userContent}"""`);
+}
+
+/* every action the librarian can take, in one place */
+async function runActions(r){
+  let reshaped=false, logged=false, view=null, mode=null;
+  for(const a of (r.actions||[])){
+    if(a.type==='shape'){
+      ['wake','sleep','workStart','workEnd','trainWhen','mission'].forEach(k=>{if(a[k]){S.bp[k]=a[k];reshaped=true}});
+      if(a.commute!=null&&a.commute!==''){S.bp.commute=+a.commute;reshaped=true}
+      if(Array.isArray(a.workDays)&&a.workDays.length){S.bp.workDays=a.workDays;reshaped=true}
+    }
+    else if(a.type==='tasks'){
+      (a.items||[]).forEach(it=>S.tasks.push({id:uid(),text:it.text,when:it.when||'',time:it.time||'',minutes:it.minutes||30,pillar:P[it.pillar]?it.pillar:'job',note:it.note||'',done:false}));
+    }
+    else if(a.type==='log'){
+      const d=day(a.date||dkey());
+      (a.blocks||[]).forEach(x=>d.actual.push({id:uid(),start:x.start,end:x.end,title:x.title,pillar:P[x.pillar]?x.pillar:'job'}));
+      logged=true;
+      if((a.date||dkey())===dkey()) mode=mode||'actual';
+    }
+    else if(a.type==='goal' && a.text){
+      try{const G=await buildGoal(a.text);
+        S.goals.unshift({id:uid(),title:G.title,why:G.why,steps:(G.steps||[]).map(x=>({...x,done:false}))});
+      }catch(e){}
+    }
+    else if(a.type==='done' && a.match){
+      const q=a.match.toLowerCase();
+      const t=S.tasks.find(x=>!x.done&&x.text.toLowerCase().includes(q.split(' ')[0]));
+      if(t) t.done=true;
+      else for(const g of S.goals){const st=g.steps.find(x=>!x.done&&(x.title+' '+g.title).toLowerCase().includes(q.split(' ')[0]));if(st){st.done=true;break}}
+    }
+    else if(a.type==='theme' && THEMES[a.accent]){
+      S.settings.accent=a.accent; applyTheme(a.accent);
+    }
+    else if(a.type==='view' && TITLES[a.name]) view=a.name;
+    else if(a.type==='mode' && ['optimal','both','actual'].includes(a.name)) mode=a.name;
+  }
+  if(reshaped){ day(dkey()).optimal=buildDay(dkey()); mode=mode||'optimal'; }
+  if(mode){ S.mode=mode;
+    document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===mode)); }
+  await save(); closeSheet(); go(view||'today'); renderAll();
+  if(reshaped){ const sc=document.getElementById('sched'); if(sc){sc.classList.add('relay');setTimeout(()=>sc.classList.remove('relay'),1400);} }
+  librarianSays(r.say||'');
+  return reshaped;
+}
+
+async function buildGoal(goal){
+  const sys=`Break a goal into steps so plain a capable 10-year-old could do them alone. No jargon. Each step is one physical action with a visible finish.
+Return ONLY JSON: {"title":"clean goal","why":"one sentence on what changes when it's done","steps":[{"title":"verb first","do":"2-3 plain sentences: exactly what to do and where","done_when":"the observable thing that proves it's finished","minutes":number}]}
+4-9 steps, never more. Step 2 must be impossible before step 1.`;
+  return ask(sys,`Goal: "${goal}"`);
+}
+async function guide(ctx,hist,q){
+  return ask(`You are standing next to someone stuck on one step. Explain like they're smart but have never done this: short sentences, concrete nouns, exact clicks. Use a picture or analogy for anything abstract. Under 130 words. No headers or bullet lectures. If a decision is needed, make it and say why.`,
+    `Step:\n${ctx}\n\nSo far:\n${hist.map(m=>`${m.role==='me'?'Them':'You'}: ${m.text}`).join('\n')}\n\nThem: ${q}`,{json:false});
+}
+
+/* ══════════════ RENDER ══════════════ */
+function renderToday(){
+  const k=dkey(), d=day(k);
+  if(!d.optimal.length){ d.optimal=buildDay(k); }
+  const mode=S.mode;
+
+  /* ── coverage ── */
+  const cOpt=coverage(d.optimal), cAct=coverage(d.actual);
+  let covHTML;
+  if(mode==='both'){
+    covHTML=`<div class="covhead"><h3>Plan vs reality</h3>
+      <span class="covscore mono ${cAct.met<cOpt.met?'warn':''}">${cAct.met}/${cOpt.met||cOpt.of}</span></div>
+      <div class="covsay">${!d.actual.length?'The plan is on the left. Speak your day and the right side fills in beside it.'
+        :cAct.met>=cOpt.met?'Reality kept pace with the plan today.'
+        :'Reality is behind the plan on: '+cAct.missing.filter(p=>!cOpt.missing.includes(p)).map(p=>P[p].n.toLowerCase()).join(', ')+'.'}</div>`;
+  } else {
+    const cv=mode==='optimal'?cOpt:cAct;
+    const say = mode==='optimal'
+      ? (cv.met===cv.of?'This day contains a whole human. Every pillar covered, no heroics.'
+         :`This shape misses ${cv.missing.map(p=>P[p].n.toLowerCase()).join(', ')}. Tell me your real hours and I will re-lay it.`)
+      : (!d.actual.length?'Nothing logged yet. Just say what you did — "worked 9 to 5, gym after."'
+         :cv.met===cv.of?'You covered all eight today. Rare day — note what made it possible.'
+         :`You covered ${cv.met}. Missing: ${cv.missing.map(p=>P[p].n.toLowerCase()).join(', ')}.`);
+    covHTML=`<div class="covhead"><h3>${mode==='optimal'?'What this day covers':'What you actually covered'}</h3>
+      <span class="covscore ${cv.met<cv.of?'warn':''} mono">${cv.met}/${cv.of}</span></div>
+      <div class="covsay">${say}</div>
+      <div class="grid">${ORDER.filter(p=>P[p].target>0).map(p=>{
+        const g=cv.got[p]||0, pct=Math.min(100,Math.round(g/P[p].target*100));
+        return `<button class="pill ${g>=P[p].target*.75?'met':''}" data-p="${p}" style="--p:${P[p].c}">
+          <span class="bg" style="height:${pct}%"></span><span class="tick">●</span>
+          <span class="nm">${P[p].n}</span><span class="vl mono">${g?dur(g):'—'}</span></button>`;
+      }).join('')}</div>`;
+  }
+  document.getElementById('cov').innerHTML=covHTML;
+
+  /* ── schedule ── */
+  const el=document.getElementById('sched');
+  if(mode==='both'){
+    const PPM2=0.72, H2=1440*PPM2, nm=nowM();
+    const col=(blocks,label)=>{
+      const sorted=[...blocks].sort((x,y)=>t2m(x.start)-t2m(y.start));
+      let ticks=''; for(let h=0;h<=24;h+=4) ticks+=`<div class="dtick" style="top:${h*60*PPM2}px"></div>`;
+      const inner = sorted.length ? sorted.map(x=>{
+        let st=t2m(x.start),en=t2m(x.end); if(en<=st)en+=1440;
+        const hgt=Math.max((en-st)*PPM2,15);
+        return `<div class="dblk" style="--p:${P[x.pillar]?P[x.pillar].c:'138,147,181'};top:${st*PPM2}px;height:${hgt-2}px">
+          <div class="dn">${esc(x.title)}</div>${hgt>26?`<div class="dt">${x.start}–${x.end}</div>`:''}</div>`;
+      }).join('') : `<div class="dempty">${label==='plan'?'no plan':'say your day and it fills in'}</div>`;
+      return `<div class="dcol" style="height:${H2}px">${ticks}${inner}<div class="dnow" style="top:${nm*PPM2}px"></div></div>`;
+    };
+    let axis=''; for(let h=0;h<=24;h+=4) axis+=`<b style="top:${h*60*PPM2}px">${String(h).padStart(2,'0')}</b>`;
+    el.style.background='transparent'; el.style.border='0';
+    el.innerHTML=`<div class="dual">
+      <div class="dhead"></div><div class="dhead">Optimal</div><div class="dhead">Yours</div>
+      <div class="daxis" style="height:${1440*0.72}px">${axis}</div>
+      ${col(d.optimal,'plan')}${col(d.actual,'you')}
+    </div>`;
+  } else {
+    el.style.background=''; el.style.border='';
+    const blocks = mode==='optimal'?d.optimal:d.actual;
+    if(!blocks.length){ el.innerHTML=`<div class="empty"><div class="big">Nothing logged for today.</div>Say what you did in plain sentences and it lands here on the clock.</div>`; }
+    else{
+      const sorted=[...blocks].sort((a,b)=>t2m(a.start)-t2m(b.start));
+      let html='', prev=null, nm=nowM();
+      sorted.forEach(b=>{
+        const s=t2m(b.start),e=t2m(b.end);
+        if(prev!==null && s-prev>=20) html+=`<div class="slot gap"><div class="time mono">${m2t(prev)}</div><div class="body"><div class="ttl">${dur(s-prev)} open</div></div></div>`;
+        const live = nm>=s && nm<(e<=s?e+1440:e);
+        html+=`<div class="slot ${b.fixed?'fixed':''} ${live?'now':''}" data-b="${b.id}" style="--p:${P[b.pillar]?P[b.pillar].c:'138,147,181'}">
+          <div class="time mono"><b>${b.start}</b>${b.end}</div>
+          <div class="body"><div class="ttl"><i></i>${esc(b.title)}</div>
+          ${b.why?`<div class="why">${esc(b.why)}</div>`:''}
+          <div class="len">${dur((e<=s?e+1440:e)-s)} · ${P[b.pillar]?P[b.pillar].n:'Other'}</div></div></div>`;
+        prev=Math.max(prev??0,e);
+      });
+      const total=sorted.reduce((a,b)=>{const s=t2m(b.start),e=t2m(b.end);return a+((e<=s?e+1440:e)-s)},0)||1;
+      html+=`<div style="padding:0 15px 15px"><div class="dayline">${sorted.map(b=>{
+        const s=t2m(b.start),e=t2m(b.end);const w=((e<=s?e+1440:e)-s)/total*100;
+        return `<span style="--p:${P[b.pillar]?P[b.pillar].c:'138,147,181'};width:${w}%"></span>`;}).join('')}</div></div>`;
+      el.innerHTML=html;
+    }
+  }
+  const n=new Date();
+  document.getElementById('hdrsub').textContent=n.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}).toUpperCase()+' · '+m2t(nowM());
+}
+
+function renderBlueprint(){
+  const b=S.bp;
+  document.getElementById('bpBody').innerHTML=`
+    <div class="card">
+      <h3>Your fixed points</h3>
+      <div class="meta" style="margin-bottom:14px">You can also just say these to the mic — “I wake up at 5” works. This tab is for checking or fine-tuning by hand.</div>
+      <div class="row2" style="margin:0">
+        <div class="fld"><label class="f">Wake</label><input type="time" id="bWake" value="${b.wake}"></div>
+        <div class="fld"><label class="f">Lights out</label><input type="time" id="bSleep" value="${b.sleep}"></div>
+        <div class="fld"><label class="f">Work starts</label><input type="time" id="bWS" value="${b.workStart}"></div>
+        <div class="fld"><label class="f">Work ends</label><input type="time" id="bWE" value="${b.workEnd}"></div>
+      </div>
+      <div class="fld"><label class="f">Commute each way (minutes)</label><input type="number" id="bCm" value="${b.commute}" min="0" max="180"></div>
+      <div class="fld"><label class="f">Work days</label><div id="bDays">${DOW.map(d=>`<button class="chip ${b.workDays.includes(d)?'on':''}" data-day="${d}">${d}</button>`).join('')}</div></div>
+      <div class="fld"><label class="f">Train in the</label><div id="bTrain">${['morning','evening'].map(t=>`<button class="chip ${b.trainWhen===t?'on':''}" data-train="${t}">${t}</button>`).join('')}</div></div>
+      <div class="fld"><label class="f">Your own work — the thing that compounds</label><input type="text" id="bMission" value="${esc(b.mission)}" placeholder="e.g. writing the next book"></div>
+      <button class="btn primary wide" id="bSave">Save and re-lay today</button>
+    </div>
+    <div class="sect">The nine a day has to contain</div>
+    ${ORDER.map(p=>`<div class="card" style="padding:14px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px">
+        <span style="width:9px;height:9px;border-radius:50%;background:rgb(${P[p].c});box-shadow:0 0 10px rgba(${P[p].c},.6);flex:none"></span>
+        <h3 style="font-size:16px;flex:1">${P[p].n}</h3>
+        <span class="mono" style="font-size:11.5px;color:var(--faint)">${P[p].target?dur(P[p].target)+'+':'fixed'}</span>
+      </div>
+      <div class="meta">${P[p].why}</div></div>`).join('')}`;
+}
+
+function renderList(){
+  const el=document.getElementById('listBody');
+  const open=S.tasks.filter(t=>!t.done), done=S.tasks.filter(t=>t.done).slice(-20).reverse();
+  if(!S.tasks.length){ el.innerHTML=`<div class="empty"><div class="big">Nothing on the list.</div>Tap the mic and say what's on your mind. "Groceries this weekend, car needs cleaning, dentist Tuesday at 2." It gets sorted for you.</div>`; return; }
+  const grp=(a,t)=>a.length?`<div class="sect">${t}</div><div class="card">${a.map(x=>`
+    <div class="taskrow"><button class="box ${x.done?'on':''}" data-task="${x.id}">✓</button>
+      <div style="flex:1;min-width:0"><div style="font-size:14.5px;${x.done?'color:var(--faint);text-decoration:line-through':''}">${esc(x.text)}</div>
+      <div class="meta" style="font-size:11.5px">${x.when?`${x.when}${x.time?' · '+x.time:''} · `:''}${x.minutes?dur(x.minutes):''}${x.note?' · '+esc(x.note):''}</div></div></div>`).join('')}</div>`:'';
+  el.innerHTML=grp(open.filter(t=>t.when).sort((a,b)=>a.when.localeCompare(b.when)),'Dated')
+             + grp(open.filter(t=>!t.when),'Whenever there is room')
+             + grp(done,'Done');
+}
+
+function renderProgress(){
+  const el=document.getElementById('progBody');
+  const days=Object.keys(S.days).filter(k=>S.days[k].actual&&S.days[k].actual.length).sort().slice(-14);
+  const goals=S.goals;
+  let html='';
+  html+=`<div class="card"><h3>Coverage, last ${days.length||0} logged days</h3>
+    <div class="meta" style="margin-bottom:13px">Out of eight pillars, how many a day actually contained.</div>
+    ${days.length?days.map(k=>{const c=coverage(S.days[k].actual);
+      return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span class="mono" style="font-size:11px;width:44px;color:var(--faint)">${k.slice(5)}</span>
+        <span class="bar"><i style="width:${c.met/c.of*100}%"></i></span>
+        <span class="mono" style="font-size:12px;width:34px;text-align:right">${c.met}/${c.of}</span></div>`;}).join('')
+      :`<div class="meta" style="color:var(--faint)">No days logged yet.</div>`}</div>`;
+  if(days.length){
+    const avg={}; ORDER.filter(p=>P[p].target>0).forEach(p=>{
+      avg[p]=Math.round(days.reduce((a,k)=>a+(coverage(S.days[k].actual).got[p]||0),0)/days.length);});
+    const weakest=Object.entries(avg).sort((a,b)=>(a[1]/P[a[0]].target)-(b[1]/P[b[0]].target))[0];
+    html+=`<div class="card"><h3>Weakest pillar</h3>
+      <div class="meta" style="margin-top:5px">You average <b style="color:var(--ivory)">${dur(avg[weakest[0]])}</b> of ${P[weakest[0]].n.toLowerCase()} against a target of ${dur(P[weakest[0]].target)}. ${P[weakest[0]].why}</div></div>`;
+  }
+  html+=`<div class="sect">Goals</div>`;
+  html+= goals.length ? goals.map(g=>{
+    const done=g.steps.filter(s=>s.done).length, pct=Math.round(done/g.steps.length*100);
+    return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+      <h3 style="flex:1">${esc(g.title)}</h3><span class="mono" style="color:var(--gold)">${pct}%</span></div>
+      <div class="meta" style="margin:4px 0 11px">${esc(g.why||'')}</div>
+      <div class="bar" style="height:8px"><i style="width:${pct}%"></i></div>
+      ${g.steps.map((s,i)=>`<div class="taskrow" style="align-items:flex-start">
+        <button class="box ${s.done?'on':''}" data-step="${g.id}:${i}">✓</button>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;${s.done?'color:var(--faint);text-decoration:line-through':''}">${esc(s.title)}</div>
+          <div class="meta" style="font-size:12.5px;margin-top:2px">${esc(s.do)}</div>
+          <div class="meta" style="font-size:11.5px;color:var(--gold);opacity:.85;margin-top:3px">Done when: ${esc(s.done_when)}</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn ghost" data-help="${g.id}:${i}" style="padding:6px 11px;font-size:12px">Show me how</button>
+            <button class="btn ghost" data-put="${g.id}:${i}" style="padding:6px 11px;font-size:12px">Schedule it</button>
+          </div></div></div>`).join('')}
+      <button class="btn ghost" data-delg="${g.id}" style="margin-top:12px;padding:6px 11px;font-size:12px">Remove goal</button></div>`;
+  }).join('') : `<div class="card"><div class="meta">Nothing multi-week yet. Say a goal into the mic and it comes back as steps.</div></div>`;
+  html+=`<button class="btn ghost wide" id="newGoal" style="margin-top:10px">Add a goal</button>`;
+  el.innerHTML=html;
+  document.getElementById('newGoal').onclick=openNewGoal;
+}
+
+function renderAll(){renderToday();renderBlueprint();renderList();renderProgress()}
+
+/* ══════════════ SHEETS ══════════════ */
+const scrim=document.getElementById('scrim'),sheet=document.getElementById('sheet'),sBody=document.getElementById('sheetBody');
+function openSheet(h){sBody.innerHTML=h;scrim.classList.add('on');sheet.classList.add('on')}
+function closeSheet(){scrim.classList.remove('on');sheet.classList.remove('on')}
+scrim.onclick=closeSheet;
+
+
+async function applyLocal(loc){
+  Object.assign(S.bp, loc.settings);
+  if(loc.logged.length){ const d=day(dkey()); loc.logged.forEach(x=>d.actual.push({id:uid(),...x})); }
+  const reshaped=Object.keys(loc.settings).length>0;
+  if(reshaped){ day(dkey()).optimal=buildDay(dkey()); S.mode='optimal'; }
+  else if(loc.logged.length) S.mode='actual';
+  document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===S.mode));
+  await save(); closeSheet(); go('today'); renderAll();
+  if(reshaped){ const sc=document.getElementById('sched'); sc.classList.add('relay'); setTimeout(()=>sc.classList.remove('relay'),1400); }
+  librarianSays('Done — '+loc.said.join(', ')+'.');
+}
+
+function openCapture(){
+  openSheet(`<h2 style="font-size:21px;margin-bottom:5px">Just say it</h2>
+    <div class="hint" style="margin:0 0 13px">Any phrasing, any order. "I work 9 to 5." "Yesterday I trained then wrote all night." "Make it blue." "Show me side by side." "Did the groceries." The librarian does the rest — you never edit anything.</div>
+    <textarea id="cap" placeholder="I wake up at 5am"></textarea>
+    <div class="hint">Tap the <b>🎤 on your keyboard</b> and talk.</div>
+    <button class="btn primary wide" id="capGo" style="margin-top:14px">Update my day</button>`);
+  setTimeout(()=>document.getElementById('cap').focus(),340);
+  document.getElementById('capGo').onclick=async ev=>{
+    const t=document.getElementById('cap').value.trim(); if(!t)return;
+    const b=ev.currentTarget;
+
+    /* with a key, the librarian interprets everything — no exact phrasing, ever */
+    if(S.settings.apiKey||S.settings.endpoint){
+      b.innerHTML='<span class="spin"></span> Listening'; b.disabled=true;
+      try{ await runActions(await steward(t)); }
+      catch(e){
+        /* librarian unreachable: the instant ear still saves the common cases */
+        const loc=localParse(t);
+        if(loc.hit){ await applyLocal(loc); }
+        else { b.innerHTML='Update my day'; b.disabled=false;
+          toast("Couldn't reach the librarian — check the key in settings."); }
+      }
+      return;
+    }
+
+    /* no key yet: instant ear for time commands, honest message for the rest */
+    const loc=localParse(t);
+    if(loc.hit){ await applyLocal(loc); return; }
+    b.innerHTML='<span class="spin"></span> Listening'; b.disabled=true;
+    try{ await runActions(await steward(t)); }
+    catch(e){ b.innerHTML='Update my day'; b.disabled=false;
+      toast('That one needs the librarian. Add your API key in settings and every phrasing will work.'); }
+  };
+}
+
+function openLog(){
+  openSheet(`<h2 style="font-size:21px;margin-bottom:5px">What did you actually do?</h2>
+    <div class="hint" style="margin:0 0 13px">Rough is fine. "Up at 7, work till 5, gym after, ate late." The clock gets sorted for you, and each hour gets filed under one of the nine.</div>
+    <textarea id="lg" placeholder="woke around 7:30, ate, worked 9 to 5, drove home, ate again, watched tv til 11"></textarea>
+    <button class="btn primary wide" id="lgGo" style="margin-top:14px">Add to today</button>`);
+  setTimeout(()=>document.getElementById('lg').focus(),340);
+  document.getElementById('lgGo').onclick=async ev=>{
+    const t=document.getElementById('lg').value.trim(); if(!t)return;
+    const b=ev.currentTarget; b.innerHTML='<span class="spin"></span> Adding'; b.disabled=true;
+    try{
+      const r=await logActual(t); const d=day(dkey());
+      (r.blocks||[]).forEach(x=>d.actual.push({id:uid(),start:x.start,end:x.end,title:x.title,pillar:P[x.pillar]?x.pillar:'job'}));
+      S.mode='actual'; document.querySelectorAll('.seg button').forEach(y=>y.classList.toggle('on',y.dataset.mode==='actual'));
+      await save(); renderAll(); closeSheet(); go('today'); toast(r.say||'Added.');
+    }catch(e){ b.innerHTML='Add to today'; b.disabled=false; toast(e.message); }
+  };
+}
+
+function openNewGoal(){
+  openSheet(`<h2 style="font-size:21px;margin-bottom:5px">What's the finished thing?</h2>
+    <div class="hint" style="margin:0 0 13px">Name the result, not the effort. "Passport in my hand," not "deal with passport stuff."</div>
+    <textarea id="gg" style="min-height:84px" placeholder="my books stocked in three local bookstores"></textarea>
+    <button class="btn primary wide" id="ggGo" style="margin-top:14px">Break it into steps</button>`);
+  setTimeout(()=>document.getElementById('gg').focus(),340);
+  document.getElementById('ggGo').onclick=async ev=>{
+    const t=document.getElementById('gg').value.trim(); if(!t)return;
+    const b=ev.currentTarget; b.innerHTML='<span class="spin"></span> Working'; b.disabled=true;
+    try{ const G=await buildGoal(t);
+      S.goals.unshift({id:uid(),title:G.title,why:G.why,steps:(G.steps||[]).map(s=>({...s,done:false}))});
+      await save(); renderProgress(); closeSheet(); go('progress'); toast('Steps ready.');
+    }catch(e){ b.innerHTML='Break it into steps'; b.disabled=false; toast(e.message); }
+  };
+}
+
+let chatHist=[],chatCtx='';
+function openGuide(g,i){
+  const s=g.steps[i]; chatHist=[];
+  chatCtx=`Goal: ${g.title}\nStep ${i+1} of ${g.steps.length}: ${s.title}\nWhat to do: ${s.do}\nDone when: ${s.done_when}`;
+  openSheet(`<h2 style="font-size:19px;margin-bottom:4px">${esc(s.title)}</h2>
+    <div class="hint" style="margin:0 0 13px">Ask anything. No question is too small.</div>
+    <div id="cl" style="max-height:44dvh;overflow-y:auto;margin-bottom:12px"></div>
+    <div style="display:flex;gap:8px"><input type="text" id="ci" placeholder="I don't understand the first part"><button class="btn primary" id="cg">Ask</button></div>`);
+  const log=document.getElementById('cl');
+  const draw=()=>{log.innerHTML=chatHist.map(m=>`<div class="msg ${m.role==='me'?'me':'ai'}">${esc(m.text)}</div>`).join('');log.scrollTop=log.scrollHeight};
+  const send=async()=>{const inp=document.getElementById('ci'),q=inp.value.trim();if(!q)return;
+    inp.value='';chatHist.push({role:'me',text:q},{role:'ai',text:'…'});draw();
+    try{chatHist[chatHist.length-1]={role:'ai',text:await guide(chatCtx,chatHist.slice(0,-2),q)}}
+    catch(e){chatHist[chatHist.length-1]={role:'ai',text:'Could not reach the assistant. '+e.message}}
+    draw()};
+  document.getElementById('cg').onclick=send;
+  document.getElementById('ci').addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+  setTimeout(()=>document.getElementById('ci').focus(),340);
+}
+
+function openPlace(title,minutes,pillar){
+  const start=m2t(Math.ceil((nowM()+10)/15)*15);
+  openSheet(`<h2 style="font-size:20px;margin-bottom:13px">Put it on the day</h2>
+    <div style="font-size:14.5px;margin-bottom:15px;color:var(--gold)">${esc(title)}</div>
+    <div class="row2" style="margin:0">
+      <div class="fld"><label class="f">Starts</label><input type="time" id="pS" value="${start}"></div>
+      <div class="fld"><label class="f">Ends</label><input type="time" id="pE" value="${m2t(t2m(start)+(minutes||30))}"></div></div>
+    <button class="btn primary wide" id="pG">Add to today</button>`);
+  document.getElementById('pG').onclick=async()=>{
+    day(dkey()).optimal.push({id:uid(),start:document.getElementById('pS').value,end:document.getElementById('pE').value,title,pillar:pillar||'deep',why:''});
+    S.mode='optimal'; document.querySelectorAll('.seg button').forEach(y=>y.classList.toggle('on',y.dataset.mode==='optimal'));
+    await save(); renderAll(); closeSheet(); go('today'); toast('On the day.');
+  };
+}
+
+function openSettings(){
+  openSheet(`<h2 style="font-size:21px;margin-bottom:14px">Settings</h2>
+    <div class="fld"><label class="f">Anthropic API key</label><input type="text" id="sK" value="${esc(S.settings.apiKey)}" placeholder="sk-ant-..." autocomplete="off"></div>
+    <div class="hint">With a key, the librarian understands <b>any</b> phrasing — no commands to memorize. The key stays on this device only, never sent anywhere but Anthropic. For a shared or public deployment, use a proxy endpoint below instead so no key sits on phones.</div>
+    <div class="fld" style="margin-top:13px"><label class="f">Or: proxy endpoint</label><input type="url" id="sE" value="${esc(S.settings.endpoint)}" placeholder="your Apps Script proxy URL"></div>
+    <button class="btn primary wide" id="sG" style="margin-top:16px">Save</button>
+    <button class="btn ghost wide" id="sX" style="margin-top:8px">Export everything</button>
+    <button class="btn ghost wide" id="sW" style="margin-top:8px;color:var(--mute)">Erase everything</button>`);
+  document.getElementById('sG').onclick=async()=>{
+    S.settings.apiKey=document.getElementById('sK').value.trim();
+    S.settings.endpoint=document.getElementById('sE').value.trim();
+    await save();closeSheet();
+    toast(S.settings.apiKey||S.settings.endpoint?'Saved. The librarian is listening.':'Saved.')};
+  document.getElementById('sX').onclick=()=>{const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download=`optimal-day-${dkey()}.json`;a.click();toast('Exported.')};
+  document.getElementById('sW').onclick=async()=>{if(!confirm('Erase every day, task and goal?'))return;
+    S={v:3,mode:'optimal',bp:S.bp,days:{},tasks:[],goals:[],settings:S.settings};await save();renderAll();closeSheet();toast('Erased.')};
+}
+
+/* ══════════════ WIRING ══════════════ */
+const TITLES={today:'Today',blueprint:'Blueprint',list:'List',progress:'Progress'};
+function go(v){
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
+  document.getElementById('hdr').textContent=TITLES[v];
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>go(t.dataset.v));
+document.getElementById('micBtn').onclick=openCapture;
+document.getElementById('gearBtn').onclick=openSettings;
+document.getElementById('logBtn').onclick=openLog;
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=async()=>{
+  S.mode=b.dataset.mode; document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));
+  await save(); renderToday();
+});
+document.getElementById('rebuild').onclick=async ev=>{
+  const k=dkey(), base=buildDay(k);
+  day(k).optimal=base; S.mode='optimal';
+  document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x.dataset.mode==='optimal'));
+  await save(); renderToday();
+  if(!S.tasks.filter(t=>!t.done).length){ toast('Day re-laid.'); return; }
+  const b=ev.currentTarget,old=b.textContent; b.innerHTML='<span class="spin"></span> Folding in tasks'; b.disabled=true;
+  try{ const r=await tuneDay(base);
+    if(r.blocks&&r.blocks.length) day(k).optimal=r.blocks.map(x=>({id:uid(),start:x.start,end:x.end,title:x.title,pillar:P[x.pillar]?x.pillar:'job',why:x.why||'',fixed:x.pillar==='job'||x.pillar==='sleep'}));
+    await save(); renderToday(); toast(r.say||'Day re-laid with your tasks folded in.');
+  }catch(e){ toast('Day re-laid. '+e.message); }
+  b.textContent=old; b.disabled=false;
+};
+
+document.addEventListener('click',async ev=>{
+  const el=ev.target.closest('[data-task],[data-step],[data-help],[data-put],[data-delg],[data-day],[data-train],[data-p],#bSave');
+  if(!el) return;
+  if(el.id==='bSave'){
+    S.bp.wake=document.getElementById('bWake').value; S.bp.sleep=document.getElementById('bSleep').value;
+    S.bp.workStart=document.getElementById('bWS').value; S.bp.workEnd=document.getElementById('bWE').value;
+    S.bp.commute=+document.getElementById('bCm').value||0; S.bp.mission=document.getElementById('bMission').value;
+    day(dkey()).optimal=buildDay(dkey());
+    await save(); renderAll(); go('today'); toast('Day re-laid around your fixed points.'); return;
+  }
+  if(el.dataset.day){ const d=el.dataset.day;
+    S.bp.workDays = S.bp.workDays.includes(d) ? S.bp.workDays.filter(x=>x!==d) : [...S.bp.workDays,d];
+    await save(); renderBlueprint(); return; }
+  if(el.dataset.train){ S.bp.trainWhen=el.dataset.train; await save(); renderBlueprint(); return; }
+  if(el.dataset.task){ const t=S.tasks.find(x=>x.id===el.dataset.task); t.done=!t.done; await save(); renderList(); return; }
+  if(el.dataset.step){ const [gid,i]=el.dataset.step.split(':'); const g=S.goals.find(x=>x.id===gid);
+    g.steps[i].done=!g.steps[i].done; await save(); renderProgress();
+    if(g.steps[i].done) toast(g.steps.every(s=>s.done)?'Goal finished.':`${Math.round(g.steps.filter(s=>s.done).length/g.steps.length*100)}% there.`); return; }
+  if(el.dataset.help){ const [gid,i]=el.dataset.help.split(':'); openGuide(S.goals.find(x=>x.id===gid),+i); return; }
+  if(el.dataset.put){ const [gid,i]=el.dataset.put.split(':'); const g=S.goals.find(x=>x.id===gid),s=g.steps[i];
+    openPlace(`${g.title} — ${s.title}`,s.minutes||45,'deep'); return; }
+  if(el.dataset.delg){ if(!confirm('Remove this goal?'))return; S.goals=S.goals.filter(x=>x.id!==el.dataset.delg); await save(); renderProgress(); return; }
+  if(el.dataset.p){ const p=el.dataset.p; const c=coverage(S.mode==='optimal'?day(dkey()).optimal:day(dkey()).actual);
+    const g=c.got[p]||0;
+    openSheet(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="width:11px;height:11px;border-radius:50%;background:rgb(${P[p].c});box-shadow:0 0 12px rgba(${P[p].c},.7)"></span>
+        <h2 style="font-size:21px">${P[p].n}</h2></div>
+      <div class="mono" style="font-size:13px;color:var(--mute);margin-bottom:12px">${g?dur(g):'0m'} of ${dur(P[p].target)} target · ${S.mode==='optimal'?'in this plan':'logged today'}</div>
+      <div style="font-size:14px;line-height:1.6;color:var(--mute)">${P[p].why}</div>`);
+    return; }
+});
+
+(async()=>{
+  await load();
+  applyTheme(S.settings.accent);
+  const k=dkey(); if(!day(k).optimal.length){ day(k).optimal=buildDay(k); await save(); }
+  document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===S.mode));
+  renderAll();
+  setInterval(renderToday,60000);
+})();
+</script>
+</body>
+</html>
