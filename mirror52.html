@@ -807,6 +807,7 @@
       <div id="blockGrid"></div>
       <input type="file" id="mintIn" accept="image/*" capture="environment" style="display:none">
       <div class="gnote">Tap a block. Beat yourself. That’s the whole game.</div>
+      <button class="small-link" id="clearSetsBtn" style="color:var(--ember-glow);margin-top:6px">✕ Clear today’s sets</button>
     </div>
   </div>
 
@@ -890,11 +891,6 @@
   <div class="section" id="weekSec">
     <div class="sec-head"><h3>The Week's Work · Sets Per Muscle</h3><span class="car">›</span></div>
     <div class="sec-body" id="weekWork"></div>
-  </div>
-  <div class="section open" id="ladderSec">
-    <div class="sec-head"><h3>The Ladders · Climb to Elite</h3><span class="car">›</span></div>
-    <div class="sec-body" id="ladders"></div>
-    <button class="small-link" id="clearSetsBtn" style="color:var(--ember-glow);margin-top:8px">✕ Clear today’s sets — start the forge clean</button>
   </div>
   <div class="section" id="moveDictSec">
     <div class="sec-head"><h3>The Movement Dictionary</h3><span class="car">›</span></div>
@@ -1030,7 +1026,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v62</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v65</div>
   </div>
 </div>
 
@@ -1232,7 +1228,17 @@ function bmr(){const p=S.profile,kg=p.w*0.4536,cm=p.h*2.54;
   return Math.round((10*kg+6.25*cm-5*p.a+(p.s==='m'?5:-161))*S.calib);}
 
 /* ============ MIRROR MATH ============ */
+function dayOf(key){
+  key=key||todayKey();
+  const d=(S.days[key]=S.days[key]||{});
+  if(!Array.isArray(d.in))d.in=[];
+  if(!Array.isArray(d.out))d.out=[];
+  if(!Array.isArray(d.sets))d.sets=[];
+  return d;
+}
+function healDays(){ for(const k in (S.days||{})) dayOf(k); }
 function dayTotals(key){const d=S.days[key];if(!d)return{inC:0,outMove:0};
+  if(!Array.isArray(d.in)||!Array.isArray(d.out))dayOf(key);
   return{inC:d.in.reduce((a,b)=>a+b.kcal,0),outMove:d.out.reduce((a,b)=>a+b.kcal,0)};}
 function secondsToday(){const n=new Date();return n.getHours()*3600+n.getMinutes()*60+n.getSeconds();}
 function anchorMark(beforeKey){
@@ -1838,7 +1844,7 @@ async function _handle(text,images,imgSrcs){
     if(claude&&claude.reply){fishSay(claude.reply+'<br><br>'+fishAsk());return;}
     fishSay('I couldn’t read that one'+((S.apiKey||CONFIG.SCRIPT_URL)?'':' — my full mind sleeps — a Mirror Key wakes it: photo-reading, any question, a dictionary that grows forever. KOIlibraryOfficial.com/mirror-key. Meanwhile, tell me plainly and I\u2019ve got you.')+'. Name the food or the movement, or give me the number straight: “pasta, 600 calories.”');return;}
   const tk=todayKey();
-  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  dayOf(tk);
   const chips=[];
   const now=Date.now();for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal,p:it.p||0,t:now});
     chips.push({...it,t:it.type});}
@@ -1933,7 +1939,8 @@ function renderAll(){
     el.innerHTML=`<div class="mnum">${fmt(m.mirror)}</div><div class="mw">${m.weight} lbs</div>
       <div class="mdate">${new Date(m.date+'T12:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>`;
     fr.appendChild(el);});
-  const lad=$('ladders');lad.innerHTML='';
+  if(!$('ladders')){} else {
+  const lad=$('ladders');if(lad){lad.innerHTML='';}
   for(const key in LADDERS){const L=LADDERS[key],rec=S.lifts[key];
     const bw=S.profile.w,elite=L.rungs[3];
     const val=rec?rec.val:0,pct=Math.min(100,val/elite*100);
@@ -1941,10 +1948,10 @@ function renderAll(){
     el.innerHTML=`<div class="lname"><span>${L.name}</span><b>${rec?(L.reps?rec.e1rm+' reps':rec.e1rm+' lb e1RM'):'unwitnessed'}</b></div>
       <div class="rail"><div class="fill" style="width:${pct}%"></div><span class="swimmer" style="left:${Math.max(2,pct)}%">🐟</span></div>
       <div class="rungs">${L.rungs.map((r,i)=>`<span>${RUNG_NAMES[i]}<br>${L.reps?r:Math.round(r*bw)}</span>`).join('')}</div>
-      <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
-    lad.appendChild(el);}
+      <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Tap the block and log — the ladder wakes.'}</div>`;
+    lad&&lad.appendChild(el);}
   renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();renderWeekWork();renderStreak();renderXP();renderRoad();
-  if(activeTab==='pageGal'&&$('frameLane')&&$('frameLane').style.display!=='none')renderFrames();
+  if(activeTab==='pageGal'&&$('frameLane')&&$('frameLane').style.display!=='none')renderFrames();}
 }
 function tick(){
   if(S.profile){
@@ -2421,7 +2428,7 @@ function drawPond(ts){
 function waterGoal(){return S.profile?Math.round(S.profile.w*0.66):100;} // ~2/3 oz per lb
 function logWater(oz,silent){
   const tk=todayKey();
-  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  dayOf(tk);
   S.days[tk].water=(S.days[tk].water||0)+oz;
   if(!S.days[tk].waterLog)S.days[tk].waterLog=[];
   S.days[tk].waterLog.push({oz,t:Date.now()});
@@ -2480,7 +2487,7 @@ const QUICK_MOVE=[
 })();
 function logDirect(item){
   const tk=todayKey();
-  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  dayOf(tk);
   S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,p:item.p||0,t:Date.now()});
   depositFX(item.type==='in'?item.kcal:-item.kcal,null,item.type);
   touchStreak();grantXP(XP_RULES.log,'logging honestly');save();renderAll();pulse();burst=1;
@@ -2716,14 +2723,39 @@ function detectSets(text){
   }
   return out.map(s=>({ex,...s}));
 }
+function blockForName(name){
+  try{ const hits=findBlocks(name||''); return hits&&hits.length?hits[0]:null; }catch(e){ return null; }
+}
 function recordSets(sets){
+  // bridge: whatever is spoken to KOI also warms its station
+  try{
+    const byEx={};
+    sets.forEach(s=>{(byEx[s.ex||'']=byEx[s.ex||'']||[]).push(s);});
+    for(const nm in byEx){
+      const b=blockForName(nm); if(!b)continue;
+      const rec=blockRec(b.id);
+      const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+      const bwl=bwLoad(b);
+      let ton=0,best=null;
+      byEx[nm].forEach(s=>{
+        const w=+s.w||0,r=+s.r||0; ton+=(w||bwl)*r;
+        const v=isRep?r:e1rm(w,r);
+        if(!best||v>best.v)best={v,w,r};
+      });
+      if(!best)continue;
+      rec.ton=(rec.ton||0)+ton; rec.last=Date.now();
+      rec.sessions=(rec.sessions||[]).concat([{t:Date.now(),sets:byEx[nm].map(s=>({w:+s.w||0,r:+s.r||0})),ton}]).slice(-60);
+      if(best.v>(rec.pr||0)){rec.pr=best.v;rec.prSet={w:best.w,r:best.r};rec.prWhen=todayKey();}
+    }
+  }catch(e){}
+
   if(!sets.length)return null;
   if(sets.length>12){                       // nobody does 20 sets of one movement in a breath
     sets=sets.slice(0,12);
     setTimeout(()=>fishNote('That read as a lot of sets — I held the first 12. If you meant a weight, say it as “20 lb for 12”.'),900);
   }
   const tk=todayKey();
-  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  dayOf(tk);
   if(!S.days[tk].sets)S.days[tk].sets=[];
   const mus=musclesFor(sets[0].ex);
   let prLine='';
@@ -3239,8 +3271,10 @@ function logToBlock(id,sets){
   const wasPR=best&&best.v>(rec.pr||0);
   if(wasPR){rec.pr=best.v;rec.prSet={w:best.w,r:best.r};rec.prWhen=todayKey();}
   // feed the day ledger so the mirror, muscles and week all stay true
-  const day=(S.days[todayKey()]=S.days[todayKey()]||{});
-  day.sets=(day.sets||[]).concat(sets.map(s=>({ex:b.n,w:+s.w||0,r:+s.r||0,t:Date.now(),block:id})));
+  const day=dayOf(todayKey());
+  let bmus=[]; try{ bmus=musclesFor(b.n)||[]; }catch(e){}
+  if(!bmus.length)bmus=[b.r||'core'];
+  day.sets=day.sets.concat(sets.map(s=>({ex:b.n,w:+s.w||0,r:+s.r||0,t:Date.now(),block:id,mus:bmus.slice()})));
   save();
   return {ton,best,wasPR,rec,b};
 }
@@ -3283,6 +3317,9 @@ function blockBurn(b,sets){
   const isTime=(b.g==='cardio'||b.g==='recovery');
   if(isTime){
     const mins=sets.reduce((a,s)=>a+(+s.r||0),0);
+    const miles=sets.reduce((a,s)=>a+(+s.mi||0),0);
+    if(miles>0&&(b.id==='run'||b.id==='walk'))
+      return Math.round(miles*bw*(b.id==='run'?0.63:0.45));
     const met=(b.id==='run')?9.8:(b.id==='walk')?3.5:(MET_BY_GEAR[b.g]||4);
     return Math.round(met*3.5*kg/200*mins);
   }
@@ -3306,7 +3343,7 @@ function undoSession(id,idx){
   for(const k in S.days){
     const d=S.days[k];
     if(d.sets)d.sets=d.sets.filter(s=>!(s.block===id&&Math.abs((s.t||0)-ss.t)<12e4));
-    if(d.items)d.items=d.items.filter(it=>!(it.type==='out'&&it.name===b.n&&Math.abs((it.t||0)-ss.t)<12e4));
+    if(d.out)d.out=d.out.filter(it=>!(it.name===b.n&&Math.abs((it.t||0)-ss.t)<12e4));
   }
   rec.ton=Math.max(0,(rec.ton||0)-(ss.ton||0));
   rec.sessions.splice(idx,1);
@@ -3469,8 +3506,8 @@ function openBlock(id){
   $('blockModal').classList.add('show');
   $('bmInput').value='';
   $('bmInput').placeholder = isRep
-    ? (b.g==='recovery' ? '20 min   ·   15' : (b.id==='run'?'30 min   ·   3 miles':'30 reps   ·   3 sets of 15'))
-    : '185×8   ·   3 sets of 10 at 135';
+    ? (b.g==='recovery' ? 'Say it any way — “20 min”, “sat 25 minutes”' : (b.id==='run'?'“30 min”, “ran 3.2 miles”':'“30”, “3 sets of 15”, “two sets of 25”'))
+    : 'Say it any way — “25 lbs x 12 reps”, “3 sets of 10 at 135”';
   setTimeout(()=>{try{$('bmInput').focus();}catch(e){}},300);
 }
 function closeBlock(){ $('blockModal').classList.remove('show'); blockOpen=null; renderBlocks(); renderRegionRail(); }
@@ -3494,16 +3531,19 @@ function parseBlockSets(text){
     if(!(r>0))return; for(let i=0;i<c;i++)out.push({w:+w||0,r:+r});};
   for(const c of clauses){
     let m;
-    if(m=c.match(/(\d{1,3}(?:\.\d)?)\s*(?:lbs?|pounds?|#)\s*[,\s]*(\d{1,2})\s*(?:x|×|by|sets? of)\s*(\d{1,3})/))
+    if(m=c.match(/(\d{1,3}(?:\.\d)?)\s*(?:lbs?|pounds?|#)\s*[,\s]*(\d{1,2})\s*(?:x|×|by|times|sets? of)\s*(\d{1,3})/))
       {push(m[1],m[3],m[2]);continue;}
     if(m=c.match(/(\d{1,2})\s*(?:sets?|rounds?)\s*(?:of|x|×)?\s*(\d{1,3})(?:\s*(?:at|@|with|w\/)\s*(\d{1,3}(?:\.\d)?))?/))
       {push(m[3]||0,m[2],m[1]);continue;}
-    if(m=c.match(/(\d{1,3}(?:\.\d)?)\s*(?:lbs?|pounds?|#)?\s*(?:for|@|x|×|by)\s*(\d{1,3})\b/)){
+    if(m=c.match(/(\d{1,3}(?:\.\d)?)\s*(?:lbs?|pounds?|#)?\s*(?:for|@|x|×|by|times)\s*(\d{1,3})\b/)){
       const a=+m[1],b=+m[2];
       if(a>=12||String(m[1]).indexOf('.')>-1)push(a,b,1); else push(0,b,a);
       continue;}
     if(m=c.match(/(\d{1,3}(?:\.\d+)?)\s*(?:min|minutes?|mins?)\b/)){push(0,Math.round(+m[1]),1);continue;}
-    if(m=c.match(/(\d{1,2}(?:\.\d{1,2})?)\s*(?:mi\b|miles?)/)){push(0,Math.round(+m[1]*10)/10,1);continue;}
+    if(m=c.match(/(\d{1,2}(?:\.\d{1,2})?)\s*(?:mi\b|miles?)/)){
+      const mi=+m[1];
+      const mins=Math.round(mi*10);           // ~10 min/mile until a real pace is known
+      out.push({w:0,r:mins,mi:mi}); continue;}
     if(m=c.match(/(\d{1,3})\s*(?:reps?|pushups?|push.?ups?|pullups?|dips?|situps?|squats?)?\b/)){
       const n=+m[1]; if(n>0){push(0,n,1);continue;}
     }
@@ -3511,37 +3551,82 @@ function parseBlockSets(text){
   return out;
 }
 
-function submitBlock(){
+function setsCoverText(text,sets){
+  // every number in the text should be accounted for by the parse
+  const nums=(normNum(text).match(/\d+(?:\.\d+)?/g)||[]).map(Number);
+  if(!nums.length)return false;
+  const used=new Set();
+  sets.forEach(s=>{if(s.w)used.add(+s.w);if(s.r)used.add(+s.r);});
+  used.add(sets.length);
+  return nums.every(n=>used.has(n)||n<=1);
+}
+async function smartSets(text,b){
+  const quick=parseBlockSets(text);
+  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+  const weightless = !isRep && quick.some(s=>!s.w);        // a barbell set with no weight is a misread
+  const absurd = quick.some(s=>s.r>200 || (!isRep && s.w>1200));
+  if(quick.length && setsCoverText(text,quick) && !weightless && !absurd)
+    return {sets:quick,via:'fast'};
+  // hand it to KOI — he reads what rules can't
+  try{
+    const r=await askClaude('SET READING for the "'+b.n+'" block ('+b.g+'). '
+      +'The walker said: "'+text.replace(/"/g,"'")+'". '
+      +'Return ONLY compact JSON, no prose: {"sets":[{"w":WEIGHT_LB,"r":REPS}],"note":"one short line back to them"}. '
+      +(isRep
+        ? 'This movement has no external weight — put 0 in w and put '
+          +(b.g==='recovery'||b.g==='cardio'?'MINUTES':'REPS')+' in r. '
+        : 'w is the weight in pounds per set, r is reps in that set. ')
+      +'One object per set actually performed — "3 sets of 10" is three objects. '
+      +'Dumbbell work stated as a single number is the weight per hand as they said it. '
+      +'If they truly gave no numbers, return {"sets":[],"note":"what you need from them"}.',[]);
+    let raw=(r&&(r.reply||r.text))||'';
+    const j=raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
+    if(!j)throw new Error('no read');
+    const got=JSON.parse(j[0]);
+    const sets=(got.sets||[]).filter(s=>(+s.r||0)>0).slice(0,12)
+      .map(s=>({w:+s.w||0,r:Math.round((+s.r)*10)/10}));
+    return {sets,via:'koi',note:got.note||''};
+  }catch(e){
+    return {sets:quick,via:quick.length?'fast':'none'};
+  }
+}
+async function submitBlock(){
   if(!blockOpen)return;
   const txt=$('bmInput').value.trim(); if(!txt)return;
-  const sets=parseBlockSets(txt);
+  const b=blockById(blockOpen);
+  const btn=$('bmSend');
+  btn.disabled=true; btn.textContent='…';
+  $('bmNext').innerHTML='<span style="color:var(--mist)">reading…</span>';
+  const {sets,via,note}=await smartSets(txt,b);
+  btn.disabled=false; btn.textContent='→';
   if(!sets.length){
-    $('bmNext').innerHTML='⚠ I couldn’t find numbers in that. Say it like <b>185×8</b>, <b>3 sets of 10</b>, <b>two sets of 25</b>, or just <b>30</b>.';
+    $('bmNext').innerHTML='⚠ '+(note||'I couldn’t find the work in that. Try “25 lb × 12”, “3 sets of 10”, or “two sets of 25”.');
     try{$('bmInput').style.borderColor='var(--ember-glow)';
       setTimeout(()=>{$('bmInput').style.borderColor='';},1400);}catch(e){}
-    return; }
-  const b=blockById(blockOpen);
+    return;
+  }
+  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
   const prevPR=blockRec(blockOpen).pr||0;
   const res=logToBlock(blockOpen,sets);
-  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
-  // burn + muscles into the mirror
   try{
     const kcal=blockBurn(b,sets);
-    if(kcal>0){ const day=S.days[todayKey()]; day.items=(day.items||[]);
-      day.items.push({type:'out',name:b.n,kcal:-Math.abs(kcal),t:Date.now()}); }
+    if(kcal>0){const day=dayOf(todayKey());
+      day.out.push({name:b.n,kcal:Math.abs(kcal),t:Date.now(),block:blockOpen||b.id});}
   }catch(e){}
   grantXP(sets.length*8+(res.wasPR?XP_RULES.pr:0),res.wasPR?'a new record':'logging the work');
   reefBloom=1; save(); renderAll();
   blockFlash(res.wasPR);
   openBlock(blockOpen);
+  const unit=isRep?((b.g==='recovery'||b.g==='cardio')?' min':' reps'):'';
   const line = res.wasPR
-    ? '🔥 <b>NEW RECORD</b> — '+(isRep?res.best.v+' reps':res.best.w+'×'+res.best.r+' · '+res.best.v+' e1RM')
-      +' (past '+(prevPR||0)+'). '+fmt(res.ton)+' lb moved. Lifetime on this block: '+fmt(res.rec.ton)+' lb.'
-    : (isRep? res.best.v+' reps held. Your best is '+res.rec.pr+' — '+(res.rec.pr-res.best.v+1)+' more takes it.'
-            : fmt(res.ton)+' lb moved. Best set '+res.best.w+'×'+res.best.r+' ('+res.best.v+' e1RM). Your record stands at '+res.rec.pr+'.');
-  fishSay(line);
+    ? '🔥 <b>NEW RECORD</b> — '+(isRep?res.best.v+unit:res.best.w+'×'+res.best.r+' · '+res.best.v+' e1RM')
+      +' (past '+(prevPR||0)+'). '+fmt(res.ton)+' lb moved. Lifetime here: '+fmt(res.rec.ton)+' lb.'
+    : (isRep? res.best.v+unit+' held. Your best is '+res.rec.pr+' — '+Math.max(1,res.rec.pr-res.best.v+1)+' more takes it.'
+            : fmt(res.ton)+' lb moved. Best set '+res.best.w+'×'+res.best.r+'. The record stands at '+res.rec.pr+'.');
+  fishSay((note?note+' ':'')+line);
   $('bmInput').value='';
 }
+
 function blockFlash(pr){
   const m=$('blockModal'); if(!m)return;
   m.classList.add(pr?'flash-pr':'flash-log');
@@ -3584,8 +3669,8 @@ async function blockPhotoLog(files){
     const res=logToBlock(blockOpen,sets);
     try{
       const kcal=blockBurn(b,sets);
-      if(kcal>0){const day=S.days[todayKey()];day.items=(day.items||[]);
-        day.items.push({type:'out',name:b.n,kcal:-Math.abs(kcal),t:Date.now()});}
+      if(kcal>0){const day=dayOf(todayKey());
+        day.out.push({name:b.n,kcal:Math.abs(kcal),t:Date.now(),block:blockOpen||b.id});}
     }catch(e){}
     grantXP(sets.length*8+(res.wasPR?XP_RULES.pr:0),res.wasPR?'a new record':'logging the work');
     reefBloom=1;save();renderAll();
@@ -3860,7 +3945,7 @@ function cardForge(c,W,H){
 }
 function cardMove(c,W,H){
   const key=todayKey(), d=S.days[key]||{};
-  const moves=(d.items||[]).filter(i=>i.type==='out');
+  const moves=(d.out||[]);
   const total=moves.reduce((a,m)=>a+Math.abs(m.kcal||0),0);
   sStone(c,W,H);sCleft(c,W,H,.05);sVign(c,W,H,.72);
   sHead(c,W,H,'D A Y  '+daySeal().n+'  ·  M O V E M E N T','The Road');
@@ -3886,8 +3971,11 @@ function cardWeek(c,W,H){
   const days=[];
   for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);
     const k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-    const t=dayTotals(k);days.push({k,net:t.inC-bmr()-t.outMove,lab:['S','M','T','W','T','F','S'][dt.getDay()]});}
-  const tot=days.reduce((a,d)=>a+d.net,0);
+    const d0=S.days[k];
+    const touched=!!(d0&&((d0.in&&d0.in.length)||(d0.out&&d0.out.length)||(d0.sets&&d0.sets.length)));
+    const t=dayTotals(k);
+    days.push({k,touched,net:touched?(t.inC-bmr()-t.outMove):0,lab:['S','M','T','W','T','F','S'][dt.getDay()]});}
+  const tot=days.filter(d=>d.touched).reduce((a,d)=>a+d.net,0);
   sStone(c,W,H);sCleft(c,W,H,.05);sVign(c,W,H,.72);
   sHead(c,W,H,'S E V E N   D A Y S','The Week');
   c.textAlign='center';
@@ -3898,7 +3986,7 @@ function cardWeek(c,W,H){
     c.fillStyle='rgba(126,138,150,.9)';c.font='400 30px "IBM Plex Mono", monospace';
     c.fillText('N E T   T H I S   W E E K',W/2,516);
   } else {
-    const witnessed=days.filter(d=>d.net!==0).length;
+    const witnessed=days.filter(d=>d.touched).length;
     c.fillStyle='#E8C46B';c.shadowColor='rgba(232,196,107,.45)';c.shadowBlur=90;
     c.font='300 148px "IBM Plex Mono", monospace';
     c.fillText(witnessed+' / 7',W/2,460);c.shadowBlur=0;
@@ -3910,8 +3998,9 @@ function cardWeek(c,W,H){
   const bw=W*.09, gap=(W-180-bw*7)/6, mid=1030;
   days.forEach((d,i)=>{
     const x=90+i*(bw+gap);
-    const h=Math.min(230,Math.abs(d.net)/max*230);
+    const h=d.touched?Math.min(230,Math.abs(d.net)/max*230):0;
     c.fillStyle=d.net<0?'#8FCB9B':'#FF7A5E';
+    if(!d.touched){c.fillStyle='rgba(60,72,84,.5)';c.fillRect(x,mid-3,bw,6);}
     if(d.net<0)c.fillRect(x,mid-h,bw,h); else c.fillRect(x,mid,bw,h);
     c.textAlign='center';c.fillStyle='rgba(126,138,150,.85)';
     c.font='400 30px "IBM Plex Mono", monospace';
@@ -3919,7 +4008,7 @@ function cardWeek(c,W,H){
   });
   c.strokeStyle='rgba(232,196,107,.35)';c.lineWidth=2;
   c.beginPath();c.moveTo(80,mid);c.lineTo(W-80,mid);c.stroke();
-  const sealedN=days.filter(d=>d.net!==0).length;
+  const sealedN=days.filter(d=>d.touched).length;
   c.textAlign='center';
   c.fillStyle='rgba(201,191,169,.9)';c.font='italic 42px "EB Garamond", serif';
   c.fillText(sealedN+' of 7 days witnessed',W/2,1420);
@@ -3957,7 +4046,7 @@ async function shareCard(kind){
   },'image/jpeg',.92);
 }
 function shareKindForTab(){
-  if(activeTab==='pageForge')return 'forge';
+  if(activeTab==='pageStr')return 'forge';
   if(activeTab==='pagePath')return 'move';
   if(activeTab==='pageBook')return 'week';
   return 'mirror';
@@ -5130,7 +5219,7 @@ $('sealBtn').onclick=()=>{
   const ton=S.session.sets.reduce((a,s)=>a+s.w*s.r,0);
   const kg=(S.profile?.w||170)*0.4536;
   const kcal=Math.round(4*kg*(dur/60));
-  const tk=todayKey();if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  const tk=todayKey();dayOf(tk);
   S.days[tk].out.push({name:'Forge Session · '+n+' sets, '+dur+' min',kcal,t:Date.now()});
   if(!S.days[tk].sessions)S.days[tk].sessions=[];
   S.days[tk].sessions.push({dur,sets:n,tonnage:ton,t:Date.now()});
@@ -5149,7 +5238,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session
 let deferredInstall=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
 /* ---- version guard: a new build purges the old shell cache, never the data ---- */
-const APP_V=51;
+const APP_V=65;
 (async()=>{
   try{
     const seen=+localStorage.getItem('koil-app-v')||0;
@@ -5779,7 +5868,7 @@ function findResolve(txt){
     openDoorway('“'+txt.replace(/[<>]/g,'')+'” — which station?', hits.slice(0,6).map(b=>b.id));
     $('blockSearch').value='';return;
   }
-  if(sets.length&&blockOpen){ $('bmInput').value=txt;submitBlock();return; }
+  if(blockOpen){ $('bmInput').value=txt;submitBlock();return; }
   fishSay('No block called “'+txt.replace(/[<>]/g,'')+'” yet. Say <b>forge '+txt.replace(/[<>]/g,'')+'</b> and I’ll build it, or 📷 photograph the equipment.');
 }
 let pendingSets=null;
@@ -5822,6 +5911,7 @@ function wire(id,ev,fn){const el=$(id);if(!el)return;if(ev==='click')el.onclick=
 
 /* ============ BOOT ============ */
 try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); }catch(e){}
+try{healDays();}catch(e){console.warn(e);}
 try{healProfile();}catch(e){console.warn(e);}
 try{sizeCanvas();}catch(e){console.warn(e);}
 try{applySkins();}catch(e){console.warn(e);}
