@@ -726,6 +726,28 @@
     color:var(--mist);background:rgba(16,24,33,.5);border:1px solid #16202B;border-radius:11px;
     padding:9px 12px;margin-bottom:9px;}
 
+
+  .cols-head{display:flex;margin-bottom:8px;}
+  .col-t{flex:1;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.26em;text-align:center;}
+  .col-t.opt{color:#7FD4E8;} .col-t.real{color:var(--gold);}
+  .cols-empty{font-family:'EB Garamond',serif;font-style:italic;font-size:13.5px;color:var(--mist);
+    text-align:center;padding:14px 0;}
+  .col-row{display:flex;gap:7px;margin-bottom:6px;align-items:stretch;}
+  .col-cell{flex:1;min-width:0;border-radius:11px;padding:8px 10px;position:relative;}
+  .col-cell.opt{background:rgba(20,32,42,.6);border:1px solid rgba(127,212,232,.22);}
+  .col-cell.real{background:rgba(28,24,16,.5);border:1px solid rgba(232,196,107,.25);}
+  .col-cell.real.hit{border-color:rgba(143,203,155,.5);background:rgba(20,32,26,.5);}
+  .col-cell.real.empty{background:rgba(14,18,24,.5);border:1px dashed #223040;}
+  .col-time{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.12em;color:var(--mist);
+    display:block;margin-bottom:2px;}
+  .col-what{font-family:'Cormorant',serif;font-size:14px;line-height:1.3;color:var(--deep);}
+  .col-cell.real.empty .col-what{color:#4E5A66;font-style:italic;}
+  .col-cell.real.hit .col-what{color:#B7E5C2;}
+  .col-why{font-size:10.5px;font-style:italic;color:var(--mist);margin-top:2px;line-height:1.35;}
+  .cols-verdict{font-family:'EB Garamond',serif;font-size:14px;line-height:1.55;color:#C9BFA9;
+    background:rgba(16,24,33,.6);border:1px solid #1B2836;border-radius:12px;padding:10px 13px;margin-top:9px;}
+  .cols-verdict b{color:var(--gold);font-weight:400;}
+
 </style>
 </head>
 <body>
@@ -972,6 +994,18 @@
     <button id="dayNext">›</button>
   </div>
   <div class="daysum" id="daySum"></div>
+  <div class="section open" id="colsSec">
+    <div class="sec-head"><h3>The Two Columns · Optimal vs Lived</h3><span class="car">›</span></div>
+    <div class="sec-body">
+      <div class="cols-head">
+        <span class="col-t opt">THE LINE</span>
+        <span class="col-t real">YOUR DAY</span>
+      </div>
+      <div id="colsBody"><div class="cols-empty">The line draws itself when the day opens — tap below.</div></div>
+      <button class="btn" id="drawLineBtn" style="width:100%;margin-top:10px;color:#7FD4E8">✦ Draw today’s line</button>
+      <div class="gnote" id="colsNote">The line is what an optimal day looks like for your body, your goal, and your shift. Your day builds itself from what you deposit. The gap is reflected — never judged.</div>
+    </div>
+  </div>
   <div style="display:flex;gap:8px;margin:10px 12px 0">
     <button class="btn" id="bookBtn" style="flex:1;padding:11px 0;font-family:'Cormorant',serif;font-weight:700;letter-spacing:.18em;font-size:13px;text-transform:uppercase;color:var(--gold)">📖 Book Page</button>
     <button class="btn" id="analyzeBtn" style="flex:1;padding:11px 0;font-family:'Cormorant',serif;font-weight:700;letter-spacing:.18em;font-size:13px;text-transform:uppercase;color:var(--ember-glow)">📊 Full Analysis</button>
@@ -1031,7 +1065,7 @@
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v68</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v70</div>
   </div>
 </div>
 
@@ -1842,11 +1876,18 @@ async function _handle(text,images,imgSrcs){
   if(looksLikeSession(text)&&/\d/.test(text)&&!/\b(ate|eaten|breakfast|lunch|dinner|calorie)\b/i.test(text)){
     bulkLog(text); return;
   }
+  if(tryWeighIn(text))return;
   // a named movement with numbers, spoken to the librarian, goes to its station
-  if(/\d/.test(text)&&!/\b(ate|eaten|drank|breakfast|lunch|dinner|snack|calorie|water|oz|weigh)\b/i.test(tl)){
+  if(/\d/.test(text)&&!/\b(ate|eaten|drank|breakfast|lunch|dinner|snack|calorie|water|oz|weigh|weight|weighed|scale|slept|sleep)\b/i.test(tl)){
     try{
       const hits=findBlocks(text);
-      if(hits&&hits.length===1){
+      const strong = hits.length===1 && (()=>{           // demand an exact token from the block's name or alias
+        const t=text.toLowerCase();
+        const nm=hits[0].n.toLowerCase().split(/\s+/).map(singular);
+        const toks=t.replace(/[^a-z0-9 ]/g,' ').split(/\s+/).map(singular);
+        return toks.some(w=>nm.includes(w)) || Object.keys(BLOCK_ALIAS).some(a=>toks.includes(singular(a))&&BLOCK_ALIAS[a].includes(hits[0].id));
+      })();
+      if(strong){
         const b=hits[0];
         const {sets,note}=await smartSets(text,b);
         if(sets&&sets.length){
@@ -1993,6 +2034,7 @@ function pulse(){$('mirrorNumber').classList.add('moving');clearTimeout(pulseT);
 function renderAll(){
   try{renderSeal();}catch(e){}
   try{renderBlocks();renderRegionRail();renderQuest();}catch(e){}
+  try{renderCols();}catch(e){}
   if(!S.profile){if(!S.toured)return;$('setup').classList.add('show');return;}
   $('setup').classList.remove('show');
   $('dayLabel').textContent='DAY '+dayIndex()+' · MY CALORIC MIRROR';
@@ -3415,6 +3457,33 @@ function blockBurn(b,sets){
   return Math.max(1,Math.round(met*3.5*kg/200*minutes + work));
 }
 
+
+/* ---- weigh-in: "my weight was 180" redraws the mirror ---- */
+function tryWeighIn(text){
+  const tl=text.toLowerCase();
+  if(!/\b(weigh|weight|weighed|scale|weigh-in|weighin)\b/.test(tl))return false;
+  const m=normNum(text).match(/(\d{2,3}(?:\.\d)?)/);
+  if(!m)return false;
+  const lbs=+m[1];
+  if(lbs<80||lbs>500)return false;
+  const prev=S.profile&&S.profile.w;
+  S.profile.w=lbs;
+  S.marks=S.marks||[];
+  const tk=todayKey();
+  const existing=S.marks.find(x=>x.date===tk);
+  const mirror=Math.round(lbs*3500);
+  if(existing)existing.mirror=mirror; else S.marks.push({date:tk,mirror});
+  S.marks.sort((a,b)=>a.date<b.date?-1:1);
+  save();renderAll();
+  const diff=prev?Math.round((prev-lbs)*10)/10:0;
+  fishSay('⚖️ Witnessed — <b>'+lbs+' lb</b>. The mirror redraws to <b>'+fmt(mirror)+'</b>.'
+    +(prev&&diff!==0?(diff>0?' That is '+diff+' lb released since the last mark — '+fmt(Math.round(diff*3500))+' units.'
+                            :' That is '+Math.abs(diff)+' lb above the last mark. Witnessed, not judged.')
+      :'')+' A new mark stands on today.');
+  grantXP(30,'a weigh-in');
+  return true;
+}
+
 /* ---- undo: take a session back out, cleanly ---- */
 function undoSession(id,idx){
   const b=blockById(id), rec=blockRec(id);
@@ -4199,6 +4268,65 @@ function shareKindForTab(){
   if(activeTab==='pagePath')return 'move';
   if(activeTab==='pageBook')return 'week';
   return 'mirror';
+}
+
+
+/* ============ THE TWO COLUMNS — the line and the lived day ============ */
+function livedDay(key){
+  key=key||todayKey();
+  const d=S.days[key]||{}; const ev=[];
+  (d.in||[]).forEach(x=>ev.push({t:x.t||0,kind:'fuel',what:(x.name||'food')+(x.kcal?' · '+fmt(x.kcal):'')}));
+  (d.out||[]).forEach(x=>ev.push({t:x.t||0,kind:'move',what:(x.name||'movement')+' · −'+fmt(Math.abs(x.kcal||0))}));
+  (d.water?[{t:d.waterT||0,kind:'water',what:'water · '+d.water+' oz'}]:[]).forEach(x=>ev.push(x));
+  const ans=(S.book[dayIndex()]||[]).filter(a=>a&&a.trim()).length;
+  if(ans>=4)ev.push({t:0,kind:'page',what:'the page · answered'});
+  (S.marks||[]).forEach(m=>{if(m.date===key)ev.push({t:0,kind:'mark',what:'weigh-in · mark drawn'});});
+  return ev.filter(e=>e.what).sort((a,b)=>(a.t||0)-(b.t||0));
+}
+function slotOf(ts){ if(!ts)return null; const h=new Date(ts).getHours();
+  return h<9?'dawn':h<12?'morning':h<15?'midday':h<18?'afternoon':h<21?'evening':'night'; }
+const SLOT_ORDER=['dawn','morning','midday','afternoon','evening','night'];
+const SLOT_LABEL={dawn:'5–9a',morning:'9–12',midday:'12–3',afternoon:'3–6',evening:'6–9',night:'9p+'};
+
+async function drawLine(){
+  const btn=$('drawLineBtn'); btn.textContent='… drawing'; btn.disabled=true;
+  const p=S.profile||{};
+  const today=new Date(); const dow=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][today.getDay()];
+  const workDay=['Friday','Saturday','Sunday','Monday'].includes(dow);
+  const got=await askJSON('THE LINE. Draw an optimal day schedule for this person, six slots. '
+    +'Body: '+p.w+' lb, '+Math.floor((p.h||66)/12)+'ft'+((p.h||66)%12)+', age '+(p.a||30)+', '+(p.s==='m'?'male':'female')+'. '
+    +'Goal: "'+(S.goalText||'health')+'". Resting burn ~'+bmr()+' kcal. '
+    +'Day: '+dow+(workDay?' — a WORK day: massage therapist, on the table roughly 10am–9pm, physical labor, limited windows.':' — an OFF day: fully flexible.')
+    +' They live in a vehicle: no kitchen, food is prepped or bought, gym and sauna access. '
+    +'Return ONLY JSON: {"slots":{"dawn":{"what":"...","why":"..."},"morning":{...},"midday":{...},"afternoon":{...},"evening":{...},"night":{...}},"principle":"one sentence — the single most important thing for THIS body chasing THIS goal"}. '
+    +'Each "what" under 9 words, concrete (water amounts, protein targets, train/sauna windows, the evening page, a sleep time). Each "why" under 12 words.',[],1400);
+  btn.textContent='✦ Redraw the line'; btn.disabled=false;
+  if(!got||!got.slots){fishNote('The line didn’t draw — check the Mirror Key in ⚙ and try again.');return;}
+  S.dayLine=S.dayLine||{}; S.dayLine[todayKey()]={slots:got.slots,principle:got.principle||''};
+  save(); renderCols();
+}
+function renderCols(){
+  const host=$real('colsBody'); if(!host)return;
+  const line=(S.dayLine||{})[todayKey()];
+  if(!line){host.innerHTML='<div class="cols-empty">The line draws itself when the day opens — tap below.</div>';return;}
+  const lived=livedDay(todayKey());
+  const bySlot={}; lived.forEach(e=>{const s=slotOf(e.t)||'night';(bySlot[s]=bySlot[s]||[]).push(e);});
+  let hits=0,slotsWithPlan=0;
+  host.innerHTML=SLOT_ORDER.map(s=>{
+    const o=line.slots[s]||{}; const real=bySlot[s]||[];
+    if(o.what)slotsWithPlan++;
+    const hit=real.length>0;
+    if(hit&&o.what)hits++;
+    return '<div class="col-row">'
+      +'<div class="col-cell opt"><span class="col-time">'+SLOT_LABEL[s]+'</span>'
+        +'<div class="col-what">'+(o.what||'—')+'</div>'
+        +(o.why?'<div class="col-why">'+o.why+'</div>':'')+'</div>'
+      +'<div class="col-cell real '+(hit?'hit':'empty')+'"><span class="col-time">'+SLOT_LABEL[s]+'</span>'
+        +'<div class="col-what">'+(hit?real.map(e=>e.what).join('<br>'):'nothing witnessed yet')+'</div></div>'
+      +'</div>';
+  }).join('')
+  +(line.principle?'<div class="cols-verdict">✦ <b>The principle:</b> '+line.principle
+     +'<br>Walked beside the line in <b>'+hits+' of '+slotsWithPlan+'</b> windows so far. The gap is information, not a verdict.</div>':'');
 }
 
 /* ============ THE SEALING — a day is not done until the page is full ============ */
@@ -5387,7 +5515,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session
 let deferredInstall=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
 /* ---- version guard: a new build purges the old shell cache, never the data ---- */
-const APP_V=68;
+const APP_V=70;
 (async()=>{
   try{
     const seen=+localStorage.getItem('koil-app-v')||0;
@@ -5981,16 +6109,19 @@ const BLOCK_ALIAS={'dip':['chest-dip','tricep-dip'],'dips':['chest-dip','tricep-
   'sauna':['sauna'],'plunge':['cold-plunge'],'steam':['steam-room'],'stretch':['stretching'],
   'stretching':['stretching'],'bench':['bench-press'],'incline':['incline-bench','incline-db-press']};
 const singular=w=>w.replace(/ies$/,'y').replace(/([^s])s$/,'$1');
+const STOPW=new Set(['was','the','and','this','that','with','for','did','had','has','have','been',
+ 'morning','today','yesterday','tonight','just','like','then','than','also','some','felt','feel',
+ 'about','after','before','went','doing','done','reps','rep','sets','set','lbs','lb','pounds','min','minutes']);
 function findBlocks(txt){
   const t=txt.toLowerCase().replace(/[^a-z0-9 ]/g,' ');
-  const words=t.split(/\s+/).filter(w=>w.length>2&&!/^\d+$/.test(w)).map(singular);
+  const words=t.split(/\s+/).filter(w=>w.length>2&&!/^\d+$/.test(w)&&!STOPW.has(w)).map(singular);
   if(!words.length)return [];
   const scored=allBlocks().map(b=>{
     const nameWords=b.n.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).map(singular);
     let score=0;
     words.forEach(w=>{
       if(nameWords.includes(w))score+=3;
-      else if(nameWords.some(nw=>nw.startsWith(w)||w.startsWith(nw)))score+=2;
+      else if(w.length>=4&&nameWords.some(nw=>nw.startsWith(w)||w.startsWith(nw)))score+=2;
     });
     if(b.n.toLowerCase().includes(t.trim()))score+=4;
     return {b,score};
@@ -6076,6 +6207,9 @@ window.addEventListener('error',e=>{
     (el||document.body).appendChild(note);
   }catch(err){}
 });
+
+if($real('drawLineBtn'))$('drawLineBtn').onclick=drawLine;
+
 /* ============ BOOT ============ */
 try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); }catch(e){}
 try{healDays();}catch(e){console.warn(e);}
