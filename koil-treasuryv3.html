@@ -734,6 +734,19 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 .schrow.gain .b{color:var(--held)}
 .schrow.moved .n{color:var(--gold)}
 
+
+/* the audit */
+.find{border:1px solid var(--line);border-left-width:2px;border-radius:12px;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,.012)}
+.find.s2{border-left-color:var(--warn)} .find.s1{border-left-color:var(--gold)} .find.s0{border-left-color:var(--held)}
+.find .ft{font-size:15.5px;line-height:1.3}
+.find .fb{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5}
+.conf{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.confrow{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.confrow .ck{flex:1;color:var(--muted)}
+.confbar{flex:0 0 72px;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.confbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))}
+.confrow .cn{flex:0 0 auto;font-family:var(--mono);font-size:11px;color:var(--quiet);min-width:38px;text-align:right}
+
 </style>
 </head>
 <body>
@@ -854,6 +867,9 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
     <div class="stat"><div class="k">Chosen</div><div class="v num" id="gLux">$0</div></div>
   </div>
   <div class="note" id="gapNote"></div>
+
+  <h2 class="sec">The audit <span class="tally num" id="tAudit"></span></h2>
+  <div id="auditWrap"></div>
 
   <h2 class="sec">The month, two ways</h2>
   <div id="schedWrap"></div>
@@ -1000,7 +1016,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.19";
+const BUILD = "2026-08-08.20";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1548,6 +1564,7 @@ function render(){
   step("hold",renderHold);
   step("plan",renderPlan);
   step("schedule",renderSchedule);
+  step("audit",renderAudit);
   step("witness",renderWitness);
   step("vessel",()=>{
     Lamp.set(growth());
@@ -3026,6 +3043,10 @@ function applyChange(c){
     case "vow": quests.push({id:uid(),starId:"treasury",text:c.text||"",status:"open",
       createdAt:new Date().toISOString(),when:c.when||undefined}); break;
     case "update": { const a=acct(c.id); if(!a) break;
+      if(c.fields && c.fields.balance!==undefined && !isDebt(a)){
+        const D=deep(); if(!D.verified) D.verified={};
+        D.verified[a.id]=new Date().toISOString();   // confirmed against a document
+      }
       const f=c.fields||{};
       if(f.name!==undefined) a.name=String(f.name);
       if(f.balance!==undefined) a.balance=Number(f.balance)||0;
@@ -3193,6 +3214,66 @@ function scheduleRuns(){
   return {mine, opt, moved:slid.filter(b=>b.moved).length, surplus, target, saved, floor};
 }
 
+function renderAudit(){
+  const el=$("auditWrap"); if(!el) return;
+  const c=confidence(), n=auditAnswered(), F=auditFindings();
+  $("tAudit").textContent=n+" of "+AUDIT_FIELDS.length+" answered";
+  el.innerHTML=`
+    <div class="stat" style="padding:14px">
+      <div class="k">How much of this picture is confirmed</div>
+      <div class="v num" style="font-size:26px;color:${c.pct>=75?"var(--held)":c.pct>=40?"var(--gold)":"var(--warn)"}">${c.pct}%</div>
+      <div class="conf">${c.checks.map(k=>`
+        <div class="confrow"><span class="ck">${esc(k.k)}</span>
+          <span class="confbar"><i style="width:${k.of?Math.round(Math.min(k.got,k.of)/k.of*100):0}%"></i></span>
+          <span class="cn">${Math.min(k.got,k.of)}/${k.of}</span></div>`).join("")}</div>
+    </div>
+    <button class="btn ${n<AUDIT_FIELDS.length?"solid":""}" id="btnAudit">${n?(n<AUDIT_FIELDS.length?"Keep going — "+(AUDIT_FIELDS.length-n)+" left":"Review the audit answers"):"Begin the audit"}</button>
+    <div class="note">Fourteen questions an advisor asks in a first meeting. Answer by speaking, typing, or photographing — and skip anything you'd rather not state. Unanswered stays visibly unanswered; nothing is assumed.</div>
+    ${F.length?`<h2 class="sec">What it found <span class="tally num">${F.filter(f=>f.sev===2).length} urgent</span></h2>`+
+      F.map(f=>`<div class="find s${f.sev}"><div class="ft">${esc(f.title)}</div><div class="fb">${f.body}</div></div>`).join(""):""}`;
+  $("btnAudit").onclick=()=>askAudit(0);
+}
+
+/* One question at a time. The orb-style vessel isn't needed here — the
+   sheet is enough, and every question takes a photo or a voice answer. */
+function askAudit(i){
+  while(i<AUDIT_FIELDS.length && false) i++;
+  if(i>=AUDIT_FIELDS.length){
+    closeSheet(); save(true); render();
+    milestone("◈","The audit is answered.","Every finding on the Plan page is now drawn from what you actually stated. Nothing in it was assumed.");
+    return;
+  }
+  const f=AUDIT_FIELDS[i], A=audit(), cur=A[f.id];
+  let input;
+  if(f.kind==="choice"){
+    input=`<div id="aOpts">`+f.opts.map(o=>`<button class="btn ${cur===o?"solid":"quiet"}" data-o="${esc(o)}" style="margin-top:8px">${esc(o)}</button>`).join("")+`</div>`;
+  }else{
+    const ph = f.kind==="months"?"3":f.kind==="money"?"0":f.kind==="number"?"0":"In your own words";
+    input=`<div class="field"><input id="aIn" ${f.kind==="text"?"":'inputmode="decimal"'} value="${esc(cur==null?"":cur)}" placeholder="${ph}"></div>`;
+  }
+  openSheet(`
+    <h3>${esc(f.q)}</h3>
+    <div class="sub">${esc(f.why)}</div>
+    ${input}
+    ${f.kind==="choice"?"":Vision.bar("aud")}
+    <button class="btn solid" id="aNext" style="margin-top:12px">${i===AUDIT_FIELDS.length-1?"Finish":"Next"}</button>
+    <button class="rskip" id="aSkip">Skip this one</button>
+    <div class="hint" style="text-align:center;margin-top:6px">${i+1} of ${AUDIT_FIELDS.length}</div>`);
+  if(f.kind==="choice"){
+    $("aOpts").querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{
+      audit()[f.id]=b.dataset.o; save(true); buzz(10); askAudit(i+1);
+    });
+  }else{
+    Vision.arm("aud",{context:"Anything showing this figure — a statement, an app screen, a letter.",
+      fields:[{id:"value",el:"aIn",kind:f.kind==="text"?"string":"number",label:f.q}]});
+  }
+  $("aNext").onclick=()=>{
+    if(f.kind!=="choice"){ const v=($("aIn").value||"").trim(); if(v) audit()[f.id]=v; }
+    save(true); askAudit(i+1);
+  };
+  $("aSkip").onclick=()=>askAudit(i+1);
+}
+
 function renderSchedule(){
   const el=$("schedWrap"); if(!el) return;
   const s=scheduleRuns();
@@ -3225,6 +3306,145 @@ function renderSchedule(){
   if(s.mine.broke && !s.opt.broke) bits.push(`<b>And yours breaks the floor while the optimal one doesn't.</b>`);
   if(!bits.length) bits.push(`Both columns clear. Nothing to re-time — the month already works.`);
   el.insertAdjacentHTML("beforeend",`<div class="note">${bits.join("<br><br>")}</div>`);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE AUDIT
+   Everything a financial advisor asks in the first meeting, and
+   the findings that fall out of the answers. Two honesties built in:
+     — every field can be answered by speaking or photographing it
+     — nothing is scored on what you haven't stated; unanswered is
+       shown as unanswered, never assumed away
+   ═══════════════════════════════════════════════════════════ */
+const AUDIT_FIELDS=[
+  {id:"emergency",  q:"If your income stopped tomorrow, how many months could you cover?", kind:"months",
+   why:"The first thing any advisor checks. Three months is a floor, six is solid."},
+  {id:"jobStable",  q:"How steady is your income?", kind:"choice",
+   opts:["Very steady","Varies some","Varies a lot","At risk"],
+   why:"Variable income needs a deeper buffer than steady income does."},
+  {id:"health",     q:"Do you have health insurance?", kind:"choice",
+   opts:["Yes, employer","Yes, marketplace","Yes, other","No"],
+   why:"One uninsured hospital visit undoes years of saving. It's the biggest single hole in most pictures."},
+  {id:"auto",       q:"Auto insurance — liability only, or full coverage?", kind:"choice",
+   opts:["Full coverage","Liability only","None","No vehicle"],
+   why:"If a financed vehicle isn't fully covered, a wreck leaves you paying for something you no longer have."},
+  {id:"life",       q:"Does anyone depend on your income?", kind:"choice",
+   opts:["No one","A partner","Children","Others"],
+   why:"Life insurance only matters if someone would be hurt by your income stopping."},
+  {id:"retire",     q:"Anything set aside for later — 401k, IRA, anything?", kind:"money",
+   why:"Not a judgement. The number matters because time, not amount, does most of the work."},
+  {id:"retireAdd",  q:"How much goes in each month?", kind:"money",
+   why:"Especially if an employer matches — an unclaimed match is the only guaranteed 100% return there is."},
+  {id:"match",      q:"Does your employer match retirement contributions?", kind:"choice",
+   opts:["Yes, and I get all of it","Yes, but I don't max it","No match","Don't know"],
+   why:"An unclaimed match is free money left on a table every single month."},
+  {id:"credit",     q:"What's your credit score, roughly?", kind:"number",
+   why:"It sets the rate on everything you borrow. A 60-point move can be worth thousands on a car loan."},
+  {id:"housing",    q:"Rent, own, or something else?", kind:"choice",
+   opts:["Rent","Own","With family","Other"],
+   why:"Housing is usually the largest line, and the one with the most room to move."},
+  {id:"taxes",      q:"Are you current with taxes?", kind:"choice",
+   opts:["Current","On a payment plan","Behind","Not sure"],
+   why:"Tax debt has collection powers no other creditor has. It gets handled first."},
+  {id:"willDoc",    q:"Is there a will or beneficiary designation anywhere?", kind:"choice",
+   opts:["Yes","No","Not sure"],
+   why:"Costs almost nothing, and its absence lands on whoever survives you."},
+  {id:"subs",       q:"Roughly how many subscriptions are you paying for?", kind:"number",
+   why:"Nearly everyone undercounts. The gap between your guess and the statement is the finding."},
+  {id:"biggest",    q:"What worries you most about money right now?", kind:"text",
+   why:"Your own words. The audit is arithmetic, but this is what it's for."}
+];
+
+function audit(){ const D=deep(); if(!D.audit||typeof D.audit!=="object") D.audit={}; return D.audit; }
+function auditAnswered(){ return AUDIT_FIELDS.filter(f=>audit()[f.id]!==undefined && audit()[f.id]!=="").length; }
+
+/* ── FINDINGS: only from what's actually stated ── */
+function auditFindings(){
+  const A=audit(), out=[];
+  const net=deep().income.length?netMonthly():null;
+  const bills=billsMonthly();
+  const held=heldTotal();
+  const ord=killOrder().filter(d=>d.apr>0);
+  const bleed=bleedPerMonth();
+
+  const add=(sev,title,body)=>out.push({sev,title,body});
+
+  // emergency buffer — measured against real monthly outgo, not a rule of thumb
+  if(bills>0){
+    const months=held/bills;
+    if(A.emergency!==undefined || true){
+      if(months<1) add(2,"Less than a month of cover",
+        `You hold ${money(held)} against ${money(bills)} of monthly bills — about ${months.toFixed(1)} months. One bad week reaches the floor. This ranks above investing, above extra debt payments, above everything except keeping the lights on.`);
+      else if(months<3) add(1,`${months.toFixed(1)} months of cover`,
+        `${money(held)} against ${money(bills)} a month. Three months is the usual floor${A.jobStable==="Varies a lot"||A.jobStable==="At risk"?", and with income that varies the way you've described, six is closer to right":""}.`);
+      else add(0,`${months.toFixed(1)} months of cover`,"That buffer is doing its job.");
+    }
+  }
+  // the match — the only guaranteed return in the picture
+  if(A.match==="Yes, but I don't max it") add(2,"You're leaving a match unclaimed",
+    "An employer match is a 100% return, instantly, guaranteed. Nothing else in this app comes close — not the 26.99% card, not any investment. Whatever it takes to capture the full match should happen before another dollar goes anywhere else.");
+  if(A.match==="Don't know") add(1,"Unknown: employer match",
+    "One question to HR. If there's a match you're not capturing, it's the highest-value thing in this entire audit.");
+  // insurance holes
+  if(A.health==="No") add(2,"No health insurance",
+    "This is the largest single hole a financial picture can have. One emergency room visit can exceed every debt on your Bills page combined. Marketplace subsidies scale with income — worth checking what a plan would actually cost you.");
+  if(A.auto==="Liability only" && fin.accounts.some(a=>/lease|auto|car|jeep|vehicle/i.test(a.name)))
+    add(2,"A financed vehicle on liability only",
+      "If it's totaled, the loan doesn't disappear with the car — you'd keep paying for something you no longer have. Most lease agreements also require full coverage.");
+  if(A.life==="Children"||A.life==="A partner")
+    add(1,"Someone depends on this income",
+      "Term life is one of the cheapest products in finance and the only one that matters here. Worth a quote, not a decision today.");
+  // taxes
+  if(A.taxes==="Behind") add(2,"Behind on taxes",
+    "The IRS can levy accounts and garnish wages without a court order — powers no other creditor has. An installment agreement stops that. It ranks ahead of every card on the Bills page.");
+  if(A.taxes==="On a payment plan") add(0,"On a tax payment plan","Handled, as long as the payments stay current. Missing one can void the agreement.");
+  // credit
+  if(A.credit!==undefined && A.credit!==""){
+    const c=Number(A.credit)||0;
+    if(c>0 && c<620) add(1,`Credit around ${c}`,
+      `Below roughly 620, rates get punishing. The fastest movers are usually utilization — getting each card under 30% of its limit — and never missing a due date. Both are already tracked on your Bills page.`);
+    else if(c>=700 && ord.length) add(1,`Credit around ${c} — a real lever`,
+      `That score qualifies for consolidation or balance-transfer rates. Moving ${esc(ord[0].a.name)} off ${ord[0].apr}% would stop ${money(ord[0].monthlyInterest)} a month of bleed.`);
+  }
+  // subscriptions vs stated
+  if(A.subs!==undefined && A.subs!==""){
+    const guessed=Number(A.subs)||0;
+    const listed=fin.accounts.filter(a=>isDebt(a)&&tierOf(a)==="luxury").length;
+    if(guessed>listed) add(1,`${guessed} subscriptions guessed, ${listed} in the record`,
+      `The ${guessed-listed} unaccounted for are exactly the ones that drain quietly. Photograph a month of statements into the Guardian and it will name them.`);
+  }
+  // interest bleed
+  if(bleed>0 && net) add(bleed>net*0.05?2:1,`${money(bleed)} a month leaves as interest`,
+    `That's ${money(bleed*12)} a year buying nothing${ord.length?`. ${esc(ord[0].a.name)} at ${ord[0].apr}% is the top of the order`:""}.`);
+  // will
+  if(A.willDoc==="No"||A.willDoc==="Not sure")
+    add(0,"No will or beneficiaries confirmed",
+      "Beneficiary designations on accounts are free and take minutes. They override a will and skip probate entirely.");
+  // the gap itself
+  if(net!==null){
+    const g=net-bills;
+    if(g<=0) add(2,"More leaves than arrives",
+      `${money(net)} in, ${money(bills)} out. Nothing else in this audit matters until that closes — the two levers are on your Bills page: what moves out of Chosen, and what moves in.`);
+  } else add(1,"Income not stated",
+    "Without what comes in, the gap can't be computed — and the gap is the number wealth is made of.");
+
+  return out.sort((a,b)=>b.sev-a.sev);
+}
+
+/* ── CONFIDENCE: how much of this picture is verified, not asserted ── */
+function confidence(){
+  const debts=fin.accounts.filter(isDebt), assets=fin.accounts.filter(a=>!isDebt(a));
+  const checks=[
+    {k:"Bills have dates", got:debts.filter(a=>parseDueFor(a).ok).length, of:debts.length},
+    {k:"Debts have rates", got:debts.filter(a=>aprOf(a)>0).length, of:debts.length},
+    {k:"Bills sorted", got:debts.filter(a=>tierOf(a)).length, of:debts.length},
+    {k:"Balances confirmed", got:assets.filter(a=>deep().verified&&deep().verified[a.id]).length, of:assets.length},
+    {k:"Income stated", got:deep().income.length?1:0, of:1},
+    {k:"Floor stated", got:(Number(fin.bread&&fin.bread.floor)||0)>0?1:0, of:1},
+    {k:"Audit answered", got:auditAnswered(), of:AUDIT_FIELDS.length}
+  ];
+  const got=checks.reduce((s,c)=>s+Math.min(c.got,c.of),0), of=checks.reduce((s,c)=>s+c.of,0);
+  return {checks, pct: of? Math.round(got/of*100):0};
 }
 
 function renderWitness(){
