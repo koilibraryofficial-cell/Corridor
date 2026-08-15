@@ -197,7 +197,7 @@
     #qtext .ch{animation-duration:.01s}
     #stage .vignette,#stage .ember{animation:none;opacity:1}
     #stage .sigil{animation:none;opacity:1}
-    #stage .rule{transform:translateX(-50%) scaleX(1)}
+    #stage .rule{transform:scaleX(1)}
     #stage.live,#stage .grain,#stage .sheen{animation:none}
   }
 </style>
@@ -511,16 +511,20 @@ function ignite(){
   document.getElementById('stage-eyebrow').textContent=eyebrow;
 
   qtext.style.fontFamily=fontStack;
-  const vw=Math.min(window.innerWidth,520);
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const landscape=vw>vh;
+  const base=Math.min(vw, landscape?880:520);
   const len=text.length;
   let fs;
-  if(len<=30)fs=vw*0.115;
-  else if(len<=60)fs=vw*0.095;
-  else fs=vw*0.078;
+  if(len<=30)fs=base*0.115;
+  else if(len<=60)fs=base*0.095;
+  else fs=base*0.078;
   const mult=sizeMode==="massive"?1.55:sizeMode==="large"?1.25:1;
   fs*=mult;
+  fs=Math.min(fs, vh*(landscape?0.17:0.11)* (sizeMode==="massive"?1.6:sizeMode==="large"?1.3:1));
   qtext.style.fontSize=fs+"px";
-  qtext.style.width=sizeMode==="massive"?"96%":"86%";
+  qtext.style.width=landscape?"82%":(sizeMode==="massive"?"96%":"86%");
+  qtext.style.maxWidth=landscape?"none":"520px";
   qtext.style.lineHeight=sizeMode==="massive"?"1.18":"1.32";
 
   // letters kindle after the candle bloom (starts ~1.4s in)
