@@ -74,7 +74,31 @@
     display:none;flex-direction:column;align-items:center;justify-content:center;
     overflow:hidden;
   }
-  #stage.live{display:flex}
+  #stage.live{display:flex;animation:pushin 9s ease-out forwards}
+  @keyframes pushin{from{transform:scale(1)}to{transform:scale(1.06)}}
+
+  /* film grain — kills digital flatness */
+  #stage .grain{
+    position:absolute;inset:-50%;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='220' height='220' filter='url(%23n)' opacity='0.55'/></svg>");
+    animation:grainshift .48s steps(4) infinite;
+  }
+  @keyframes grainshift{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(-2%,1%)}
+    50%{transform:translate(1%,-2%)}
+    75%{transform:translate(-1%,2%)}
+    100%{transform:translate(2%,1%)}
+  }
+
+  /* one pass of light across the gold after it settles */
+  #stage .sheen{
+    position:absolute;top:16%;height:50%;left:-60%;width:38%;
+    background:linear-gradient(75deg,transparent,rgba(255,240,200,.12),transparent);
+    transform:skewX(-12deg);pointer-events:none;
+    animation:sweep 2.4s ease-in-out 4.6s forwards;
+  }
+  @keyframes sweep{to{left:125%}}
 
   /* candle bloom — darkness first, then light swells like a wick catching */
   #stage .vignette{
@@ -82,11 +106,20 @@
     background:radial-gradient(ellipse 70% 45% at 50% 42%, rgba(232,196,106,.09), transparent 70%);
     animation:bloom 2s ease-out forwards, breathe 4.5s ease-in-out 2s infinite;
   }
+  #stage.blend .vignette{
+    background:radial-gradient(ellipse 46% 26% at 50% 38%, rgba(232,196,106,.05), transparent 55%);
+  }
   @keyframes bloom{from{opacity:0}to{opacity:.85}}
   @keyframes breathe{0%,100%{opacity:.75}50%{opacity:1}}
 
   /* embers rising through the dark */
   #stage .embers{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  #firecanvas{
+    position:absolute;inset:0;width:100%;height:100%;
+    pointer-events:none;opacity:0;
+    animation:firein 2.2s ease .5s forwards;
+  }
+  @keyframes firein{to{opacity:1}}
   #stage .ember{
     position:absolute;bottom:-3vh;border-radius:50%;
     background:radial-gradient(circle, rgba(232,196,106,.9), rgba(201,164,76,0) 70%);
@@ -163,6 +196,7 @@
     #stage .vignette,#stage .ember{animation:none;opacity:1}
     #stage .sigil{animation:none;opacity:1}
     #stage .rule{transform:translateX(-50%) scaleX(1)}
+    #stage.live,#stage .grain,#stage .sheen{animation:none}
   }
 </style>
 </head>
@@ -227,6 +261,7 @@
 <div id="stage">
   <div class="vignette"></div>
   <div class="embers" id="embers"></div>
+  <canvas id="firecanvas"></canvas>
   <div class="rule top"></div>
   <div class="rule bottom"></div>
   <div class="eyebrow" id="stage-eyebrow"></div>
@@ -245,6 +280,8 @@
       <circle cx="92" cy="70" r="2" fill="#E8C46A" fill-opacity=".8"/>
     </svg>
   </div>
+  <div class="sheen"></div>
+  <div class="grain"></div>
 </div>
 
 <script>
@@ -398,6 +435,72 @@ function spawnEmbers(){
   }
 }
 
+/* ---------- living fire ---------- */
+let fireRAF=null;
+function startFire(){
+  const fc=document.getElementById('firecanvas');
+  const fx=fc.getContext('2d');
+  fc.width=fc.offsetWidth;fc.height=fc.offsetHeight;
+  const parts=[];
+  const cw=()=>fc.width, chh=()=>fc.height;
+
+  function spawn(){
+    const cx=cw()/2;
+    const baseY=chh()*0.72;
+    const x=cx+(Math.random()-0.5)*cw()*0.95;
+    const centerBias=1-Math.abs(x-cx)/(cw()*0.55);
+    if(Math.random()>centerBias)return;
+    parts.push({
+      x, y:baseY+Math.random()*22,
+      r:(7+Math.random()*16)*Math.max(.4,centerBias),
+      vy:-(0.8+Math.random()*1.8),
+      vx:(Math.random()-0.5)*0.5,
+      wob:Math.random()*100,
+      life:1
+    });
+  }
+
+  function tick(){
+    if(!stage.classList.contains('live')){fireRAF=null;return;}
+    fx.clearRect(0,0,cw(),chh());
+    const t=Date.now();
+
+    // hearth band — breathing glow centered beneath the sigil, soft-faded both directions
+    const flick=0.12+0.035*Math.sin(t*0.0031)+0.02*Math.sin(t*0.0073)+0.012*Math.sin(t*0.013);
+    const topY=chh()*0.50, botY=chh()*0.90;
+    const hg=fx.createLinearGradient(0,botY,0,topY);
+    hg.addColorStop(0,"rgba(0,0,0,0)");
+    hg.addColorStop(0.42,`rgba(214,158,70,${flick})`);
+    hg.addColorStop(0.55,`rgba(190,120,50,${flick*0.6})`);
+    hg.addColorStop(1,"rgba(0,0,0,0)");
+    fx.fillStyle=hg;fx.fillRect(0,topY,cw(),botY-topY);
+
+    // flame tongues
+    for(let i=0;i<4;i++)spawn();
+    fx.globalCompositeOperation='lighter';
+    for(let i=parts.length-1;i>=0;i--){
+      const p=parts[i];
+      p.wob+=0.06;
+      p.y+=p.vy;
+      p.x+=p.vx+Math.sin(p.wob)*0.45;
+      p.life-=0.008+Math.random()*0.004;
+      p.r*=0.987;
+      if(p.life<=0||p.r<1){parts.splice(i,1);continue;}
+      const a=p.life;
+      const g=fx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+      g.addColorStop(0,`rgba(255,238,190,${0.30*a})`);
+      g.addColorStop(0.35,`rgba(232,196,106,${0.17*a})`);
+      g.addColorStop(0.7,`rgba(190,110,40,${0.08*a})`);
+      g.addColorStop(1,"rgba(90,40,10,0)");
+      fx.fillStyle=g;
+      fx.beginPath();fx.arc(p.x,p.y,p.r,0,Math.PI*2);fx.fill();
+    }
+    fx.globalCompositeOperation='source-over';
+    fireRAF=requestAnimationFrame(tick);
+  }
+  if(!fireRAF)fireRAF=requestAnimationFrame(tick);
+}
+
 function ignite(){
   const text=document.getElementById('q').value.trim();
   const eyebrow=document.getElementById('eyebrow').value.trim();
@@ -435,14 +538,19 @@ function ignite(){
     idx++;
   });
 
-  // restart rules + vignette + sigil by re-forcing animations
+  // restart rules + vignette + sigil + sheen + push-in by re-forcing animations
+  stage.classList.remove('live');
   stage.querySelectorAll('.rule').forEach(r=>{r.style.animation='none';void r.offsetWidth;r.style.animation='';});
   const v=stage.querySelector('.vignette');v.style.animation='none';void v.offsetWidth;v.style.animation='';
   const sg=stage.querySelector('.sigil');sg.style.animation='none';void sg.offsetWidth;sg.style.animation='';
+  const sh=stage.querySelector('.sheen');sh.style.animation='none';void sh.offsetWidth;sh.style.animation='';
+  void stage.offsetWidth;
 
   spawnEmbers();
   stage.style.background=bgMode;
+  stage.classList.toggle('blend',bgMode==="#000000");
   stage.classList.add('live');
+  startFire();
 }
 
 document.getElementById('play').addEventListener('click',ignite);
