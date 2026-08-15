@@ -95,8 +95,8 @@
   }
   @keyframes rise{
     0%{transform:translateY(0) translateX(0);opacity:0}
-    8%{opacity:.7}
-    60%{opacity:.35}
+    8%{opacity:.95}
+    60%{opacity:.5}
     100%{transform:translateY(-108vh) translateX(var(--drift,20px));opacity:0}
   }
 
@@ -123,6 +123,11 @@
     width:86%;max-width:520px;text-align:center;
     color:var(--gold-bright);line-height:1.32;
     position:relative;transform:translateY(-8vh);
+    animation:textbreathe 5s ease-in-out 4.5s infinite;
+  }
+  @keyframes textbreathe{
+    0%,100%{filter:drop-shadow(0 0 4px rgba(232,196,106,.15))}
+    50%{filter:drop-shadow(0 0 14px rgba(232,196,106,.4))}
   }
   #qtext .ch{
     opacity:0;display:inline;
@@ -136,7 +141,8 @@
   }
 
   #stage .sigil{
-    position:absolute;bottom:8%;width:44px;
+    position:absolute;top:calc(42% + 17vh);left:50%;
+    width:54px;margin-left:-27px;
     opacity:0;
     animation:sigilflare 1.4s ease 2.8s forwards, flicker 2.6s ease-in-out 4.2s infinite;
   }
@@ -196,6 +202,12 @@
     <div class="chip" data-size="large">Large</div>
     <div class="chip" data-size="massive">Massive</div>
   </div>
+
+  <label>Canvas</label>
+  <div class="row">
+    <div class="chip on" data-bg="#0B0A12">Stone</div>
+    <div class="chip" data-bg="#000000">True Black (blend)</div>
+  </div>
 </div>
 
 <div class="preview-wrap">
@@ -242,6 +254,7 @@ const W=1080,H=1920;
 let fontStack="'Cormorant Garamond', Baskerville, serif";
 let placement="upper";
 let sizeMode="auto";
+let bgMode="#0B0A12";
 
 /* ---------- shared ---------- */
 function wrap(text,maxWidth,fontSize){
@@ -293,7 +306,7 @@ function drawEmblem(cx,cy,R){
 
 /* ---------- still PNG ---------- */
 function draw(){
-  ctx.fillStyle="#0B0A12";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=bgMode;ctx.fillRect(0,0,W,H);
   const g=ctx.createRadialGradient(W/2,H*0.38,80,W/2,H*0.38,H*0.85);
   g.addColorStop(0,"rgba(232,196,106,0.055)");g.addColorStop(1,"rgba(0,0,0,0)");
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
@@ -343,6 +356,12 @@ document.querySelectorAll('[data-size]').forEach(ch=>{
     ch.classList.add('on');sizeMode=ch.dataset.size;draw();
   });
 });
+document.querySelectorAll('[data-bg]').forEach(ch=>{
+  ch.addEventListener('click',()=>{
+    document.querySelectorAll('[data-bg]').forEach(c=>c.classList.remove('on'));
+    ch.classList.add('on');bgMode=ch.dataset.bg;draw();
+  });
+});
 document.getElementById('q').addEventListener('input',draw);
 document.getElementById('eyebrow').addEventListener('input',draw);
 
@@ -363,16 +382,18 @@ const embersBox=document.getElementById('embers');
 
 function spawnEmbers(){
   embersBox.innerHTML="";
-  const n=16;
+  const n=30;
   for(let i=0;i<n;i++){
     const e=document.createElement('span');
     e.className='ember';
-    const size=2+Math.random()*4;
+    const big=Math.random()<0.25;
+    const size=big?(5+Math.random()*5):(2+Math.random()*3.5);
     e.style.width=size+"px";e.style.height=size+"px";
-    e.style.left=(5+Math.random()*90)+"%";
-    e.style.setProperty('--drift',(Math.random()*60-30)+"px");
-    e.style.animationDuration=(7+Math.random()*8)+"s";
-    e.style.animationDelay=(Math.random()*6)+"s";
+    e.style.left=(3+Math.random()*94)+"%";
+    e.style.setProperty('--drift',(Math.random()*80-40)+"px");
+    e.style.animationDuration=(big?(9+Math.random()*7):(5+Math.random()*7))+"s";
+    e.style.animationDelay=(Math.random()*5)+"s";
+    if(big)e.style.filter="blur(1.5px)";
     embersBox.appendChild(e);
   }
 }
@@ -420,6 +441,7 @@ function ignite(){
   const sg=stage.querySelector('.sigil');sg.style.animation='none';void sg.offsetWidth;sg.style.animation='';
 
   spawnEmbers();
+  stage.style.background=bgMode;
   stage.classList.add('live');
 }
 
