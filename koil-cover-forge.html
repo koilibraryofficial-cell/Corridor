@@ -141,22 +141,24 @@
   }
   @keyframes fadeup{to{opacity:1}}
 
-  /* title-page rules drawing themselves */
+  /* the composition column — self-arranging in any orientation */
+  #stage .column{
+    position:relative;display:flex;flex-direction:column;align-items:center;
+    width:100%;transform:translateY(-3vh);
+  }
   #stage .rule{
-    position:absolute;left:50%;height:1px;width:44%;
-    transform:translateX(-50%) scaleX(0);
+    height:1px;width:min(44%,430px);
+    transform:scaleX(0);
     background:linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold-bright) 50%, var(--gold) 80%, transparent);
     animation:drawrule 1.6s cubic-bezier(.4,0,.2,1) 1.5s forwards;
-    opacity:.8;
+    opacity:.8;margin:3.2vh 0;
   }
-  @keyframes drawrule{to{transform:translateX(-50%) scaleX(1)}}
-  #stage .rule.top{top:calc(42% - 16vh)}
-  #stage .rule.bottom{top:calc(42% + 14vh)}
+  @keyframes drawrule{to{transform:scaleX(1)}}
 
   #qtext{
     width:86%;max-width:520px;text-align:center;
     color:var(--gold-bright);line-height:1.32;
-    position:relative;transform:translateY(-8vh);
+    position:relative;
     animation:textbreathe 5s ease-in-out 4.5s infinite;
   }
   @keyframes textbreathe{
@@ -175,8 +177,7 @@
   }
 
   #stage .sigil{
-    position:absolute;top:calc(42% + 17vh);left:50%;
-    width:54px;margin-left:-27px;
+    width:50px;
     opacity:0;
     animation:sigilflare 1.4s ease 2.8s forwards, flicker 2.6s ease-in-out 4.2s infinite;
   }
@@ -263,23 +264,25 @@
   <div class="vignette"></div>
   <div class="embers" id="embers"></div>
   <canvas id="firecanvas"></canvas>
-  <div class="rule top"></div>
-  <div class="rule bottom"></div>
   <div class="eyebrow" id="stage-eyebrow"></div>
-  <div id="qtext"></div>
-  <div class="sigil">
-    <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#E8C46A"/>
-          <stop offset="1" stop-color="#C9A44C"/>
-        </linearGradient>
-      </defs>
-      <circle cx="50" cy="70" r="26" fill="none" stroke="#C9A44C" stroke-opacity=".45" stroke-width="1.5"/>
-      <path d="M50 8 Q56 63 76 70 Q56 77 50 132 Q44 77 24 70 Q44 63 50 8 Z" fill="url(#sg)"/>
-      <circle cx="8" cy="70" r="2" fill="#E8C46A" fill-opacity=".8"/>
-      <circle cx="92" cy="70" r="2" fill="#E8C46A" fill-opacity=".8"/>
-    </svg>
+  <div class="column">
+    <div class="rule top"></div>
+    <div id="qtext"></div>
+    <div class="rule bottom"></div>
+    <div class="sigil">
+      <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#E8C46A"/>
+            <stop offset="1" stop-color="#C9A44C"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="70" r="26" fill="none" stroke="#C9A44C" stroke-opacity=".45" stroke-width="1.5"/>
+        <path d="M50 8 Q56 63 76 70 Q56 77 50 132 Q44 77 24 70 Q44 63 50 8 Z" fill="url(#sg)"/>
+        <circle cx="8" cy="70" r="2" fill="#E8C46A" fill-opacity=".8"/>
+        <circle cx="92" cy="70" r="2" fill="#E8C46A" fill-opacity=".8"/>
+      </svg>
+    </div>
   </div>
   <div class="sheen"></div>
   <div class="grain"></div>
