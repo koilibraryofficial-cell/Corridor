@@ -141,7 +141,12 @@
 
   <label>Type voice</label>
   <div class="row">
-    <div class="chip on" data-font="Baskerville, 'Times New Roman', serif">Baskerville</div>
+    <div class="chip on" data-font="'Cormorant Garamond', Baskerville, serif">Cormorant</div>
+    <div class="chip" data-font="'Playfair Display', Georgia, serif">Playfair</div>
+    <div class="chip" data-font="'Cinzel', 'Times New Roman', serif">Cinzel</div>
+  </div>
+  <div class="row">
+    <div class="chip" data-font="Baskerville, 'Times New Roman', serif">Baskerville</div>
     <div class="chip" data-font="Didot, 'Bodoni 72', Georgia, serif">Didot</div>
     <div class="chip" data-font="Georgia, serif">Georgia</div>
   </div>
@@ -178,7 +183,7 @@
 const canvas=document.getElementById('card');
 const ctx=canvas.getContext('2d');
 const W=1080,H=1920;
-let fontStack="Baskerville, 'Times New Roman', serif";
+let fontStack="'Cormorant Garamond', Baskerville, serif";
 let placement="upper";
 
 /* ---------- shared ---------- */
