@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cover Forge">
+<meta name="theme-color" content="#0B0A12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Playfair+Display:wght@500;600&family=Cinzel:wght@500&display=swap" rel="stylesheet">
+<title>KOIL Cover Forge ✦</title>
+<style>
+  :root{
+    --stone:#0B0A12;
+    --stone-soft:#141220;
+    --gold:#C9A44C;
+    --gold-bright:#E8C46A;
+    --ink:#EDE6D6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--stone)}
+  body{
+    color:var(--ink);
+    font-family:Georgia,'Times New Roman',serif;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:16px 14px 40px;
+  }
+  h1{
+    font-size:15px;letter-spacing:.35em;text-transform:uppercase;
+    color:var(--gold);font-weight:400;margin:6px 0 2px;text-align:center;
+  }
+  .sub{font-size:11px;color:#6b6480;letter-spacing:.12em;margin-bottom:14px;text-align:center}
+
+  .panel{width:100%;max-width:420px}
+  label{display:block;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:14px 0 6px}
+  textarea,input[type=text]{
+    width:100%;background:var(--stone-soft);border:1px solid #2a2640;border-radius:8px;
+    color:var(--ink);font-family:inherit;font-size:17px;padding:12px;line-height:1.4;
+    outline:none;
+  }
+  textarea:focus,input[type=text]:focus{border-color:var(--gold)}
+  textarea{min-height:84px;resize:vertical}
+
+  .row{display:flex;gap:8px;margin-top:10px}
+  .chip{
+    flex:1;border:1px solid #2a2640;border-radius:8px;background:var(--stone-soft);
+    color:#9a92b0;font-family:inherit;font-size:13px;padding:10px 6px;text-align:center;cursor:pointer;
+    letter-spacing:.04em;
+  }
+  .chip.on{border-color:var(--gold);color:var(--gold-bright)}
+
+  .preview-wrap{margin-top:18px;width:100%;max-width:420px;display:flex;justify-content:center}
+  canvas#card{
+    width:100%;max-width:290px;aspect-ratio:9/16;
+    border:1px solid #2a2640;border-radius:10px;background:var(--stone);display:block;
+  }
+
+  button.forge,button.kindle{
+    margin-top:14px;width:100%;max-width:420px;border:none;border-radius:10px;
+    font-family:inherit;font-size:16px;letter-spacing:.14em;text-transform:uppercase;
+    padding:15px;cursor:pointer;font-weight:bold;
+  }
+  button.forge{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#161129}
+  button.kindle{background:transparent;border:1px solid var(--gold);color:var(--gold-bright)}
+  button:active{transform:scale(.985)}
+  .hint{font-size:11px;color:#6b6480;margin-top:10px;text-align:center;line-height:1.6}
+
+  /* ---------- KINDLE MODE ---------- */
+  #stage{
+    position:fixed;inset:0;background:var(--stone);z-index:50;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  #stage.live{display:flex}
+  #stage .vignette{
+    position:absolute;inset:0;
+    background:radial-gradient(ellipse 70% 45% at 50% 38%, rgba(232,196,106,.07), transparent 70%);
+    animation:breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{opacity:.7}
+    50%{opacity:1}
+  }
+  #stage .eyebrow{
+    position:absolute;top:9%;width:100%;text-align:center;
+    font-size:13px;letter-spacing:.42em;color:#9a8a5c;text-transform:uppercase;
+    opacity:0;animation:fadeup 1.2s ease .3s forwards;
+  }
+  @keyframes fadeup{to{opacity:1}}
+  #qtext{
+    width:86%;max-width:520px;text-align:center;
+    color:var(--gold-bright);line-height:1.32;
+    position:relative;transform:translateY(-8vh);
+  }
+  #qtext .ch{
+    opacity:0;display:inline;
+    animation:kindle .9s ease forwards;
+    text-shadow:0 0 0 rgba(232,196,106,0);
+  }
+  @keyframes kindle{
+    0%{opacity:0;text-shadow:0 0 26px rgba(232,196,106,.95),0 0 60px rgba(201,164,76,.55)}
+    45%{opacity:1;text-shadow:0 0 20px rgba(232,196,106,.8),0 0 44px rgba(201,164,76,.4)}
+    100%{opacity:1;text-shadow:0 0 6px rgba(232,196,106,.22)}
+  }
+  #stage .sigil{
+    position:absolute;bottom:9%;font-size:34px;color:var(--gold);
+    opacity:0;animation:sigilin 1s ease forwards, flicker 2.6s ease-in-out 1s infinite;
+  }
+  @keyframes sigilin{to{opacity:1}}
+  @keyframes flicker{
+    0%,100%{text-shadow:0 0 10px rgba(232,196,106,.55);opacity:1}
+    47%{text-shadow:0 0 18px rgba(232,196,106,.9);opacity:.92}
+    52%{text-shadow:0 0 8px rgba(232,196,106,.4);opacity:1}
+    70%{text-shadow:0 0 22px rgba(232,196,106,.95);opacity:.96}
+  }
+  #stage .exit{
+    position:absolute;top:12px;right:14px;z-index:60;
+    color:#4a4460;font-size:26px;font-family:Georgia,serif;
+    background:none;border:none;padding:8px;cursor:pointer;
+  }
+  @media (prefers-reduced-motion:reduce){
+    #qtext .ch{animation-duration:.01s}
+    #stage .vignette,#stage .sigil{animation:none;opacity:1}
+  }
+</style>
+</head>
+<body>
+
+<h1>✦ Cover Forge</h1>
+<div class="sub">KINGDOM OF INNER LIGHT · FORGE + KINDLE</div>
+
+<div class="panel">
+  <label for="q">Cover text</label>
+  <textarea id="q" spellcheck="false">What do people get wrong about you?</textarea>
+
+  <label for="eyebrow">Series line (optional, top)</label>
+  <input type="text" id="eyebrow" placeholder="ASK, AND YOU SHALL RECEIVE" value="">
+
+  <label>Type voice</label>
+  <div class="row">
+    <div class="chip on" data-font="Baskerville, 'Times New Roman', serif">Baskerville</div>
+    <div class="chip" data-font="Didot, 'Bodoni 72', Georgia, serif">Didot</div>
+    <div class="chip" data-font="Georgia, serif">Georgia</div>
+  </div>
+
+  <label>Placement (PNG)</label>
+  <div class="row">
+    <div class="chip on" data-pos="upper">Upper third</div>
+    <div class="chip" data-pos="center">Center</div>
+  </div>
+</div>
+
+<div class="preview-wrap">
+  <canvas id="card" width="1080" height="1920"></canvas>
+</div>
+
+<button class="kindle" id="play">▶&nbsp; Ignite&nbsp;— animated cover</button>
+<button class="forge" id="dl">Forge Cover ↓ &nbsp;(still PNG)</button>
+<div class="hint">
+  IGNITE: full-screen ember reveal — start iPhone screen recording, tap Ignite,<br>
+  let it burn in (~3s), stop. Crop in CapCut → opening second of your<br>
+  TikTok / Reels / Shorts video. FORGE: still 1080×1920 PNG for the grid cover.
+</div>
+
+<!-- KINDLE STAGE -->
+<div id="stage">
+  <div class="vignette"></div>
+  <div class="eyebrow" id="stage-eyebrow"></div>
+  <div id="qtext"></div>
+  <div class="sigil">✦</div>
+  <button class="exit" id="exit">×</button>
+</div>
+
+<script>
+const canvas=document.getElementById('card');
+const ctx=canvas.getContext('2d');
+const W=1080,H=1920;
+let fontStack="Baskerville, 'Times New Roman', serif";
+let placement="upper";
+
+/* ---------- shared ---------- */
+function wrap(text,maxWidth,fontSize){
+  ctx.font=fontSize+"px "+fontStack;
+  const words=text.split(/\s+/).filter(Boolean);
+  const lines=[];let line="";
+  for(const w of words){
+    const test=line?line+" "+w:w;
+    if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=w;}
+    else line=test;
+  }
+  if(line)lines.push(line);
+  return lines;
+}
+function fit(text,maxWidth,maxHeight){
+  let size=150;
+  while(size>54){
+    const lines=wrap(text,maxWidth,size);
+    const lh=size*1.32;
+    if(lines.length*lh<=maxHeight)return{size,lines,lh};
+    size-=4;
+  }
+  const lines=wrap(text,maxWidth,size);
+  return{size,lines,lh:size*1.32};
+}
+
+/* ---------- still PNG ---------- */
+function draw(){
+  ctx.fillStyle="#0B0A12";ctx.fillRect(0,0,W,H);
+  const g=ctx.createRadialGradient(W/2,H*0.38,80,W/2,H*0.38,H*0.85);
+  g.addColorStop(0,"rgba(232,196,106,0.055)");g.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  const eyebrow=document.getElementById('eyebrow').value.trim().toUpperCase();
+  const text=document.getElementById('q').value.trim();
+
+  if(eyebrow){
+    ctx.font="38px "+fontStack;ctx.fillStyle="#9a8a5c";ctx.textAlign="center";
+    const chars=eyebrow.split("");const spacing=10;
+    let total=0;for(const c of chars)total+=ctx.measureText(c).width+spacing;
+    total-=spacing;let x=(W-total)/2;
+    for(const c of chars){const cw=ctx.measureText(c).width;ctx.fillText(c,x+cw/2,150);x+=cw+spacing;}
+  }
+
+  const maxWidth=W-200;
+  const maxBlock=placement==="upper"?760:900;
+  const {size,lines,lh}=fit(text,maxWidth,maxBlock);
+  ctx.font=size+"px "+fontStack;ctx.fillStyle="#E8C46A";
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  const blockH=lines.length*lh;
+  let startY=placement==="upper"?Math.max(300,H*0.24)+lh/2:(H-blockH)/2+lh/2;
+  lines.forEach((ln,i)=>ctx.fillText(ln,W/2,startY+i*lh));
+
+  ctx.font="64px serif";ctx.fillStyle="#C9A44C";
+  ctx.fillText("✦",W/2,H-170);
+}
+
+/* ---------- chips ---------- */
+document.querySelectorAll('[data-font]').forEach(ch=>{
+  ch.addEventListener('click',()=>{
+    document.querySelectorAll('[data-font]').forEach(c=>c.classList.remove('on'));
+    ch.classList.add('on');fontStack=ch.dataset.font;draw();
+  });
+});
+document.querySelectorAll('[data-pos]').forEach(ch=>{
+  ch.addEventListener('click',()=>{
+    document.querySelectorAll('[data-pos]').forEach(c=>c.classList.remove('on'));
+    ch.classList.add('on');placement=ch.dataset.pos;draw();
+  });
+});
+document.getElementById('q').addEventListener('input',draw);
+document.getElementById('eyebrow').addEventListener('input',draw);
+
+/* ---------- PNG export ---------- */
+document.getElementById('dl').addEventListener('click',()=>{
+  const a=document.createElement('a');
+  const name=(document.getElementById('q').value.trim().toLowerCase()
+    .replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,'-').slice(0,40))||'koil-cover';
+  a.download=name+'.png';
+  a.href=canvas.toDataURL('image/png');
+  a.click();
+});
+
+/* ---------- KINDLE ---------- */
+const stage=document.getElementById('stage');
+const qtext=document.getElementById('qtext');
+
+function kindle(){
+  const text=document.getElementById('q').value.trim();
+  const eyebrow=document.getElementById('eyebrow').value.trim();
+  document.getElementById('stage-eyebrow').textContent=eyebrow;
+
+  qtext.style.fontFamily=fontStack;
+  // size to viewport
+  const vw=Math.min(window.innerWidth,520);
+  const approxCharsPerLine=Math.max(10,Math.round(vw/ (vw*0.055)));
+  const len=text.length;
+  let fs;
+  if(len<=30)fs=vw*0.115;
+  else if(len<=60)fs=vw*0.095;
+  else fs=vw*0.078;
+  qtext.style.fontSize=fs+"px";
+
+  // build letter spans with staggered delays — words stay unbreakable
+  qtext.innerHTML="";
+  const words=text.split(/\s+/);
+  let idx=0;
+  const per=Math.min(0.055, 2.0/Math.max(1,len)); // whole reveal ≈ ≤2s
+  words.forEach((w,wi)=>{
+    const wspan=document.createElement('span');
+    wspan.style.whiteSpace="nowrap";
+    for(const c of w){
+      const s=document.createElement('span');
+      s.className="ch";s.textContent=c;
+      s.style.animationDelay=(0.35+idx*per)+"s";
+      wspan.appendChild(s);idx++;
+    }
+    qtext.appendChild(wspan);
+    if(wi<words.length-1)qtext.appendChild(document.createTextNode(" "));
+    idx++; // breath between words
+  });
+
+  stage.classList.add('live');
+}
+
+document.getElementById('play').addEventListener('click',kindle);
+document.getElementById('exit').addEventListener('click',()=>stage.classList.remove('live'));
+stage.addEventListener('click',e=>{
+  if(e.target===stage||e.target.classList.contains('vignette'))kindle(); // tap to replay
+});
+
+draw();
+</script>
+</body>
+</html>
