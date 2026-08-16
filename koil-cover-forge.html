@@ -136,7 +136,7 @@
   }
 
   #stage .eyebrow{
-    position:absolute;top:9%;width:100%;text-align:center;
+    width:100%;text-align:center;margin-bottom:1.5vh;
     font-size:13px;letter-spacing:.42em;color:#9a8a5c;text-transform:uppercase;
     opacity:0;animation:fadeup 1.4s ease 1s forwards;
   }
@@ -245,6 +245,13 @@
     <div class="chip on" data-bg="#0B0A12">Stone</div>
     <div class="chip" data-bg="#000000">True Black (blend)</div>
   </div>
+
+  <label>Mark</label>
+  <div class="row">
+    <div class="chip on" data-mark="none">None</div>
+    <div class="chip" data-mark="testimony">Testimony</div>
+    <div class="chip" data-mark="parable">Parable</div>
+  </div>
 </div>
 
 <div class="preview-wrap">
@@ -265,8 +272,8 @@
   <div class="vignette"></div>
   <div class="embers" id="embers"></div>
   <canvas id="firecanvas"></canvas>
-  <div class="eyebrow" id="stage-eyebrow"></div>
   <div class="column">
+    <div class="eyebrow" id="stage-eyebrow"></div>
     <div class="rule top"></div>
     <div id="qtext"></div>
     <div class="rule bottom"></div>
@@ -297,6 +304,7 @@ let fontStack="'Cormorant Garamond', Baskerville, serif";
 let placement="upper";
 let sizeMode="auto";
 let bgMode="#0B0A12";
+let markMode="none";
 
 /* ---------- shared ---------- */
 function wrap(text,maxWidth,fontSize){
@@ -323,8 +331,8 @@ function fit(text,maxWidth,maxHeight,startSize){
   return{size,lines,lh:size*1.28};
 }
 
-/* the KOIL emblem — elongated north-star, halo ring, ember dots */
-function drawEmblem(cx,cy,R){
+/* the KOIL emblem — elongated north-star, halo ring, ember dots. hollow=true renders outline (parable) */
+function drawEmblem(cx,cy,R,hollow){
   const R2=R*0.42, r=R*0.11;
   const grad=ctx.createLinearGradient(cx,cy-R,cx,cy+R);
   grad.addColorStop(0,"#E8C46A");grad.addColorStop(1,"#C9A44C");
@@ -337,13 +345,28 @@ function drawEmblem(cx,cy,R){
   ctx.quadraticCurveTo(cx-r,cy+r,cx-R2,cy);
   ctx.quadraticCurveTo(cx-r,cy-r,cx,cy-R);
   ctx.closePath();
-  ctx.fillStyle=grad;ctx.fill();
+  if(hollow){
+    ctx.strokeStyle=grad;ctx.lineWidth=3;ctx.stroke();
+  }else{
+    ctx.fillStyle=grad;ctx.fill();
+  }
   ctx.shadowBlur=0;
   ctx.beginPath();ctx.arc(cx,cy,R*0.52,0,Math.PI*2);
   ctx.strokeStyle="rgba(201,164,76,.45)";ctx.lineWidth=2;ctx.stroke();
   ctx.beginPath();ctx.arc(cx-R*0.95,cy,3.5,0,Math.PI*2);ctx.fillStyle="rgba(232,196,106,.8)";ctx.fill();
   ctx.beginPath();ctx.arc(cx+R*0.95,cy,3.5,0,Math.PI*2);ctx.fill();
   ctx.restore();
+}
+
+function drawMarkLine(cy){
+  if(markMode==="none")return;
+  const word=markMode==="testimony"?"— TESTIMONY —":"— A PARABLE —";
+  ctx.font="34px "+fontStack;
+  ctx.fillStyle="#9a8a5c";ctx.textAlign="center";ctx.textBaseline="middle";
+  const chars=word.split("");const spacing=8;
+  let total=0;for(const c of chars)total+=ctx.measureText(c).width+spacing;
+  total-=spacing;let x=(W-total)/2;
+  for(const c of chars){const cw=ctx.measureText(c).width;ctx.fillText(c,x+cw/2,cy);x+=cw+spacing;}
 }
 
 /* ---------- still PNG ---------- */
@@ -374,9 +397,11 @@ function draw(){
   ctx.textAlign="center";ctx.textBaseline="middle";
   const blockH=lines.length*lh;
   let startY=placement==="upper"?Math.max(280,H*0.22)+lh/2:(H-blockH)/2+lh/2;
+  drawMarkLine(startY-lh*0.5-70);
+  ctx.font=size+"px "+fontStack;ctx.fillStyle="#E8C46A";
   lines.forEach((ln,i)=>ctx.fillText(ln,W/2,startY+i*lh));
 
-  drawEmblem(W/2,H-180,56);
+  drawEmblem(W/2,H-180,56,markMode==="parable");
 }
 
 /* ---------- chips ---------- */
@@ -402,6 +427,12 @@ document.querySelectorAll('[data-bg]').forEach(ch=>{
   ch.addEventListener('click',()=>{
     document.querySelectorAll('[data-bg]').forEach(c=>c.classList.remove('on'));
     ch.classList.add('on');bgMode=ch.dataset.bg;draw();
+  });
+});
+document.querySelectorAll('[data-mark]').forEach(ch=>{
+  ch.addEventListener('click',()=>{
+    document.querySelectorAll('[data-mark]').forEach(c=>c.classList.remove('on'));
+    ch.classList.add('on');markMode=ch.dataset.mark;draw();
   });
 });
 document.getElementById('q').addEventListener('input',draw);
@@ -518,8 +549,14 @@ function startFire(){
 
 function ignite(){
   const text=document.getElementById('q').value.trim();
-  const eyebrow=document.getElementById('eyebrow').value.trim();
+  let eyebrow=document.getElementById('eyebrow').value.trim();
+  if(markMode==="testimony"&&!eyebrow)eyebrow="— TESTIMONY —";
+  if(markMode==="parable"&&!eyebrow)eyebrow="— A PARABLE —";
   document.getElementById('stage-eyebrow').textContent=eyebrow;
+  // hollow star for parables, solid for testimony/none
+  const sigPath=stage.querySelector('.sigil path');
+  if(markMode==="parable"){sigPath.setAttribute('fill','none');sigPath.setAttribute('stroke','url(#sg)');sigPath.setAttribute('stroke-width','3');}
+  else{sigPath.setAttribute('fill','url(#sg)');sigPath.setAttribute('stroke','none');}
 
   qtext.style.fontFamily=fontStack;
   const vw=window.innerWidth, vh=window.innerHeight;
