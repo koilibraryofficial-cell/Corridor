@@ -95,8 +95,9 @@
   /* one pass of light across the gold after it settles */
   #stage .sheen{
     position:absolute;top:16%;height:50%;left:-60%;width:38%;
-    background:linear-gradient(75deg,transparent,rgba(255,240,200,.12),transparent);
+    background:linear-gradient(75deg,transparent,rgba(255,240,200,.35),transparent);
     transform:skewX(-12deg);pointer-events:none;
+    mix-blend-mode:overlay;filter:blur(10px);
     animation:sweep 2.4s ease-in-out 4.6s forwards;
   }
   @keyframes sweep{to{left:125%}}
@@ -408,12 +409,22 @@ document.getElementById('eyebrow').addEventListener('input',draw);
 
 /* ---------- PNG export ---------- */
 document.getElementById('dl').addEventListener('click',()=>{
-  const a=document.createElement('a');
   const name=(document.getElementById('q').value.trim().toLowerCase()
     .replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,'-').slice(0,40))||'koil-cover';
-  a.download=name+'.png';
-  a.href=canvas.toDataURL('image/png');
-  a.click();
+  canvas.toBlob(async(blob)=>{
+    const file=new File([blob],name+'.png',{type:'image/png'});
+    // iOS standalone-safe: share sheet → "Save Image"
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file]});return;}catch(e){/*cancelled → fallback*/}
+    }
+    // fallback: show the image full-screen for press-and-hold save
+    const url=URL.createObjectURL(blob);
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;z-index:99;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px';
+    ov.innerHTML='<img src="'+url+'" style="max-width:70%;max-height:74vh;border:1px solid #2a2640;border-radius:8px"><div style="color:#C9A44C;font-family:Georgia,serif;font-size:14px;letter-spacing:.08em;text-align:center">Press and hold the image → Save Image<br><span style="color:#6b6480;font-size:12px">tap anywhere else to close</span></div>';
+    ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+    document.body.appendChild(ov);
+  },'image/png');
 });
 
 /* ---------- IGNITE ---------- */
