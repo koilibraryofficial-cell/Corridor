@@ -405,6 +405,7 @@ function draw(){
   lines.forEach((ln,i)=>ctx.fillText(ln,W/2,startY+i*lh));
 
   const punch=document.getElementById('punch').value.trim();
+  let contentBottom=startY+blockH;
   if(punch){
     const pSize=Math.min(size*1.35,240);
     ctx.font="600 "+pSize+"px "+fontStack;
@@ -412,9 +413,10 @@ function draw(){
     ctx.shadowColor="rgba(232,196,106,.45)";ctx.shadowBlur=30;
     ctx.fillText(punch,W/2,startY+blockH+pSize*0.85);
     ctx.shadowBlur=0;
+    contentBottom=startY+blockH+pSize*1.4;
   }
 
-  drawEmblem(W/2,H-190,74,markMode==="parable");
+  drawEmblem(W/2,Math.min(contentBottom+170,H-220),74,markMode==="parable");
 }
 
 /* ---------- chips ---------- */
