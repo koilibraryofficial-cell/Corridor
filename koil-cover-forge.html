@@ -213,7 +213,10 @@
   <textarea id="q" spellcheck="false">What do people get wrong about you?</textarea>
 
   <label for="eyebrow">Series line (optional, top)</label>
-  <input type="text" id="eyebrow" placeholder="ASK, AND YOU SHALL RECEIVE" value="">
+  <input type="text" id="eyebrow" placeholder="NO FOOD. JUST WATER. 40 DAYS." value="">
+
+  <label for="punch">Punch line (optional, big — numbers/answer)</label>
+  <input type="text" id="punch" placeholder="190 → 150." value="">
 
   <label>Type voice</label>
   <div class="row">
@@ -361,9 +364,9 @@ function drawEmblem(cx,cy,R,hollow){
 function drawMarkLine(cy){
   if(markMode==="none")return;
   const word=markMode==="testimony"?"— TESTIMONY —":"— A PARABLE —";
-  ctx.font="34px "+fontStack;
-  ctx.fillStyle="#9a8a5c";ctx.textAlign="center";ctx.textBaseline="middle";
-  const chars=word.split("");const spacing=8;
+  ctx.font="600 46px "+fontStack;
+  ctx.fillStyle="#C9A44C";ctx.textAlign="center";ctx.textBaseline="middle";
+  const chars=word.split("");const spacing=10;
   let total=0;for(const c of chars)total+=ctx.measureText(c).width+spacing;
   total-=spacing;let x=(W-total)/2;
   for(const c of chars){const cw=ctx.measureText(c).width;ctx.fillText(c,x+cw/2,cy);x+=cw+spacing;}
@@ -380,8 +383,8 @@ function draw(){
   const text=document.getElementById('q').value.trim();
 
   if(eyebrow){
-    ctx.font="38px "+fontStack;ctx.fillStyle="#9a8a5c";ctx.textAlign="center";
-    const chars=eyebrow.split("");const spacing=10;
+    ctx.font="600 44px "+fontStack;ctx.fillStyle="#C9A44C";ctx.textAlign="center";
+    const chars=eyebrow.split("");const spacing=12;
     let total=0;for(const c of chars)total+=ctx.measureText(c).width+spacing;
     total-=spacing;let x=(W-total)/2;
     for(const c of chars){const cw=ctx.measureText(c).width;ctx.fillText(c,x+cw/2,150);x+=cw+spacing;}
@@ -389,19 +392,29 @@ function draw(){
 
   let maxWidth,startSize,maxBlock;
   if(sizeMode==="massive"){maxWidth=W-60;startSize=270;maxBlock=placement==="upper"?1000:1200;}
-  else if(sizeMode==="large"){maxWidth=W-120;startSize=200;maxBlock=placement==="upper"?880:1050;}
-  else{maxWidth=W-200;startSize=150;maxBlock=placement==="upper"?760:900;}
+  else if(sizeMode==="large"){maxWidth=W-120;startSize=220;maxBlock=placement==="upper"?880:1050;}
+  else{maxWidth=W-160;startSize=180;maxBlock=placement==="upper"?760:900;}
 
   const {size,lines,lh}=fit(text,maxWidth,maxBlock,startSize);
-  ctx.font=size+"px "+fontStack;ctx.fillStyle="#E8C46A";
+  ctx.font="600 "+size+"px "+fontStack;ctx.fillStyle="#E8C46A";
   ctx.textAlign="center";ctx.textBaseline="middle";
   const blockH=lines.length*lh;
-  let startY=placement==="upper"?Math.max(280,H*0.22)+lh/2:(H-blockH)/2+lh/2;
+  let startY=placement==="upper"?Math.max(280,H*0.20)+lh/2:(H-blockH)/2+lh/2;
   drawMarkLine(startY-lh*0.5-70);
-  ctx.font=size+"px "+fontStack;ctx.fillStyle="#E8C46A";
+  ctx.font="600 "+size+"px "+fontStack;ctx.fillStyle="#E8C46A";
   lines.forEach((ln,i)=>ctx.fillText(ln,W/2,startY+i*lh));
 
-  drawEmblem(W/2,H-180,56,markMode==="parable");
+  const punch=document.getElementById('punch').value.trim();
+  if(punch){
+    const pSize=Math.min(size*1.35,240);
+    ctx.font="600 "+pSize+"px "+fontStack;
+    ctx.fillStyle="#F0D68A";
+    ctx.shadowColor="rgba(232,196,106,.45)";ctx.shadowBlur=30;
+    ctx.fillText(punch,W/2,startY+blockH+pSize*0.85);
+    ctx.shadowBlur=0;
+  }
+
+  drawEmblem(W/2,H-190,74,markMode==="parable");
 }
 
 /* ---------- chips ---------- */
@@ -437,6 +450,7 @@ document.querySelectorAll('[data-mark]').forEach(ch=>{
 });
 document.getElementById('q').addEventListener('input',draw);
 document.getElementById('eyebrow').addEventListener('input',draw);
+document.getElementById('punch').addEventListener('input',draw);
 
 /* ---------- PNG export ---------- */
 document.getElementById('dl').addEventListener('click',()=>{
