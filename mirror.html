@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#070912">
+<title>The Mirror — KOIL</title>
+<style>
+  /* silence Squarespace frame when embedded */
+  #header,.header,header#header,.sqs-announcement-bar-dropzone,#footer-sections,footer.sections,.sqs-cookie-banner-v2{display:none!important}
+  #page,#siteWrapper,.content-wrapper,article,section.page-section,.content,.fluid-engine,.sqs-block,.sqs-block-code{padding:0!important;margin:0!important;max-width:none!important}
+  section.page-section{min-height:0!important}
+
+  :root{
+    --night:#070912; --deep:#10142A; --panel:#141936;
+    --ink:#E8E2D2; --ink-fade:#8a8ba3; --ink-stale:#565a7c;
+    --gild:#E0A93E; --violet:#8B7FD4; --line:#262b4d;
+    --serif:Georgia,'Times New Roman',serif;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--night);height:100%;overscroll-behavior:none}
+  body{color:var(--ink);font-family:var(--serif);overflow:hidden}
+  button{font-family:inherit;color:inherit}
+  textarea:focus,input:focus,button:focus-visible{outline:2px solid hsl(45 60% 60% / .6);outline-offset:2px}
+
+  #bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden;z-index:1}
+
+  /* ---------- top bar ---------- */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:calc(12px + env(safe-area-inset-top)) 16px 6px;position:relative;z-index:5}
+  .wordmark{font-family:var(--mono);font-size:10px;letter-spacing:5px;color:var(--ink-fade)}
+  .streak{font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--gild)}
+  .topbtns{display:flex;gap:6px}
+  .gbtn{background:none;border:1px solid var(--line);border-radius:9px;width:38px;height:40px;
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:13px;padding:0}
+  .gbtn small{font-family:var(--mono);font-size:6.5px;letter-spacing:.8px;opacity:.6;text-transform:uppercase}
+
+  /* ---------- the mirror ---------- */
+  .scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:2;
+    display:flex;flex-direction:column;padding-bottom:8px}
+  .mirror{position:relative;display:flex;flex-direction:column;align-items:center;padding:2px 0 4px;flex-shrink:0}
+  .dial{position:relative;width:min(76vw,330px);aspect-ratio:1}
+  .dial svg{width:100%;height:100%;display:block;overflow:visible}
+  .figwrap{position:absolute;inset:12.5%;display:flex;align-items:center;justify-content:center;
+    transition:filter 1.2s ease,opacity 1.2s ease}
+  .figwrap svg{width:72%;height:88%;overflow:visible}
+  .zone{cursor:pointer}
+  .zone .zring{opacity:0;transition:opacity .3s}
+  .zone:hover .zring,.zone:active .zring{opacity:1}
+  .res-read{margin-top:2px;text-align:center}
+  .res-num{font-family:var(--serif);font-size:34px;line-height:1;color:var(--ink);letter-spacing:1px}
+  .res-num b{color:var(--gild);font-weight:normal}
+  .res-lbl{font-family:var(--mono);font-size:8.5px;letter-spacing:4px;color:var(--ink-fade);
+    text-transform:uppercase;margin-top:5px}
+  .res-line{font-family:var(--serif);font-style:italic;font-size:13px;color:hsl(258 30% 72%);
+    margin-top:8px;padding:0 30px;text-align:center;line-height:1.55;min-height:20px}
+
+  /* ---------- shelves ---------- */
+  .shelves{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:10px 14px 4px;flex-shrink:0}
+  .shelf{background:hsl(235 38% 11% / .82);border:1px solid var(--line);border-radius:12px;
+    padding:9px 2px 8px;cursor:pointer;text-align:center;position:relative;transition:transform .2s,border-color .3s}
+  .shelf:active{transform:scale(.94)}
+  .shelf .fl{font-family:var(--serif);font-size:14px;line-height:1}
+  .shelf .fn{font-family:var(--mono);font-size:6.6px;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--ink-fade);margin-top:5px;display:block}
+  .shelf .fp{height:2.5px;border-radius:2px;background:hsl(235 30% 18%);margin:6px 6px 0;overflow:hidden}
+  .shelf .fp i{display:block;height:100%;border-radius:2px;transition:width .9s ease}
+  .stale-dot{position:absolute;top:5px;right:6px;width:5px;height:5px;border-radius:50%;
+    background:hsl(28 80% 55%);box-shadow:0 0 6px hsl(28 90% 55% / .8)}
+
+  /* ---------- return desk ---------- */
+  .desk{position:relative;z-index:6;padding:8px 14px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,transparent,rgba(4,6,14,.92) 34%)}
+  .desk-label{font-family:var(--mono);font-size:8.5px;letter-spacing:3.5px;color:var(--gild);
+    margin:0 2px 6px;display:flex;justify-content:space-between;align-items:baseline}
+  .desk-label i{font-style:normal;color:var(--ink-fade);letter-spacing:.5px;font-size:8px;text-transform:none}
+  .desk-row{display:flex;gap:8px;align-items:flex-end}
+  .cam{display:flex;align-items:center;justify-content:center;width:46px;min-width:46px;height:52px;
+    border-radius:13px;cursor:pointer;background:hsl(235 35% 13% / .92);border:1px solid var(--line);font-size:18px}
+  .desk-in{flex:1;background:hsl(235 35% 11% / .94);border:1px solid hsl(45 40% 34% / .55);border-radius:14px;
+    color:var(--ink);font-family:var(--serif);font-size:15px;padding:12px 14px;resize:none;line-height:1.5;
+    min-height:52px;max-height:34vh;overflow-y:auto}
+  .shelve{background:linear-gradient(180deg,hsl(45 62% 48%),hsl(40 66% 34%));border:1px solid hsl(45 70% 62% / .7);
+    color:#1a1405;border-radius:14px;padding:0 18px;height:52px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:2.5px;cursor:pointer;box-shadow:0 0 18px hsl(45 80% 55% / .25)}
+  .shelve:disabled{opacity:.45}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 2px 6px}
+  .fchip{display:inline-flex;align-items:center;gap:7px;background:hsl(45 40% 15% / .85);
+    border:1px solid hsl(45 55% 42% / .5);border-radius:999px;padding:4px 11px;
+    font-family:var(--mono);font-size:10px;color:var(--gild)}
+  .fchip button{background:none;border:none;color:#6b6f8f;cursor:pointer;font-size:11px;padding:0}
+
+  /* ---------- floor overlay ---------- */
+  .sheet-wrap{position:fixed;inset:0;z-index:20;background:rgba(4,6,12,.74);backdrop-filter:blur(3px);
+    display:flex;align-items:flex-end}
+  .sheet{width:100%;max-height:86%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    background:linear-gradient(180deg,#171c38,#0c0f22);border-radius:20px 20px 0 0;
+    border:1px solid var(--line);border-bottom:none;padding:18px 18px calc(24px + env(safe-area-inset-bottom));
+    animation:sheetup .35s cubic-bezier(.2,1,.3,1)}
+  @keyframes sheetup{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  .sheet-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:4px}
+  .sheet-roman{font-family:var(--serif);font-size:15px;width:38px;height:38px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid}
+  .sheet-name{font-size:20px;letter-spacing:.4px}
+  .sheet-sub{font-family:var(--mono);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--ink-fade);margin-top:4px}
+  .xbtn{margin-left:auto;background:none;border:1px solid var(--line);border-radius:9px;
+    width:32px;height:32px;cursor:pointer;font-size:13px}
+  .sheet-bar{height:3px;border-radius:2px;background:hsl(235 30% 16%);margin:12px 0 4px;overflow:hidden}
+  .sheet-bar i{display:block;height:100%;border-radius:2px}
+  .sheet-meta{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--ink-fade);margin-bottom:10px}
+  .sec{font-family:var(--mono);font-size:9.5px;letter-spacing:2.5px;margin:16px 0 4px;text-transform:uppercase}
+  .frow{display:flex;align-items:baseline;gap:10px;padding:9px 2px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer}
+  .frow .fl2{font-family:var(--mono);font-size:10px;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--ink-fade);width:118px;flex-shrink:0;line-height:1.5}
+  .frow .fv{flex:1;font-size:14.5px;line-height:1.45;transition:color .5s}
+  .frow .fv.empty{color:#4a4f72;font-style:italic;font-size:13px}
+  .stamp{font-family:var(--mono);font-size:8.5px;letter-spacing:.4px;color:var(--ink-stale);flex-shrink:0}
+  .confirm{background:hsl(28 60% 40% / .18);border:1px solid hsl(28 70% 50% / .6);color:hsl(30 80% 68%);
+    border-radius:8px;padding:3px 9px;font-family:var(--mono);font-size:8.5px;letter-spacing:1px;cursor:pointer;flex-shrink:0}
+  .lrow{display:flex;gap:10px;align-items:baseline;padding:8px 2px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .lrow .ln{font-size:14px;line-height:1.45}
+  .lrow .lx{font-size:12.5px;opacity:.62;display:block;margin-top:2px;line-height:1.5}
+  .del{background:none;border:none;color:#565a7c;cursor:pointer;font-size:12px;margin-left:auto;flex-shrink:0}
+  .addline{background:none;border:none;color:hsl(258 50% 70%);font-family:var(--mono);font-size:9.5px;
+    letter-spacing:1px;cursor:pointer;padding:8px 2px;opacity:.75}
+  .ignite{animation:factlight 1.6s ease}
+  @keyframes factlight{0%{color:var(--gild);text-shadow:0 0 14px hsl(45 90% 60% / .9)}100%{}}
+
+  /* ---------- edit modal ---------- */
+  .modal{position:fixed;inset:0;z-index:40;background:rgba(4,6,12,.82);display:flex;align-items:center;
+    justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+  .modal-card{width:100%;max-width:380px;background:linear-gradient(180deg,#181d3b,#0d1024);
+    border:1px solid hsl(258 40% 40% / .6);border-radius:18px;padding:18px 18px 16px}
+  .modal-lbl{font-family:var(--mono);font-size:9px;letter-spacing:2.5px;color:var(--gild);
+    text-transform:uppercase;margin-bottom:10px}
+  .modal-in{width:100%;background:hsl(235 35% 11%);border:1px solid var(--line);border-radius:11px;
+    color:var(--ink);font-family:var(--serif);font-size:15px;padding:11px 13px;margin-bottom:8px}
+  .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+  .mb{border-radius:10px;padding:9px 16px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;cursor:pointer}
+  .mb.ok{background:hsl(45 60% 45%);border:1px solid hsl(45 70% 60%);color:#1a1405}
+  .mb.no{background:none;border:1px solid var(--line);color:var(--ink-fade)}
+
+  /* ---------- system window ---------- */
+  .sys-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;
+    padding-top:15vh;pointer-events:auto}
+  .sys{min-width:250px;max-width:330px;text-align:center;
+    background:linear-gradient(180deg,hsl(235 45% 14% / .97),hsl(250 45% 9% / .97));
+    border:1px solid hsl(45 60% 55% / .8);border-radius:11px;padding:15px 22px 11px;
+    box-shadow:0 0 34px hsl(45 70% 55% / .35),inset 0 0 22px rgba(0,0,0,.5);
+    animation:sysin .45s cubic-bezier(.2,1.2,.4,1)}
+  @keyframes sysin{0%{opacity:0;transform:translateY(-14px) scale(.92)}100%{opacity:1;transform:none}}
+  .sys-h{font-family:var(--mono);font-size:9.5px;letter-spacing:4px;color:hsl(45 75% 72%);margin-bottom:9px}
+  .sys-b{font-family:var(--mono);font-size:11.5px;letter-spacing:1.5px;line-height:2;color:var(--ink)}
+  .sys-b b{color:var(--gild);font-weight:normal;font-size:19px}
+  .sys-list{font-family:var(--serif);font-style:italic;font-size:12.5px;letter-spacing:0;line-height:1.7;
+    text-align:left;margin-top:8px;max-height:34vh;overflow-y:auto}
+  .sys-hint{font-family:var(--mono);font-size:8px;letter-spacing:2px;opacity:.35;margin-top:9px}
+
+  /* motes */
+  .mote{position:fixed;z-index:48;width:7px;height:7px;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle at 35% 30%,#fff3d0,var(--gild));
+    box-shadow:0 0 10px 3px hsl(45 90% 60% / .7);
+    transition:transform 1s cubic-bezier(.3,.1,.25,1),opacity 1s}
+
+  /* veil */
+  .veil{position:fixed;inset:0;z-index:70;background:radial-gradient(120% 100% at 50% 10%,#10142c 0%,#0B0E1E 50%,#05060d 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity 1s ease}
+  .veil.leave{opacity:0}
+  .veil-eye{font-size:24px;color:var(--gild);margin-bottom:26px;filter:drop-shadow(0 0 18px rgba(224,169,62,.7))}
+  .veil-title{font-family:var(--serif);font-size:clamp(17px,4.6vw,24px);letter-spacing:6px;text-align:center;
+    padding:0 20px;animation:vt 2.2s ease forwards;text-shadow:0 0 30px rgba(224,169,62,.25)}
+  @keyframes vt{from{opacity:0;letter-spacing:16px;filter:blur(8px)}to{opacity:1;letter-spacing:6px;filter:none}}
+  .veil-sub{font-style:italic;font-size:13px;margin-top:12px;color:var(--violet);opacity:0;animation:vs 1.6s ease 1s forwards}
+  @keyframes vs{to{opacity:.6}}
+  .veil-hint{position:absolute;bottom:12vh;font-family:var(--mono);font-size:10px;letter-spacing:5px;
+    text-transform:uppercase;color:#938BA6;opacity:0;animation:vh 2.6s ease-in-out 1.8s infinite}
+  @keyframes vh{0%,100%{opacity:.25}50%{opacity:.85}}
+
+  .empty{opacity:.55;font-size:13px;padding:10px 2px;font-style:italic;line-height:1.6}
+  .librarian{margin:0 2px 8px;padding:10px 13px;border-radius:12px;background:hsl(258 38% 15% / .8);
+    border:1px solid hsl(258 42% 40% / .45);font-style:italic;font-size:13.5px;line-height:1.55;
+    color:#ECEAF2;display:none}
+  .librarian.on{display:block}
+  .pulse-arc{animation:arcpulse 1.4s ease}
+  @keyframes arcpulse{0%{filter:brightness(2.4) drop-shadow(0 0 8px currentColor)}100%{}}
+  .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+  /* ---------- dossier (print) ---------- */
+  #dossier{display:none}
+  @media print{
+    body{background:#fff;color:#111;overflow:visible}
+    #app,#bg,.veil,.sys-wrap,.modal,.sheet-wrap{display:none!important}
+    #dossier{display:block;font-family:Georgia,serif;color:#111;padding:28px 8px}
+    #dossier h1{font-size:26px;letter-spacing:4px;text-align:center;font-weight:normal;margin:0 0 2px}
+    #dossier .dsub{text-align:center;font-style:italic;font-size:12px;color:#555;margin-bottom:26px}
+    #dossier h2{font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:normal;
+      border-bottom:1px solid #999;padding-bottom:4px;margin:26px 0 8px}
+    #dossier table{width:100%;border-collapse:collapse;font-size:12.5px}
+    #dossier td{padding:4px 6px 4px 0;vertical-align:top;border-bottom:1px dotted #ddd}
+    #dossier td.k{width:180px;color:#555;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;font-family:'Courier New',monospace}
+    #dossier td.s{width:88px;color:#999;font-size:9.5px;text-align:right;font-family:'Courier New',monospace}
+    #dossier .dres{text-align:center;font-size:11px;letter-spacing:2px;color:#555;margin-top:30px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .mote{transition:none}.figwrap{transition:none}
+    .ignite,.pulse-arc,.sys,.sheet{animation:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="app"></div>
+<div id="dossier"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   THE MIRROR — a KOIL instrument
+   One human, indexed. Seven floors. One return desk.
+   ============================================================ */
+
+const KEY="koil-mirror-v1";
+const $id=s=>document.getElementById(s);
+const uid=()=>Math.random().toString(36).slice(2,9);
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- the seven floors ---------------- */
+const FLOORS=[
+ {id:"vessel",r:"I",n:"The Vessel",sub:"the body — the one vehicle",hue:352,zone:"torso",
+  fields:[["height","Height"],["weight","Weight"],["bodyfat","Body fat"],["waist","Waist"],["chest","Chest"],
+    ["arms","Arms"],["hr","Resting heart rate"],["bp","Blood pressure"],["sleep","Sleep average"],
+    ["eyes","Eye color"],["blood","Blood type"],["hand","Dominant hand"],["born","Birthdate"]],
+  ledgers:[["marks","Marks — tattoos · scars · locs"],["medical","Medical — conditions · allergies · meds · history"]]},
+ {id:"entity",r:"II",n:"The Entity",sub:"the societal costume",hue:212,zone:"badge",
+  fields:[["legal","Legal name"],["pen","Pen / stage names"],["citizen","Citizenship"],["address","Address / base"],
+    ["vehicle","Vehicle"],["tax","Tax status"]],
+  ledgers:[["papers","Licenses · certifications · papers"],["coverage","Coverage — insurance map"],["contacts","Emergency contacts · beneficiaries"]]},
+ {id:"treasury",r:"III",n:"The Treasury",sub:"stored time",hue:45,zone:"lhand",
+  fields:[["net","Net worth"],["floor","Monthly floor"],["income","Income streams"],["credit","Credit score"]],
+  ledgers:[["debts","Debts — with payoff horizon"],["streams","Assets · accounts"]]},
+ {id:"mind",r:"IV",n:"The Mind",sub:"the lens everything is seen through",hue:265,zone:"head",
+  fields:[["bottom","The bottom line"],["education","Education"]],
+  ledgers:[["languages","Languages · fluency"],["skills","Skills — worked toward 100"],["frameworks","Frameworks · values · the three selves"]]},
+ {id:"bonds",r:"V",n:"The Bonds",sub:"the only wealth that mourns you",hue:335,zone:"heart",
+  fields:[],
+  ledgers:[["people","The people ledger — relation · last contact · what they love"]]},
+ {id:"works",r:"VI",n:"The Works",sub:"what the hands made",hue:25,zone:"rhand",
+  fields:[],
+  ledgers:[["works","Books · songs · apps · artifacts — with status"]]},
+ {id:"record",r:"VII",n:"The Record",sub:"the life, witnessed",hue:130,zone:"feet",
+  fields:[],
+  ledgers:[["milestones","Milestones — the timeline of the whole life"]]}
+];
+const F=id=>FLOORS.find(f=>f.id===id);
+
+/* ---------------- state ---------------- */
+let S=null;
+function blank(){return{v:1,facts:{},ledgers:{},fedDays:[],shelved:0,librarian:"",created:today()}}
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r){S=JSON.parse(r)}else S=blank()}
+  catch(e){S=blank()}
+  S.facts=S.facts||{};S.ledgers=S.ledgers||{};S.fedDays=S.fedDays||[];S.shelved=S.shelved||0;
+}
+let saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){console.error("save failed",e)}},300)}
+
+/* ---------------- freshness ---------------- */
+function age(d){return d?Math.max(0,Math.floor((Date.now()-new Date(d).getTime())/864e5)):9999}
+function inkFor(d){const a=age(d);if(a<=30)return"var(--ink)";if(a<=90)return"var(--ink-fade)";return"var(--ink-stale)"}
+function weight(d){const a=age(d);return a<=30?1:a<=90?.75:.5}
+function stampTxt(d){const a=age(d);if(a===0)return"today";if(a===1)return"1d";if(a<9999)return a+"d";return""}
+
+/* ---------------- resolution ---------------- */
+function floorRes(f){
+  let got=0,tot=f.fields.length+f.ledgers.length*3;
+  for(const[fid]of f.fields){const x=S.facts[f.id+"."+fid];if(x&&x.v)got+=weight(x.d)}
+  for(const[lid]of f.ledgers){const arr=S.ledgers[f.id+"."+lid]||[];got+=Math.min(3,arr.length)}
+  return tot?got/tot:0;
+}
+function totalRes(){let s=0;FLOORS.forEach(f=>s+=floorRes(f));return s/FLOORS.length}
+function staleCount(f){
+  let n=0;
+  for(const[fid]of f.fields){const x=S.facts[f.id+"."+fid];if(x&&x.v&&age(x.d)>90)n++}
+  return n;
+}
+function streak(){
+  const days=new Set(S.fedDays);let n=0;const d=new Date();
+  if(!days.has(today()))d.setDate(d.getDate()-1);
+  while(days.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}
+  return n;
+}
+function markFed(){const t=today();if(!S.fedDays.includes(t))S.fedDays.push(t)}
+
+/* ---------------- chime ---------------- */
+let AC=null,soundOK=true;
+function chime(f,dl){ if(!soundOK)return;
+  try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const t=AC.currentTime+(dl||0),o=AC.createOscillator(),g=AC.createGain();
+    o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(.05,t+.015);g.gain.exponentialRampToValueAtTime(1e-4,t+.6);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.7);
+  }catch(e){}
+}
+
+/* ---------------- root render ---------------- */
+const app=$id("app");
+let view={sheet:null};   // sheet: floorId | null
+let attach=[];           // {id,kind,media_type,data,name}
+let busy=false;
+
+function render(){
+  const res=totalRes(),pct=Math.round(res*100),st=streak();
+  const anyStale=FLOORS.some(f=>staleCount(f)>0);
+  app.innerHTML=`
+  <div class="top">
+    <span class="wordmark">THE&nbsp;MIRROR</span>
+    <span class="streak">${st>0?"🜂 "+st+" day"+(st===1?"":"s"):""}</span>
+    <div class="topbtns">
+      <button class="gbtn" id="btnDossier" title="Print the Dossier — the whole library as a document">▤<small>dossier</small></button>
+      <button class="gbtn" id="btnVault" title="The Vault — export, import, the flame">▦<small>vault</small></button>
+    </div>
+  </div>
+  <div class="scroller">
+    <div class="mirror">
+      <div class="dial">${ringSVG(res)}
+        <div class="figwrap" id="figwrap" style="filter:blur(${((1-res)*3.2).toFixed(2)}px) brightness(${(0.72+res*0.5).toFixed(2)});opacity:${(0.42+res*0.58).toFixed(2)}">
+          ${figureSVG(res)}
+        </div>
+      </div>
+      <div class="res-read">
+        <div class="res-num"><b>${pct}</b><span style="font-size:18px;color:var(--ink-fade)">%</span></div>
+        <div class="res-lbl">resolution · you, in focus</div>
+        <div class="res-line" id="resLine">${resLine(pct,anyStale)}</div>
+      </div>
+    </div>
+    <div class="shelves">${FLOORS.map(shelfHTML).join("")}</div>
+  </div>
+  <div class="desk">
+    <div class="librarian ${S.librarian?"on":""}" id="libSay">${esc(S.librarian)}</div>
+    ${attach.length?`<div class="chips">${attach.map(a=>`<span class="fchip">📄 ${esc(a.name)}<button data-rm="${a.id}">✕</button></span>`).join("")}</div>`:""}
+    <div class="desk-label"><span>◈ THE RETURN DESK — drop anything, the Librarian shelves it</span><i>${S.shelved} facts shelved</i></div>
+    <div class="desk-row">
+      <label class="cam" title="Drop PDFs, statements, photos — up to five">📄<input type="file" id="fileIn" multiple accept="image/*,application/pdf" style="display:none"></label>
+      <textarea class="desk-in" id="deskIn" rows="1" placeholder="${busy?"the Librarian is shelving…":"Speak or drop yourself here — stats, papers, people, anything…"}" ${busy?"disabled":""}></textarea>
+      <button class="shelve" id="btnShelve" ${busy?"disabled":""}>${busy?"…":"SHELVE"}</button>
+    </div>
+  </div>`;
+  wire();
+  if(view.sheet)openSheet(view.sheet,true);
+}
+
+function resLine(pct,anyStale){
+  if(pct===0)return"The mirror is dark. Feed it one true fact and watch yourself appear.";
+  if(anyStale)return"Some ink is fading — tap the marked floors and confirm what is still true.";
+  if(pct<25)return"A silhouette forms. Every fact sharpens the figure.";
+  if(pct<50)return"Half-seen. The library is filling, floor by floor.";
+  if(pct<75)return"Coming into focus. Few humans have ever seen themselves this clearly.";
+  if(pct<100)return"Nearly resolved. The last shelves wait.";
+  return"Fully resolved — the third eye is open. Keep the ink fresh.";
+}
+
+function shelfHTML(f){
+  const r=floorRes(f),stale=staleCount(f)>0;
+  return`<button class="shelf" data-floor="${f.id}" style="border-color:${r>0?`hsl(${f.hue} 45% 40% / .55)`:"var(--line)"}">
+    ${stale?'<span class="stale-dot"></span>':""}
+    <span class="fl" style="color:hsl(${f.hue} 60% 70%)">${f.r}</span>
+    <span class="fn">${f.n.replace("The ","")}</span>
+    <span class="fp"><i id="fp-${f.id}" style="width:${Math.round(r*100)}%;background:linear-gradient(90deg,hsl(${f.hue} 55% 42%),hsl(${f.hue} 75% 62%));box-shadow:0 0 6px hsl(${f.hue} 80% 55% / .6)"></i></span>
+  </button>`;
+}
+
+/* ---------------- the dial ring ---------------- */
+function arc(cx,cy,r,a0,a1){
+  const p=a=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
+  const[x0,y0]=p(a0),[x1,y1]=p(a1);
+  return`M${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 ${a1-a0>Math.PI?1:0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+}
+function ringSVG(res){
+  const N=FLOORS.length,gap=.09,cx=100,cy=100,R=93;
+  let segs="";
+  FLOORS.forEach((f,i)=>{
+    const a0=-Math.PI/2+i/N*2*Math.PI+gap/2, a1=-Math.PI/2+(i+1)/N*2*Math.PI-gap/2;
+    const fr=floorRes(f), af=a0+(a1-a0)*fr;
+    segs+=`<path d="${arc(cx,cy,R,a0,a1)}" stroke="hsl(${f.hue} 25% 20%)" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+    if(fr>0.01)segs+=`<path id="arc-${f.id}" d="${arc(cx,cy,R,a0,af)}" stroke="hsl(${f.hue} 70% 58%)" stroke-width="3.5" fill="none" stroke-linecap="round" style="color:hsl(${f.hue} 70% 58%);filter:drop-shadow(0 0 4px hsl(${f.hue} 80% 55% / .7))"/>`;
+    const am=(a0+a1)/2, tx=cx+(R+0)*Math.cos(am)*0, tR=R-11;
+    segs+=`<text x="${(cx+tR*Math.cos(am)).toFixed(1)}" y="${(cy+tR*Math.sin(am)+2.5).toFixed(1)}" text-anchor="middle" font-family="Georgia,serif" font-size="7.5" fill="hsl(${f.hue} 45% ${fr>0?62:38}%)">${f.r}</text>`;
+  });
+  return`<svg viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="${R}" fill="none" stroke="hsl(235 30% 14%)" stroke-width="0.6"/>
+    <circle cx="100" cy="100" r="72" fill="hsl(235 40% 9% / .5)"/>
+    ${segs}
+  </svg>`;
+}
+
+/* ---------------- the figure ---------------- */
+function figureSVG(res){
+  const glow=`drop-shadow(0 0 ${(4+res*14).toFixed(1)}px hsl(45 80% 60% / ${(0.15+res*0.5).toFixed(2)}))`;
+  const zone=(id,shape,label)=>`<g class="zone" data-zone="${id}">${shape}
+    <circle class="zring" ${label} r="13" fill="none" stroke="hsl(${F(id).hue} 70% 60% / .8)" stroke-width="1" stroke-dasharray="2 3"/></g>`;
+  return`<svg viewBox="0 0 120 220" style="filter:${glow}">
+    <defs>
+      <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(258 30% 34%)"/><stop offset="55%" stop-color="hsl(250 32% 24%)"/>
+        <stop offset="100%" stop-color="hsl(240 34% 16%)"/>
+      </linearGradient>
+    </defs>
+    <!-- silhouette -->
+    <g fill="url(#skin)" stroke="hsl(45 45% 62% / ${(0.25+res*0.55).toFixed(2)})" stroke-width="1">
+      <circle cx="60" cy="26" r="15"/>
+      <path d="M60 42 C 44 44 38 52 37 66 L34 108 C34 112 40 113 41 109 L46 76 L46 128 L40 200 C40 205 49 205 50 200 L58 138 L62 138 L70 200 C71 205 80 205 80 200 L74 128 L74 76 L79 109 C80 113 86 112 86 108 L83 66 C82 52 76 44 60 42 Z"/>
+    </g>
+    <!-- heart ember -->
+    <circle cx="53" cy="66" r="${(2+res*2.6).toFixed(1)}" fill="hsl(335 75% 60%)" opacity="${(0.3+res*0.7).toFixed(2)}" style="filter:drop-shadow(0 0 6px hsl(335 85% 60% / .8))"/>
+    <!-- third eye -->
+    <circle cx="60" cy="23" r="${(1.4+res*1.8).toFixed(1)}" fill="hsl(45 90% 66%)" opacity="${(0.25+res*0.75).toFixed(2)}" style="filter:drop-shadow(0 0 7px hsl(45 95% 60% / .9))"/>
+    <!-- tap zones -->
+    ${zone("mind",`<circle cx="60" cy="24" r="18" fill="transparent"/>`,`cx="60" cy="24"`)}
+    ${zone("entity",`<rect x="46" y="40" width="28" height="12" fill="transparent"/>`,`cx="60" cy="46"`)}
+    ${zone("bonds",`<circle cx="53" cy="66" r="12" fill="transparent"/>`,`cx="53" cy="66"`)}
+    ${zone("vessel",`<rect x="44" y="76" width="32" height="52" fill="transparent"/>`,`cx="60" cy="100"`)}
+    ${zone("treasury",`<circle cx="37" cy="108" r="12" fill="transparent"/>`,`cx="37" cy="108"`)}
+    ${zone("works",`<circle cx="83" cy="108" r="12" fill="transparent"/>`,`cx="83" cy="108"`)}
+    ${zone("record",`<rect x="36" y="185" width="48" height="22" fill="transparent"/>`,`cx="60" cy="198"`)}
+  </svg>`;
+}
+
+/* ---------------- wiring ---------------- */
+function wire(){
+  document.querySelectorAll(".shelf").forEach(b=>b.onclick=()=>{chime(520);openSheet(b.dataset.floor)});
+  document.querySelectorAll(".zone").forEach(z=>z.onclick=e=>{e.stopPropagation();chime(620);openSheet(z.dataset.zone==="badge"?"entity":FLOORS.find(f=>f.zone===z.dataset.zone||f.id===z.dataset.zone).id)});
+  const ta=$id("deskIn");
+  if(ta){ta.oninput=()=>{ta.style.height="auto";ta.style.height=Math.min(ta.scrollHeight,innerHeight*.34)+"px"};
+    ta.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();shelve()}}}
+  $id("btnShelve").onclick=shelve;
+  $id("fileIn").onchange=onFiles;
+  $id("btnDossier").onclick=printDossier;
+  $id("btnVault").onclick=vault;
+  document.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{attach=attach.filter(a=>a.id!==b.dataset.rm);render()});
+}
+
+/* ---------------- floor sheet ---------------- */
+function openSheet(fid,silent){
+  view.sheet=fid;const f=F(fid);if(!f)return;
+  closeSheet(true);
+  const r=floorRes(f),wrap=document.createElement("div");
+  wrap.className="sheet-wrap";wrap.id="sheetWrap";
+  wrap.onclick=e=>{if(e.target===wrap)closeSheet()};
+  let fieldsHTML="";
+  if(f.fields.length){
+    fieldsHTML=`<div class="sec" style="color:hsl(${f.hue} 55% 70%)">THE FACTS</div>`+
+    f.fields.map(([id,lbl])=>{
+      const x=S.facts[fid+"."+id],has=x&&x.v,stale=has&&age(x.d)>90;
+      return`<div class="frow" data-edit="${id}">
+        <span class="fl2">${lbl}</span>
+        <span class="fv ${has?"":"empty"}" style="${has?`color:${inkFor(x.d)}`:""}">${has?esc(x.v):"unrecorded — tap to write"}</span>
+        ${has?`<span class="stamp">${stampTxt(x.d)}</span>`:""}
+        ${stale?`<button class="confirm" data-conf="${id}">still true</button>`:""}
+      </div>`}).join("");
+  }
+  let ledgersHTML=f.ledgers.map(([lid,lbl])=>{
+    const arr=S.ledgers[fid+"."+lid]||[];
+    return`<div class="sec" style="color:hsl(${f.hue} 55% 70%)">${lbl.toUpperCase()}</div>`+
+      (arr.length?arr.map(it=>`<div class="lrow"><span style="flex:1"><span class="ln">${esc(it.n)}</span>${it.x?`<span class="lx">${esc(it.x)}</span>`:""}</span><span class="stamp">${stampTxt(it.d)}</span><button class="del" data-del="${lid}:${it.id}">✕</button></div>`).join("")
+      :`<div class="empty">This shelf waits.</div>`)+
+      `<button class="addline" data-addl="${lid}">+ add to this shelf</button>`;
+  }).join("");
+  wrap.innerHTML=`<div class="sheet">
+    <div class="sheet-head">
+      <span class="sheet-roman" style="color:hsl(${f.hue} 65% 68%);border-color:hsl(${f.hue} 50% 45% / .7);background:hsl(${f.hue} 45% 16% / .6)">${f.r}</span>
+      <div><div class="sheet-name">${f.n}</div><div class="sheet-sub">floor ${f.r} · ${f.sub}</div></div>
+      <button class="xbtn" id="sheetX">✕</button>
+    </div>
+    <div class="sheet-bar"><i style="width:${Math.round(r*100)}%;background:linear-gradient(90deg,hsl(${f.hue} 55% 42%),hsl(${f.hue} 75% 62%))"></i></div>
+    <div class="sheet-meta">${Math.round(r*100)}% resolved${staleCount(f)?` · ${staleCount(f)} fact${staleCount(f)===1?"":"s"} fading — confirm below`:""}</div>
+    ${fieldsHTML}${ledgersHTML}
+    <button class="addline" data-scroll="1" style="margin-top:14px;opacity:.5">⇄ copy this floor as a scroll</button>
+  </div>`;
+  document.body.appendChild(wrap);
+  wrap.querySelector("#sheetX").onclick=()=>closeSheet();
+  wrap.querySelectorAll("[data-edit]").forEach(el=>el.onclick=()=>editFact(fid,el.dataset.edit));
+  wrap.querySelectorAll("[data-conf]").forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const k=fid+"."+b.dataset.conf;if(S.facts[k]){S.facts[k].d=today();markFed();S.shelved++;save();chime(880);sysWin("FACT CONFIRMED","<b>+1</b><br>the ink is fresh again");openSheet(fid);render()}});
+  wrap.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    const[lid,iid]=b.dataset.del.split(":");const k=fid+"."+lid;
+    S.ledgers[k]=(S.ledgers[k]||[]).filter(x=>x.id!==iid);save();openSheet(fid);render()});
+  wrap.querySelectorAll("[data-addl]").forEach(b=>b.onclick=()=>addLedger(fid,b.dataset.addl));
+  wrap.querySelector("[data-scroll]").onclick=()=>copyScroll(fid);
+  if(!silent)chime(520);
+}
+function closeSheet(keepView){const w=$id("sheetWrap");if(w)w.remove();if(!keepView)view.sheet=null}
+
+function editFact(fid,id){
+  const f=F(fid),lbl=(f.fields.find(x=>x[0]===id)||[])[1]||id;
+  const cur=(S.facts[fid+"."+id]||{}).v||"";
+  modal(`${f.n.toUpperCase()} · ${lbl.toUpperCase()}`,[["v",lbl,cur]],vals=>{
+    const v=vals.v.trim();
+    if(v){S.facts[fid+"."+id]={v,d:today()};markFed();S.shelved++}
+    else delete S.facts[fid+"."+id];
+    save();chime(760);openSheet(fid);render();
+  });
+}
+function addLedger(fid,lid){
+  const f=F(fid),lbl=(f.ledgers.find(x=>x[0]===lid)||[])[1]||lid;
+  modal(`${f.n.toUpperCase()} · ADD`,[["n","Name",""],["x","Detail",""]],vals=>{
+    if(!vals.n.trim())return;
+    const k=fid+"."+lid;S.ledgers[k]=S.ledgers[k]||[];
+    S.ledgers[k].push({id:uid(),n:vals.n.trim(),x:vals.x.trim(),d:today()});
+    markFed();S.shelved++;save();chime(760);openSheet(fid);render();
+  });
+}
+
+/* ---------------- modal ---------------- */
+function modal(lbl,fields,onOK){
+  const m=document.createElement("div");m.className="modal";
+  m.innerHTML=`<div class="modal-card"><div class="modal-lbl">${lbl}</div>
+    ${fields.map(([id,ph,v])=>`<input class="modal-in" id="m-${id}" placeholder="${ph}" value="${esc(v)}">`).join("")}
+    <div class="modal-btns"><button class="mb no" id="mNo">cancel</button><button class="mb ok" id="mOk">shelve it</button></div></div>`;
+  document.body.appendChild(m);
+  m.querySelector(".modal-in").focus();
+  m.onclick=e=>{if(e.target===m)m.remove()};
+  m.querySelector("#mNo").onclick=()=>m.remove();
+  const ok=()=>{const vals={};fields.forEach(([id])=>vals[id]=m.querySelector("#m-"+id).value);m.remove();onOK(vals)};
+  m.querySelector("#mOk").onclick=ok;
+  m.querySelectorAll(".modal-in").forEach(i=>i.onkeydown=e=>{if(e.key==="Enter")ok()});
+}
+
+/* ---------------- system window ---------------- */
+function sysWin(head,bodyHTML,listHTML){
+  const w=document.createElement("div");w.className="sys-wrap";
+  w.innerHTML=`<div class="sys"><div class="sys-h">﹝ THE LIBRARY ﹞</div>
+    <div class="sys-b">${head}<br>${bodyHTML||""}</div>
+    ${listHTML?`<div class="sys-list">${listHTML}</div>`:""}
+    <div class="sys-hint">tap to close</div></div>`;
+  w.onclick=()=>w.remove();document.body.appendChild(w);
+  if(!listHTML)setTimeout(()=>{if(w.parentNode)w.remove()},3400);
+}
+
+/* ---------------- motes (shelving flight) ---------------- */
+function flyMote(fromEl,floorId,dl){
+  try{
+    const r0=fromEl.getBoundingClientRect();
+    const arcEl=$id("arc-"+floorId)||$id("fp-"+floorId);
+    const r1=arcEl?arcEl.getBoundingClientRect():{left:innerWidth/2,top:120,width:0,height:0};
+    const m=document.createElement("div");m.className="mote";
+    m.style.left=(r0.left+r0.width/2)+"px";m.style.top=(r0.top)+"px";
+    document.body.appendChild(m);
+    setTimeout(()=>{
+      m.style.transform=`translate(${r1.left+r1.width/2-(r0.left+r0.width/2)}px,${r1.top+r1.height/2-r0.top}px) scale(.5)`;
+      m.style.opacity="0";
+      chime(700+Math.random()*500,0);
+    },30+(dl||0));
+    setTimeout(()=>m.remove(),1300+(dl||0));
+  }catch(e){}
+}
+
+/* ---------------- intake files ---------------- */
+async function onFiles(ev){
+  const files=Array.from(ev.target.files||[]);ev.target.value="";
+  const room=Math.max(0,5-attach.length);
+  for(const f of files.slice(0,room)){
+    try{
+      if(f.type==="application/pdf"){
+        if(f.size>4.5*1024*1024){alert(`"${f.name}" is too heavy (over ~4.5MB) — split it or export smaller.`);continue}
+        const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(f)});
+        attach.push({id:uid(),kind:"pdf",media_type:f.type,data:b64,name:f.name});
+      }else if(f.type.startsWith("image/")){
+        const url=URL.createObjectURL(f);
+        const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+        const sc=Math.min(1,1280/Math.max(img.width,img.height));
+        const c=document.createElement("canvas");c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+        c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+        attach.push({id:uid(),kind:"img",media_type:"image/jpeg",data:c.toDataURL("image/jpeg",.82).split(",")[1],name:f.name||"snapshot"});
+      }
+    }catch(e){console.error("intake failed",e)}
+  }
+  render();
+}
+
+/* ---------------- the librarian (AI shelving) ---------------- */
+function profileBrief(){
+  return FLOORS.map(f=>{
+    const facts=f.fields.map(([id,lbl])=>{const x=S.facts[f.id+"."+id];return x&&x.v?`${id}="${x.v}"(${x.d})`:null}).filter(Boolean).join(", ")||"none";
+    const leds=f.ledgers.map(([lid])=>{const a=S.ledgers[f.id+"."+lid]||[];return`${lid}:[${a.map(i=>i.n).join("; ")||"empty"}]`}).join(" ");
+    return`FLOOR ${f.id}: facts{${facts}} ledgers{${leds}}`;
+  }).join("\n");
+}
+function schemaBrief(){
+  return FLOORS.map(f=>`"${f.id}" (${f.n}): fields[${f.fields.map(x=>x[0]).join(",")}] ledgers[${f.ledgers.map(x=>x[0]).join(",")}]`).join("\n");
+}
+
+async function shelve(){
+  const ta=$id("deskIn");const text=(ta?ta.value.trim():"")||(attach.length?"Read these documents. Extract every fact about me and shelve each to its floor.":"");
+  if(!text||busy)return;
+  const key=localStorage.getItem("koil_api_key");
+  if(!key){sysWin("THE FLAME IS UNLIT","open ▦ the Vault<br>and light it — then I can read");return}
+  busy=true;const held=attach;attach=[];render();
+  const sys=`You are THE LIBRARIAN of the Mirror — a KOIL instrument that indexes one human being as a seven-floor library so they can see themselves in third person. Today is ${today()}.
+THE LAW: shelve ONLY what the person or their documents actually state — verbatim facts, never inventions, never estimates. If a document shows it or they say it, it is true; otherwise leave it empty.
+THE FLOORS AND THEIR EXACT SLOTS:
+${schemaBrief()}
+WHAT IS ALREADY SHELVED (update by reusing the same field/ledger; for ledgers, reuse an existing item NAME to update it, otherwise add):
+${profileBrief()}
+Read the person's words and any attached documents. Extract EVERY durable fact about the human and shelve each into the single best slot. Scalar facts (a weight, a name, a credit score) go to "sets" using floor.field ids exactly. List-like facts (a tattoo, a person, a debt, a language, a work, a milestone) go to "adds" using floor.ledger ids exactly, with a short name and a detail line. Dates, amounts, and figures verbatim. Never shelve sacred numbers (SSN, full account numbers, passwords) — note only THAT such a paper exists and where it lives.
+Respond with ONLY a JSON object, no markdown fences, using \\n inside strings:
+{"say":"one to three warm sentences in the Librarian's voice — what you received and what you shelved; if a natural gap remains, end with ONE precise question that would fill it",
+ "sets":[{"f":"vessel.weight","v":"178 lb"}],
+ "adds":[{"l":"bonds.people","n":"Duke","x":"close friend"}]}
+Empty sets/adds arrays are fine if the message holds no durable facts.`;
+  const content=[];
+  for(const a of held)content.push(a.kind==="pdf"
+    ?{type:"document",source:{type:"base64",media_type:"application/pdf",data:a.data}}
+    :{type:"image",source:{type:"base64",media_type:a.media_type,data:a.data}});
+  content.push({type:"text",text:sys+"\n\n——— the person's words ———\n"+text});
+  let out=null;
+  try{
+    const rsp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2048,messages:[{role:"user",content}]})});
+    if(!rsp.ok)throw new Error("door refused ("+rsp.status+")");
+    const data=await rsp.json();if(data.error)throw new Error(data.error.message||"api error");
+    const raw=(data.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").replace(/```json|```/gi,"").trim();
+    const a0=raw.indexOf("{"),a1=raw.lastIndexOf("}");
+    out=JSON.parse(a0!==-1?raw.slice(a0,a1+1):raw);
+  }catch(e){
+    busy=false;S.librarian="The shelving broke — "+String(e.message||e).slice(0,110)+". Say it again.";save();render();return;
+  }
+  applyShelving(out,text);
+}
+
+function applyShelving(out,srcText){
+  const sets=Array.isArray(out.sets)?out.sets:[],adds=Array.isArray(out.adds)?out.adds:[];
+  const shelvedList=[];const desk=$id("btnShelve");
+  let n=0;
+  for(const s of sets){
+    if(!s||!s.f||!s.v)continue;
+    const[fid,field]=String(s.f).split(".");const f=F(fid);
+    if(!f||!f.fields.some(x=>x[0]===field))continue;
+    S.facts[fid+"."+field]={v:String(s.v),d:today()};
+    shelvedList.push(`<span style="color:hsl(${f.hue} 60% 70%)">${f.r}</span> ${esc((f.fields.find(x=>x[0]===field)||[])[1])} → ${esc(String(s.v))}`);
+    if(desk)flyMote(desk,fid,n*130);n++;
+  }
+  for(const a of adds){
+    if(!a||!a.l||!a.n)continue;
+    const[fid,lid]=String(a.l).split(".");const f=F(fid);
+    if(!f||!f.ledgers.some(x=>x[0]===lid))continue;
+    const k=fid+"."+lid;S.ledgers[k]=S.ledgers[k]||[];
+    const ex=S.ledgers[k].find(i=>i.n.toLowerCase()===String(a.n).toLowerCase());
+    if(ex){ex.x=String(a.x||ex.x||"");ex.d=today()}
+    else S.ledgers[k].push({id:uid(),n:String(a.n),x:String(a.x||""),d:today()});
+    shelvedList.push(`<span style="color:hsl(${f.hue} 60% 70%)">${f.r}</span> ${esc(String(a.n))} → ${f.n.replace("The ","")}`);
+    if(desk)flyMote(desk,fid,n*130);n++;
+  }
+  if(n>0){S.shelved+=n;markFed()}
+  S.librarian=out.say||"";busy=false;save();
+  const ta=$id("deskIn");if(ta)ta.value="";
+  setTimeout(()=>{render();
+    if(n>0){chime(880,.1);chime(1320,.28);
+      sysWin("FACTS SHELVED","<b>+"+n+"</b><br>resolution "+Math.round(totalRes()*100)+"%",shelvedList.join("<br>"));}
+  },n>0?900:60);
+}
+
+/* ---------------- vault ---------------- */
+function vault(){
+  const hasKey=!!localStorage.getItem("koil_api_key");
+  const w=document.createElement("div");w.className="modal";
+  w.innerHTML=`<div class="modal-card">
+    <div class="modal-lbl">▦ THE VAULT — the record is yours</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="mb no" id="vExp" style="text-align:left">⇩ export the library (json)</button>
+      <label class="mb no" style="text-align:left;cursor:pointer">⇧ restore the library<input type="file" id="vImp" accept=".json,application/json" style="display:none"></label>
+      <button class="mb no" id="vDoss" style="text-align:left">▤ print the Dossier</button>
+      <div style="border-top:1px solid var(--line);margin:4px 0"></div>
+      <div class="modal-lbl" style="margin-bottom:2px">🜂 THE FLAME — ${hasKey?"lit":"unlit — the Librarian sleeps"}</div>
+      <input class="modal-in" id="vKey" type="password" placeholder="sk-ant-..." autocapitalize="none" style="margin-bottom:0">
+      <div style="display:flex;gap:8px">
+        <button class="mb ok" id="vLight" style="flex:1">${hasKey?"change the flame":"light the flame"}</button>
+        ${hasKey?'<button class="mb no" id="vQuench">quench</button>':""}
+      </div>
+      <div style="border-top:1px solid var(--line);margin:4px 0"></div>
+      <button class="mb no" id="vBurn" style="text-align:left;border-color:#8a3b3b;color:#d98c8c">burn the library</button>
+    </div>
+    <div class="modal-btns"><button class="mb no" id="vX">close</button></div>
+  </div>`;
+  document.body.appendChild(w);
+  w.onclick=e=>{if(e.target===w)w.remove()};
+  w.querySelector("#vX").onclick=()=>w.remove();
+  w.querySelector("#vExp").onclick=()=>{
+    const b=new Blob([JSON.stringify({koil_mirror:1,exported:new Date().toISOString(),data:S},null,2)],{type:"application/json"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="koil-mirror-"+today()+".json";a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  };
+  w.querySelector("#vImp").onchange=ev=>{
+    const f=ev.target.files&&ev.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{try{const E=JSON.parse(r.result);
+      if(E&&E.koil_mirror===1&&E.data){if(confirm("Restore the library from this file? Everything now will be replaced.")){S=E.data;save();w.remove();render();sysWin("THE LIBRARY REMEMBERS","everything is restored")}}
+      else alert("That file carries no mirror stamp — nothing was imported.");
+    }catch(e){alert("That file could not be read.")}};
+    r.readAsText(f);
+  };
+  w.querySelector("#vDoss").onclick=()=>{w.remove();printDossier()};
+  w.querySelector("#vLight").onclick=()=>{
+    const k=w.querySelector("#vKey").value.trim();
+    if(!k.startsWith("sk-"))return;
+    localStorage.setItem("koil_api_key",k);w.remove();sysWin("THE FLAME IS LIT","the Librarian can read");
+  };
+  const q=w.querySelector("#vQuench");if(q)q.onclick=()=>{localStorage.removeItem("koil_api_key");w.remove()};
+  w.querySelector("#vBurn").onclick=()=>{
+    if(confirm("Burn the entire library? The index of this human cannot be recovered. Leaving costs nothing — this is your right.")){
+      S=blank();save();w.remove();render();
+    }
+  };
+}
+
+/* ---------------- scrolls (realm interop) ---------------- */
+function copyScroll(fid){
+  const f=F(fid);const facts={},leds={};
+  f.fields.forEach(([id])=>{const x=S.facts[fid+"."+id];if(x)facts[id]=x});
+  f.ledgers.forEach(([lid])=>{leds[lid]=S.ledgers[fid+"."+lid]||[]});
+  const sc=JSON.stringify({koil:1,from:"mirror",domain:fid,date:today(),data:{facts,ledgers:leds}});
+  (navigator.clipboard?navigator.clipboard.writeText(sc):Promise.reject())
+    .then(()=>sysWin("SCROLL COPIED","paste it into any KOIL instrument"))
+    .catch(()=>prompt("Copy the scroll:",sc));
+}
+
+/* ---------------- the dossier ---------------- */
+function printDossier(){
+  const d=$id("dossier");
+  const name=(S.facts["entity.legal"]||{}).v||(S.facts["entity.pen"]||{}).v||"One Human";
+  let html=`<h1>THE DOSSIER</h1><div class="dsub">${esc(name)} · the library of one human · compiled ${today()} · resolution ${Math.round(totalRes()*100)}%</div>`;
+  FLOORS.forEach(f=>{
+    let rows="";
+    f.fields.forEach(([id,lbl])=>{const x=S.facts[f.id+"."+id];
+      if(x&&x.v)rows+=`<tr><td class="k">${lbl}</td><td>${esc(x.v)}</td><td class="s">${x.d}</td></tr>`});
+    f.ledgers.forEach(([lid,lbl])=>{(S.ledgers[f.id+"."+lid]||[]).forEach(it=>{
+      rows+=`<tr><td class="k">${lbl.split("—")[0].trim()}</td><td>${esc(it.n)}${it.x?` — <i>${esc(it.x)}</i>`:""}</td><td class="s">${it.d}</td></tr>`})});
+    if(rows)html+=`<h2>FLOOR ${f.r} — ${f.n.toUpperCase()} · ${f.sub}</h2><table>${rows}</table>`;
+  });
+  html+=`<div class="dres">✦ compiled by the Mirror — Kingdom of Inner Light · ${S.shelved} facts shelved since ${S.created}</div>`;
+  d.innerHTML=html;
+  setTimeout(()=>window.print(),80);
+}
+
+/* ---------------- backdrop ---------------- */
+(function(){
+  const cv=$id("bg"),cx=cv.getContext("2d"),dpr=Math.min(2,devicePixelRatio||1);
+  let W,Hh;const rs=()=>{W=innerWidth;Hh=innerHeight;cv.width=W*dpr;cv.height=Hh*dpr;cx.setTransform(dpr,0,0,dpr,0,0)};
+  rs();addEventListener("resize",rs);
+  const dust=Array.from({length:110},()=>({x:Math.random(),y:Math.random(),s:.3+Math.random()*1.6,sp:.001+Math.random()*.005,o:.15+Math.random()*.5,tw:Math.random()*6.28}));
+  let last=performance.now();
+  (function loop(t){
+    const dt=Math.min(.05,(t-last)/1000);last=t;
+    cx.clearRect(0,0,W,Hh);
+    const g=cx.createRadialGradient(W/2,Hh*.12,0,W/2,Hh*.12,Math.max(W,Hh)*1.1);
+    g.addColorStop(0,"#131834");g.addColorStop(.55,"#0B0E1E");g.addColorStop(1,"#070912");
+    cx.fillStyle=g;cx.fillRect(0,0,W,Hh);
+    cx.globalCompositeOperation="lighter";
+    const g2=cx.createRadialGradient(W/2,Hh*.3,0,W/2,Hh*.3,Math.max(W,Hh)*.5);
+    g2.addColorStop(0,"hsla(45,55%,42%,.05)");g2.addColorStop(1,"transparent");
+    cx.fillStyle=g2;cx.fillRect(0,0,W,Hh);
+    dust.forEach(p=>{p.y-=p.sp*dt*22;if(p.y<-.02)p.y=1.02;
+      const o=p.o*(.55+.45*Math.sin(t/1000*1.1+p.tw));
+      cx.fillStyle=`rgba(232,226,210,${o})`;cx.beginPath();cx.arc(p.x*W,p.y*Hh,p.s,0,6.29);cx.fill()});
+    cx.globalCompositeOperation="source-over";
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+
+/* ---------------- veil + boot ---------------- */
+load();
+(function boot(){
+  const v=document.createElement("div");v.className="veil";
+  v.innerHTML=`<div class="veil-eye">◉</div>
+    <div class="veil-title">THE&nbsp;MIRROR</div>
+    <div class="veil-sub">the third eye — yourself, in third person</div>
+    <div class="veil-hint">touch to look</div>`;
+  document.body.appendChild(v);
+  v.onpointerdown=()=>{v.classList.add("leave");chime(660);chime(990,.12);setTimeout(()=>v.remove(),1000)};
+  render();
+})();
+</script>
+</body>
+</html>
