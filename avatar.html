@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#070912">
+<title>The Avatar — KOIL</title>
+<style>
+  #header,.header,header#header,.sqs-announcement-bar-dropzone,#footer-sections,footer.sections,.sqs-cookie-banner-v2{display:none!important}
+  #page,#siteWrapper,.content-wrapper,article,section.page-section,.content,.fluid-engine,.sqs-block,.sqs-block-code{padding:0!important;margin:0!important;max-width:none!important}
+  section.page-section{min-height:0!important}
+
+  :root{
+    --night:#070912;--deep:#10142A;--panel:#141936;
+    --ink:#E8E2D2;--ink-fade:#8a8ba3;--ink-stale:#565a7c;
+    --gild:#E0A93E;--violet:#8B7FD4;--line:#262b4d;
+    --serif:Georgia,'Times New Roman',serif;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--night);height:100%;overscroll-behavior:none}
+  body{color:var(--ink);font-family:var(--serif);overflow:hidden}
+  button{font-family:inherit;color:inherit}
+  textarea:focus,input:focus,button:focus-visible{outline:2px solid hsl(45 60% 60% / .6);outline-offset:2px}
+
+  #bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden;z-index:1}
+
+  .top{display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:calc(12px + env(safe-area-inset-top)) 16px 6px;position:relative;z-index:5}
+  .wordmark{font-family:var(--mono);font-size:10px;letter-spacing:5px;color:var(--ink-fade)}
+  .lvl{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--gild);text-align:center;line-height:1.6}
+  .lvl small{display:block;font-size:7.5px;letter-spacing:2.5px;color:var(--ink-fade)}
+  .topbtns{display:flex;gap:6px}
+  .gbtn{background:none;border:1px solid var(--line);border-radius:9px;width:38px;height:40px;
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:13px;padding:0}
+  .gbtn small{font-family:var(--mono);font-size:6.5px;letter-spacing:.8px;opacity:.6;text-transform:uppercase}
+  .xpTrack{position:relative;z-index:5;height:3px;margin:0 16px 4px;background:hsl(235 35% 16%);border-radius:2px;overflow:hidden}
+  .xpTrack i{display:block;height:100%;border-radius:2px;transition:width .9s ease;
+    background:linear-gradient(90deg,hsl(258 60% 55%),var(--gild));box-shadow:0 0 8px rgba(224,169,62,.6)}
+
+  .tabs{display:flex;gap:6px;padding:4px 14px 6px;position:relative;z-index:5}
+  .tab{flex:1;background:hsl(235 38% 11% / .8);border:1px solid var(--line);border-radius:11px;
+    padding:8px 2px;cursor:pointer;font-family:var(--mono);font-size:8.5px;letter-spacing:1.6px;
+    text-transform:uppercase;color:var(--ink-fade);text-align:center;transition:.25s}
+  .tab.on{color:var(--gild);border-color:hsl(45 55% 45% / .7);background:hsl(45 40% 14% / .55);
+    box-shadow:0 0 14px hsl(45 70% 50% / .15)}
+
+  .scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:2;
+    padding:2px 0 10px;display:flex;flex-direction:column}
+  .view{animation:vin .45s ease}
+  @keyframes vin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---- avatar stage ---- */
+  .stage{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 0 4px}
+  .cartouche{position:relative;width:min(88vw,360px)}
+  .cartouche svg{width:100%;display:block;overflow:visible}
+  .stage-name{font-family:var(--serif);font-size:19px;letter-spacing:2px;text-align:center;margin-top:2px}
+  .stage-sub{font-family:var(--mono);font-size:8.5px;letter-spacing:3px;text-transform:uppercase;
+    color:var(--ink-fade);text-align:center;margin-top:5px}
+  .stage-era{font-family:var(--serif);font-style:italic;font-size:12.5px;color:hsl(258 30% 70%);
+    text-align:center;margin-top:7px;padding:0 30px;line-height:1.55}
+  .slotdots{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;padding:0 20px}
+  .sdot{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;width:52px}
+  .sdot .c{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:flex;
+    align-items:center;justify-content:center;font-size:13px;background:hsl(235 35% 11% / .8)}
+  .sdot small{font-family:var(--mono);font-size:6.6px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-fade)}
+
+  /* ---- rolodex ---- */
+  .rolo{padding:4px 14px}
+  .rolo-head{font-family:var(--mono);font-size:9px;letter-spacing:2.5px;color:var(--ink-fade);
+    text-transform:uppercase;margin:8px 0 6px;display:flex;justify-content:space-between;align-items:baseline}
+  .domrow{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:4px}
+  .domchip{background:hsl(235 38% 11% / .85);border:1px solid var(--line);border-radius:999px;
+    padding:6px 13px;font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;
+    white-space:nowrap;flex-shrink:0;color:var(--ink-fade)}
+  .domchip.on{color:var(--ink)}
+  .qcard{display:flex;gap:11px;align-items:center;padding:11px 12px;margin-bottom:7px;border-radius:13px;
+    background:hsl(235 35% 12% / .85);border:1px solid var(--line);cursor:pointer;transition:transform .15s}
+  .qcard:active{transform:scale(.985)}
+  .qcard.sealed{opacity:.55}
+  .qglyph{width:34px;height:34px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;font-size:15px;border:1px solid}
+  .qname{font-size:14px;line-height:1.4}
+  .qmeta{font-family:var(--mono);font-size:8.5px;letter-spacing:1px;color:var(--ink-fade);margin-top:3px;text-transform:uppercase}
+  .qpts{margin-left:auto;flex-shrink:0;font-family:var(--mono);font-size:11px;color:var(--gild);text-align:right;line-height:1.5}
+  .qpts small{display:block;font-size:7px;letter-spacing:1.5px;color:var(--ink-fade)}
+  .sealmark{color:hsl(130 50% 62%);font-size:13px}
+
+  /* ---- closet ---- */
+  .closet{padding:4px 14px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .item{background:hsl(235 35% 12% / .88);border:1px solid var(--line);border-radius:14px;
+    padding:13px 10px 11px;cursor:pointer;text-align:center;position:relative;transition:transform .15s}
+  .item:active{transform:scale(.97)}
+  .item svg{width:52px;height:52px;display:block;margin:0 auto 7px}
+  .iname{font-size:13.5px;line-height:1.35}
+  .itier{font-family:var(--mono);font-size:8px;letter-spacing:2.5px;text-transform:uppercase;margin-top:4px}
+  .worn-tag{position:absolute;top:8px;right:9px;font-family:var(--mono);font-size:7px;letter-spacing:1.5px;
+    color:hsl(130 50% 62%)}
+  .closet-empty{grid-column:1/-1}
+
+  /* ---- eras ---- */
+  .eras{padding:4px 18px}
+  .era{position:relative;padding:0 0 18px 22px;border-left:1px solid hsl(45 40% 35% / .4)}
+  .era:before{content:"";position:absolute;left:-4.5px;top:4px;width:8px;height:8px;border-radius:50%;
+    background:var(--gild);box-shadow:0 0 8px hsl(45 80% 55% / .7)}
+  .era-date{font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;color:var(--gild)}
+  .era-worn{font-size:13.5px;line-height:1.6;margin-top:4px}
+  .era-note{font-style:italic;font-size:12.5px;color:var(--ink-fade);margin-top:3px;line-height:1.5}
+
+  /* ---- desk ---- */
+  .desk{position:relative;z-index:6;padding:8px 14px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,transparent,rgba(4,6,14,.92) 34%)}
+  .guardian{margin:0 2px 8px;padding:10px 13px;border-radius:12px;background:hsl(258 38% 15% / .85);
+    border:1px solid hsl(258 42% 40% / .45);font-style:italic;font-size:13.5px;line-height:1.55;display:none}
+  .guardian.on{display:block}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 2px 6px}
+  .fchip{display:inline-flex;align-items:center;gap:7px;background:hsl(45 40% 15% / .85);
+    border:1px solid hsl(45 55% 42% / .5);border-radius:999px;padding:4px 11px;
+    font-family:var(--mono);font-size:10px;color:var(--gild)}
+  .fchip button{background:none;border:none;color:#6b6f8f;cursor:pointer;font-size:11px;padding:0}
+  .desk-label{font-family:var(--mono);font-size:8.5px;letter-spacing:3px;color:var(--gild);margin:0 2px 6px}
+  .desk-row{display:flex;gap:8px;align-items:flex-end}
+  .cam{display:flex;align-items:center;justify-content:center;width:46px;min-width:46px;height:52px;
+    border-radius:13px;cursor:pointer;background:hsl(235 35% 13% / .92);border:1px solid var(--line);font-size:17px;
+    flex-direction:column;gap:1px}
+  .cam small{font-family:var(--mono);font-size:6px;letter-spacing:.5px;color:var(--ink-fade);text-transform:uppercase}
+  .desk-in{flex:1;background:hsl(235 35% 11% / .94);border:1px solid hsl(258 40% 38% / .6);border-radius:14px;
+    color:var(--ink);font-family:var(--serif);font-size:15px;padding:12px 14px;resize:none;line-height:1.5;
+    min-height:52px;max-height:32vh;overflow-y:auto}
+  .speak{background:linear-gradient(180deg,hsl(258 55% 46%),hsl(258 60% 33%));border:1px solid hsl(258 60% 60% / .6);
+    color:#EDE9FE;border-radius:14px;padding:0 16px;height:52px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:2px;cursor:pointer}
+  .speak:disabled{opacity:.5}
+
+  /* ---- sheet / modal / system (shared visual language) ---- */
+  .sheet-wrap{position:fixed;inset:0;z-index:20;background:rgba(4,6,12,.74);backdrop-filter:blur(3px);display:flex;align-items:flex-end}
+  .sheet{width:100%;max-height:86%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    background:linear-gradient(180deg,#171c38,#0c0f22);border-radius:20px 20px 0 0;border:1px solid var(--line);
+    border-bottom:none;padding:18px 18px calc(24px + env(safe-area-inset-bottom));animation:sup .35s cubic-bezier(.2,1,.3,1)}
+  @keyframes sup{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  .sh-title{font-size:19px;letter-spacing:.5px;display:flex;align-items:center;gap:10px}
+  .sh-sub{font-family:var(--mono);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-fade);margin-top:5px}
+  .xbtn{margin-left:auto;background:none;border:1px solid var(--line);border-radius:9px;width:32px;height:32px;cursor:pointer;font-size:13px}
+  .plaque{margin:14px 0;padding:13px 15px;border-radius:12px;background:hsl(45 35% 12% / .6);
+    border:1px solid hsl(45 45% 38% / .5);font-style:italic;font-size:13.5px;line-height:1.65}
+  .plaque b{font-style:normal;color:var(--gild);font-weight:normal}
+  .actrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .abtn{border-radius:11px;padding:11px 16px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;cursor:pointer}
+  .abtn.gold{background:linear-gradient(180deg,hsl(45 62% 48%),hsl(40 66% 34%));border:1px solid hsl(45 70% 62% / .7);color:#1a1405}
+  .abtn.sil{background:hsl(220 15% 30%);border:1px solid hsl(220 20% 55% / .6);color:#e6ebf2}
+  .abtn.ghost{background:none;border:1px solid var(--line);color:var(--ink-fade)}
+  .abtn.grn{background:hsl(130 35% 24%);border:1px solid hsl(130 45% 45% / .6);color:hsl(130 55% 78%)}
+  .modal{position:fixed;inset:0;z-index:40;background:rgba(4,6,12,.82);display:flex;align-items:center;
+    justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+  .modal-card{width:100%;max-width:390px;background:linear-gradient(180deg,#181d3b,#0d1024);
+    border:1px solid hsl(258 40% 40% / .6);border-radius:18px;padding:18px}
+  .modal-lbl{font-family:var(--mono);font-size:9px;letter-spacing:2.5px;color:var(--gild);text-transform:uppercase;margin-bottom:10px}
+  .modal-in{width:100%;background:hsl(235 35% 11%);border:1px solid var(--line);border-radius:11px;
+    color:var(--ink);font-family:var(--serif);font-size:15px;padding:11px 13px;margin-bottom:8px}
+  .modal-note{font-style:italic;font-size:12px;color:var(--ink-fade);line-height:1.55;margin:2px 0 8px}
+  .sys-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding-top:14vh}
+  .sys{min-width:252px;max-width:330px;text-align:center;background:linear-gradient(180deg,hsl(235 45% 14% / .97),hsl(250 45% 9% / .97));
+    border:1px solid hsl(45 60% 55% / .8);border-radius:11px;padding:15px 22px 11px;
+    box-shadow:0 0 34px hsl(45 70% 55% / .35),inset 0 0 22px rgba(0,0,0,.5);animation:sysin .45s cubic-bezier(.2,1.2,.4,1)}
+  @keyframes sysin{0%{opacity:0;transform:translateY(-14px) scale(.92)}100%{opacity:1;transform:none}}
+  .sys-h{font-family:var(--mono);font-size:9.5px;letter-spacing:4px;color:hsl(45 75% 72%);margin-bottom:9px}
+  .sys-b{font-family:var(--mono);font-size:11.5px;letter-spacing:1.5px;line-height:2}
+  .sys-b b{color:var(--gild);font-weight:normal;font-size:19px}
+  .sys-list{font-family:var(--serif);font-style:italic;font-size:12.5px;line-height:1.7;text-align:left;
+    margin-top:8px;max-height:34vh;overflow-y:auto}
+  .sys-hint{font-family:var(--mono);font-size:8px;letter-spacing:2px;opacity:.35;margin-top:9px}
+  .mote{position:fixed;z-index:48;width:7px;height:7px;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle at 35% 30%,#fff3d0,var(--gild));
+    box-shadow:0 0 10px 3px hsl(45 90% 60% / .7);transition:transform 1s cubic-bezier(.3,.1,.25,1),opacity 1s}
+
+  .veil{position:fixed;inset:0;z-index:70;background:radial-gradient(120% 100% at 50% 10%,#10142c,#0B0E1E 50%,#05060d);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity 1s ease}
+  .veil.leave{opacity:0}
+  .veil-eye{font-size:24px;color:var(--gild);margin-bottom:26px;filter:drop-shadow(0 0 18px rgba(224,169,62,.7))}
+  .veil-title{font-family:var(--serif);font-size:clamp(17px,4.6vw,24px);letter-spacing:6px;text-align:center;
+    animation:vt 2.2s ease forwards;text-shadow:0 0 30px rgba(224,169,62,.25)}
+  @keyframes vt{from{opacity:0;letter-spacing:16px;filter:blur(8px)}to{opacity:1;letter-spacing:6px;filter:none}}
+  .veil-sub{font-style:italic;font-size:13px;margin-top:12px;color:var(--violet);opacity:0;animation:vs 1.6s ease 1s forwards}
+  @keyframes vs{to{opacity:.6}}
+  .veil-hint{position:absolute;bottom:12vh;font-family:var(--mono);font-size:10px;letter-spacing:5px;
+    text-transform:uppercase;color:#938BA6;opacity:0;animation:vh 2.6s ease-in-out 1.8s infinite}
+  @keyframes vh{0%,100%{opacity:.25}50%{opacity:.85}}
+  .empty{opacity:.55;font-size:13px;padding:12px 4px;font-style:italic;line-height:1.65}
+  .glowpulse{animation:gp 1.6s ease}
+  @keyframes gp{0%{filter:brightness(2) drop-shadow(0 0 14px hsl(45 90% 60% / .9))}100%{}}
+  @media (prefers-reduced-motion:reduce){.mote{transition:none}.sys,.sheet,.view{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="app"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   THE AVATAR — a KOIL instrument
+   Documentation made manifest: a skin that cannot lie.
+   The Rolodex of everything a human can do. The Guardian of both.
+   ============================================================ */
+const KEY="koil-avatar-v1";
+const $id=s=>document.getElementById(s);
+const uid=()=>Math.random().toString(36).slice(2,9);
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ------------ the seven domains ------------ */
+const DOMS=[
+ {id:"treasury",n:"Treasury",g:"⚖",hue:45},
+ {id:"temple",n:"Temple",g:"🫀",hue:352},
+ {id:"observatory",n:"Observatory",g:"🧠",hue:265},
+ {id:"forge",n:"Forge",g:"🛠",hue:25},
+ {id:"hearth",n:"Hearth",g:"❤️",hue:335},
+ {id:"clockwork",n:"Clockwork",g:"🗓",hue:190},
+ {id:"road",n:"Road",g:"◈",hue:130}];
+const D=id=>DOMS.find(d=>d.id===id)||DOMS[6];
+
+/* ------------ ranks ------------ */
+const RANKS=["INITIATE","SEEKER","SCRIBE","WALKER","WARRIOR","ARCHITECT","HIGH SCRIBE","VIZIER","SOVEREIGN","PHARAOH"];
+const lvOf=xp=>Math.floor(Math.sqrt(Math.max(0,xp)/80))+1;
+const xpAt=lv=>80*(lv-1)*(lv-1);
+const rankOf=lv=>RANKS[Math.min(RANKS.length-1,Math.floor((lv-1)/2))];
+
+/* ------------ tiers ------------ */
+const TIERS={
+ bronze:{n:"BRONZE",a:"#7a4d22",b:"#c98d4e",glow:"hsl(28 60% 45% / .5)"},
+ silver:{n:"SILVER",a:"#7c8598",b:"#e9eef6",glow:"hsl(215 30% 70% / .5)"},
+ gold:{n:"GOLD",a:"#a5720f",b:"#ffdd85",glow:"hsl(45 90% 60% / .7)"},
+ iron:{n:"RUST",a:"#33281f",b:"#5c4634",glow:"transparent"}};
+
+/* ------------ the regalia catalog ------------ */
+const ITEMS=[
+ {id:"watch",slot:"wrist",n:"The Watch",dom:"clockwork",g:"⌚",
+  m:"Time answered to this one. Earned by kept schedules and witnessed hours — the wrist carries the proof."},
+ {id:"lens",slot:"eyes",n:"The Lens",dom:"observatory",g:"🜁",
+  m:"The mind was fed and the seeing sharpened. Study, language, insight — worn over the eyes."},
+ {id:"chain",slot:"neck",n:"The Treasury Chain",dom:"treasury",g:"⛓",
+  m:"Coin was counted, routed, and commanded. Each link is a statement faced without flinching."},
+ {id:"gauntlets",slot:"hands",n:"The Gauntlets",dom:"temple",g:"🧤",
+  m:"The vessel was trained. Reps, miles, sleep kept — the hands wear the work."},
+ {id:"hammer",slot:"belt",n:"The Forgehammer",dom:"forge",g:"🔨",
+  m:"Things exist now that did not exist before. Books, songs, tools — struck into being."},
+ {id:"ember",slot:"chest",n:"The Ember",dom:"hearth",g:"🜂",
+  m:"Bonds were kept warm. Calls made, words said, people held — the chest carries a living coal."},
+ {id:"boots",slot:"feet",n:"The Roadboots",dom:"road",g:"🥾",
+  m:"Promises became footsteps. Errands closed, quests finished — these boots have proof in their soles."},
+ {id:"crown",slot:"crown",n:"The Crown",dom:null,g:"♛",
+  m:"Rank made visible. The crown is never bought — it condenses from accumulated witnessed life."},
+ {id:"mantle",slot:"back",n:"The Mantle of Seven",dom:null,g:"🜍",
+  m:"All seven domains hold at least one sealed deed. The whole life is in motion — the mantle falls across the shoulders."}];
+const IT=id=>ITEMS.find(i=>i.id===id);
+const SLOTS=[["crown","crown"],["eyes","lens"],["neck","chain"],["chest","ember"],["hands","gauntlets"],["belt","hammer"],["wrist","watch"],["back","mantle"],["feet","boots"]];
+
+/* ------------ the foundation Rolodex (Tier 0 — the easiest 60) ------------ */
+function Q(id,dom,n,pts,proof){return{id,dom,n,pts,proof}}
+const QUESTS=[
+ /* treasury */
+ Q("t1","treasury","Speak your income — one sentence on where money enters",10,"say it"),
+ Q("t2","treasury","Name every bill you can remember, unchecked",12,"the list"),
+ Q("t3","treasury","Photograph one receipt from today",10,"the photo"),
+ Q("t4","treasury","Pull one bank statement and drop it in",25,"the statement"),
+ Q("t5","treasury","Name your monthly floor — what survival truly costs",15,"the number"),
+ Q("t6","treasury","Find one subscription you forgot you pay",15,"name it"),
+ Q("t7","treasury","Check your credit score once",20,"the score"),
+ Q("t8","treasury","Insert a certified Counting House export",40,"the file"),
+ /* temple */
+ Q("p1","temple","Weigh yourself and speak the number",10,"the number"),
+ Q("p2","temple","Measure your height honestly",8,"the number"),
+ Q("p3","temple","Photograph one full meal before eating it",10,"the photo"),
+ Q("p4","temple","Walk 10 minutes with no phone in hand",12,"your word"),
+ Q("p5","temple","Record last night's hours of sleep",8,"the number"),
+ Q("p6","temple","Do any exercise for 5 minutes and name it",12,"your word"),
+ Q("p7","temple","Drink water first, before anything else, one morning",8,"your word"),
+ Q("p8","temple","Take one honest front-facing progress photo",15,"the photo"),
+ Q("p9","temple","Insert a certified Caloric Mirror export",40,"the file"),
+ /* observatory */
+ Q("o1","observatory","Read 5 pages of any book and name it",10,"the title"),
+ Q("o2","observatory","Learn one new word and use it in a sentence",8,"the sentence"),
+ Q("o3","observatory","Sit in silence for 3 minutes, then describe the loudest thought",12,"the thought"),
+ Q("o4","observatory","Write down one question you can't answer yet",10,"the question"),
+ Q("o5","observatory","Teach one thing you know to the Guardian",12,"the lesson"),
+ Q("o6","observatory","Speak one sentence in a language you're learning",12,"the sentence"),
+ Q("o7","observatory","Name the last idea that changed your mind",12,"the idea"),
+ Q("o8","observatory","Take the Lens and speak your triad",20,"the result"),
+ /* forge */
+ Q("f1","forge","Name your craft in one line",8,"the line"),
+ Q("f2","forge","Work on your craft 10 minutes and say what moved",12,"your word"),
+ Q("f3","forge","Photograph something you made — any age",10,"the photo"),
+ Q("f4","forge","Ship one small thing today: post it, send it, publish it",25,"the link or proof"),
+ Q("f5","forge","Name the unfinished work that haunts you most",10,"name it"),
+ Q("f6","forge","Spend 15 minutes on the haunted work",20,"your word"),
+ Q("f7","forge","Write the first sentence of something new",10,"the sentence"),
+ Q("f8","forge","List every finished work of your life so far",15,"the list"),
+ /* hearth */
+ Q("h1","hearth","Name the five people who matter most",10,"the names"),
+ Q("h2","hearth","Call one of them for 90 seconds — no reason needed",15,"your word"),
+ Q("h3","hearth","Say one unsaid thank-you, out loud, to its person",15,"your word"),
+ Q("h4","hearth","Write down one birthday you keep forgetting",8,"the date"),
+ Q("h5","hearth","Ask someone a question and only listen to the answer",12,"what they said"),
+ Q("h6","hearth","Share one meal with another human, phones down",15,"your word"),
+ Q("h7","hearth","Tell the Guardian one story about someone you love",12,"the story"),
+ Q("h8","hearth","Forgive one small thing silently and name what it was",12,"name it"),
+ /* clockwork */
+ Q("c1","clockwork","Speak your ideal wake time",8,"the time"),
+ Q("c2","clockwork","Wake at it once and report within the hour",18,"your word"),
+ Q("c3","clockwork","Write tomorrow's three moves tonight",12,"the three"),
+ Q("c4","clockwork","Account for yesterday's hours like coins",15,"the ledger"),
+ Q("c5","clockwork","Do the day's hardest thing first, once",18,"your word"),
+ Q("c6","clockwork","Sit for one full sunset or sunrise",12,"your word"),
+ Q("c7","clockwork","Go one hour, awake, with the phone in another room",15,"your word"),
+ Q("c8","clockwork","Keep one small appointment with yourself, exactly on time",15,"your word"),
+ /* road */
+ Q("r1","road","Speak your name into the record",5,"say it"),
+ Q("r2","road","Record a 30-second voice review of this instrument",15,"the memo"),
+ Q("r3","road","Close one errand that's waited more than a week",18,"your word"),
+ Q("r4","road","Walk a street you have never walked",12,"where"),
+ Q("r5","road","Visit somewhere free you've never entered — a shop, a park, a pier",12,"the photo or word"),
+ Q("r6","road","Do one kind act for a stranger, unwitnessed",15,"your word"),
+ Q("r7","road","Name your bottom line — what winning means",15,"the line"),
+ Q("r8","road","Add one quest to this Rolodex that has never existed",20,"the quest"),
+ Q("r9","road","Complete any quest in every one of the seven domains",30,"the record itself")];
+
+/* ------------ state ------------ */
+let S=null;
+function blank(){return{v:1,xp:0,done:{},custom:[],closet:[],worn:{},eras:[],iron:false,
+  rewards:[],inserts:[],guardian:"",fedDays:[],created:today()}}
+function load(){try{const r=localStorage.getItem(KEY);S=r?JSON.parse(r):blank()}catch(e){S=blank()}
+  ["done","worn"].forEach(k=>S[k]=S[k]||{});
+  ["custom","closet","eras","rewards","inserts","fedDays"].forEach(k=>S[k]=S[k]||[]);
+  S.xp=S.xp||0;S.guardian=S.guardian||"";}
+let saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},300)}
+function allQuests(){return QUESTS.concat(S.custom)}
+function isDone(q){return !!S.done[q.id]}
+function domDone(dom){return allQuests().filter(q=>q.dom===dom&&isDone(q)).length}
+function markFed(){const t=today();if(!S.fedDays.includes(t))S.fedDays.push(t)}
+function streak(){const ds=new Set(S.fedDays);let n=0;const d=new Date();
+  if(!ds.has(today()))d.setDate(d.getDate()-1);
+  while(ds.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}return n}
+
+/* ------------ chime ------------ */
+let AC=null;
+function chime(f,dl){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+  const t=AC.currentTime+(dl||0),o=AC.createOscillator(),g=AC.createGain();
+  o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(.05,t+.015);g.gain.exponentialRampToValueAtTime(1e-4,t+.6);
+  o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.7)}catch(e){}}
+
+/* ------------ regalia earning engine ------------ */
+function ownedItem(id){return S.closet.find(c=>c.item===id)}
+function tierRank(t){return{bronze:1,silver:2,gold:3}[t]||0}
+function grantOrUpgrade(itemId,tier,why,events){
+  const ex=ownedItem(itemId);
+  if(!ex){S.closet.push({id:uid(),item:itemId,tier,earned:today(),why});
+    events.push({t:"item",item:itemId,tier,fresh:true});return}
+  if(tierRank(tier)>tierRank(ex.tier)){ex.tier=tier;ex.upgraded=today();ex.why=why;
+    events.push({t:"item",item:itemId,tier,fresh:false})}
+}
+function bestProofInDom(dom){
+  let best="bronze";
+  allQuests().filter(q=>q.dom===dom&&isDone(q)).forEach(q=>{
+    const p=S.done[q.id].tier;if(tierRank(p)>tierRank(best))best=p});
+  return best;
+}
+function checkEarnings(events){
+  /* domain items: 1 done = item at best proof tier; upgrades as proof rises */
+  DOMS.forEach(d=>{
+    const n=domDone(d.id);
+    if(n>=1){const it=ITEMS.find(i=>i.dom===d.id);
+      if(it)grantOrUpgrade(it.id,bestProofInDom(d.id),n+" sealed deed"+(n===1?"":"s")+" in the "+d.n,events)}});
+  /* crown from level */
+  const lv=lvOf(S.xp);
+  if(lv>=3)grantOrUpgrade("crown",lv>=10?"gold":lv>=6?"silver":"bronze","Rank: "+rankOf(lv)+" · LV "+lv,events);
+  /* mantle: all seven domains touched */
+  if(DOMS.every(d=>domDone(d.id)>=1))
+    grantOrUpgrade("mantle",DOMS.every(d=>domDone(d.id)>=3)?"gold":"silver","Every domain holds sealed deeds",events);
+  /* auto-wear anything new so the avatar visibly changes */
+  let wornChanged=false;
+  events.filter(e=>e.t==="item"&&e.fresh).forEach(e=>{
+    const it=IT(e.item);if(it&&!S.worn[it.slot]){S.worn[it.slot]=e.item;wornChanged=true}});
+  if(wornChanged)stampEra("regalia earned");
+}
+function stampEra(note){
+  const wornNames=Object.values(S.worn).map(id=>{const c=ownedItem(id);const it=IT(id);
+    return it?(c?TIERS[c.tier].n.toLowerCase()+" ":"")+it.n:null}).filter(Boolean);
+  S.eras.push({d:today(),worn:wornNames,note:note||""});
+}
+function checkRewards(events){
+  S.rewards.forEach(r=>{
+    if(!r.claimed&&S.xp>=r.xp){r.claimed=today();events.push({t:"reward",text:r.text})}});
+}
+
+/* ------------ XP grant (the ceremony) ------------ */
+function grantXP(pts,lines,fromEl){
+  const lv0=lvOf(S.xp);S.xp+=pts;markFed();
+  const events=[];checkEarnings(events);checkRewards(events);
+  const lv1=lvOf(S.xp);save();
+  /* motes */
+  if(fromEl){for(let i=0;i<Math.min(8,Math.max(2,Math.round(pts/8)));i++)flyMote(fromEl,i*110)}
+  setTimeout(()=>{render();
+    chime(880,.05);chime(1320,.22);
+    let body="<b>+"+pts+" XP</b><br>"+S.xp+" total · LV "+lv1;
+    let list=(lines||[]).map(esc).join("<br>");
+    events.forEach(e=>{
+      if(e.t==="item"){const it=IT(e.item);
+        list+=(list?"<br>":"")+"🜍 <b style='font-size:12px'>"+(e.fresh?"EARNED":"UPGRADED")+"</b> — "+TIERS[e.tier].n+" "+esc(it.n)}
+      if(e.t==="reward")list+=(list?"<br>":"")+"🎁 <b style='font-size:12px'>REWARD RELEASED</b> — "+esc(e.text)+" · claim it in the real";
+    });
+    if(lv1>lv0){list+=(list?"<br>":"")+"♛ <b style='font-size:12px'>LEVEL UP</b> — LV "+lv1+" · "+rankOf(lv1);chime(1568,.4)}
+    sysWin("SEALED INTO THE RECORD",body,list);
+  },700);
+}
+function flyMote(fromEl,dl){try{
+  const r0=fromEl.getBoundingClientRect();
+  const tgt=document.querySelector(".cartouche")||document.querySelector(".lvl");
+  const r1=tgt?tgt.getBoundingClientRect():{left:innerWidth/2,top:90,width:0,height:0};
+  const m=document.createElement("div");m.className="mote";
+  m.style.left=(r0.left+r0.width/2)+"px";m.style.top=r0.top+"px";
+  document.body.appendChild(m);
+  setTimeout(()=>{m.style.transform=`translate(${r1.left+r1.width/2-(r0.left+r0.width/2)}px,${r1.top+r1.height*0.4-r0.top}px) scale(.5)`;
+    m.style.opacity="0";chime(700+Math.random()*500)},30+(dl||0));
+  setTimeout(()=>m.remove(),1300+(dl||0));
+}catch(e){}}
+
+/* ============================================================
+   RENDER
+============================================================ */
+const app=$id("app");
+let view="avatar";      /* avatar | rolodex | closet | eras */
+let domFilter="all";
+let attach=[];let busy=false;
+
+function render(){
+  const lv=lvOf(S.xp),next=xpAt(lv+1),prev=xpAt(lv),
+    pct=Math.min(100,Math.round((S.xp-prev)/Math.max(1,next-prev)*100)),
+    st=streak(),sealed=Object.keys(S.done).length;
+  app.innerHTML=`
+  <div class="top">
+    <span class="wordmark">THE&nbsp;AVATAR</span>
+    <span class="lvl">LV ${lv} · ${rankOf(lv)}<small>${S.xp} XP · ${sealed} sealed${st?" · 🜂 "+st:""}</small></span>
+    <div class="topbtns">
+      <button class="gbtn" id="bIron" title="${S.iron?"Iron Mode is ON — the hard look":"Iron Mode — see the rust, if you choose"}" style="${S.iron?"color:hsl(28 80% 62%);border-color:hsl(28 60% 45% / .7)":""}">⛓<small>iron</small></button>
+      <button class="gbtn" id="bVault" title="The Vault">▦<small>vault</small></button>
+    </div>
+  </div>
+  <div class="xpTrack"><i style="width:${pct}%"></i></div>
+  <div class="tabs">
+    ${[["avatar","AVATAR"],["rolodex","ROLODEX"],["closet","CLOSET"],["eras","ERAS"]].map(([id,n])=>
+      `<button class="tab ${view===id?"on":""}" data-tab="${id}">${n}${id==="rolodex"?` · ${allQuests().filter(q=>!isDone(q)).length}`:id==="closet"?` · ${S.closet.length}`:""}</button>`).join("")}
+  </div>
+  <div class="scroller"><div class="view">${
+    view==="avatar"?avatarView():view==="rolodex"?rolodexView():view==="closet"?closetView():erasView()
+  }</div></div>
+  <div class="desk">
+    <div class="guardian ${S.guardian?"on":""}">${esc(S.guardian)}</div>
+    ${attach.length?`<div class="chips">${attach.map(a=>`<span class="fchip">📄 ${esc(a.name)}<button data-rm="${a.id}">✕</button></span>`).join("")}</div>`:""}
+    <div class="desk-label">◉ THE GUARDIAN — speak a deed, a desire, or a claim · ⇩ insert certified files</div>
+    <div class="desk-row">
+      <label class="cam" title="THE INSERT — deposit certified exports (Mirror, Realm, Counting House) or any proof document">⇩<small>insert</small><input type="file" id="fileIn" multiple accept="image/*,application/pdf,.json,application/json" style="display:none"></label>
+      <textarea class="desk-in" id="deskIn" rows="1" placeholder="${busy?"the Guardian is weighing…":"“I want to…” · “I did…” · “add a quest that…”"}" ${busy?"disabled":""}></textarea>
+      <button class="speak" id="bSpeak" ${busy?"disabled":""}>${busy?"…":"SPEAK"}</button>
+    </div>
+  </div>`;
+  wire();
+}
+
+/* ------------ avatar view ------------ */
+function avatarView(){
+  const lastEra=S.eras[S.eras.length-1];
+  return`<div class="stage">
+    <div class="cartouche" id="stageFig">${figureSVG()}</div>
+    <div class="stage-name">${esc(factName())}</div>
+    <div class="stage-sub">documentation made manifest · a skin that cannot lie</div>
+    <div class="stage-era">${lastEra?`current era since ${lastEra.d} — tap any slot to read or change what is worn`:"Nothing is worn yet. Nothing here can be bought — the only vendor is your life. Open the Rolodex and seal the first deed."}</div>
+    <div class="slotdots">${SLOTS.map(([slot])=>{
+      const wid=S.worn[slot],c=wid?ownedItem(wid):null,it=wid?IT(wid):null;
+      const earnable=ITEMS.find(i=>i.slot===slot);
+      return`<button class="sdot" data-slot="${slot}">
+        <span class="c" style="${c?`border-color:${TIERS[c.tier].b};color:${TIERS[c.tier].b};box-shadow:0 0 10px ${TIERS[c.tier].glow}`:S.iron?"border-color:hsl(28 40% 30%);color:hsl(28 30% 38%)":""}">${it?it.g:S.iron?"⛓":"·"}</span>
+        <small>${slot}</small></button>`}).join("")}
+    </div>
+  </div>`;
+}
+function factName(){
+  try{const m=JSON.parse(localStorage.getItem("koil-mirror-v1")||"{}");
+    const f=(m.facts||{})["entity.pen"]||(m.facts||{})["entity.legal"];
+    if(f&&f.v)return f.v}catch(e){}
+  return "The Walker";
+}
+
+/* ------------ the figure ------------ */
+function tierGrad(id,t){return`<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0%" stop-color="${t.b}"/><stop offset="100%" stop-color="${t.a}"/></linearGradient>`}
+function wornTier(slot){const wid=S.worn[slot];if(!wid)return null;const c=ownedItem(wid);return c?TIERS[c.tier]:null}
+function figureSVG(){
+  const iron=S.iron;
+  const T=slot=>wornTier(slot)||(iron?TIERS.iron:null);
+  const lv=lvOf(S.xp);
+  const aura=Math.min(1,S.xp/1500);
+  /* background scene = deepest domain */
+  let deep=null,deepN=0;DOMS.forEach(d=>{const n=domDone(d.id);if(n>deepN){deepN=n;deep=d}});
+  const defs=Object.entries(TIERS).map(([k,t])=>tierGrad("tg-"+k,t)).join("");
+  const grad=slot=>{const wid=S.worn[slot];if(wid){const c=ownedItem(wid);return"url(#tg-"+(c?c.tier:"bronze")+")"}return iron?"url(#tg-iron)":"none"}
+  const has=slot=>!!S.worn[slot]||iron;
+  const op=slot=>S.worn[slot]?1:iron?0.45:0;
+  return`<svg viewBox="0 0 220 340" style="filter:drop-shadow(0 0 ${(6+aura*20).toFixed(0)}px hsl(45 80% 60% / ${(0.12+aura*0.45).toFixed(2)}))">
+    <defs>${defs}
+      <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(258 30% 36%)"/><stop offset="55%" stop-color="hsl(250 32% 25%)"/>
+        <stop offset="100%" stop-color="hsl(240 34% 16%)"/></linearGradient>
+      <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+        <stop offset="0%" stop-color="hsl(45 80% 60% / ${(aura*0.28).toFixed(2)})"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    </defs>
+    <!-- cartouche frame -->
+    <rect x="6" y="6" width="208" height="328" rx="70" fill="hsl(235 40% 9% / .55)" stroke="hsl(45 45% 45% / .45)" stroke-width="1.2"/>
+    <rect x="11" y="11" width="198" height="318" rx="66" fill="none" stroke="hsl(45 40% 40% / .2)" stroke-width="0.7"/>
+    ${deep?`<text x="110" y="30" text-anchor="middle" font-size="10" opacity="0.8">${deep.g}</text>
+      <text x="110" y="42" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="5.5" letter-spacing="2" fill="hsl(${deep.hue} 45% 62%)">HOUSE OF THE ${deep.n.toUpperCase()}</text>`:""}
+    <circle cx="110" cy="160" r="95" fill="url(#halo)"/>
+    <!-- mantle (behind body) -->
+    <path d="M70 96 C 52 130 50 210 60 262 L82 250 L82 120 Z M150 96 C 168 130 170 210 160 262 L138 250 L138 120 Z"
+      fill="${grad('back')}" opacity="${op('back')*0.85}"/>
+    <!-- body -->
+    <g fill="url(#skin)" stroke="hsl(45 45% 62% / ${(0.22+aura*0.5).toFixed(2)})" stroke-width="1.1">
+      <circle cx="110" cy="62" r="21"/>
+      <path d="M110 84 C 88 87 79 98 78 118 L73 178 C72 184 81 185 82 179 L89 132 L89 208 L80 316 C80 322 93 322 94 316 L106 226 L114 226 L126 316 C127 322 140 322 140 316 L131 208 L131 132 L138 179 C139 185 148 184 147 178 L142 118 C141 98 132 87 110 84 Z"/>
+    </g>
+    <!-- crown -->
+    <path d="M89 44 L94 30 L102 40 L110 26 L118 40 L126 30 L131 44 Z" fill="${grad('crown')}" opacity="${op('crown')}"
+      stroke="hsl(45 60% 70% / .5)" stroke-width="${has('crown')?0.8:0}"/>
+    <!-- lens -->
+    <g opacity="${op('eyes')}">
+      <circle cx="101" cy="60" r="7" fill="none" stroke="${grad('eyes')}" stroke-width="2.4"/>
+      <circle cx="119" cy="60" r="7" fill="none" stroke="${grad('eyes')}" stroke-width="2.4"/>
+      <line x1="108" y1="60" x2="112" y2="60" stroke="${grad('eyes')}" stroke-width="2"/>
+    </g>
+    <!-- chain -->
+    <path d="M92 92 Q110 108 128 92 Q112 116 110 118 Q108 116 92 92" fill="${grad('neck')}" opacity="${op('neck')}"/>
+    <!-- ember -->
+    <circle cx="102" cy="118" r="${has('chest')?6:0}" fill="${grad('chest')}" opacity="${op('chest')}"
+      style="filter:drop-shadow(0 0 6px hsl(335 85% 60% / .8))"/>
+    <!-- gauntlets -->
+    <circle cx="77" cy="181" r="9" fill="${grad('hands')}" opacity="${op('hands')}"/>
+    <circle cx="143" cy="181" r="9" fill="${grad('hands')}" opacity="${op('hands')}"/>
+    <!-- watch -->
+    <rect x="135" y="160" width="13" height="8" rx="3" fill="${grad('wrist')}" opacity="${op('wrist')}"/>
+    <!-- hammer at belt -->
+    <g opacity="${op('belt')}">
+      <rect x="120" y="200" width="4" height="26" rx="2" fill="${grad('belt')}"/>
+      <rect x="112" y="196" width="20" height="8" rx="2.5" fill="${grad('belt')}"/>
+    </g>
+    <!-- boots -->
+    <path d="M78 306 L96 306 L97 322 L74 322 Z" fill="${grad('feet')}" opacity="${op('feet')}"/>
+    <path d="M124 306 L142 306 L146 322 L123 322 Z" fill="${grad('feet')}" opacity="${op('feet')}"/>
+    <!-- third eye -->
+    <circle cx="110" cy="58" r="${(1.2+aura*2).toFixed(1)}" fill="hsl(45 90% 66%)" opacity="${(0.25+aura*0.75).toFixed(2)}"
+      style="filter:drop-shadow(0 0 7px hsl(45 95% 60% / .9))"/>
+  </svg>`;
+}
+
+/* ------------ rolodex view ------------ */
+function rolodexView(){
+  const qs=allQuests().filter(q=>domFilter==="all"||q.dom===domFilter);
+  const open=qs.filter(q=>!isDone(q)),sealed=qs.filter(q=>isDone(q));
+  return`<div class="rolo">
+    <div class="rolo-head"><span>◈ THE ROLODEX — everything a human can do · done once, sealed forever</span>
+      <span>${Object.keys(S.done).length}/${allQuests().length}</span></div>
+    <div class="domrow">
+      <button class="domchip ${domFilter==="all"?"on":""}" data-dom="all" style="${domFilter==="all"?"border-color:hsl(45 55% 45% / .7);color:var(--gild)":""}">ALL</button>
+      ${DOMS.map(d=>`<button class="domchip ${domFilter===d.id?"on":""}" data-dom="${d.id}"
+        style="${domFilter===d.id?`border-color:hsl(${d.hue} 50% 45% / .8);color:hsl(${d.hue} 60% 70%)`:""}">${d.g} ${d.n.toUpperCase()} ${domDone(d.id)}</button>`).join("")}
+    </div>
+    ${open.map(qCard).join("")}
+    ${sealed.length?`<div class="rolo-head" style="margin-top:14px"><span>✓ SEALED — never again, forever yours</span></div>`+sealed.map(qCard).join(""):""}
+    <div class="empty">Speak any desire to the Guardian — it will find the quest, or mint one that has never existed, grade its worth, and name the proof.</div>
+  </div>`;
+}
+function qCard(q){
+  const d=D(q.dom),done=isDone(q),rec=S.done[q.id];
+  return`<div class="qcard ${done?"sealed":""}" data-q="${q.id}">
+    <span class="qglyph" style="border-color:hsl(${d.hue} 45% 40% / .6);background:hsl(${d.hue} 45% 15% / .6)">${d.g}</span>
+    <span style="flex:1;min-width:0"><span class="qname">${esc(q.n)}</span>
+      <span class="qmeta">${done?`sealed ${rec.d} · ${rec.tier}`:`proof: ${esc(q.proof)}${q.minted?" · minted by the Guardian":""}`}</span></span>
+    <span class="qpts">${done?`<span class="sealmark">✓</span>`:`+${q.pts}`}<small>${done?"SEALED":"XP"}</small></span>
+  </div>`;
+}
+
+/* ------------ closet view ------------ */
+function closetView(){
+  if(!S.closet.length)return`<div class="closet"><div class="empty closet-empty">The closet is bare — and that is the truth of this moment. Every item in this world is earned, never bought. Seal deeds in the Rolodex and the gifts arrive here, each with its meaning engraved.</div></div>`;
+  return`<div class="closet">${S.closet.map(c=>{
+    const it=IT(c.item),t=TIERS[c.tier],worn=S.worn[it.slot]===c.item;
+    return`<div class="item" data-item="${c.id}" style="border-color:${t.b}55;box-shadow:0 0 16px ${t.glow}">
+      ${worn?'<span class="worn-tag">WORN</span>':""}
+      ${itemIcon(it,t)}
+      <div class="iname">${it.n}</div>
+      <div class="itier" style="color:${t.b}">${t.n}</div>
+    </div>`}).join("")}</div>`;
+}
+function itemIcon(it,t){
+  return`<svg viewBox="0 0 40 40"><defs><linearGradient id="ig-${it.id}-${t.n}" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="${t.b}"/><stop offset="100%" stop-color="${t.a}"/></linearGradient></defs>
+    <circle cx="20" cy="20" r="17" fill="hsl(235 40% 10%)" stroke="${t.b}66" stroke-width="1"/>
+    <text x="20" y="26" text-anchor="middle" font-size="15" fill="url(#ig-${it.id}-${t.n})">${it.g}</text></svg>`;
+}
+
+/* ------------ eras view ------------ */
+function erasView(){
+  if(!S.eras.length)return`<div class="eras"><div class="empty">No eras yet. The first time regalia is worn — or changed — the timeline begins. Years from now, the Book of You reads these like chapters: what was worn, what was chased, what was won.</div></div>`;
+  return`<div class="eras">${[...S.eras].reverse().map(e=>`
+    <div class="era"><div class="era-date">${e.d}</div>
+      <div class="era-worn">${e.worn.length?esc(e.worn.join(" · ")):"bare — the honest beginning"}</div>
+      ${e.note?`<div class="era-note">${esc(e.note)}</div>`:""}</div>`).join("")}
+  </div>`;
+}
+
+/* ============================================================
+   WIRING
+============================================================ */
+function wire(){
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{view=b.dataset.tab;chime(520);render()});
+  document.querySelectorAll(".domchip").forEach(b=>b.onclick=()=>{domFilter=b.dataset.dom;render()});
+  document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>openQuest(b.dataset.q));
+  document.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>openItem(b.dataset.item));
+  document.querySelectorAll(".sdot").forEach(b=>b.onclick=()=>openSlot(b.dataset.slot));
+  const ta=$id("deskIn");
+  if(ta){ta.oninput=()=>{ta.style.height="auto";ta.style.height=Math.min(ta.scrollHeight,innerHeight*.32)+"px"};
+    ta.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();speak()}}}
+  $id("bSpeak").onclick=speak;
+  $id("fileIn").onchange=onFiles;
+  $id("bIron").onclick=()=>{S.iron=!S.iron;save();chime(S.iron?330:660);render();
+    sysWin(S.iron?"IRON MODE ON":"IRON MODE OFF",S.iron?"the rust is visible now<br>what is not earned shows as chains":"the mirror is gentle again<br>absence, not rust")};
+  $id("bVault").onclick=vault;
+  document.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{attach=attach.filter(a=>a.id!==b.dataset.rm);render()});
+}
+
+/* ------------ quest sheet ------------ */
+function openQuest(qid){
+  const q=allQuests().find(x=>x.id===qid);if(!q)return;
+  const d=D(q.dom),done=isDone(q),rec=S.done[q.id];
+  sheet(`
+    <div class="sh-title"><span class="qglyph" style="border-color:hsl(${d.hue} 45% 40% / .7);background:hsl(${d.hue} 45% 15% / .6)">${d.g}</span>
+      <span style="flex:1">${esc(q.n)}</span><button class="xbtn" data-x>✕</button></div>
+    <div class="sh-sub">${d.n} · +${q.pts} XP · proof asked: ${esc(q.proof)}</div>
+    ${done?`<div class="plaque">✓ <b>SEALED ${rec.d} · ${rec.tier.toUpperCase()}</b><br>${esc(rec.note||"")}<br><br>Done once, sealed forever. This deed is yours across all time — it can never be repeated for points, only remembered.</div>`
+    :`<div class="plaque">The Witness Law of this house: <b>your word earns silver — papers earn gold.</b> Speak what happened, or attach the proof, and the seal is struck.</div>
+    <div class="actrow">
+      <button class="abtn sil" data-word>⚖ on my word — silver</button>
+      <label class="abtn gold" style="cursor:pointer">⇩ with papers — gold<input type="file" data-paper accept="image/*,application/pdf" style="display:none"></label>
+      ${q.minted?`<button class="abtn ghost" data-delq>remove</button>`:""}
+    </div>`}
+  `,sh=>{
+    sh.querySelector("[data-x]").onclick=()=>sh.remove();
+    const w=sh.querySelector("[data-word]");
+    if(w)w.onclick=()=>{sh.remove();
+      modal("ON YOUR WORD — WHAT HAPPENED?",[["p","what happened, past tense",""]],vals=>{
+        if(!vals.p.trim())return;sealQuest(q,"silver",vals.p.trim())})};
+    const p=sh.querySelector("[data-paper]");
+    if(p)p.onchange=ev=>{const f=ev.target.files&&ev.target.files[0];sh.remove();
+      sealQuest(q,"gold","papers: "+(f?f.name:"attached"))};
+    const dq=sh.querySelector("[data-delq]");
+    if(dq)dq.onclick=()=>{S.custom=S.custom.filter(x=>x.id!==q.id);save();sh.remove();render()};
+  });
+}
+function sealQuest(q,tier,note){
+  S.done[q.id]={d:today(),tier,note};
+  const src=$id("bSpeak")||document.body;
+  grantXP(q.pts,["✓ "+q.n+" — sealed "+tier],src);
+  chime(tier==="gold"?1046:784,.02);
+}
+
+/* ------------ item / slot sheets ------------ */
+function openItem(cid){
+  const c=S.closet.find(x=>x.id===cid);if(!c)return;
+  const it=IT(c.item),t=TIERS[c.tier],worn=S.worn[it.slot]===c.item;
+  sheet(`
+    <div class="sh-title">${itemIcon(it,t)}<span style="flex:1">${it.n}</span><button class="xbtn" data-x>✕</button></div>
+    <div class="sh-sub" style="color:${t.b}">${t.n} · slot: ${it.slot} · earned ${c.earned}${c.upgraded?" · raised "+c.upgraded:""}</div>
+    <div class="plaque">${esc(it.m)}<br><br><b>How this one was earned:</b> ${esc(c.why||"witnessed deeds")}.
+      ${c.tier!=="gold"?"<br><br>To raise it: seal deeds in this domain <b>with papers</b> — gold needs proof.":""}</div>
+    <div class="actrow">
+      <button class="abtn ${worn?"ghost":"gold"}" data-wear>${worn?"take it off":"wear it"}</button>
+    </div>
+  `,sh=>{
+    sh.querySelector("[data-x]").onclick=()=>sh.remove();
+    sh.querySelector("[data-wear]").onclick=()=>{
+      if(worn)delete S.worn[it.slot];else S.worn[it.slot]=c.item;
+      stampEra(worn?"took off "+it.n:"began wearing "+it.n);
+      save();sh.remove();chime(660);render()};
+  });
+}
+function openSlot(slot){
+  const wid=S.worn[slot];
+  if(wid){const c=ownedItem(wid);if(c){openItem(c.id);return}}
+  const earnable=ITEMS.filter(i=>i.slot===slot);
+  const it=earnable[0];
+  const ownedForSlot=S.closet.filter(c=>IT(c.item).slot===slot);
+  sheet(`
+    <div class="sh-title"><span style="font-size:22px">${it?it.g:"·"}</span><span style="flex:1">${slot.toUpperCase()} — ${it?it.n:"empty"}</span><button class="xbtn" data-x>✕</button></div>
+    <div class="sh-sub">${ownedForSlot.length?"in the closet — choose below":"not yet earned"}</div>
+    ${ownedForSlot.length?ownedForSlot.map(c=>{const t=TIERS[c.tier];
+      return`<div class="qcard" data-wearid="${c.id}">${itemIcon(IT(c.item),t)}
+        <span style="flex:1"><span class="qname">${IT(c.item).n}</span><span class="qmeta" style="color:${t.b}">${t.n}</span></span></div>`}).join("")
+    :`<div class="plaque">${it?esc(it.m):""}<br><br><b>How it is earned:</b> ${it&&it.dom?"seal any deed in the "+D(it.dom).n+" — your word makes it silver, papers make it gold.":it&&it.id==="crown"?"the crown condenses at LV 3, silvers at LV 6, golds at LV 10 — no shortcut exists.":"seal at least one deed in all seven domains."}</div>`}
+  `,sh=>{
+    sh.querySelector("[data-x]").onclick=()=>sh.remove();
+    sh.querySelectorAll("[data-wearid]").forEach(b=>b.onclick=()=>{
+      const c=S.closet.find(x=>x.id===b.dataset.wearid);
+      if(c){S.worn[slot]=c.item;stampEra("began wearing "+IT(c.item).n);save();sh.remove();chime(660);render()}});
+  });
+}
+
+/* ------------ generic sheet + modal + sys ------------ */
+function sheet(html,onMount){
+  const w=document.createElement("div");w.className="sheet-wrap";
+  w.innerHTML=`<div class="sheet">${html}</div>`;
+  w.onclick=e=>{if(e.target===w)w.remove()};
+  document.body.appendChild(w);onMount&&onMount(w);return w;
+}
+function modal(lbl,fields,onOK,note){
+  const m=document.createElement("div");m.className="modal";
+  m.innerHTML=`<div class="modal-card"><div class="modal-lbl">${lbl}</div>
+    ${note?`<div class="modal-note">${note}</div>`:""}
+    ${fields.map(([id,ph,v])=>`<input class="modal-in" id="m-${id}" placeholder="${ph}" value="${esc(v)}">`).join("")}
+    <div class="actrow" style="justify-content:flex-end"><button class="abtn ghost" data-no>cancel</button><button class="abtn gold" data-ok>seal it</button></div></div>`;
+  document.body.appendChild(m);m.querySelector(".modal-in").focus();
+  m.onclick=e=>{if(e.target===m)m.remove()};
+  m.querySelector("[data-no]").onclick=()=>m.remove();
+  const ok=()=>{const vals={};fields.forEach(([id])=>vals[id]=m.querySelector("#m-"+id).value);m.remove();onOK(vals)};
+  m.querySelector("[data-ok]").onclick=ok;
+  m.querySelectorAll(".modal-in").forEach(i=>i.onkeydown=e=>{if(e.key==="Enter")ok()});
+}
+function sysWin(head,bodyHTML,listHTML){
+  const w=document.createElement("div");w.className="sys-wrap";
+  w.innerHTML=`<div class="sys"><div class="sys-h">﹝ THE GUARDIAN ﹞</div>
+    <div class="sys-b">${head}<br>${bodyHTML||""}</div>
+    ${listHTML?`<div class="sys-list">${listHTML}</div>`:""}
+    <div class="sys-hint">tap to close</div></div>`;
+  w.onclick=()=>w.remove();document.body.appendChild(w);
+  if(!listHTML)setTimeout(()=>{if(w.parentNode)w.remove()},3400);
+}
+
+/* ============================================================
+   THE INSERT — certified files from sister instruments
+============================================================ */
+function fhash(txt){return txt.length+":"+txt.slice(0,80)}
+/* walks ANY koil export shape and counts its recorded items —
+   works no matter how a sister instrument arranges its rooms */
+function countEntries(node,depth){
+  depth=depth||0;if(depth>7||node==null)return 0;
+  let n=0;
+  if(Array.isArray(node)){
+    node.forEach(x=>{if(x&&typeof x==="object"&&!Array.isArray(x))n+=1;n+=countEntries(x,depth+1)});
+    return n;
+  }
+  if(typeof node==="object"){for(const k in node)n+=countEntries(node[k],depth+1)}
+  return n;
+}
+async function onFiles(ev){
+  const files=Array.from(ev.target.files||[]);ev.target.value="";
+  for(const f of files){
+    if(f.type==="application/json"||f.name.endsWith(".json")){
+      try{
+        const txt=await f.text();const h=fhash(txt);
+        if(S.inserts.some(i=>i.h===h)){sysWin("ALREADY REDEEMED","this seal was cashed before<br>each certificate pays once");continue}
+        const E=JSON.parse(txt);let xp=0,what="";
+        if(E.koil_mirror===1&&E.data){
+          const facts=Object.keys(E.data.facts||{}).length;
+          let li=0;Object.values(E.data.ledgers||{}).forEach(a=>li+=(a||[]).length);
+          xp=Math.min(300,(facts+li)*2);what="Mirror export — "+facts+" facts · "+li+" shelf items";
+        }else if(E.koil_ledger===1||E.koil_ledger){
+          const n=countEntries(E.data!==undefined?E.data:E);
+          xp=Math.min(400,Math.max(20,n*3));
+          what="Certified ledger — "+(E.domain||E.from||"realm")+" · "+n+" recorded entries";
+        }else if(E.koil===1||E.koil_realm||E.koil_treasury){
+          const n=countEntries(E.data!==undefined?E.data:E);
+          xp=n>5?Math.min(400,Math.max(40,n*3)):40;
+          what="Certified export — "+(E.domain||E.from||"a sister instrument")+(n?" · "+n+" entries":"");
+        }else{sysWin("NO SEAL FOUND","this file carries no KOIL stamp<br>only certified exports redeem here");continue}
+        S.inserts.push({h,name:f.name,d:today(),xp});
+        grantXP(xp,["⇩ CERTIFIED INSERT — "+what],$id("bSpeak")||document.body);
+      }catch(e){sysWin("UNREADABLE","the file could not be opened")}
+    }else if(f.type==="application/pdf"){
+      if(f.size>4.5*1024*1024){alert(`"${f.name}" is too heavy (over ~4.5MB).`);continue}
+      const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(f)});
+      attach.push({id:uid(),kind:"pdf",media_type:f.type,data:b64,name:f.name});
+    }else if(f.type.startsWith("image/")){
+      try{
+        const url=URL.createObjectURL(f);
+        const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+        const sc=Math.min(1,1280/Math.max(img.width,img.height));
+        const c=document.createElement("canvas");c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+        c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+        attach.push({id:uid(),kind:"img",media_type:"image/jpeg",data:c.toDataURL("image/jpeg",.82).split(",")[1],name:f.name||"proof"});
+      }catch(e){}
+    }
+  }
+  render();
+}
+
+/* ============================================================
+   THE GUARDIAN — mint quests, weigh claims, release rewards
+============================================================ */
+function questBrief(){
+  return allQuests().map(q=>`${q.id}|${q.dom}|${q.n}|+${q.pts}${isDone(q)?"|SEALED":""}`).join("\n");
+}
+async function speak(){
+  const ta=$id("deskIn");const text=(ta?ta.value.trim():"")||(attach.length?"Weigh these documents as proof and tell me what they seal.":"");
+  if(!text||busy)return;
+  const key=localStorage.getItem("koil_api_key");
+  if(!key){sysWin("THE FLAME IS UNLIT","open ▦ the Vault and light it<br>the Guardian sleeps until then");return}
+  busy=true;const held=attach;attach=[];render();
+  const sys=`You are THE GUARDIAN of the Avatar and the Rolodex — a KOIL instrument where a human's real-world actions become a ceremonial avatar and an ever-growing catalog of everything a human can do. Today is ${today()}. Iron Mode is ${S.iron?"ON — speak with hard, plain directness; name the rust; never insult the person, only sharpen the gap":"OFF — speak warm and direct"}.
+THE LAWS OF THIS HOUSE:
+1. Nothing is sealed unless the person attests it happened in reality, in their CURRENT message, past tense — or their documents show it. Plans and intentions seal nothing.
+2. Word = silver. Papers (attached documents/photos that show it) = gold.
+3. A quest sealed once is sealed forever — never re-award it.
+4. When the person speaks a DESIRE ("I want to..."), find matching open quests OR mint new ones — concrete, real-world, one-time completable, with an honest point value: trivial 2-8, easy 8-15, real effort 15-30, hard 30-60, rare/brave 60-120. Name the exact proof required.
+5. When they ask to ADD a quest, mint it as spoken.
+6. When they PRE-COMMIT a reward ("when I reach X XP I claim Y"), record it — you hold the promise and release it at the threshold.
+7. Options that spark imagination, never A-through-D cages. One precise question at most.
+THE OPEN CATALOG (id|domain|name|points|status):
+${questBrief()}
+Current XP ${S.xp} · LV ${lvOf(S.xp)} ${rankOf(lvOf(S.xp))} · domains: ${DOMS.map(d=>d.id).join(", ")}.
+Respond ONLY JSON, no fences, \\n inside strings:
+{"say":"the Guardian's voice — brief, vivid",
+ "seal":[{"q":"<existing quest id>","tier":"silver|gold","note":"<what happened, short>"}],
+ "mint":[{"dom":"<domain id>","n":"<concrete quest>","pts":12,"proof":"<what proves it>"}],
+ "reward":[{"xp":500,"text":"<the promised prize>"}]}
+Empty arrays are fine. Seal ONLY quests whose completion the person just attested or the documents prove.`;
+  const content=[];
+  for(const a of held)content.push(a.kind==="pdf"
+    ?{type:"document",source:{type:"base64",media_type:"application/pdf",data:a.data}}
+    :{type:"image",source:{type:"base64",media_type:a.media_type,data:a.data}});
+  content.push({type:"text",text:sys+"\n\n——— the person's words ———\n"+text});
+  let out=null;
+  try{
+    const rsp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2048,messages:[{role:"user",content}]})});
+    if(!rsp.ok)throw new Error("door refused ("+rsp.status+")");
+    const data=await rsp.json();if(data.error)throw new Error(data.error.message||"api error");
+    const raw=(data.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").replace(/```json|```/gi,"").trim();
+    const a0=raw.indexOf("{"),a1=raw.lastIndexOf("}");
+    out=JSON.parse(a0!==-1?raw.slice(a0,a1+1):raw);
+  }catch(e){busy=false;S.guardian="The weighing broke — "+String(e.message||e).slice(0,110)+". Speak again.";save();render();return}
+  applyGuardian(out,held.length>0);
+}
+function applyGuardian(out,hadDocs){
+  const seals=Array.isArray(out.seal)?out.seal:[];
+  const mints=Array.isArray(out.mint)?out.mint:[];
+  const rewards=Array.isArray(out.reward)?out.reward:[];
+  let pts=0;const lines=[];
+  for(const s of seals){
+    const q=allQuests().find(x=>x.id===s.q);
+    if(!q||isDone(q))continue;
+    const tier=(s.tier==="gold"&&hadDocs)?"gold":s.tier==="gold"?"silver":(s.tier==="silver"?"silver":"silver");
+    S.done[q.id]={d:today(),tier,note:String(s.note||"")};
+    pts+=q.pts;lines.push("✓ "+q.n+" — sealed "+tier);
+  }
+  for(const m of mints){
+    if(!m||!m.n)continue;
+    const dom=DOMS.some(d=>d.id===m.dom)?m.dom:"road";
+    if(allQuests().some(q=>q.n.toLowerCase()===String(m.n).toLowerCase()))continue;
+    S.custom.push({id:"x"+uid(),dom,n:String(m.n),pts:Math.max(2,Math.min(120,Math.round(m.pts||10))),proof:String(m.proof||"your word or papers"),minted:true});
+    lines.push("◈ MINTED — "+m.n+" (+"+Math.max(2,Math.min(120,Math.round(m.pts||10)))+")");
+  }
+  for(const r of rewards){
+    if(!r||!r.text)continue;
+    S.rewards.push({id:uid(),xp:Math.max(1,Math.round(r.xp||100)),text:String(r.text),claimed:null});
+    lines.push("🎁 PROMISE HELD — at "+Math.round(r.xp)+" XP: "+r.text);
+  }
+  S.guardian=out.say||"";busy=false;
+  const ta=$id("deskIn");if(ta)ta.value="";
+  if(pts>0){grantXP(pts,lines,$id("bSpeak")||document.body)}
+  else{save();render();
+    if(lines.length){chime(700,.05);sysWin("THE GUARDIAN SPEAKS","",lines.map(esc).join("<br>"))}}
+}
+
+/* ============================================================
+   VAULT
+============================================================ */
+function vault(){
+  const hasKey=!!localStorage.getItem("koil_api_key");
+  const m=document.createElement("div");m.className="modal";
+  m.innerHTML=`<div class="modal-card">
+    <div class="modal-lbl">▦ THE VAULT — the record is yours</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="abtn ghost" data-exp style="text-align:left">⇩ export the record (json)</button>
+      <label class="abtn ghost" style="text-align:left;cursor:pointer">⇧ restore the record<input type="file" data-imp accept=".json,application/json" style="display:none"></label>
+      <button class="abtn ghost" data-rw style="text-align:left">🎁 pre-commit a reward — the Guardian holds it</button>
+      <div style="border-top:1px solid var(--line);margin:4px 0"></div>
+      <div class="modal-lbl" style="margin-bottom:2px">🜂 THE FLAME — ${hasKey?"lit":"unlit — the Guardian sleeps"}</div>
+      <input class="modal-in" data-key type="password" placeholder="sk-ant-..." autocapitalize="none" style="margin-bottom:0">
+      <div style="display:flex;gap:8px">
+        <button class="abtn gold" data-light style="flex:1">${hasKey?"change the flame":"light the flame"}</button>
+        ${hasKey?'<button class="abtn ghost" data-quench>quench</button>':""}
+      </div>
+      <div style="border-top:1px solid var(--line);margin:4px 0"></div>
+      <button class="abtn ghost" data-burn style="text-align:left;border-color:#8a3b3b;color:#d98c8c">burn the record</button>
+    </div>
+    <div class="actrow" style="justify-content:flex-end"><button class="abtn ghost" data-x>close</button></div>
+  </div>`;
+  document.body.appendChild(m);
+  m.onclick=e=>{if(e.target===m)m.remove()};
+  m.querySelector("[data-x]").onclick=()=>m.remove();
+  m.querySelector("[data-exp]").onclick=()=>{
+    const b=new Blob([JSON.stringify({koil_avatar:1,exported:new Date().toISOString(),data:S},null,2)],{type:"application/json"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="koil-avatar-"+today()+".json";a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),3000)};
+  m.querySelector("[data-imp]").onchange=ev=>{
+    const f=ev.target.files&&ev.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{try{const E=JSON.parse(r.result);
+      if(E&&E.koil_avatar===1&&E.data){if(confirm("Restore the record from this file? Everything now will be replaced.")){S=E.data;load2();save();m.remove();render();sysWin("THE RECORD REMEMBERS","everything is restored")}}
+      else alert("That file carries no avatar seal.")}catch(e){alert("Unreadable.")}};
+    r.readAsText(f)};
+  m.querySelector("[data-rw]").onclick=()=>{m.remove();
+    modal("PRE-COMMIT A REWARD",[["x","XP threshold (e.g. 500)",""],["t","the prize you will claim",""]],vals=>{
+      const x=parseInt(vals.x,10);if(!x||!vals.t.trim())return;
+      S.rewards.push({id:uid(),xp:x,text:vals.t.trim(),claimed:null});save();
+      sysWin("PROMISE HELD","at <b>"+x+"</b> XP<br>the Guardian releases it")},
+      "The reward hits harder when a witness hands it to you. Name it now — the Guardian holds the promise and releases it at the threshold.")};
+  m.querySelector("[data-light]").onclick=()=>{
+    const k=m.querySelector("[data-key]").value.trim();
+    if(!k.startsWith("sk-"))return;
+    localStorage.setItem("koil_api_key",k);m.remove();sysWin("THE FLAME IS LIT","the Guardian wakes")};
+  const q=m.querySelector("[data-quench]");if(q)q.onclick=()=>{localStorage.removeItem("koil_api_key");m.remove()};
+  m.querySelector("[data-burn]").onclick=()=>{
+    if(confirm("Burn the entire record — avatar, closet, seals, eras? It cannot be recovered. Leaving costs nothing; this is your right.")){
+      S=blank();save();m.remove();render()}};
+}
+function load2(){["done","worn"].forEach(k=>S[k]=S[k]||{});
+  ["custom","closet","eras","rewards","inserts","fedDays"].forEach(k=>S[k]=S[k]||[]);S.xp=S.xp||0}
+
+/* ============================================================
+   BACKDROP + BOOT
+============================================================ */
+(function(){
+  const cv=$id("bg"),cx=cv.getContext("2d"),dpr=Math.min(2,devicePixelRatio||1);
+  let W,Hh;const rs=()=>{W=innerWidth;Hh=innerHeight;cv.width=W*dpr;cv.height=Hh*dpr;cx.setTransform(dpr,0,0,dpr,0,0)};
+  rs();addEventListener("resize",rs);
+  const dust=Array.from({length:110},()=>({x:Math.random(),y:Math.random(),s:.3+Math.random()*1.6,sp:.001+Math.random()*.005,o:.15+Math.random()*.5,tw:Math.random()*6.28}));
+  let last=performance.now();
+  (function loop(t){
+    const dt=Math.min(.05,(t-last)/1000);last=t;
+    cx.clearRect(0,0,W,Hh);
+    const g=cx.createRadialGradient(W/2,Hh*.12,0,W/2,Hh*.12,Math.max(W,Hh)*1.1);
+    g.addColorStop(0,"#131834");g.addColorStop(.55,"#0B0E1E");g.addColorStop(1,"#070912");
+    cx.fillStyle=g;cx.fillRect(0,0,W,Hh);
+    cx.globalCompositeOperation="lighter";
+    const g2=cx.createRadialGradient(W/2,Hh*.34,0,W/2,Hh*.34,Math.max(W,Hh)*.5);
+    g2.addColorStop(0,"hsla(45,55%,42%,.05)");g2.addColorStop(1,"transparent");
+    cx.fillStyle=g2;cx.fillRect(0,0,W,Hh);
+    dust.forEach(p=>{p.y-=p.sp*dt*22;if(p.y<-.02)p.y=1.02;
+      const o=p.o*(.55+.45*Math.sin(t/1000*1.1+p.tw));
+      cx.fillStyle=`rgba(232,226,210,${o})`;cx.beginPath();cx.arc(p.x*W,p.y*Hh,p.s,0,6.29);cx.fill()});
+    cx.globalCompositeOperation="source-over";
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+
+load();
+(function boot(){
+  const v=document.createElement("div");v.className="veil";
+  v.innerHTML=`<div class="veil-eye">🜍</div>
+    <div class="veil-title">THE&nbsp;AVATAR</div>
+    <div class="veil-sub">a skin that cannot lie — documentation made manifest</div>
+    <div class="veil-hint">touch to become</div>`;
+  document.body.appendChild(v);
+  v.onpointerdown=()=>{v.classList.add("leave");chime(660);chime(990,.12);setTimeout(()=>v.remove(),1000)};
+  render();
+})();
+</script>
+</body>
+</html>
