@@ -166,7 +166,8 @@ nav{
   display:grid;grid-template-columns:repeat(6,1fr);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-nav button{
+nav{padding-left:2px;padding-right:2px}
+nav button{font-size:8.5px;
   height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   color:var(--quiet);font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;
 }
@@ -828,6 +829,30 @@ h2.sec{margin-top:30px}
 .dbill .dbx{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);color:var(--muted)}
 
 .segwrap{flex-wrap:wrap}.segwrap button{flex:0 0 auto;font-size:11px;padding:8px 11px}
+
+/* counsel */
+.brief{border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:10px;background:rgba(255,255,255,.013)}
+.brief p{font-size:14.5px;line-height:1.66;margin:0 0 13px;color:var(--fg)}
+.brief p:last-child{margin-bottom:0}
+.brief .bnum{font-family:var(--mono);color:var(--gold);letter-spacing:-.02em}
+.wtoggle{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;margin-bottom:7px;background:rgba(255,255,255,.012)}
+.wtoggle.off{opacity:.55}
+.wtoggle .wn{flex:1;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wtoggle .wa{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.wtoggle .sw{flex:0 0 44px;height:26px;border-radius:13px;border:1px solid var(--line);background:var(--line);position:relative;transition:background .2s}
+.wtoggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#8a7f74;transition:transform .2s,background .2s}
+.wtoggle.on .sw{background:rgba(216,180,106,.35)}
+.wtoggle.on .sw::after{transform:translateX(18px);background:var(--gold)}
+.wres{border:1px solid rgba(216,180,106,.3);border-radius:14px;padding:15px;margin:12px 0;background:rgba(216,180,106,.045)}
+.wres .wk{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-dim)}
+.wres .wv{font-family:var(--mono);font-size:24px;margin-top:4px;color:var(--gold)}
+.wres .wl{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.5}
+.mcard{border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,.012)}
+.mcard .mt{font-size:15px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.mcard .mt .mg{color:var(--gold)}
+.mcard .mb{font-size:13px;color:var(--muted);line-height:1.6;margin-top:9px;display:none}
+.mcard.open .mb{display:block}
+
 </style>
 </head>
 <body>
@@ -975,6 +1000,20 @@ h2.sec{margin-top:30px}
 </section>
 
 <!-- ══════════════ WITNESS ══════════════ -->
+<section class="panel" id="p-counsel">
+  <h2 class="sec">Across the table</h2>
+  <div id="briefWrap"></div>
+
+  <h2 class="sec" data-teach="whatif">What if… <span class="tally num">a sandbox — nothing here touches the record</span></h2>
+  <div id="whatifWrap"></div>
+
+  <h2 class="sec">Plan a journey</h2>
+  <div id="journeyWrap"></div>
+
+  <h2 class="sec">What's missing, and why it matters</h2>
+  <div id="missingWrap"></div>
+</section>
+
 <section class="panel" id="p-witness">
   <h2 class="sec">Vows</h2>
   <div id="listVows"></div>
@@ -1045,6 +1084,7 @@ h2.sec{margin-top:30px}
   <button data-go="bills"><span class="g">☰</span>Bills</button>
   <button data-go="hold"><span class="g">◈</span>Hold</button>
   <button data-go="plan"><span class="g">◇</span>Plan</button>
+  <button data-go="counsel"><span class="g">❖</span>Counsel</button>
   <button data-go="witness"><span class="g">✦</span>Witness</button>
   <button data-go="ledger"><span class="g">⎘</span>Ledger</button>
 </nav>
@@ -1101,7 +1141,7 @@ h2.sec{margin-top:30px}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.23";
+const BUILD = "2026-08-08.24";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1647,6 +1687,7 @@ function render(){
   step("today",renderToday);
   step("bills",renderBills);
   step("rooms",renderDomains);
+  step("counsel",renderCounsel);
   step("hold",renderHold);
   step("plan",renderPlan);
   step("schedule",renderSchedule);
@@ -3498,6 +3539,9 @@ const TEACH={
   audit:{t:"The audit",
     kid:"Fourteen questions a money-doctor would ask, to find the holes before they become floods.",
     adult:"An advisor intake: insurance, match, taxes, credit, cover. Findings rank by severity and only ever come from what you stated — unanswered stays unanswered, never assumed."},
+  whatif:{t:"What if…",
+    kid:"A pretend-room. Flip a bill off and see what the world looks like without it — how much money comes back, how much faster a debt dies. Nothing real changes until you say so.",
+    adult:"A sandbox over your real numbers: toggle any bill, add hypothetical income, and watch the gap, the yearly total, and the top debt's death date recompute live. It never writes to the record — when a cut is real, cull it through the bar or the editor."},
   rooms:{t:"The rooms of your life",
     kid:"Every bill feeds one room of your life — where you sleep, how you move, what you eat, who you talk to. The bars show which rooms eat the most. A room that eats too much can be put on a diet.",
     adult:"Bills grouped by life domain, ranked by monthly cost, with the one-check test on top: survival must fit inside a single paycheck, or the month has no building material. Tap a room to open it; tap a bill to move, shrink, or cull it. Guessed placements announce themselves until you confirm them."},
@@ -3853,6 +3897,186 @@ function confidence(){
   const got=checks.reduce((s,c)=>s+Math.min(c.got,c.of),0), of=checks.reduce((s,c)=>s+c.of,0);
   return {checks, pct: of? Math.round(got/of*100):0};
 }
+
+/* ═══════════════════════════════════════════════════════════
+   COUNSEL — the chair across the table
+   Four instruments, all local, all instant, all drawn from the
+   real record. The Guardian's voice is one tap away everywhere,
+   but nothing here waits on a network: the person's own numbers
+   do the talking.
+   ═══════════════════════════════════════════════════════════ */
+function monthsCover(){ const b=billsMonthly(); return b>0? heldTotal()/b : null; }
+
+/* ── 1. THE BRIEF: where you stand in the current world ── */
+function renderBrief(){
+  const el=$("briefWrap"); if(!el) return;
+  const held=heldTotal(), owed=owedThisMonth(), nw=netWorth();
+  const hasInc=deep().income.length>0;
+  const net=hasInc?netMonthly():0, gap=hasInc?theGap():null;
+  const cover=monthsCover(), bleed=bleedPerMonth();
+  const ord=killOrder().filter(d=>d.apr>0);
+  const who=deep().who?esc(deep().who):"friend";
+  const F=auditFindings(), urgent=F.filter(f=>f.sev===2);
+  const P=[];
+  P.push(`Sit down${deep().who?", "+who:""}. Here's where you stand, plainly.`);
+  P.push(`You hold <span class="bnum">${money(held)}</span>. This month still asks for <span class="bnum">${money(owed)}</span>. Your net position is <span class="bnum">${money(nw)}</span> — ${nw>=0?"you own more than you owe, which puts you ahead of roughly half the country":"you're standing in a hole, which is a location, not a verdict. Holes fill in one order: stop the bleed, then shovel"}.`);
+  if(hasInc&&gap!==null){
+    P.push(gap>0
+      ? `Your gap — what comes in minus what must go out — is <span class="bnum">${money(gap)}</span> a month. That strip of money is the only material wealth is ever built from. Everything I'll ever advise is just a decision about where it goes.`
+      : `Right now more leaves than arrives — the gap is <span class="bnum">${money(gap)}</span>. Until that closes, nothing else on this page matters. The two levers: what moves out of the Chosen rooms, and what moves in.`);
+  } else P.push(`Your income isn't stated yet, so I can't compute your gap — and the gap is the number everything else depends on. That's the first thing to fix.`);
+  if(cover!==null) P.push(`If income stopped tomorrow, you'd last about <span class="bnum">${(Math.round(cover*10)/10)} month${cover>=1.95?"s":""}</span>. The world you live in prices security at three months minimum. ${cover<1?"You're inside the danger band — this outranks every other goal, including debt.":cover<3?"Not naked, not covered. Building this beats investing, every time, at this stage.":"That buffer is real. It changes what you're allowed to attempt."}`);
+  if(bleed>0) P.push(`Interest takes <span class="bnum">${money(bleed)}</span> from you every month — ${money(bleed*12)} a year, buying nothing. ${ord.length?esc(ord[0].a.name)+" at "+ord[0].apr+"% is where the bleeding is worst, and where the first tourniquet goes.":""}`);
+  if(urgent.length) P.push(`The audit found <span class="bnum">${urgent.length} urgent thing${urgent.length===1?"":"s"}</span>: ${urgent.map(f=>esc(f.title.toLowerCase())).join("; ")}. They're ranked on the Plan page.`);
+  P.push(`That's the honest picture. Ask me anything about it — the bar below is always open, and I answer from these numbers, not from a pamphlet.`);
+  el.innerHTML=`<div class="brief">${P.map(t=>`<p>${t}</p>`).join("")}</div>
+    <button class="btn solid" id="btnSit">Sit with the Guardian — talk it through</button>`;
+  $("btnSit").onclick=()=>{ openGuardian(); };
+}
+
+/* ── 2. WHAT IF: the sandbox bench ── */
+let wOff=new Set(), wExtra=0;
+function renderWhatIf(){
+  const el=$("whatifWrap"); if(!el) return;
+  const cands=fin.accounts.filter(a=>isDebt(a)&&amountDue(a)>0);
+  if(!cands.length){ el.innerHTML=`<div class="empty">State some bills and this bench fills with levers.</div>`; return; }
+  const savedBills=cands.filter(a=>wOff.has(a.id)).reduce((s,a)=>s+amountDue(a),0);
+  const savedMo=savedBills+wExtra;
+  const hasInc=deep().income.length>0;
+  const gap=hasInc?theGap():null;
+  const ord=killOrder().filter(d=>d.apr>0);
+  let impact="";
+  if(savedMo>0){
+    const L=lifeSpan(savedMo);
+    let debtLine="";
+    if(ord.length){
+      const t=ord[0];
+      const base=payoff(t.bal,t.apr,Number(t.a.min)||0);
+      const plus=payoff(t.bal,t.apr,(Number(t.a.min)||0)+savedMo);
+      if(!base.never&&!plus.never&&base.months>plus.months)
+        debtLine=`Aimed at ${esc(t.a.name)}, it dies <b>${base.months-plus.months} months sooner</b> and ${money(base.interest-plus.interest)} of interest never leaves you.`;
+      else if(base.never&&!plus.never)
+        debtLine=`Aimed at ${esc(t.a.name)}: right now that debt <b>never dies</b> at its minimum — with this, it dies in ${plus.months} months.`;
+    }
+    impact=`<div class="wres">
+      <div class="wk">Freed every month</div><div class="wv">${money(savedMo)}</div>
+      <div class="wl">${money(savedMo*12)} a year${L?" · ≈ "+esc(L)+" of your life, handed back":""}${gap!==null?`<br>Your gap goes from ${money(gap)} to <b>${money(gap+savedMo)}</b>.`:""}${debtLine?"<br>"+debtLine:""}</div>
+    </div>`;
+  }
+  el.innerHTML=`
+    ${impact}
+    <div class="field"><label>And if extra money came in, monthly</label>
+      <input id="wInc" inputmode="decimal" placeholder="0" value="${wExtra||""}"></div>
+    ${cands.sort((a,b)=>amountDue(b)-amountDue(a)).map(a=>{
+      const off=wOff.has(a.id);
+      const surv=tierOf(a)==="survival";
+      return `<div class="wtoggle ${off?"on":""} ${surv&&!off?"":""}" data-id="${esc(a.id)}">
+        <span class="wn">${esc(a.name)}${surv?' <span style="color:var(--quiet);font-size:10px">· survival</span>':""}</span>
+        <span class="wa">${money(amountDue(a))}/mo</span>
+        <span class="sw"></span>
+      </div>`;}).join("")}
+    <div class="note">Flip a bill to see the world without it. This bench writes nothing — when a cut is real, tell the bar: <i>"cull Disney Plus"</i>.</div>`;
+  el.querySelectorAll(".wtoggle").forEach(t=>t.onclick=()=>{
+    const id=t.dataset.id;
+    wOff.has(id)?wOff.delete(id):wOff.add(id);
+    buzz(8); renderWhatIf();
+  });
+  const wi=$("wInc");
+  wi.oninput=()=>{ wExtra=Number(String(wi.value).replace(/[^0-9.]/g,""))||0; renderWhatIf(); const el2=$("wInc"); el2.focus(); const v=el2.value; el2.setSelectionRange&&el2.setSelectionRange(v.length,v.length); };
+}
+
+/* ── 3. THE JOURNEY: a plan for anything with a date ── */
+let jState={name:"",cost:0,weeks:4};
+function renderJourney(){
+  const el=$("journeyWrap"); if(!el) return;
+  const hasInc=deep().income.length>0;
+  const gap=hasInc?theGap():null;
+  const ds=dailySpendable();
+  const c=jState.cost, wks=Math.max(1,jState.weeks);
+  const perWeek=c>0?c/wks:0;
+  const perMonth=c>0?c/(wks/4.345):0;
+  let verdict="";
+  if(c>0){
+    const np=nextPayday();
+    let checks=0;
+    if(np){ // count paydays before the date
+      const target=new Date(todayLocal()); target.setDate(target.getDate()+wks*7);
+      let d=new Date(np.date), guard=0;
+      const src=deep().income[0]||{};
+      const stepDays=src.cadence==="weekly"?7:src.cadence==="biweekly"?14:src.cadence==="semimonthly"?15:30;
+      while(d<=target&&guard<40){ checks++; d.setDate(d.getDate()+stepDays); guard++; }
+    }
+    const fits = gap!==null ? perMonth<=gap : null;
+    verdict=`<div class="wres">
+      <div class="wk">${esc(jState.name||"The journey")} · ${wks} week${wks>1?"s":""} out</div>
+      <div class="wv">${money(perWeek)} <span style="font-size:13px;color:var(--gold-dim)">a week</span></div>
+      <div class="wl">
+        ${checks?`That's <b>${money(c/checks)}</b> set aside from each of the <b>${checks}</b> paycheck${checks>1?"s":""} between now and then.`:`State your income and I'll split it across your actual paydays.`}
+        ${fits===true?`<br>It fits — ${money(perMonth)}/mo against your ${money(gap)} gap, with ${money(gap-perMonth)} still free.`:""}
+        ${fits===false?`<br><b>It doesn't fit yet</b> — it needs ${money(perMonth)}/mo and your gap is ${money(gap)}. Push the date ${Math.ceil((perMonth/Math.max(gap,1))*wks-wks)} more week(s), trim the cost, or open the bench above and find the difference.`:""}
+        ${ds&&perWeek>0?`<br>Day by day, it's ${money(perWeek/7)} of your ${money(ds.perDay)} daily freedom.`:""}
+        ${lifeSpan(c)?`<br>≈ ${esc(lifeSpan(c))} of your life — make sure it's a trade you'd shake on.`:""}
+      </div></div>
+      <button class="btn solid" id="jSeal">Seal it as a goal</button>`;
+  }
+  el.innerHTML=`
+    <div class="field"><label>What's the journey?</label><input id="jN" placeholder="Two days in New York" value="${esc(jState.name)}"></div>
+    <div class="field"><label>What it costs</label><input id="jC" inputmode="decimal" placeholder="600" value="${jState.cost||""}"></div>
+    <div class="field"><label>Weeks from now</label><input id="jW" inputmode="decimal" placeholder="4" value="${jState.weeks||""}"></div>
+    ${Vision.bar("jVis")}
+    ${verdict}`;
+  Vision.arm("jVis",{context:"A booking page, listing, or price quote.",fields:[
+    {id:"name",el:"jN",kind:"string",label:"what the trip or purchase is"},
+    {id:"cost",el:"jC",kind:"number",label:"total cost"}]});
+  const re=()=>{ jState.name=($("jN").value||"").trim();
+    jState.cost=Number(String($("jC").value||"").replace(/[^0-9.]/g,""))||0;
+    jState.weeks=Number(String($("jW").value||"").replace(/[^0-9.]/g,""))||4;
+    renderJourney(); };
+  ["jN","jC","jW"].forEach(id=>{ $(id).onchange=re; });
+  const js=$("jSeal");
+  if(js) js.onclick=()=>{
+    const by=new Date(todayLocal()); by.setDate(by.getDate()+jState.weeks*7);
+    deep().goals.push({id:uid(),name:jState.name||"Journey",target:jState.cost,
+      by:(by.getMonth()+1)+"/"+by.getDate()+"/"+String(by.getFullYear()).slice(2),saved:0});
+    save(true); render();
+    milestone("✦","The journey is sealed.",esc(jState.name||"It")+" is a goal now — "+money(jState.cost)+" by "+by.toLocaleDateString("en-US",{month:"short",day:"numeric"})+". It lives on the Plan page, and every week you feed it pulls the date closer.");
+    jState={name:"",cost:0,weeks:4};
+  };
+}
+
+/* ── 4. WHAT'S MISSING: the order of operations, taught ── */
+function renderMissing(){
+  const el=$("missingWrap"); if(!el) return;
+  const A=audit(), cover=monthsCover(), ord=killOrder().filter(d=>d.apr>0);
+  const topApr=ord.length?ord[0].apr:0;
+  const cards=[];
+  const add=(g,t,body)=>cards.push({g,t,body});
+  // the investing question, answered honestly for HIS numbers
+  if(!A.retire||Number(A.retire)===0){
+    add("↑","Should you have a stock portfolio?",
+      topApr>8
+        ? `Not yet — and this is arithmetic, not caution. The market's long average is about 10% a year, never guaranteed. ${esc(ord[0].a.name)} charges you ${topApr}%, guaranteed. Paying it off IS an investment returning ${topApr}% risk-free — no portfolio on earth reliably beats it. The order the arithmetic sets: employer match first (that's a guaranteed 100%), then ${cover!==null&&cover<3?"your cover to three months, then ":""}every debt above ~8%, and THEN the market — low-cost index funds, boring on purpose, decades long. You're not missing out right now. You're being offered ${topApr}% and taking it.`
+        : `Soon, possibly now. ${cover!==null&&cover<3?"Cover comes first — three months held — because investments you're forced to sell in an emergency aren't investments, they're expensive loans to yourself. ":""}When you start: employer match before anything (guaranteed 100%), then low-cost index funds. Not picking stocks — buying all of them at once and waiting years. Boring is the strategy.`);
+  }
+  if(A.match==="Yes, but I don't max it"||A.match==="Don't know")
+    add("◈","The employer match",(A.match==="Don't know"?"One question to HR could be worth thousands. ":"")+"A match is the only guaranteed 100% return in existence. Every month you don't capture it, that money simply never existed for you. It outranks the 26.99% card, the trip, everything.");
+  if(cover===null||cover<3)
+    add("⌂","The emergency fund",
+      `Three months of bills, held and untouched — for you that's ${money(billsMonthly()*3)}. It isn't savings; it's the license to take risks. Without it, every surprise becomes debt at whatever rate the surprise charges. ${cover!==null?"You're at "+(Math.round(cover*10)/10)+" months.":""}`);
+  if(!A.credit) add("§","Your credit score",
+    "You didn't state it, and it prices everything you'll ever borrow — the Jeep's replacement, an apartment, sometimes a job. Free to check (Credit Karma, or your card's app), never hurts to look, and the audit can hold it.");
+  if(A.willDoc==="No"||A.willDoc==="Not sure"||!A.willDoc)
+    add("✦","Beneficiaries","Five minutes per account, free, and it decides where everything goes without courts. The single cheapest piece of adulthood there is.");
+  add("❖","What you already have that most people don't",
+    `A stated record. ${fin.accounts.filter(isDebt).length} bills with real numbers, a kill order ranked by arithmetic, a floor, ${deep().goals.length?"a destination":"a room ready for a destination"}. Most people are guessing. You're reading.`);
+  el.innerHTML=cards.map((c,i)=>`
+    <div class="mcard" data-i="${i}">
+      <div class="mt"><span class="mg">${c.g}</span>${esc(c.t)}<span style="margin-left:auto;color:var(--quiet)">›</span></div>
+      <div class="mb">${c.body}</div>
+    </div>`).join("");
+  el.querySelectorAll(".mcard .mt").forEach(m=>m.onclick=()=>m.closest(".mcard").classList.toggle("open"));
+}
+function renderCounsel(){ renderBrief(); renderWhatIf(); renderJourney(); renderMissing(); }
 
 function renderWitness(){
   const tq=quests.filter(q=>q&&q.starId==="treasury");
