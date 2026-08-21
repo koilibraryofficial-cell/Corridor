@@ -916,6 +916,15 @@ h2.sec{margin-top:30px}
 .grow .gfix{display:none;font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:9px;border-top:1px solid rgba(41,35,32,.6);padding-top:9px}
 .grow.open .gfix{display:block}
 
+
+.gchips{display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 2px 9px;scrollbar-width:none}
+.gchips::-webkit-scrollbar{display:none}
+.gchips button{
+  flex:0 0 auto;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold-dim);border:1px solid var(--line);border-radius:999px;padding:8px 13px;background:rgba(255,255,255,.02);
+}
+.gchips button:active{color:var(--gold);border-color:var(--gold-dim)}
+
 </style>
 </head>
 <body>
@@ -1093,8 +1102,7 @@ h2.sec{margin-top:30px}
   <div id="aiGate"></div>
   <div class="chat" id="chat"></div>
   <div id="aiBox" style="display:none">
-    <div class="field"><textarea id="aiInput" rows="3" placeholder="Ask about your own numbers."></textarea></div>
-    <button class="btn" id="btnAsk">Ask</button>
+    <button class="btn solid" id="btnAsk">Sit with the Guardian</button>
   </div>
 </section>
 
@@ -1207,7 +1215,7 @@ h2.sec{margin-top:30px}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.26";
+const BUILD = "2026-08-08.27";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -4670,6 +4678,13 @@ async function converse(box,q,files){
 }
 function chatDock(sendFn){
   return `<div class="gdock">
+    <div class="gchips">
+      <button data-q="What should I pay first this month, and why that order?">Pay order</button>
+      <button data-q="Walk me through my gap. Where is the money actually going?">Where it goes</button>
+      <button data-q="Can I afford anything extra before my next payday? Show the arithmetic.">Afford it?</button>
+      <button data-q="What is the single smallest thing I could do this week that would change my numbers most?">One move</button>
+      <button data-q="__read">Read a statement</button>
+    </div>
     <div class="gattline" id="gAtt"></div>
     <div class="gdockrow">
       <button class="gdockbtn cam" id="gCam" aria-label="Snap">◉</button>
@@ -4681,6 +4696,10 @@ function chatDock(sendFn){
 }
 function wireDock(box){
   guardianFiles=[];
+  document.querySelectorAll(".gchips button").forEach(b=>b.onclick=()=>{
+    if(b.dataset.q==="__read"){ closeSheet(); setTimeout(openReading,260); return; }
+    $("gq").value=b.dataset.q; $("gq").focus();
+  });
   const att=()=>{ const a=$("gAtt");
     if(a){ a.style.display=guardianFiles.length?"block":"none";
       a.textContent=guardianFiles.length+" attached"; } };
@@ -4999,10 +5018,7 @@ $("btnPaydays").onclick=()=>{
     closeSheet(); save(true); render(); toast("Stated.");
   };
 };
-$("btnAsk").onclick=()=>{
-  const q=($("aiInput").value||"").trim(); if(!q) return toast("Ask it something.");
-  $("aiInput").value=""; ask(q);
-};
+$("btnAsk").onclick=()=>openGuardian();
 
 /* the month can turn while the app sits open */
 let watchMonth=currentMonth();
