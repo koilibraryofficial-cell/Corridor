@@ -981,6 +981,10 @@ h2.sec{margin-top:30px}
 .vpath.live .pv{color:var(--held)} .vpath.dead .pv{color:var(--warn)}
 .vpath .pb{font-size:13px;color:var(--muted);line-height:1.6;margin-top:8px}
 
+
+.row.autopaid .when::after{content:" · autopay";color:var(--held);font-family:var(--mono);font-size:9px;letter-spacing:.1em}
+.row.autopaid{opacity:.72}
+
 </style>
 </head>
 <body>
@@ -1284,7 +1288,7 @@ h2.sec{margin-top:30px}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.32";
+const BUILD = "2026-08-08.33";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1384,7 +1388,15 @@ function ordinal(d){return d>3&&d<21?"th":({1:"st",2:"nd",3:"rd"}[d%10]||"th");}
 
 /* ═══════════ ACCOUNT MATH ═══════════ */
 const isDebt  = a => (a.kind||"debt")==="debt";
-const isPaid  = a => a.paidMonth === currentMonth();
+function autoSet(){ const D=deep(); if(!D.auto||typeof D.auto!=="object") D.auto={}; return D.auto; }
+function isAuto(a){ return !!autoSet()[a.id]; }
+/* A bill on autopay whose day has already passed HAS been paid — it is not
+   "18 days past". Treating it as overdue turned a healthy month into a wall
+   of false alarms and buried the bills that genuinely need a hand. Autopay
+   bills clear themselves once their day passes; a hand-marked payment still
+   wins, and nothing here ever moves money. */
+const isPaid = a => a.paidMonth === currentMonth() ||
+  (isAuto(a) && (()=>{ const p=parseDue(a.due); return p.ok && p.days<0; })());
 /* An unstated payment is unstated. Falling back to the whole balance was a
    guess — and a violent one: a $10,999 collection with no monthly demand was
    being counted as due this month, which made Expendable a horror story and
@@ -1875,6 +1887,7 @@ function parseDueFor(a){
 }
 function rowHTML(a){
   const p=parseDueFor(a), paid=isPaid(a), debt=isDebt(a);
+  const autoCleared = isAuto(a) && paid && a.paidMonth!==currentMonth();
   const cadLbl = debt && cadenceOf(a)!=="monthly" ? " · "+CADENCE[cadenceOf(a)].label.toLowerCase() : "";
   const when = debt
     ? `<div class="when ${p.cls}">${paid?"paid this month":esc(p.label)+cadLbl}</div>`
@@ -1882,7 +1895,7 @@ function rowHTML(a){
   const amt = debt ? amountDue(a) : (Number(a.balance)||0);
   const sub = debt && Number(a.min)>0 && Math.abs(Number(a.balance))>0
     ? `<small>of ${money(Math.abs(a.balance))}</small>` : "";
-  return `<div class="row ${paid?"paid":""}" data-id="${a.id}" ${debt&&tierOf(a)?`data-tier="${tierOf(a)}"`:""}>
+  return `<div class="row ${paid?"paid":""} ${autoCleared?"autopaid":""}" data-id="${a.id}" ${debt&&tierOf(a)?`data-tier="${tierOf(a)}"`:""}>
     ${debt?`<button class="check" data-act="pay" aria-label="Mark ${esc(a.name)} paid">${paid?"✓":""}</button>`:`<span class="check" style="border-color:var(--held);color:var(--held)">◈</span>`}
     <div class="body"><div class="name">${esc(a.name)}</div>${when}</div>
     <div class="amt">${money(amt)}${sub}</div>
@@ -3334,7 +3347,8 @@ Return ONLY a JSON object, no fences, no prose:
 
 Rules:
 - Match accounts by the ids given in the record. Fuzzy-match names ("capital one", "the jeep", "my phone bill") to the closest account; if two match equally, ask via "unclear" instead of guessing.
-- updatable fields: name, balance, min, due, tier ("survival"|"luxury"|null), apr, note, cull, room.
+- updatable fields: name, balance, min, due, tier ("survival"|"luxury"|null), apr, note, cull, room, auto.
+- "auto" is true/false — whether the bill pays itself. "netflix is on autopay" -> {"auto":true}.
 - "room" places the bill in a life domain: shelter, transport, body, connection, protection, debt, pleasures, growth, obligation. "put storage under shelter", "the gym is body" → update with {"room":"..."}.
 - "due" is stated as they said it: a day like "27", a date, or "unknown". Never invent one.
 - Never invent amounts. If they say "went up" without a number, ask via "unclear".
@@ -3463,6 +3477,7 @@ function applyChange(c){
       if(f.cull!==undefined) a.cull=String(f.cull);
       if(f.tier!==undefined) a.tier=(f.tier==="survival"||f.tier==="luxury")?f.tier:null;
       if(f.room!==undefined && LIFE_ROOMS.some(d=>d.id===f.room)) domainMap()[a.id]=f.room;
+      if(f.auto!==undefined){ if(f.auto) autoSet()[a.id]=true; else delete autoSet()[a.id]; }
       markTouched(a.id,"spoken");
       if(f.apr!==undefined){ const D=deep(); const n=Number(f.apr);
         if(n>0) D.apr[a.id]=n; else delete D.apr[a.id]; }
