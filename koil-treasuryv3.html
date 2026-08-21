@@ -747,6 +747,87 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 .confbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))}
 .confrow .cn{flex:0 0 auto;font-family:var(--mono);font-size:11px;color:var(--quiet);min-width:38px;text-align:right}
 
+
+/* ═══ AESTHETIC: the treasury should look like what it claims to be ═══ */
+.hero .hv{
+  background:linear-gradient(115deg,#f3ddb0 0%,#e7c67e 34%,#caa055 68%,#f0d9a8 100%);
+  background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:heroSheen 7s ease-in-out infinite;
+  text-shadow:none;
+}
+@keyframes heroSheen{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+.hero{position:relative}
+.hero::after{
+  content:"";position:absolute;left:12%;right:12%;top:-8px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(216,180,106,.5),transparent);
+}
+.stat,.pillar,.nw,.card{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,0) 32%),
+    rgba(255,255,255,.012);
+  box-shadow:0 1px 0 rgba(255,255,255,.045) inset, 0 10px 26px -18px rgba(0,0,0,.85);
+}
+.pillar .v,.stat .v{letter-spacing:-.02em}
+/* the life lines — the second currency, always quieter than the first */
+.life{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;
+  color:rgba(216,180,106,.66);margin-top:4px;line-height:1.3;
+}
+.pillar .life{font-size:9.5px}
+/* teachable labels announce themselves, softly */
+[data-teach]{cursor:pointer;-webkit-tap-highlight-color:transparent}
+[data-teach]::after{content:" ⓘ";font-size:.72em;color:var(--gold-dim);opacity:.75;font-family:var(--mono)}
+[data-teach]:active{opacity:.7}
+/* lessons */
+.lesson{border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-bottom:10px;background:rgba(255,255,255,.014)}
+.lesson .lk{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:7px}
+.lesson .lt{font-size:14.5px;line-height:1.6;color:var(--fg)}
+.lesson:first-of-type{border-color:rgba(216,180,106,.3)}
+/* the hour-rate invitation */
+.hrchip{
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);border:1px dashed var(--gold-dim);border-radius:999px;padding:7px 13px;
+  background:rgba(216,180,106,.05);
+}
+.hrchip:active{transform:scale(.97)}
+/* sheets get a crown line */
+.sheet{box-shadow:0 -1px 0 rgba(216,180,106,.22), 0 -24px 60px -30px rgba(0,0,0,.9)}
+/* sections breathe a little more */
+h2.sec{margin-top:30px}
+
+
+.rintro{text-align:left;margin:2px 0 14px}
+.rintro p{font-size:14.5px;line-height:1.62;color:var(--fg);margin:0 0 12px}
+.rintro p:last-child{margin-bottom:0}
+
+
+/* the rooms of a life */
+.onecheck{border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:12px;
+  padding:13px 14px;margin-bottom:12px;font-size:13.5px;line-height:1.55;color:var(--muted)}
+.onecheck.ok{border-left-color:var(--held)} .onecheck.over{border-left-color:var(--warn)}
+.onecheck b{color:var(--fg)}
+.dom{border:1px solid var(--line);border-radius:13px;margin-bottom:8px;padding:11px 12px 9px;
+  background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0) 40%),rgba(255,255,255,.01)}
+.dom.open{border-color:rgba(216,180,106,.34)}
+.domhead{display:flex;align-items:center;gap:9px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.domhead .dg{color:var(--gold);font-size:14px;flex:0 0 18px;text-align:center}
+.domhead .dn{font-size:14.5px;flex:0 0 auto}
+.domhead .dc{font-size:10px;color:var(--quiet);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
+.dbarwrap{flex:1;height:5px;border-radius:3px;background:var(--line);overflow:hidden;min-width:24px}
+.dbar{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:3px}
+.domhead .dv{font-size:12.5px}
+.domhead .dp{font-size:10px;color:var(--quiet);flex:0 0 32px;text-align:right}
+.dguess{font-family:var(--mono);font-size:10px;color:var(--gold-dim);margin:6px 0 2px 27px}
+.dombills{margin-top:9px;border-top:1px solid rgba(41,35,32,.6);padding-top:5px}
+.dbill{display:flex;align-items:center;gap:9px;padding:8px 2px 8px 27px;border-bottom:1px solid rgba(41,35,32,.45)}
+.dbill:last-child{border-bottom:none}
+.dbill .dbn{flex:1;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbill .dba{font-size:12px;color:var(--muted)}
+.dbill .dbx{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);color:var(--muted)}
+
+.segwrap{flex-wrap:wrap}.segwrap button{flex:0 0 auto;font-size:11px;padding:8px 11px}
 </style>
 </head>
 <body>
@@ -774,7 +855,8 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
   </div>
 
   <div class="hero">
-    <div class="hk">Free to spend today</div>
+    <div class="hk" data-teach="free">Free to spend today</div>
+    <button class="hrchip" id="hrChip" onclick="askHours()" style="display:none">⏳ set your hour rate — see what money truly costs</button>
     <div class="hv num" id="perDay">—</div>
     <div class="hs" id="perDayU">State what comes in to see this.</div>
     <div class="hmeta">
@@ -785,9 +867,9 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
   </div>
 
   <div class="pillars">
-    <div class="pillar hold"><div class="k">You have</div><div class="v num" id="pHave">$0</div></div>
-    <div class="pillar bills"><div class="k">Goes to bills</div><div class="v num" id="pBills">$0</div></div>
-    <div class="pillar free"><div class="k">Expendable</div><div class="v num" id="pFree">$0</div></div>
+    <div class="pillar hold"><div class="k" data-teach="have">You have</div><div class="v num" id="pHave">$0</div></div>
+    <div class="pillar bills"><div class="k" data-teach="bills">Goes to bills</div><div class="v num" id="pBills">$0</div></div>
+    <div class="pillar free"><div class="k" data-teach="exp">Expendable</div><div class="v num" id="pFree">$0</div></div>
   </div>
 
   <div class="streakrow" id="streakRow" style="display:none">
@@ -796,7 +878,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
   </div>
 
   <div class="nwline">
-    <div><div class="k">Net worth</div><div class="v num" id="nwBig">$0</div></div>
+    <div><div class="k" data-teach="net">Net worth</div><div class="v num" id="nwBig">$0</div></div>
     <svg class="spark" id="nwSpark" viewBox="0 0 88 34" preserveAspectRatio="none"></svg>
   </div>
 
@@ -813,7 +895,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
     <div class="pocket" id="pocket"></div>
   </div>
 
-  <h2 class="sec">The crossing</h2>
+  <h2 class="sec" data-teach="crossing">The crossing</h2>
   <div id="runway"></div>
 
   <h2 class="sec">Standing today</h2>
@@ -825,6 +907,9 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 
 <!-- ══════════════ BILLS ══════════════ -->
 <section class="panel" id="p-bills">
+  <h2 class="sec" data-teach="rooms">The rooms of your life <span class="tally num" id="tRooms"></span></h2>
+  <div id="domainsWrap"></div>
+
   <h2 class="sec">Survival <span class="tally num" id="tSurv"></span></h2>
   <div id="listSurv"></div>
 
@@ -868,7 +953,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
   </div>
   <div class="note" id="gapNote"></div>
 
-  <h2 class="sec">The audit <span class="tally num" id="tAudit"></span></h2>
+  <h2 class="sec" data-teach="audit">The audit <span class="tally num" id="tAudit"></span></h2>
   <div id="auditWrap"></div>
 
   <h2 class="sec">The month, two ways</h2>
@@ -878,7 +963,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
   <div id="listIncome"></div>
   <button class="btn quiet" id="btnIncome">Add what comes in</button>
 
-  <h2 class="sec">Kill order <span class="tally num" id="tBleed"></span></h2>
+  <h2 class="sec" data-teach="kill">Kill order <span class="tally num" id="tBleed"></span></h2>
   <div id="listOrder"></div>
 
   <h2 class="sec">Before you invest</h2>
@@ -1016,7 +1101,7 @@ body{padding-bottom:calc(var(--nav-h) + 66px + env(safe-area-inset-bottom,0px))}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.20";
+const BUILD = "2026-08-08.23";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1561,6 +1646,7 @@ function render(){
   const step=(name,fn)=>{ try{ fn(); }catch(e){ renderErrors.push(name+": "+e.message); console.error(name,e); } };
   step("today",renderToday);
   step("bills",renderBills);
+  step("rooms",renderDomains);
   step("hold",renderHold);
   step("plan",renderPlan);
   step("schedule",renderSchedule);
@@ -1729,6 +1815,19 @@ function renderToday(){
   const nDeb=fin.accounts.filter(isDebt).length;
   paint($("todayList"), standing, nDeb ? "Nothing standing in the next seven days." : "Add a bill on the Bills page and it shows up here.");
 
+  // the time layer: dollars on top, life underneath
+  const hr=hourRate();
+  const chip=$("hrChip");
+  if(chip) chip.style.display = hr ? "none" : "inline-flex";
+  const dsv=dailySpendable();
+  lifeLine($("perDay"), dsv?dsv.perDay:0, "of your life, each day");
+  lifeLine($("pHave"),  heldTotal(), "of your life, stored");
+  lifeLine($("pBills"), owed, "already sold");
+  lifeLine($("pFree"),  held-owed, held-owed>=0?"truly yours":"of future already spent");
+  lifeLine($("nwBig"),  netWorth(), netWorth()>=0?"of your life, owned outright":"of your future, already sold");
+  lifeLine($("sToday"), dueToday.reduce((s,a)=>s+amountDue(a),0), "due today");
+  lifeLine($("s7"),     due7.reduce((s,a)=>s+amountDue(a),0), "due this week");
+
   // paydays — recurring days live in finances.paydays; a one-off next date
   // comes from the Daily Bread aim at finances.bread.incomeDate.
   const nd = nextPayday();
@@ -1814,7 +1913,10 @@ function renderPlan(){
     return `<div class="row" data-id="${esc(d.a.id)}">
       <span class="check" style="${i===0&&d.apr>0?"background:var(--gold);border-color:var(--gold);color:var(--ink)":""}">${i+1}</span>
       <div class="body"><div class="name">${esc(d.a.name)}</div>
-        <div class="when">${d.apr>0?d.apr+"%"+(death?" · "+death:""):"no rate stated — it can't be ranked"}</div></div>
+        <div class="when">${d.apr>0?d.apr+"%"+(death?" · "+death:""):"no rate stated — it can't be ranked"}</div>
+        ${(function(){const L=lifeSpan(d.bal);const LI=d.monthlyInterest>0?lifeSpan(d.monthlyInterest):null;
+          return L?`<div class="life">≈ ${esc(L)} of your future already sold${LI?" · burning "+esc(LI)+"/mo in interest":""}</div>`:"";})()}
+      </div>
       <div class="amt">${money(d.bal)}</div>
       <button class="edit" data-act="edit">›</button></div>`;
   }).join("")
@@ -2182,15 +2284,18 @@ const Reveal=(function(){
     const el=paneEl(k); if(!el) return;
     const first=!el.classList.contains("lit");
     el.classList.add("lit");
-    if(first && !reduced()){
-      el.classList.remove("igniting"); void el.offsetWidth; el.classList.add("igniting");
-      flyEmbers(el);
-      setTimeout(()=>el.classList.remove("igniting"),1000);
-    }
-    buzz(12);
+    try{
+      if(first && !reduced()){
+        el.classList.remove("igniting"); void el.offsetWidth; el.classList.add("igniting");
+        flyEmbers(el);
+        setTimeout(()=>el.classList.remove("igniting"),1000);
+      }
+      buzz(12);
+    }catch(e){ /* ornament failure must never stop an answer from landing */ }
   }
   function flyEmbers(target){
     const orb=$("orb"); if(!orb) return;
+    if(!document.body.animate) return;   // no Web Animations, no embers — the walk never depends on an ornament
     const a=orb.getBoundingClientRect(), b=target.getBoundingClientRect();
     for(let n=0;n<9;n++){
       const e=document.createElement("div"); e.className="ember";
@@ -2269,18 +2374,28 @@ const Reveal=(function(){
      four and you still got the four that mattered most. */
   function build(){
     q=[
+      /* ── the office door: introduction before interrogation ── */
+      {type:"intro"},
+      /* ── the ecosystem: records may already exist elsewhere ── */
+      {type:"bridgein"},
       {ask:"What should I call you?", pane:"who", type:"text", ph:"Your name",
        apply:v=>{ deep().who=v; }},
+      /* ── goals FIRST. The destination decides what the numbers mean. ── */
+      {ask:"What are you working toward?", pane:"goal", type:"goal",
+       hint:"Before a single number: the destination. A trip, a move, being done with a debt, the beach. Everything after this is measured against it."},
+      {ask:"What comes in?", pane:"income", type:"income"},
+      {ask:"How many hours a week do you work for it?", pane:"income", type:"hours",
+       hint:"This sets your hour rate. From here on, every figure shows its true cost — dollars on top, hours of your life underneath."},
       {ask:"What do you hold?", pane:"hold", type:"money", ph:"0",
-       hint:"Cash, checking — everything you could actually reach today. One number is fine; you can split it into accounts later.",
+       hint:"Cash, checking — everything you could reach today. One number is fine, or snap your bank's account screen below.",
        apply:v=>{ fin.accounts.push(normalizeAccount({id:uid(),name:"Held",kind:"asset",balance:v})); }},
       {ask:"What do you owe?", pane:"debts", type:"debt", hint:"Start with the one you think about most."},
       {ask:"Anything else?", pane:"debts", type:"debt", repeat:true},
-      {ask:"What comes in?", pane:"income", type:"income"},
       {ask:"Your floor?", pane:"floor", type:"money", ph:"0",
        hint:"The number you never want to drop below. Every forecast defends it.",
        apply:v=>{ fin.bread=Object.assign({},fin.bread||{},{floor:v}); }},
-      {ask:"Saving toward what?", pane:"goal", type:"goal"}
+      /* ── the handoff: the deep audit continues in the office ── */
+      {type:"outro"}
     ];
     i=0;
   }
@@ -2306,8 +2421,81 @@ const Reveal=(function(){
   function step(){
     if(i>=q.length) return finish();
     const s=q[i];
-    fitOrb(s.ask);
     const A=$("rAsk");
+
+    /* ── the office door ── */
+    if(s.type==="intro"){
+      fitOrb("Welcome.");
+      const who=deep().who?", "+deep().who:"";
+      A.innerHTML=`
+        <div class="rintro">
+          <p>I'm the Guardian${esc(who)} — your accountant, coach, and teacher, in that order.</p>
+          <p>This walk takes about three minutes. I'll ask where you're going before I ask what you have, because the destination decides what every number means.</p>
+          <p>Answer by typing, speaking, or photographing — statements, bank screens, pay stubs, anything. Skip whatever you like. Nothing is judged and nothing leaves this phone.</p>
+        </div>
+        <button class="btn solid" id="rvGo">Sit down</button>
+        <button class="rskip" id="rvSkip">I know the room — skip the walk</button>`;
+      $("rvGo").onclick=()=>{ i++; step(); };
+      $("rvSkip").onclick=()=>close();
+      return;
+    }
+    /* ── the ecosystem: records from the other rooms ── */
+    if(s.type==="bridgein"){
+      const realm=(function(){ try{ return !!localStorage.getItem(REALM_KEY); }catch(e){ return false; } })();
+      const already=fin.accounts.length>0;
+      if(!realm && !already){
+        /* nothing exists anywhere — offer the file, else walk on */
+        fitOrb("Starting fresh?");
+        A.innerHTML=`
+          <div class="rintro"><p>If you've kept records in another KOIL room — the Realm, or an exported ledger file — hand them to me now and I'll carry everything across. Otherwise we build from nothing, which is a perfectly good place to start.</p></div>
+          <button class="btn" id="rvLedger">I have a ledger file</button>
+          <button class="btn solid" id="rvGo">Start fresh</button>`;
+        $("rvLedger").onclick=()=>{ close(); const nb=document.querySelector('nav button[data-go="ledger"]'); if(nb) nb.onclick(); $("fileIn").click(); };
+        $("rvGo").onclick=()=>{ i++; step(); };
+        return;
+      }
+      /* records exist — acknowledge and walk on */
+      fitOrb("Your records came with you.");
+      A.innerHTML=`
+        <div class="rintro"><p>${already?fin.accounts.length+" accounts are already in the record":"The Realm's record is here"} — I can see them. The walk will fill whatever's still dark and leave the rest untouched.</p></div>
+        <button class="btn solid" id="rvGo">Carry on</button>`;
+      $("rvGo").onclick=()=>{ i++; step(); };
+      return;
+    }
+    /* ── the hour rate, inside the walk ── */
+    if(s.type==="hours"){
+      fitOrb(s.ask);
+      A.innerHTML=`
+        <div class="field"><input id="rv1" inputmode="decimal" placeholder="40" value="${esc(deep().hoursWeek||"")}"></div>
+        ${s.hint?`<div class="hint">${esc(s.hint)}</div>`:""}
+        <button class="btn solid" id="rvGo">Light it up</button>
+        <button class="rskip" id="rvSkip">Skip this</button>`;
+      $("rvGo").onclick=()=>{
+        const v=Number(String($("rv1").value||"").replace(/[^0-9.]/g,""))||0;
+        if(v&&v<=120){ deep().hoursWeek=v; save(true); ignite("income"); }
+        i++; step();
+      };
+      $("rvSkip").onclick=()=>{ i++; step(); };
+      return;
+    }
+    /* ── the handoff to the office ── */
+    if(s.type==="outro"){
+      fitOrb("The picture is lit.");
+      const n=auditAnswered();
+      A.innerHTML=`
+        <div class="rintro">
+          <p>That's the shape of it — the panes behind me show what you've stated, and everything in the Treasury is now drawn from it.</p>
+          <p>When you're ready to go deeper, the audit is waiting on the Plan page: fourteen questions an advisor would ask — insurance, retirement, the match, taxes. That's where the findings live.</p>
+          <p>And the bar at the bottom is always open. Say anything, snap anything. I do the rest.</p>
+        </div>
+        <button class="btn solid" id="rvGo">Enter the Treasury</button>
+        ${n<AUDIT_FIELDS.length?`<button class="btn" id="rvAudit">Go straight into the audit</button>`:""}`;
+      $("rvGo").onclick=()=>close();
+      const ba=$("rvAudit"); if(ba) ba.onclick=()=>{ close(); const nb=document.querySelector('nav button[data-go="plan"]'); if(nb) nb.onclick(); askAudit(0); };
+      return;
+    }
+
+    fitOrb(s.ask);
     if(s.type==="debt"){
       A.innerHTML=`
         <div class="field"><input id="rv1" placeholder="What is it? — car, card, rent"></div>
@@ -2950,7 +3138,8 @@ Return ONLY a JSON object, no fences, no prose:
 
 Rules:
 - Match accounts by the ids given in the record. Fuzzy-match names ("capital one", "the jeep", "my phone bill") to the closest account; if two match equally, ask via "unclear" instead of guessing.
-- updatable fields: name, balance, min, due, tier ("survival"|"luxury"|null), apr, note, cull.
+- updatable fields: name, balance, min, due, tier ("survival"|"luxury"|null), apr, note, cull, room.
+- "room" places the bill in a life domain: shelter, transport, body, connection, protection, debt, pleasures, growth, obligation. "put storage under shelter", "the gym is body" → update with {"room":"..."}.
 - "due" is stated as they said it: a day like "27", a date, or "unknown". Never invent one.
 - Never invent amounts. If they say "went up" without a number, ask via "unclear".
 - "remove" only when they clearly ask to delete/remove; paying off is "update" balance 0, not remove.
@@ -3014,6 +3203,7 @@ function describeChange(c){
     case "update":{
       const a=acct(c.id); if(!a) return null;
       const bits=Object.entries(c.fields||{}).map(([k,v])=>
+        k==="room"?"room → "+((LIFE_ROOMS.find(d=>d.id===v)||{}).name||v):
         k==="balance"?"balance → "+money(v): k==="min"?"payment → "+money(v):
         k==="due"?"due → "+v: k==="apr"?"rate → "+v+"%": k==="tier"?"tier → "+(v||"unsorted"): k+" → "+v);
       return ["✎",a.name+": "+bits.join(", ")];
@@ -3055,6 +3245,7 @@ function applyChange(c){
       if(f.note!==undefined) a.note=String(f.note);
       if(f.cull!==undefined) a.cull=String(f.cull);
       if(f.tier!==undefined) a.tier=(f.tier==="survival"||f.tier==="luxury")?f.tier:null;
+      if(f.room!==undefined && LIFE_ROOMS.some(d=>d.id===f.room)) domainMap()[a.id]=f.room;
       if(f.apr!==undefined){ const D=deep(); const n=Number(f.apr);
         if(n>0) D.apr[a.id]=n; else delete D.apr[a.id]; }
       break; }
@@ -3214,6 +3405,222 @@ function scheduleRuns(){
   return {mine, opt, moved:slid.filter(b=>b.moved).length, surplus, target, saved, floor};
 }
 
+/* ═══════════════════════════════════════════════════════════
+   TIME — the true currency
+   Money is stored time. Every hour worked mints dollars at your
+   rate; every dollar spent burns minutes of the life that earned
+   it. The app shows both, always: dollars on top, life underneath.
+   Not to make hours a new score to optimize — reclaimed hours are
+   for LIVING, and the copy says so — but so no figure in this app
+   can ever again pretend to be just a number.
+   ═══════════════════════════════════════════════════════════ */
+function hourRate(){
+  const hw=Number(deep().hoursWeek)||0;
+  const net=deep().income.length?netMonthly():0;
+  if(!hw||!net) return null;
+  return net/(hw*4.345);           // net dollars minted per hour of life
+}
+function lifeSpan(amount){          // dollars → human-sized time
+  const r=hourRate(); if(!r||!amount) return null;
+  const hrs=Math.abs(amount)/r;
+  if(hrs<1)    return Math.round(hrs*60)+" min";
+  if(hrs<10)   return (Math.round(hrs*10)/10)+" hrs";
+  if(hrs<40)   return Math.round(hrs)+" hrs";
+  const days=hrs/8;                 // an 8-hour working day
+  if(days<60)  return (Math.round(days*10)/10)+" working days";
+  const mos=hrs/(Number(deep().hoursWeek)*4.345);
+  if(mos<24)   return (Math.round(mos*10)/10)+" months of work";
+  return (Math.round(mos/12*10)/10)+" years of work";
+}
+function lifeLine(el,amount,verb){
+  if(!el) return;
+  let n=el.nextElementSibling;
+  const span=lifeSpan(amount);
+  if(!span){ if(n&&n.classList&&n.classList.contains("life")) n.remove(); return; }
+  const txt="≈ "+span+" "+(verb||"of your life");
+  if(n&&n.classList&&n.classList.contains("life")) n.textContent=txt;
+  else el.insertAdjacentHTML("afterend",`<div class="life">${esc(txt)}</div>`);
+}
+function askHours(){
+  openSheet(`<h3>How many hours do you work in a typical week?</h3>
+    <div class="sub">This sets your hour rate — what one hour of your life mints, after tax. Once it's stated, every figure in this app shows its true cost underneath: the dollars, and the hours of life they represent. Money is stored time. This is where the Treasury stops hiding that.</div>
+    <div class="field"><input id="hwIn" inputmode="decimal" value="${esc(deep().hoursWeek||"")}" placeholder="40"></div>
+    <button class="btn solid" id="hwGo">Set my hour rate</button>`);
+  $("hwGo").onclick=()=>{
+    const v=Number(String($("hwIn").value||"").replace(/[^0-9.]/g,""))||0;
+    if(!v||v>120) return toast("Give it a real number of hours.");
+    deep().hoursWeek=v; closeSheet(); save(true); render();
+    const r=hourRate();
+    if(r) milestone("⏳","Your hour rate is set.",
+      "One hour of your life mints "+money(r)+" after tax. From here on, every number in this Treasury shows what it truly costs — in the only currency you can't earn more of.");
+  };
+}
+/* ═══════════════════════════════════════════════════════════
+   THE TEACHER
+   Every labeled number in this app can explain itself. Tap the
+   label: first the child's version (true enough for a ten-year-old
+   to carry for life), then the adult's (what to actually do with
+   it), then a door to the Guardian for your own numbers. Teaching
+   is the point — a person who learns the word doesn't need the
+   room forever.
+   ═══════════════════════════════════════════════════════════ */
+const TEACH={
+  free:{t:"Free to spend today",
+    kid:"After every promise you've made is kept — every bill fed — this is what's honestly yours today. Spend it on anything without hurting tomorrow-you.",
+    adult:"Held money minus bills due before your next payday, spread across the days until it arrives. If it's low, the lever is rarely spending less coffee — it's the crossing: which bills land before money does."},
+  have:{t:"You have",
+    kid:"All the money sitting in your accounts right now, added up. Like counting every coin in every pocket.",
+    adult:"The sum of stated asset balances. It's only as true as its last confirmation — a balance verified by photo counts; a remembered one is a guess wearing a suit."},
+  bills:{t:"Goes to bills",
+    kid:"Money that's already promised to someone else this month. It's in your pocket, but it isn't yours — it's just resting there on its way out.",
+    adult:"Unpaid amounts due this cycle. The single most common money illusion is reading held money as spendable money. This number is the correction."},
+  exp:{t:"Expendable",
+    kid:"What's left after every promise. If it's red, you've promised more than you have — the month needs help before it needs treats.",
+    adult:"Held minus owed-this-month. Negative isn't shameful, it's a signal: either dates are missing (unstated bills all count as due now) or the month genuinely doesn't close and the gap needs working."},
+  net:{t:"Net worth",
+    kid:"Everything you own minus everything you owe. It can be less than zero — that just means you're standing in a hole. Holes fill one shovel at a time.",
+    adult:"Assets minus liabilities. It moves slowly and lies daily; the direction over months matters, the number today doesn't. The sparkline is the truth, the figure is a mood."},
+  gap:{t:"The gap",
+    kid:"What comes in, minus what must go out. This little strip of money is the only material wealth is ever built from.",
+    adult:"Net income minus committed outflow. Every strategy — debt death, savings, investing — is just a decision about where the gap goes. Widen it from the income side; the expense side has a floor, income doesn't have a ceiling."},
+  kill:{t:"Kill order",
+    kid:"Your debts, lined up by how fast each one grows. You fight the fastest-growing monster first — not the biggest one.",
+    adult:"Avalanche ordering by APR. Mathematically optimal; the death dates come from real amortization. If motivation beats math for you, killing a small balance first is a legitimate override — the best order is the one you'll finish."},
+  floor:{t:"The floor",
+    kid:"The number your money never goes below — your safety line. Everything above it can work; everything below it is off-limits, like the last slice you save for someone you love.",
+    adult:"Your liquidity minimum. The schedule treats it as inviolable: the optimal month is computed to never cross it. Set it to one real emergency, not zero."},
+  crossing:{t:"The crossing",
+    kid:"The days between today and your next money landing — shown one day at a time, like stepping stones. It shows which stone is slippery.",
+    adult:"A day-by-day cash projection to next income. The break day, if any, is named. Most overdrafts are order problems, not amount problems — see the month, two ways."},
+  time:{t:"The life lines",
+    kid:"Money is stored time. Someone traded hours of their life to get every dollar. The small line under each number shows how many hours of YOUR life it represents.",
+    adult:"Figures divided by your net hourly rate. It exists to make cost felt before it's paid — $774 is abstract, two and a half working days is not. Reclaimed hours are for living, not for scoring."},
+  audit:{t:"The audit",
+    kid:"Fourteen questions a money-doctor would ask, to find the holes before they become floods.",
+    adult:"An advisor intake: insurance, match, taxes, credit, cover. Findings rank by severity and only ever come from what you stated — unanswered stays unanswered, never assumed."},
+  rooms:{t:"The rooms of your life",
+    kid:"Every bill feeds one room of your life — where you sleep, how you move, what you eat, who you talk to. The bars show which rooms eat the most. A room that eats too much can be put on a diet.",
+    adult:"Bills grouped by life domain, ranked by monthly cost, with the one-check test on top: survival must fit inside a single paycheck, or the month has no building material. Tap a room to open it; tap a bill to move, shrink, or cull it. Guessed placements announce themselves until you confirm them."},
+  conf:{t:"Confidence",
+    kid:"How much of this picture is proven true, versus just remembered. A photo of your bank proves; a memory only promises.",
+    adult:"Verified fraction of the record. The $6,404-vs-$806 failure mode is exactly what this meter exists to prevent: a guess and a confirmed figure must never look the same."}
+};
+function teach(key){
+  const L=TEACH[key]; if(!L) return;
+  openSheet(`<h3>${esc(L.t)}</h3>
+    <div class="lesson"><div class="lk">Like you're ten</div><div class="lt">${esc(L.kid)}</div></div>
+    <div class="lesson"><div class="lk">The adult version</div><div class="lt">${esc(L.adult)}</div></div>
+    <button class="btn" id="teachAsk">Ask the Guardian about MY numbers</button>`);
+  $("teachAsk").onclick=()=>{ closeSheet();
+    const si=$("speakIn"); if(si){ si.value="Teach me about my "+L.t.toLowerCase()+" — use my real numbers."; si.focus(); }
+    toast("Question's ready in the bar — tap ✦ to send it.");
+  };
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-teach]");
+  if(t) teach(t.dataset.teach);
+});
+/* ═══════════════════════════════════════════════════════════
+   THE DOMAINS OF A LIFE
+   Every bill lives in one room of a human life. Sorting them there
+   answers the question no bank statement answers: not "what do I
+   owe" but "which part of my LIFE is this feeding?" Domains are
+   stored in the sidecar (deep().domainMap) so the Realm record is
+   never polluted; unset bills get a best guess by name, marked as
+   a guess until the person confirms or corrects it — the Witness
+   Law bends for a guess only if the guess announces itself.
+   ═══════════════════════════════════════════════════════════ */
+const LIFE_ROOMS=[
+  {id:"shelter",   name:"Shelter",     g:"⌂", m:/rent|mortgage|storage|hoa|apartment|housing/i},
+  {id:"transport", name:"Transport",   g:"➤", m:/lease|auto loan|car (?:payment|note)|jeep|toyota|honda|gas|fuel|parking|transit|uber|lyft/i},
+  {id:"body",      name:"Body",        g:"❋", m:/grocer|food|gym|top team|bjj|jiu|fitness|barber|doctor|dental|pharmacy|cleaning/i},
+  {id:"connection",name:"Connection",  g:"◌", m:/t-?mobile|verizon|at&t|phone|internet|wifi|comcast|xfinity/i},
+  {id:"protection",name:"Protection",  g:"◈", m:/geico|insurance|allstate|progressive|state farm|premium/i},
+  {id:"debt",      name:"Debt",        g:"▼", m:/capital one|credit one|merrick|card|visa|mastercard|loan|nelnet|sallie|collection|warfield|fco/i},
+  {id:"pleasures", name:"Pleasures",   g:"✦", m:/disney|netflix|spotify|hulu|max|paramount|subscription|patreon|game|music/i},
+  {id:"growth",    name:"Growth",      g:"↑", m:/course|school|tuition|book|engineer|studio|business|domain|squarespace|adobe|apple developer/i},
+  {id:"obligation",name:"Obligations", g:"§", m:/irs|tax|court|child support|fine|ticket|government/i},
+  {id:"unplaced",  name:"Unplaced",    g:"·", m:/$^/}
+];
+function domainMap(){ const D=deep(); if(!D.domainMap||typeof D.domainMap!=="object") D.domainMap={}; return D.domainMap; }
+function domainOf(a){
+  const set=domainMap()[a.id];
+  if(set) return {id:set, guessed:false};
+  /* What a thing IS beats what pays for it: "Disney Plus (Credit One 4760)"
+     is a pleasure that happens to ride a card, not a debt. So the living
+     rooms are checked before the debt room ever gets a look. */
+  const order=["pleasures","growth","body","shelter","transport","connection","protection","obligation","debt"];
+  for(const id of order){
+    const d=LIFE_ROOMS.find(x=>x.id===id);
+    if(d && d.m.test(a.name||"")) return {id:d.id, guessed:true};
+  }
+  return {id:"unplaced", guessed:true};
+}
+function domainTotals(){
+  const t={}; LIFE_ROOMS.forEach(d=>t[d.id]={monthly:0,count:0,guessed:0,bills:[]});
+  fin.accounts.filter(isDebt).forEach(a=>{
+    const amt=amountDue(a);
+    const d=domainOf(a);
+    t[d.id].monthly+=amt; t[d.id].count++; if(d.guessed)t[d.id].guessed++;
+    t[d.id].bills.push(a);
+  });
+  return t;
+}
+let domainOpen=null;
+function renderDomains(){
+  const el=$("domainsWrap"); if(!el) return;
+  const t=domainTotals();
+  const rows=LIFE_ROOMS.map(d=>({d,...t[d.id]})).filter(r=>r.count>0);
+  if(!rows.length){ el.innerHTML=""; return; }
+  const max=Math.max(...rows.map(r=>r.monthly),1);
+  const total=rows.reduce((s,r)=>s+r.monthly,0);
+
+  /* the one-check test: does survival fit inside a single paycheck? */
+  const surv=billsMonthly("survival");
+  const one=(function(){ const s=deep().income[0]; if(!s) return 0;
+    return (Number(s.amount)||0)*(1-((Number(s.taxRate)||0)/100)); })();
+  let check="";
+  if(one>0&&surv>0){
+    const n=surv/one;
+    check=`<div class="onecheck ${n<=1?"ok":"over"}">
+      <b>The one-check test:</b> survival costs ${money(surv)} a month — one check brings ${money(one)}.
+      ${n<=1
+        ? "Survival fits inside a single check with "+money(one-surv)+" to spare. Everything your second check brings is building material."
+        : "Survival takes "+(Math.round(n*10)/10)+" checks. Until it fits inside one, the month has no building material — the overflow below shows which rooms to shrink."}
+    </div>`;
+  }
+  el.innerHTML=check+rows.sort((a,b)=>b.monthly-a.monthly).map(r=>{
+    const open=domainOpen===r.d.id;
+    const L=lifeSpan(r.monthly);
+    return `<div class="dom ${open?"open":""}" data-dom="${r.d.id}">
+      <div class="domhead" data-act="dtog">
+        <span class="dg">${r.d.g}</span>
+        <span class="dn">${esc(r.d.name)}</span>
+        <span class="dc num">${r.count}</span>
+        <div class="dbarwrap"><div class="dbar" style="width:${Math.round(r.monthly/max*100)}%"></div></div>
+        <span class="dv num">${money(r.monthly)}</span>
+        <span class="dp num">${total?Math.round(r.monthly/total*100):0}%</span>
+      </div>
+      ${L?`<div class="life" style="margin:-2px 0 8px 34px">≈ ${esc(L)} of your life, every month, feeding this room</div>`:""}
+      ${r.guessed?`<div class="dguess">${r.guessed} placed by guess — tap a bill to confirm or move it</div>`:""}
+      ${open?`<div class="dombills">`+r.bills.map(a=>`
+        <div class="dbill" data-id="${esc(a.id)}">
+          <span class="dbn">${esc(a.name)}</span>
+          <span class="dba num">${money(amountDue(a))}</span>
+          <button class="dbx" data-act="dedit">›</button>
+        </div>`).join("")+`</div>`:""}
+    </div>`;
+  }).join("");
+  el.querySelectorAll('[data-act="dtog"]').forEach(x=>x.onclick=()=>{
+    const id=x.closest(".dom").dataset.dom;
+    domainOpen = domainOpen===id ? null : id;
+    renderDomains();
+  });
+  el.querySelectorAll('[data-act="dedit"]').forEach(x=>x.onclick=()=>{
+    const a=fin.accounts.find(v=>v.id===x.closest(".dbill").dataset.id);
+    if(a) openEditor(a);
+  });
+}
 function renderAudit(){
   const el=$("auditWrap"); if(!el) return;
   const c=confidence(), n=auditAnswered(), F=auditFindings();
@@ -3566,6 +3973,7 @@ function openEditor(acct,kindDefault){
     `:`
       <div class="field"><label>Amount</label><input id="fBal" inputmode="decimal" value="${a.balance||""}" placeholder="0"></div>
     `}
+    <div class="field"><label>Room of your life</label><div class="seg segwrap" id="fDom">${LIFE_ROOMS.filter(d=>d.id!=="unplaced").map(d=>`<button data-d="${d.id}">${d.g} ${d.name}</button>`).join("")}</div></div>
     <div class="field"><label>Note</label><input id="fNote" value="${esc(a.note)}" placeholder="Optional"></div>
     ${Vision.bar("fEdit")}
     <button class="btn solid" id="fSave">${a.id?"Save":"Add it"}</button>
@@ -3581,6 +3989,16 @@ function openEditor(acct,kindDefault){
     : {context:"An account balance screen.",fields:[
         {id:"name",el:"fName",kind:"string",label:"account name"},
         {id:"balance",el:"fBal",kind:"number",label:"current balance"}]});
+  const dseg=$("fDom");
+  if(dseg){
+    const cur=domainOf(a);
+    dseg.querySelectorAll("button").forEach(b=>{
+      b.classList.toggle("on", b.dataset.d===cur.id && !cur.guessed);
+      b.onclick=()=>{ domainMap()[a.id]=b.dataset.d;
+        dseg.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+        save(true); buzz(8); };
+    });
+  }
   const seg=$("segTier");
   if(seg){
     const mark=()=>seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.t||null)===(editTier||null)||(b.dataset.t===""&&!editTier)));
