@@ -853,6 +853,69 @@ h2.sec{margin-top:30px}
 .mcard .mb{font-size:13px;color:var(--muted);line-height:1.6;margin-top:9px;display:none}
 .mcard.open .mb{display:block}
 
+
+/* ═══ the conversation, shaped like one ═══ */
+.sheet.chatmode #sheetBody{display:flex;flex-direction:column;height:82vh;padding-bottom:0}
+.gchead{flex:0 0 auto;display:flex;align-items:baseline;gap:10px;padding:2px 2px 12px;border-bottom:1px solid var(--line)}
+.gchead h3{margin:0}
+.gchead .gsub{font-size:11.5px;color:var(--quiet);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.gmsgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 2px;overscroll-behavior:contain}
+.gdock{flex:0 0 auto;border-top:1px solid var(--line);padding:10px 2px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg)}
+.gdockrow{display:flex;gap:8px;align-items:flex-end}
+.gdockrow textarea{flex:1;border-radius:18px;padding:11px 15px;font-size:15px;min-height:44px;max-height:110px;resize:none;background:var(--ink);border:1px solid var(--line)}
+.gdockbtn{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.gdockbtn.cam{border:1px solid var(--gold-dim);color:var(--gold);background:rgba(216,180,106,.06);font-size:13px}
+.gdockbtn.send{background:linear-gradient(180deg,#e7c67e,#cfa658);color:#1a1206;font-size:16px}
+.gdockbtn:active{transform:scale(.92)}
+.gattline{font-family:var(--mono);font-size:10px;color:var(--gold-dim);padding:4px 4px 0;display:none}
+/* bubbles */
+.msg{margin-bottom:12px;display:flex;flex-direction:column;align-items:flex-start}
+.msg.me{align-items:flex-end}
+.msg .who{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--quiet);margin:0 6px 4px}
+.msg .txt{
+  max-width:88%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.55;
+  background:rgba(255,255,255,.035);border:1px solid var(--line);border-top-left-radius:5px;
+  white-space:pre-wrap;word-break:break-word;
+}
+.msg.me .txt{
+  background:rgba(216,180,106,.10);border-color:rgba(216,180,106,.28);color:var(--fg);
+  border-radius:16px;border-top-right-radius:5px;
+}
+.gmsgs .note,.gmsgs .vow,.gmsgs .btn{align-self:stretch}
+
+
+/* receipts */
+.receipts{margin-top:6px}
+.rrow{padding:10px 2px;border-bottom:1px solid rgba(41,35,32,.55)}
+.rrow[data-acct]{cursor:pointer}
+.rrow:last-child{border-bottom:none}
+.rrmain{display:flex;align-items:baseline;gap:10px}
+.rrn{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rra{font-size:13px}
+.rrb{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;margin-top:3px}
+.rrb.ok{color:var(--held)} .rrb.mid{color:var(--gold-dim)} .rrb.dim{color:var(--quiet)}
+.rgrp{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--quiet);margin:12px 0 2px}
+.rtotal{display:flex;justify-content:space-between;border-top:1px solid var(--gold-dim);margin-top:8px;padding-top:10px;font-size:15px}
+.rmath{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-family:var(--mono);font-size:16px;margin:10px 0}
+.rmath .rop{font-family:var(--serif);font-size:12px;color:var(--quiet)}
+.rmath .bad{color:var(--warn)} .rmath .good{color:var(--held)}
+
+
+/* the grade */
+.gradecard{display:flex;align-items:center;gap:16px;border:1px solid rgba(216,180,106,.35);border-radius:16px;
+  padding:16px 18px;margin-bottom:12px;
+  background:linear-gradient(180deg,rgba(216,180,106,.07),rgba(216,180,106,.015))}
+.gletter{font-family:var(--serif);font-size:52px;line-height:1;letter-spacing:-.02em}
+.gtitle{font-size:15.5px}
+.gsub{font-size:11.5px;color:var(--quiet);margin-top:4px}
+.grow{border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:7px;cursor:pointer;background:rgba(255,255,255,.012)}
+.grow .gk{font-size:13.5px}
+.grow .gkid{color:var(--quiet);font-size:11px}
+.gbarrow{display:flex;align-items:center;gap:10px;margin-top:8px}
+.grow .gn{font-size:11px;color:var(--muted);min-width:26px;text-align:right}
+.grow .gfix{display:none;font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:9px;border-top:1px solid rgba(41,35,32,.6);padding-top:9px}
+.grow.open .gfix{display:block}
+
 </style>
 </head>
 <body>
@@ -892,9 +955,9 @@ h2.sec{margin-top:30px}
   </div>
 
   <div class="pillars">
-    <div class="pillar hold"><div class="k" data-teach="have">You have</div><div class="v num" id="pHave">$0</div></div>
-    <div class="pillar bills"><div class="k" data-teach="bills">Goes to bills</div><div class="v num" id="pBills">$0</div></div>
-    <div class="pillar free"><div class="k" data-teach="exp">Expendable</div><div class="v num" id="pFree">$0</div></div>
+    <div class="pillar hold" data-x="have"><div class="k">You have</div><div class="v num" id="pHave">$0</div></div>
+    <div class="pillar bills" data-x="bills"><div class="k">Goes to bills</div><div class="v num" id="pBills">$0</div></div>
+    <div class="pillar free" data-x="exp"><div class="k">Expendable</div><div class="v num" id="pFree">$0</div></div>
   </div>
 
   <div class="streakrow" id="streakRow" style="display:none">
@@ -903,15 +966,15 @@ h2.sec{margin-top:30px}
   </div>
 
   <div class="nwline">
-    <div><div class="k" data-teach="net">Net worth</div><div class="v num" id="nwBig">$0</div></div>
+    <div data-x="net"><div class="k">Net worth</div><div class="v num" id="nwBig">$0</div></div>
     <svg class="spark" id="nwSpark" viewBox="0 0 88 34" preserveAspectRatio="none"></svg>
   </div>
 
   <div class="grid2">
-    <div class="stat"><div class="k">Due today</div><div class="v num" id="sToday">$0</div></div>
-    <div class="stat"><div class="k">Next 7 days</div><div class="v num" id="s7">$0</div></div>
-    <div class="stat"><div class="k">Still owed this month</div><div class="v num" id="sOwed">$0</div></div>
-    <div class="stat"><div class="k">What you hold</div><div class="v num" id="sHold">$0</div></div>
+    <div class="stat" data-x="today"><div class="k">Due today</div><div class="v num" id="sToday">$0</div></div>
+    <div class="stat" data-x="week"><div class="k">Next 7 days</div><div class="v num" id="s7">$0</div></div>
+    <div class="stat" data-x="owed"><div class="k">Still owed this month</div><div class="v num" id="sOwed">$0</div></div>
+    <div class="stat" data-x="hold"><div class="k">What you hold</div><div class="v num" id="sHold">$0</div></div>
   </div>
 
   <div class="wheel">
@@ -1001,6 +1064,9 @@ h2.sec{margin-top:30px}
 
 <!-- ══════════════ WITNESS ══════════════ -->
 <section class="panel" id="p-counsel">
+  <h2 class="sec">The grade</h2>
+  <div id="gradeWrap"></div>
+
   <h2 class="sec">Across the table</h2>
   <div id="briefWrap"></div>
 
@@ -1141,7 +1207,7 @@ h2.sec{margin-top:30px}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.24";
+const BUILD = "2026-08-08.26";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -3255,7 +3321,7 @@ function describeChange(c){
 function applyChange(c){
   const acct=id=>fin.accounts.find(a=>a.id===id);
   switch(c.op){
-    case "pay":   { const a=acct(c.id); if(a) a.paidMonth=currentMonth(); break; }
+    case "pay":   { const a=acct(c.id); if(a){ a.paidMonth=currentMonth(); markTouched(a.id,"spoken"); } break; }
     case "unpay": { const a=acct(c.id); if(a) a.paidMonth=""; break; }
     case "remove":{ const D=deep(); delete D.apr[c.id]; delete D.cadence[c.id];
                     fin.accounts=fin.accounts.filter(a=>a.id!==c.id); break; }
@@ -3287,6 +3353,7 @@ function applyChange(c){
       if(f.cull!==undefined) a.cull=String(f.cull);
       if(f.tier!==undefined) a.tier=(f.tier==="survival"||f.tier==="luxury")?f.tier:null;
       if(f.room!==undefined && LIFE_ROOMS.some(d=>d.id===f.room)) domainMap()[a.id]=f.room;
+      markTouched(a.id,"spoken");
       if(f.apr!==undefined){ const D=deep(); const n=Number(f.apr);
         if(n>0) D.apr[a.id]=n; else delete D.apr[a.id]; }
       break; }
@@ -3299,7 +3366,7 @@ function proposeHands(j,box){
   if(j.say) html+=`<div class="msg"><div class="who">The Guardian</div><div class="txt">${esc(j.say)}</div></div>`;
   if(j.unclear) html+=`<div class="msg"><div class="who">The Guardian</div><div class="txt" style="color:var(--gold-dim)">${esc(j.unclear)}</div></div>`;
   if(items.length){
-    html+=`<div class="note" style="margin-top:6px"><b>Proposed — nothing is written yet:</b></div>
+    html+=`<div class="note" id="handsNote" style="margin-top:6px"><b>Proposed — nothing is written yet:</b></div>
       <div id="handsList">`+items.map((it,i)=>`
         <div class="vow" data-i="${i}">
           <button class="box" data-act="ht">✓</button>
@@ -3309,7 +3376,7 @@ function proposeHands(j,box){
       <button class="btn quiet" id="handsNo">Leave the record alone</button>`;
   }
   box.insertAdjacentHTML("beforeend",html);
-  box.lastElementChild && box.lastElementChild.scrollIntoView && box.lastElementChild.scrollIntoView({block:"nearest"});
+  chatScroll(box);
   if(!items.length) return;
   const on=items.map(()=>true);
   box.querySelectorAll("#handsList [data-act]").forEach(b=>b.onclick=()=>{
@@ -3321,13 +3388,13 @@ function proposeHands(j,box){
     if(!picked.length) return toast("Nothing ticked.");
     picked.forEach(applyChange);
     handsProposal=null; save(true); render();
-    $("handsList").outerHTML=""; $("handsSeal").outerHTML=""; $("handsNo").outerHTML="";
+    ["handsList","handsSeal","handsNo","handsNote"].forEach(id=>{const x=$(id); if(x) x.outerHTML="";});
     box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt" style="color:var(--held)">Sealed. ${picked.length} change${picked.length===1?"":"s"} in the record.</div></div>`);
     Lamp.bloom(.6); buzz(16); chime(660,.05);
   };
   $("handsNo").onclick=()=>{
     handsProposal=null;
-    $("handsList").outerHTML=""; $("handsSeal").outerHTML=""; $("handsNo").outerHTML="";
+    ["handsList","handsSeal","handsNo","handsNote"].forEach(id=>{const x=$(id); if(x) x.outerHTML="";});
     box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt">Left alone. Nothing was written.</div></div>`);
   };
 }
@@ -3347,11 +3414,12 @@ async function speak(){
   $("speakIn").value=""; $("speakIn").blur();
   speakAttached=[]; sbChip();
   speakBusy=true; setTimeout(()=>{speakBusy=false;},1200);
-  openSheet(`<h3>The Guardian</h3><div class="chat" id="speakChat">
+  openSheet(`<div class="gchead"><h3>The Guardian</h3></div><div class="gmsgs" id="speakChat">
     <div class="msg me"><div class="who">You</div><div class="txt">${esc(q||"(reading what you attached)")}${files.length?` <span style="color:var(--gold-dim)">· ${files.length} attached</span>`:""}</div></div>
     <div class="msg" id="speakWait"><div class="who">The Guardian</div><div class="txt" style="color:var(--quiet)">reading…</div></div>
-  </div>`);
+  </div>${chatDock()}`,"chat");
   const box=$("speakChat");
+  wireDock(box); chatScroll(box);
   try{
     const j=await guardianHands(q,box,files);
     const wEl=$("speakWait"); if(wEl) wEl.outerHTML="";
@@ -3539,6 +3607,9 @@ const TEACH={
   audit:{t:"The audit",
     kid:"Fourteen questions a money-doctor would ask, to find the holes before they become floods.",
     adult:"An advisor intake: insurance, match, taxes, credit, cover. Findings rank by severity and only ever come from what you stated — unanswered stays unanswered, never assumed."},
+  grade:{t:"The grade",
+    kid:"One letter for your whole money life, like a report card. It's built from five things a child can check: could you survive a bad month, is anything left to build with, is money leaking, does one paycheck cover staying alive, and is it all proven true.",
+    adult:"A weighted composite: cover (25%), gap rate (30%), interest burden (20%), one-check survival (15%), verification (10%). It moves when reality moves — pay a debt, confirm a balance, widen the gap, and the letter follows. It grades the position, never the person."},
   whatif:{t:"What if…",
     kid:"A pretend-room. Flip a bill off and see what the world looks like without it — how much money comes back, how much faster a debt dies. Nothing real changes until you say so.",
     adult:"A sandbox over your real numbers: toggle any bill, add hypothetical income, and watch the gap, the yearly total, and the top debt's death date recompute live. It never writes to the record — when a cut is real, cull it through the bar or the editor."},
@@ -3549,6 +3620,99 @@ const TEACH={
     kid:"How much of this picture is proven true, versus just remembered. A photo of your bank proves; a memory only promises.",
     adult:"Verified fraction of the record. The $6,404-vs-$806 failure mode is exactly what this meter exists to prevent: a guess and a confirmed figure must never look the same."}
 };
+/* ═══════════════════════════════════════════════════════════
+   PROVENANCE — touch a number, it confesses
+   No figure in this app may assert itself without receipts. Tap
+   any counter and the sheet opens with the itemized arithmetic:
+   which accounts, which bills, each with its trust badge — photo-
+   confirmed with a date, spoken through the Guardian, typed by
+   hand, or carried in from the imported ledger. The lesson follows
+   the receipts, never instead of them.
+   ═══════════════════════════════════════════════════════════ */
+function touched(){ const D=deep(); if(!D.touched||typeof D.touched!=="object") D.touched={}; return D.touched; }
+function markTouched(id,how){ touched()[id]={at:new Date().toISOString(),how}; }
+function trustBadge(a){
+  const v=deep().verified&&deep().verified[a.id];
+  if(v) return {cls:"ok", txt:"✓ photo-confirmed "+new Date(v).toLocaleDateString("en-US",{month:"short",day:"numeric"})};
+  const t=touched()[a.id];
+  if(t){
+    const d=new Date(t.at).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    if(t.how==="spoken") return {cls:"mid", txt:"spoken to the Guardian "+d};
+    if(t.how==="typed")  return {cls:"mid", txt:"typed by hand "+d};
+    if(t.how==="seed")   return {cls:"mid", txt:"added from your bank list "+d};
+  }
+  return {cls:"dim", txt:"as stated in the imported ledger — never confirmed"};
+}
+function receiptRows(list,amtFn){
+  return list.map(a=>{
+    const b=trustBadge(a);
+    return `<div class="rrow" data-acct="${esc(a.id)}">
+      <div class="rrmain"><span class="rrn">${esc(a.name)}</span><span class="rra num">${money(amtFn(a))}</span></div>
+      <div class="rrb ${b.cls}">${esc(b.txt)}</div>
+    </div>`;}).join("");
+}
+function explain(key){
+  const assets=fin.accounts.filter(a=>!isDebt(a));
+  const un2=unpaidBills().filter(dueThisMonth);
+  let title="", rows="", total=null, math="";
+  if(key==="have"||key==="hold"){
+    title="You have — where it comes from";
+    rows=receiptRows(assets,a=>Number(a.balance)||0);
+    total=heldTotal();
+  }else if(key==="bills"||key==="owed"){
+    title="Goes to bills — every promise counted";
+    rows=receiptRows(sortDue(un2),a=>amountDue(a));
+    total=owedThisMonth();
+    math="Unpaid bills due this cycle. Bills with no stated date are counted here too — an unstated date never hides a bill.";
+  }else if(key==="exp"){
+    title="Expendable — the subtraction itself";
+    math=`<div class="rmath"><span>${money(heldTotal())}</span><span class="rop">held, minus</span><span>${money(owedThisMonth())}</span><span class="rop">still owed, leaves</span><span class="${heldTotal()-owedThisMonth()<0?"bad":"good"}">${money(heldTotal()-owedThisMonth())}</span></div>`;
+    total=null;
+  }else if(key==="net"){
+    title="Net worth — both sides of the scale";
+    const debts=fin.accounts.filter(isDebt);
+    rows=`<div class="rgrp">Owned</div>`+receiptRows(assets,a=>Number(a.balance)||0)
+        +`<div class="rgrp">Owed</div>`+receiptRows(debts.filter(a=>Number(a.balance)>0),a=>-(Number(a.balance)||0));
+    total=netWorth();
+  }else if(key==="today"){
+    title="Due today — by name";
+    const l=un2.filter(a=>{const p=parseDueFor(a);return p.ok&&p.days<=0;});
+    rows=receiptRows(l,amountDue); total=l.reduce((s,a)=>s+amountDue(a),0);
+  }else if(key==="week"){
+    title="Next 7 days — by name";
+    const l=un2.filter(a=>{const p=parseDueFor(a);return p.ok&&p.days>0&&p.days<=7;});
+    rows=receiptRows(sortDue(l),amountDue); total=l.reduce((s,a)=>s+amountDue(a),0);
+  }else if(key==="gap"){
+    title="The gap — in, minus out";
+    const inc=deep().income.map(x=>{
+      const net=(Number(x.amount)||0)*(1-((Number(x.taxRate)||0)/100));
+      const mo = x.cadence==="weekly"?net*4.345 : x.cadence==="biweekly"?net*2.1725 : x.cadence==="semimonthly"?net*2 : net;
+      return `<div class="rrow"><div class="rrmain"><span class="rrn">↓ ${esc(x.name)} · ${esc(x.cadence)}</span><span class="rra num good">${money(mo)}/mo</span></div></div>`;
+    }).join("");
+    rows=inc+`<div class="rrow"><div class="rrmain"><span class="rrn">Survival bills, averaged</span><span class="rra num">−${money(billsMonthly("survival"))}</span></div></div>
+      <div class="rrow"><div class="rrmain"><span class="rrn">Chosen bills, averaged</span><span class="rra num">−${money(billsMonthly("luxury"))}</span></div></div>`;
+    total=deep().income.length?theGap():null;
+  } else { teach(key); return; }
+  const L=TEACH[key==="hold"?"have":key==="owed"?"bills":key==="today"||key==="week"?"bills":key];
+  openSheet(`<h3>${esc(title)}</h3>
+    ${math?`<div class="note">${math}</div>`:""}
+    <div class="receipts">${rows}</div>
+    ${total!==null?`<div class="rtotal"><span>Total</span><span class="num">${money(total)}</span></div>`:""}
+    ${lifeSpan(Math.abs(total||0))?`<div class="life" style="margin-top:6px">≈ ${esc(lifeSpan(Math.abs(total)))} of your life</div>`:""}
+    ${L?`<div class="lesson" style="margin-top:14px"><div class="lk">Like you're ten</div><div class="lt">${esc(L.kid)}</div></div>`:""}
+    <button class="btn" id="expAsk">Ask the Guardian about this</button>`);
+  document.querySelectorAll(".rrow[data-acct]").forEach(r=>r.onclick=()=>{
+    const a=fin.accounts.find(x=>x.id===r.dataset.acct);
+    if(a){ closeSheet(); setTimeout(()=>openEditor(a),260); }
+  });
+  $("expAsk").onclick=()=>{ closeSheet();
+    const si=$("speakIn"); if(si){ si.value="Explain my "+title.split(" — ")[0].toLowerCase()+" and where each part comes from."; }
+    toast("Question's in the bar — tap ✦."); };
+}
+document.addEventListener("click",e=>{
+  const x=e.target.closest("[data-x]");
+  if(x){ e.stopPropagation(); explain(x.dataset.x); }
+});
 function teach(key){
   const L=TEACH[key]; if(!L) return;
   openSheet(`<h3>${esc(L.t)}</h3>
@@ -3907,6 +4071,62 @@ function confidence(){
    ═══════════════════════════════════════════════════════════ */
 function monthsCover(){ const b=billsMonthly(); return b>0? heldTotal()/b : null; }
 
+/* ── 0. THE GRADE: the whole standing in one letter ── */
+function gradeStatus(){
+  const hasInc=deep().income.length>0;
+  const net=hasInc?netMonthly():0;
+  const cover=monthsCover();
+  const gap=hasInc?theGap():null;
+  const bleed=bleedPerMonth();
+  const surv=billsMonthly("survival");
+  const one=(function(){const s=deep().income[0]; if(!s)return 0;
+    const per=(Number(s.amount)||0)*(1-((Number(s.taxRate)||0)/100)); return per;})();
+  const conf=confidence().pct;
+  const parts=[];
+  parts.push({k:"Your safety net", kid:"how long you'd last if money stopped",
+    score: cover===null?0:Math.min(cover/3,1)*100,
+    fix: cover===null?"State your bills so this can be measured.":cover>=3?"Standing. Keep it fed.":"Every dollar held above the floor grows this. Target: "+money(billsMonthly()*3)+"."});
+  parts.push({k:"Building power", kid:"money left after every bill — the only stuff wealth is made of",
+    score: gap===null?0:gap<=0?0:Math.min(gap/Math.max(net,1)/0.25,1)*100,
+    fix: gap===null?"State your income.":gap<=0?"More leaves than arrives — the Chosen rooms and the income side are the two levers.":"Widen it: the What-if bench shows which cut buys the most."});
+  parts.push({k:"Leaks", kid:"money that vanishes as interest, buying nothing",
+    score: net<=0?0:Math.max(0,1-(bleed/Math.max(net,1))/0.08)*100,
+    fix: bleed<=0?"Nothing leaking. Rare and excellent.":"Kill the top of the kill order — "+money(bleed)+"/mo stops leaving."});
+  parts.push({k:"One-check survival", kid:"whether one paycheck covers staying alive",
+    score: (!one||!surv)?0:Math.max(0,Math.min(1, 2 - surv/one))*100,
+    fix: (!one||!surv)?"State income and sort bills into survival first.":surv<=one?"It fits — the second check is all building material.":"Survival takes "+(Math.round(surv/one*10)/10)+" checks. Shrink the heaviest room."});
+  parts.push({k:"Proven true", kid:"how much of this picture is confirmed, not guessed",
+    score: conf,
+    fix: conf>=75?"Solid record.":"Photo-confirm balances and finish the audit — guesses make every other grade a rumor."});
+  const w=[.25,.30,.20,.15,.10];
+  const total=Math.round(parts.reduce((s,p,i)=>s+p.score*w[i],0));
+  const letter= total>=93?"A":total>=90?"A−":total>=87?"B+":total>=83?"B":total>=80?"B−":total>=77?"C+":total>=73?"C":total>=70?"C−":total>=67?"D+":total>=63?"D":total>=60?"D−":"F";
+  return {parts,total,letter};
+}
+function renderGrade(){
+  const el=$("gradeWrap"); if(!el) return;
+  const G=gradeStatus();
+  const tone=G.total>=80?"var(--held)":G.total>=60?"var(--gold)":"var(--warn)";
+  el.innerHTML=`
+    <div class="gradecard" data-teach="grade">
+      <div class="gletter" style="color:${tone}">${G.letter}</div>
+      <div class="gside">
+        <div class="gtitle">Your financial standing</div>
+        <div class="gsub">${G.total} of 100 — tap any line to see what raises it</div>
+      </div>
+    </div>
+    ${G.parts.map((p,i)=>`
+      <div class="grow" data-gi="${i}">
+        <div class="gk">${esc(p.k)} <span class="gkid">· ${esc(p.kid)}</span></div>
+        <div class="gbarrow">
+          <div class="confbar" style="flex:1"><i style="width:${Math.round(p.score)}%"></i></div>
+          <span class="gn num">${Math.round(p.score)}</span>
+        </div>
+        <div class="gfix">${esc(p.fix)}</div>
+      </div>`).join("")}`;
+  el.querySelectorAll(".grow").forEach(r=>r.onclick=()=>r.classList.toggle("open"));
+}
+
 /* ── 1. THE BRIEF: where you stand in the current world ── */
 function renderBrief(){
   const el=$("briefWrap"); if(!el) return;
@@ -4076,7 +4296,7 @@ function renderMissing(){
     </div>`).join("");
   el.querySelectorAll(".mcard .mt").forEach(m=>m.onclick=()=>m.closest(".mcard").classList.toggle("open"));
 }
-function renderCounsel(){ renderBrief(); renderWhatIf(); renderJourney(); renderMissing(); }
+function renderCounsel(){ renderGrade(); renderBrief(); renderWhatIf(); renderJourney(); renderMissing(); }
 
 function renderWitness(){
   const tq=quests.filter(q=>q&&q.starId==="treasury");
@@ -4213,6 +4433,12 @@ function openEditor(acct,kindDefault){
     : {context:"An account balance screen.",fields:[
         {id:"name",el:"fName",kind:"string",label:"account name"},
         {id:"balance",el:"fBal",kind:"number",label:"current balance"}]});
+  (function(){
+    const b=trustBadge(a);
+    const host=$("fName");
+    if(host) host.closest(".field").insertAdjacentHTML("beforebegin",
+      `<div class="rrb ${b.cls}" style="margin:-2px 0 12px">${esc(b.txt)}</div>`);
+  })();
   const dseg=$("fDom");
   if(dseg){
     const cur=domainOf(a);
@@ -4230,6 +4456,7 @@ function openEditor(acct,kindDefault){
     mark();
   }
   $("fSave").onclick=()=>{
+    markTouched(a.id,"typed");
     const name=($("fName").value||"").trim();
     if(!name) return toast("Give it a name.");
     const rec = a.id ? fin.accounts.find(x=>x.id===a.id) : normalizeAccount({id:uid(),kind:debt?"debt":"asset"});
@@ -4417,66 +4644,74 @@ function openKeyDoor(){
 }
 
 /* ═══════════ THE GUARDIAN SPEAKS ═══════════ */
-function openGuardian(){
+/* One conversation pipeline for every door: user line in, right engine out,
+   bubbles land at the bottom, view follows. */
+function chatScroll(box){ requestAnimationFrame(()=>{ box.scrollTop=box.scrollHeight; }); }
+async function converse(box,q,files){
+  if(!q && !(files&&files.length)) return;
+  box.insertAdjacentHTML("beforeend",`<div class="msg me"><div class="who">You</div><div class="txt">${esc(q||"(reading what you attached)")}${files&&files.length?` · ${files.length} attached`:""}</div></div>`);
+  const tid="m"+uid();
+  box.insertAdjacentHTML("beforeend",`<div class="msg" id="${tid}"><div class="who">The Guardian</div><div class="txt" style="color:var(--quiet)">reading…</div></div>`);
+  chatScroll(box);
+  try{
+    const j=await guardianHands(q||"",box,files||[]);
+    const wEl=$(tid); if(wEl) wEl.outerHTML="";
+    if((j.changes||[]).length || j.unclear){ proposeHands(j,box); }
+    else{
+      if(j.say) box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt">${esc(j.say)}</div></div>`);
+      if(q) ask(q,box,files);
+    }
+  }catch(e){
+    const wEl=$(tid); if(wEl) wEl.outerHTML="";
+    if(q) ask(q,box,files);
+    else box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt" style="color:var(--warn)">Couldn't read that: ${esc(e.message)}</div></div>`);
+  }
+  chatScroll(box);
+}
+function chatDock(sendFn){
+  return `<div class="gdock">
+    <div class="gattline" id="gAtt"></div>
+    <div class="gdockrow">
+      <button class="gdockbtn cam" id="gCam" aria-label="Snap">◉</button>
+      <button class="gdockbtn cam" id="gFile" aria-label="Attach">⌫</button>
+      <textarea id="gq" rows="1" placeholder="Say anything…"></textarea>
+      <button class="gdockbtn send" id="gAsk" aria-label="Send">✦</button>
+    </div>
+  </div>`;
+}
+function wireDock(box){
+  guardianFiles=[];
+  const att=()=>{ const a=$("gAtt");
+    if(a){ a.style.display=guardianFiles.length?"block":"none";
+      a.textContent=guardianFiles.length+" attached"; } };
+  $("gCam").onclick=()=>{ if(!hasKey())return openKeyDoor(); $("camIn").click(); };
+  $("gFile").onclick=()=>{ if(!hasKey())return openKeyDoor(); $("docIn").click(); };
+  const orig=attachToGuardian;
+  $("gAsk").onclick=()=>{
+    const q=($("gq").value||"").trim();
+    const f=(guardianFiles||[]).slice();
+    if(!q&&!f.length) return toast("Say something, or attach a picture.");
+    $("gq").value=""; guardianFiles=[]; att();
+    converse(box,q,f);
+  };
+  att();
+}
+function openGuardian(seedQ){
   if(!hasKey()){ openKeyDoor(); return; }
   const L=treasuryLight();
   openSheet(`
-    <h3>The Guardian</h3>
-    <div class="sub">${esc(L.why)}</div>
-    <div class="field"><textarea id="gq" rows="3" placeholder="Say anything — mark T-Mobile paid · Capital One is due the 27th · GEICO went up to 600"></textarea></div>
-    <div class="visbar">
-      <button class="visbtn" id="gCam">◉ Snap it</button>
-      <button class="visbtn" id="gFile">⌫ Attach</button>
-      <span class="vishint" id="gAtt">nothing attached</span>
+    <div class="gchead"><h3>The Guardian</h3><span class="gsub">${esc(L.why)}</span></div>
+    <div class="gmsgs" id="chat2">
+      <div class="msg"><div class="who">The Guardian</div><div class="txt">I'm across the table, with your record open. Ask anything, hand me anything — a bank screen, a bill, a worry. Quick doors: "what do I pay first" · "where does it go" · "can I afford it" · "one move this week".</div></div>
     </div>
-    <div class="seg" style="grid-template-columns:1fr 1fr">
-      <button data-q="What should I pay first this month, and why that order?">Pay order</button>
-      <button data-q="Walk me through my gap. Where is the money actually going?">Where it goes</button>
-      <button data-q="Can I afford anything extra before my next payday? Show the arithmetic.">Can I afford it</button>
-      <button data-q="What is the single smallest thing I could do this week that would change my numbers most?">One move</button>
-    </div>
-    <button class="btn solid" id="gAsk" style="margin-top:14px">Ask</button>
-    <button class="btn" id="gRead">Read a statement</button>
-    <div class="chat" id="chat2"></div>`);
-  document.querySelectorAll('.sheet .seg button[data-q]').forEach(b=>b.onclick=()=>{ $("gq").value=b.dataset.q; });
-  guardianFiles=[];
-  $("gCam").onclick=()=>{ if(!hasKey())return openKeyDoor(); $("camIn").click(); };
-  $("gFile").onclick=()=>{ if(!hasKey())return openKeyDoor(); $("docIn").click(); };
-  $("gRead").onclick=openReading;
-  $("gAsk").onclick=async()=>{
-    const q=($("gq").value||"").trim();
-    const f=guardianFiles||[];
-    if(!q && !f.length) return toast("Say something, or attach a picture.");
-    $("gq").value="";
-    const box=$("chat2");
-    if(f.length){
-      ask(q||"What am I looking at, and what does it mean for my numbers?",box,f);
-      guardianFiles=[]; const a=$("gAtt"); if(a){a.textContent="nothing attached";a.style.color="";}
-      return;
-    }
-    /* Words with no picture: first ask the Hands whether this changes the
-       record. If it proposes changes, show them for sealing. If not, fall
-       through to the ordinary conversation. One utterance, right door. */
-    box.insertAdjacentHTML("beforeend",`<div class="msg me"><div class="who">You</div><div class="txt">${esc(q)}</div></div>`);
-    const tid="m"+uid();
-    box.insertAdjacentHTML("beforeend",`<div class="msg" id="${tid}"><div class="who">The Guardian</div><div class="txt" style="color:var(--quiet)">reading…</div></div>`);
-    try{
-      const j=await guardianHands(q,box);
-      $(tid).outerHTML="";
-      if((j.changes||[]).length || j.unclear){ proposeHands(j,box); }
-      else {
-        if(j.say) box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt">${esc(j.say)}</div></div>`);
-        ask(q,box);
-      }
-    }catch(e){
-      $(tid).outerHTML="";
-      ask(q,box);   // hands failed — the conversation still works
-    }
-  };
+    ${chatDock()}`,"chat");
+  wireDock($("chat2"));
+  if(seedQ){ $("gq").value=seedQ; }
 }
 
 /* ═══════════ SHEET PLUMBING ═══════════ */
-function openSheet(html){
+function openSheet(html,mode){
+  $("sheet").classList.toggle("chatmode",mode==="chat");
   $("sheetBody").innerHTML=`<button class="sheetX" onclick="closeSheet()" aria-label="Close">×</button>`+html;
   $("scrim").classList.add("on");
   requestAnimationFrame(()=>$("sheet").classList.add("on"));
@@ -4489,6 +4724,7 @@ function attachToGuardian(files){
   buzz(12);
 }
 function closeSheet(){
+  $("sheet").classList.remove("chatmode");
   guardianFiles=null; visionPending=null;
   document.body.style.overflow=""; $("sheet").classList.remove("on"); setTimeout(()=>$("scrim").classList.remove("on"),240); }
 $("scrim").onclick=closeSheet;
@@ -4589,6 +4825,7 @@ async function ask(q,box,files){
     if(!res.ok) throw new Error((data&&data.error&&data.error.message)||("HTTP "+res.status));
     const txt=plainSpeech((data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("\n"));
     $(id).querySelector(".txt").outerHTML=`<div class="txt">${esc(txt||"No answer came back.")}</div>`;
+    chatScroll(box);
   }catch(e){
     $(id).querySelector(".txt").outerHTML=`<div class="txt" style="color:var(--warn)">Couldn't reach the Guardian: ${esc(e.message)}. The record is untouched — everything on the other pages still works.</div>`;
   }
@@ -4666,8 +4903,8 @@ $("btnSeedCap").onclick=()=>{
     let added=0,updated=0;
     rows.forEach((r,i)=>{
       if(!on[i]) return;
-      if(r.match){ r.match.balance=r.seed.balance; r.match.kind="asset"; updated++; }
-      else { fin.accounts.push(normalizeAccount({id:uid(),name:r.seed.name,kind:"asset",balance:r.seed.balance})); added++; }
+      if(r.match){ r.match.balance=r.seed.balance; r.match.kind="asset"; markTouched(r.match.id,"seed"); updated++; }
+      else { const na=normalizeAccount({id:uid(),name:r.seed.name,kind:"asset",balance:r.seed.balance}); fin.accounts.push(na); markTouched(na.id,"seed"); added++; }
     });
     closeSheet(); save(true); render();
     milestone("◈","Your accounts are in.",
