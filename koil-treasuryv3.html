@@ -163,11 +163,11 @@ nav{
   position:fixed;left:0;right:0;bottom:0;z-index:40;
   background:rgba(12,10,9,.94);backdrop-filter:blur(12px);
   border-top:1px solid var(--line);
-  display:grid;grid-template-columns:repeat(6,1fr);
+  display:grid;grid-template-columns:repeat(8,1fr);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
 nav{padding-left:2px;padding-right:2px}
-nav button{font-size:8.5px;
+nav button{font-size:7.5px;letter-spacing:.06em;min-width:0;overflow:hidden;
   height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   color:var(--quiet);font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;
 }
@@ -657,7 +657,7 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
 
 
 /* payday grid — a month you tap, no keyboard involved */
-.daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px}
+.daygrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:4px}
 .daygrid button{
   aspect-ratio:1;border:1px solid var(--line);border-radius:10px;
   font-family:var(--mono);font-size:13px;color:var(--muted);
@@ -925,6 +925,62 @@ h2.sec{margin-top:30px}
 }
 .gchips button:active{color:var(--gold);border-color:var(--gold-dim)}
 
+
+.scorecard{border:1px solid rgba(216,180,106,.32);border-radius:16px;padding:18px;margin-bottom:12px;
+  background:linear-gradient(180deg,rgba(216,180,106,.07),rgba(216,180,106,.015));
+  display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.scorebig{font-family:var(--mono);font-size:54px;line-height:1;letter-spacing:-.03em}
+.scoreband{font-size:15px}
+.scoremeta{font-size:11.5px;color:var(--quiet);margin-top:4px;line-height:1.45}
+.scorerail{grid-column:1/-1;height:6px;border-radius:3px;position:relative;margin-top:4px;
+  background:linear-gradient(90deg,var(--warn),var(--gold-dim),var(--gold),var(--held))}
+.scorerail i{position:absolute;top:-4px;width:3px;height:14px;border-radius:2px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.6)}
+.scorends{grid-column:1/-1;display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--quiet)}
+.lever{border:1px solid var(--line);border-left-width:2px;border-radius:13px;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,.012)}
+.lever.fast{border-left-color:var(--gold)} .lever.slow{border-left-color:var(--warn)}
+.lever .lt{font-size:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.lspeed{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--quiet)}
+.lever .lbig{font-family:var(--mono);font-size:26px;margin-top:8px}
+.lever .lsub{font-family:var(--serif);font-size:12.5px;color:var(--muted)}
+.lever .lnote{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:7px}
+.simwrap{border:1px solid var(--line);border-radius:14px;padding:14px;background:rgba(255,255,255,.012)}
+.simrow{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.simrow input{width:110px;border-radius:10px;padding:9px 12px;font-size:16px;background:var(--ink);border:1px solid var(--line)}
+.simbars{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.simbar{position:relative;height:26px;border-radius:8px;background:var(--line);overflow:hidden;display:flex;align-items:center}
+.simbar i{position:absolute;inset:0;width:0;background:linear-gradient(90deg,var(--warn),rgba(201,138,90,.6))}
+.simbar.good i{background:linear-gradient(90deg,var(--gold-dim),var(--gold))}
+.simbar span{position:relative;font-family:var(--mono);font-size:10.5px;padding-left:10px}
+.simmarks{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.simmarks button{font-family:var(--mono);font-size:10px;color:var(--gold-dim);border:1px solid var(--line);
+  border-radius:999px;padding:7px 12px;background:rgba(255,255,255,.02)}
+.strongrow{display:flex;align-items:baseline;gap:10px;padding:9px 2px;border-bottom:1px solid rgba(41,35,32,.55);font-size:13.5px}
+.strongrow span{flex:1;color:var(--muted)} .strongrow b{font-family:var(--mono);font-size:13px}
+.strongrow em{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--held);font-style:normal}
+
+
+.vcount{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;
+  border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:10px;
+  background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,0) 40%),rgba(255,255,255,.012)}
+.vcount.soon{border-color:rgba(201,138,90,.45)}
+.vdays{font-family:var(--mono);font-size:52px;line-height:1;color:var(--warn)}
+.vlab{font-size:14.5px} .vmeta{font-size:11.5px;color:var(--quiet);margin-top:4px;line-height:1.45}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.vcell{border:1px solid var(--line);border-radius:12px;padding:11px 13px;background:rgba(255,255,255,.012)}
+.vcell .k{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--quiet)}
+.vcell .v{font-size:17px;margin-top:5px}
+.vequity{border:1px solid var(--line);border-radius:14px;padding:14px;background:rgba(255,255,255,.012)}
+.er{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:13.5px;color:var(--muted)}
+.er b{font-family:var(--mono);font-size:15px;color:var(--fg)}
+.er.neg{border-top:1px solid var(--line);margin-top:4px;padding-top:10px}
+.er.neg b{color:var(--warn);font-size:19px}
+.vpath{border:1px solid var(--line);border-left-width:2px;border-radius:13px;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,.012)}
+.vpath.dead{border-left-color:var(--warn);opacity:.8} .vpath.live{border-left-color:var(--held)}
+.vpath .pt{font-size:15px;display:flex;gap:9px;align-items:baseline}
+.pv{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--quiet)}
+.vpath.live .pv{color:var(--held)} .vpath.dead .pv{color:var(--warn)}
+.vpath .pb{font-size:13px;color:var(--muted);line-height:1.6;margin-top:8px}
+
 </style>
 </head>
 <body>
@@ -1004,6 +1060,7 @@ h2.sec{margin-top:30px}
 
 <!-- ══════════════ BILLS ══════════════ -->
 <section class="panel" id="p-bills">
+  <div id="noPayNote"></div>
   <h2 class="sec" data-teach="rooms">The rooms of your life <span class="tally num" id="tRooms"></span></h2>
   <div id="domainsWrap"></div>
 
@@ -1028,6 +1085,7 @@ h2.sec{margin-top:30px}
   <button class="btn solid" onclick="openEditor(null,'asset')">Add what you hold</button>
   <button class="btn" id="btnReconcile">Reconcile from a photo</button>
   <button class="btn quiet" id="btnSeedCap">Add my Capital One accounts</button>
+  <button class="btn" id="btnTwins">Find twins — duplicate accounts</button>
   <div class="note">Photograph your bank's account list. Every balance on screen is proposed against this list — matched by the last four digits — and nothing changes until you seal it. Accounts in your record that aren't on the screen are left alone and named, so you decide.</div>
 
   <h2 class="sec">Marked for the cull</h2>
@@ -1072,6 +1130,16 @@ h2.sec{margin-top:30px}
 </section>
 
 <!-- ══════════════ WITNESS ══════════════ -->
+<section class="panel" id="p-credit">
+  <h2 class="sec">Your credit</h2>
+  <div id="creditWrap"></div>
+</section>
+
+<section class="panel" id="p-vehicle">
+  <h2 class="sec">The vehicle</h2>
+  <div id="vehicleWrap"></div>
+</section>
+
 <section class="panel" id="p-counsel">
   <h2 class="sec">The grade</h2>
   <div id="gradeWrap"></div>
@@ -1158,8 +1226,9 @@ h2.sec{margin-top:30px}
   <button data-go="bills"><span class="g">☰</span>Bills</button>
   <button data-go="hold"><span class="g">◈</span>Hold</button>
   <button data-go="plan"><span class="g">◇</span>Plan</button>
+  <button data-go="credit"><span class="g">◍</span>Credit</button>
+  <button data-go="vehicle"><span class="g">➤</span>Vehicle</button>
   <button data-go="counsel"><span class="g">❖</span>Counsel</button>
-  <button data-go="witness"><span class="g">✦</span>Witness</button>
   <button data-go="ledger"><span class="g">⎘</span>Ledger</button>
 </nav>
 
@@ -1215,7 +1284,7 @@ h2.sec{margin-top:30px}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.28";
+const BUILD = "2026-08-08.32";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1316,7 +1385,14 @@ function ordinal(d){return d>3&&d<21?"th":({1:"st",2:"nd",3:"rd"}[d%10]||"th");}
 /* ═══════════ ACCOUNT MATH ═══════════ */
 const isDebt  = a => (a.kind||"debt")==="debt";
 const isPaid  = a => a.paidMonth === currentMonth();
-function amountDue(a){ const m=Number(a.min)||0; return m>0?m:Math.abs(Number(a.balance)||0); }
+/* An unstated payment is unstated. Falling back to the whole balance was a
+   guess — and a violent one: a $10,999 collection with no monthly demand was
+   being counted as due this month, which made Expendable a horror story and
+   every downstream number a lie. Zero stated payment now contributes zero to
+   the month; the balance still counts against net worth, and the count of
+   payment-less debts is surfaced on the Bills page so none of them can hide. */
+function amountDue(a){ return Number(a.min)||0; }
+function noPaymentStated(){ return fin.accounts.filter(a=>isDebt(a)&&!(Number(a.min)>0)&&Math.abs(Number(a.balance)||0)>0); }
 function heldTotal(){ return fin.accounts.filter(a=>!isDebt(a)).reduce((s,a)=>s+(Number(a.balance)||0),0); }
 function unpaidBills(){ return fin.accounts.filter(a=>isDebt(a)&&!isPaid(a)); }
 /* Only what actually lands this month. A yearly bill stated for September
@@ -1760,7 +1836,10 @@ function render(){
   const step=(name,fn)=>{ try{ fn(); }catch(e){ renderErrors.push(name+": "+e.message); console.error(name,e); } };
   step("today",renderToday);
   step("bills",renderBills);
+  step("nopay",renderNoPay);
   step("rooms",renderDomains);
+  step("credit",renderCredit);
+  step("vehicle",renderVehicle);
   step("counsel",renderCounsel);
   step("hold",renderHold);
   step("plan",renderPlan);
@@ -1775,6 +1854,8 @@ function render(){
   step("streak",renderStreak);
   step("milestones",checkMilestones);
   step("bridge",renderBridge);   // last, so it can report on everything above
+  step("twins",()=>{ const n=findTwins().length;
+    const b=$("btnTwins"); if(b) b.textContent = n? "⚠ "+n+" twin pair"+(n>1?"s":"")+" doubling your numbers — resolve" : "Find twins — duplicate accounts"; });
   const kd=$("keyDoor"); if(kd) kd.classList.toggle("lit",hasKey());
 }
 
@@ -3260,6 +3341,13 @@ Rules:
 - "remove" only when they clearly ask to delete/remove; paying off is "update" balance 0, not remove.
 - Empty changes array + "say" is fine when they're only asking a question.
 
+INCOME IS NEVER AN ACCOUNT — this rule is absolute:
+- "I got paid", "my paycheck is X", "Wynn pays me", any payroll/employer/salary language → income ops, NEVER "add" an account. An employer is not a place money sits; it is a source money arrives from.
+- {"op":"income_add","income":{"name":"","amount":0,"cadence":"weekly|biweekly|semimonthly|monthly","taxRate":0}} for a new source.
+- {"op":"income_update","id":"<income id from the record>","fields":{"amount":0,"cadence":"","taxRate":0}} to correct one.
+- {"op":"income_remove","id":"<income id>"} when a source ends.
+- If the record contains an ASSET that is clearly a paycheck or employer (name contains payroll/salary/an employer name), propose removing that asset AND adding the income properly, and say why: money that already landed lives in checking; counting the paycheck separately counts it twice.
+
 READING A BANK / ACCOUNT SCREEN — this is the most common job:
 - Every account visible on screen becomes ONE change. No exceptions, no summarising.
 - Match to a record account by the last 4 digits first ("360 Checking ...0904" matches a record account whose name contains 0904), then by name similarity. Matched → {"op":"update","id":...,"fields":{"balance":<exact figure>}}.
@@ -3273,7 +3361,9 @@ function handsSummary(){
   const L=["ACCOUNTS (id | name | kind | balance | pay-now | due | tier | apr | paid?):"];
   fin.accounts.forEach(a=>L.push(`${a.id} | ${a.name} | ${a.kind} | ${a.balance} | ${a.min} | ${a.due||"?"} | ${tierOf(a)||"-"} | ${aprOf(a)||0} | ${isPaid(a)?"paid":"unpaid"}`));
   L.push("FLOOR: "+(Number(fin.bread&&fin.bread.floor)||0));
-  L.push("INCOME: "+deep().income.map(x=>`${x.name} ${x.amount} ${x.cadence}`).join("; "));
+  L.push("INCOME SOURCES (id | name | amount per check | cadence | tax%):");
+  if(deep().income.length) deep().income.forEach(x=>L.push(`${x.id} | ${x.name} | ${x.amount} | ${x.cadence} | ${x.taxRate||0}`));
+  else L.push("(none stated — the gap cannot be computed until one exists)");
   return L.join("\n");
 }
 async function guardianHands(msg,box,files){
@@ -3314,6 +3404,10 @@ function describeChange(c){
     case "add":     return ["+","Add "+(c.account.kind==="asset"?"asset":"bill")+" "+c.account.name+
                       (c.account.min?" · "+money(c.account.min):"")+(c.account.due?" · due "+c.account.due:"")];
     case "income_add": return ["↓","Add income "+c.income.name+" · "+money(c.income.amount)+" "+(c.income.cadence||"monthly")];
+    case "income_update":{ const x=deep().income.find(i=>i.id===c.id); if(!x) return null;
+      const bits=Object.entries(c.fields||{}).map(([k,v])=>k==="amount"?"amount → "+money(v):k+" → "+v);
+      return ["↓",x.name+": "+bits.join(", ")]; }
+    case "income_remove":{ const x=deep().income.find(i=>i.id===c.id); return x?["×","Remove income source "+x.name]:null; }
     case "vow":     return ["✦","Speak a vow: "+c.text];
     case "update":{
       const a=acct(c.id); if(!a) return null;
@@ -3342,6 +3436,14 @@ function applyChange(c){
       fin.accounts.push(a);
       if(Number(v.apr)>0) deep().apr[a.id]=Number(v.apr);
       break; }
+    case "income_update": { const x=deep().income.find(i=>i.id===c.id); if(!x) break;
+      const f=c.fields||{};
+      if(f.amount!==undefined) x.amount=Number(f.amount)||0;
+      if(f.cadence!==undefined) x.cadence=f.cadence;
+      if(f.taxRate!==undefined) x.taxRate=Number(f.taxRate)||0;
+      if(f.day!==undefined) x.day=String(f.day);
+      break; }
+    case "income_remove": { const D=deep(); D.income=D.income.filter(i=>i.id!==c.id); break; }
     case "income_add": { const v=c.income||{};
       deep().income.push({id:uid(),name:v.name||"Income",amount:Number(v.amount)||0,
         cadence:v.cadence||"monthly",day:v.day||"",day2:"",taxRate:Number(v.taxRate)||0}); break; }
@@ -3618,6 +3720,21 @@ const TEACH={
   grade:{t:"The grade",
     kid:"One letter for your whole money life, like a report card. It's built from five things a child can check: could you survive a bad month, is anything left to build with, is money leaking, does one paycheck cover staying alive, and is it all proven true.",
     adult:"A weighted composite: cover (25%), gap rate (30%), interest burden (20%), one-check survival (15%), verification (10%). It moves when reality moves — pay a debt, confirm a balance, widen the gap, and the letter follows. It grades the position, never the person."},
+  score:{t:"Your credit score",
+    kid:"A number between 300 and 850 that says how safely you've handled borrowed money. Higher means people lend to you cheaper. It moves slowly, like a reputation.",
+    adult:"FICO, updated by CreditWise from your Capital One file. It prices everything you borrow — a 60-point move can be worth thousands on a car loan. Yours peaked at 660 and sits at 599 now; the drop came from utilization and new late marks, both of which are visible below."},
+  levers:{t:"The only two levers",
+    kid:"Two things are holding your number down. One you can fix with money in about a month. The other only heals by not doing it again, and it takes time.",
+    adult:"Utilization is roughly 30% of a FICO score and re-reports each statement cycle — pay a card down and the number moves within 30 to 45 days. Payment history is roughly 35% and cannot be bought off; each late mark fades over months and falls off entirely after seven years. Age, mix and new-credit are the other 35%, and yours already score Very Good to Exceptional."},
+  simulate:{t:"What a payment buys",
+    kid:"Type a number and watch the bar move. It shows exactly how much of your borrowing room you'd free up by paying that much.",
+    adult:"Balance minus the payment, over the sum of your own credit limits. The authorized-user line is excluded on purpose — you can't control that balance, so it can't be part of your plan. The 30% and 10% marks are the two thresholds lenders actually look at."},
+  vehicle:{t:"The vehicle",
+    kid:"A countdown to the day the Jeep has to go back, and the two ways that day can go.",
+    adult:"Lease maturity with an extension pending. The controlling facts: the extension grants no extra mileage and can't be filed until the balance is zero, mileage overage is waived only on buyout, and Ally allows payment plans on lease-end charges."},
+  equity:{t:"Negative equity",
+    kid:"The car costs way more to buy than it's worth. That difference is scary but you only pay it if you buy the car. Give it back and it isn't yours.",
+    adult:"Buyout minus market value. On a lease return this is the lessor's residual risk, not your liability — which is precisely why returning is survivable and buying is not. It becomes real debt only the moment you sign a buyout."},
   whatif:{t:"What if…",
     kid:"A pretend-room. Flip a bill off and see what the world looks like without it — how much money comes back, how much faster a debt dies. Nothing real changes until you say so.",
     adult:"A sandbox over your real numbers: toggle any bill, add hypothetical income, and watch the gap, the yearly total, and the top debt's death date recompute live. It never writes to the record — when a cut is real, cull it through the bar or the editor."},
@@ -3783,6 +3900,15 @@ function domainTotals(){
   return t;
 }
 let domainOpen=null;
+function renderNoPay(){
+  const el=$("noPayNote"); if(!el) return;
+  const list=noPaymentStated();
+  if(!list.length){ el.innerHTML=""; return; }
+  const bal=list.reduce((s,a)=>s+Math.abs(Number(a.balance)||0),0);
+  el.innerHTML=`<div class="note"><b>${list.length} debt${list.length===1?"":"s"} with a balance but no stated payment — ${money(bal)} total.</b>
+    They are counted against your net worth and left out of this month's demand, because no payment was ever stated.
+    ${esc(list.map(a=>a.name).join(" · "))}<br><br>If any of them does demand a monthly amount, say so and it joins the month.</div>`;
+}
 function renderDomains(){
   const el=$("domainsWrap"); if(!el) return;
   const t=domainTotals();
@@ -4078,6 +4204,137 @@ function confidence(){
    do the talking.
    ═══════════════════════════════════════════════════════════ */
 function monthsCover(){ const b=billsMonthly(); return b>0? heldTotal()/b : null; }
+
+/* ═══════════════════════════════════════════════════════════
+   THE CREDIT ROOM
+   Two levers move a score: what you owe against your limits
+   (fast — 30 to 45 days) and how you've paid (slow — only time
+   fades it). Everything else in this file is already maxed.
+   The simulator prices each payment in utilization points, so a
+   dollar aimed at a card is never abstract again.
+   ═══════════════════════════════════════════════════════════ */
+function credit(){ return deep().credit||null; }
+function myCardTotals(){
+  const c=credit(); if(!c||!c.myCards) return null;
+  const bal=c.myCards.reduce((s,x)=>s+x.bal,0), lim=c.myCards.reduce((s,x)=>s+x.limit,0);
+  return {bal,lim,util:lim?bal/lim*100:0};
+}
+let simPay=0;
+/* ═══════════════════════════════════════════════════════════
+   THE VEHICLE ROOM
+   One countdown, two paths, and the money that decides between
+   them. The negative equity is the loudest number here and the
+   least owed — it is only real if the vehicle is bought.
+   ═══════════════════════════════════════════════════════════ */
+function vehicle(){ return deep().vehicle||null; }
+function renderVehicle(){
+  const el=$("vehicleWrap"); if(!el) return;
+  const v=vehicle();
+  if(!v){ el.innerHTML=`<div class="empty">No vehicle stated. Tell the bar about your car and this room fills.</div>`; return; }
+  const mat=new Date(v.matures+"T12:00:00");
+  const days=Math.ceil((mat-todayLocal())/86400000);
+  const held=heldTotal();
+  const lowR=(v.onReturn&&v.onReturn.mileageOverageLow)||0, hiR=(v.onReturn&&v.onReturn.mileageOverageHigh)||0;
+  const dmg=(v.onReturn&&v.onReturn.damageQuote)||0;
+  el.innerHTML=`
+    <div class="vcount ${days<=30?"soon":""}" data-teach="vehicle">
+      <div class="vdays">${days>0?days:0}</div>
+      <div class="vside"><div class="vlab">days until the lease matures</div>
+        <div class="vmeta">${mat.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}</div>
+        ${v.extension&&v.extension.status?`<div class="vmeta" style="color:var(--gold-dim)">Extension ${esc(v.extension.status)} — max ${v.extension.maxMonths} months, no extra mileage, and it cannot be filed until the balance is zero.</div>`:""}
+      </div>
+    </div>
+    <div class="vgrid">
+      <div class="vcell" data-x="ally"><div class="k">Owed to Ally now</div><div class="v num">${money(v.owed)}</div></div>
+      <div class="vcell"><div class="k">Monthly</div><div class="v num">${money(v.monthly)}</div></div>
+      <div class="vcell"><div class="k">Odometer</div><div class="v num">${(v.odometer||0).toLocaleString()}</div></div>
+      <div class="vcell"><div class="k">Held today</div><div class="v num" style="color:${held>=v.owed?"var(--held)":"var(--warn)"}">${money(held)}</div></div>
+    </div>
+    <h2 class="sec" data-teach="equity">The number that isn't a debt</h2>
+    <div class="vequity">
+      <div class="er"><span>Buyout quoted</span><b>${money(v.buyout)}</b></div>
+      <div class="er"><span>What it's worth</span><b>${money(v.marketValue)}</b></div>
+      <div class="er neg"><span>Negative equity</span><b>−${money(v.negativeEquity)}</b></div>
+      <div class="note">You only owe this if you BUY the vehicle. Hand it back and it is Ally's loss, not yours. That single fact is why Path A is closed and Path B is survivable.</div>
+    </div>
+    <h2 class="sec">The two paths</h2>
+    <div class="vpath dead">
+      <div class="pt">A — Buy it out <span class="pv">not viable</span></div>
+      <div class="pb">${money(v.buyout)} plus tax for a ${money(v.marketValue)} asset. ${esc(v.buyoutFinancing||"")}. Mileage penalty would be waived — but it would take roughly ${money(v.negativeEquity)} down to reach a loan any lender would write.</div>
+    </div>
+    <div class="vpath live">
+      <div class="pt">B — Return it <span class="pv">viable</span></div>
+      <div class="pb">
+        Mileage overage: <b>${money(lowR)}–${money(hiR)}</b> (verify the per-mile rate on the original lease)<br>
+        Front-end damage: <b>${money(dmg)}</b> at the fair quote — repairing beats Ally's assessed rate<br>
+        Disposition fee: ${money((v.onReturn&&v.onReturn.dispositionFee)||0)}${v.onReturn&&v.onReturn.dispositionWaivable?" — waivable within 30 days of a new Ally contract":""}<br>
+        Plus the ${money(v.owed)} outstanding.<br><br>
+        <b>Ally offers payment plans on lease-end charges.</b> No lump sum is required.
+      </div>
+    </div>
+    <div class="note"><b>September 12 is unresolved</b> and the extension is still in progress. Until it lands, both paths need the same thing from you: cash held, not spent. Every dollar saved between now and then works in either outcome.</div>
+    <button class="btn solid" id="askVeh">Ask the Guardian about the Jeep</button>`;
+  $("askVeh").onclick=()=>openGuardian("My lease matures "+v.matures+", I owe "+money(v.owed)+" on it, the buyout is "+money(v.buyout)+" against about "+money(v.marketValue)+" of value, and I'm working on an extension. I hold "+money(held)+". Walk me through what to do and in what order.");
+}
+
+function renderCredit(){
+  const el=$("creditWrap"); if(!el) return;
+  const c=credit();
+  if(!c){ el.innerHTML=`<div class="empty">No credit file stated yet. Snap your CreditWise screen into the bar and the Guardian will fill this room.</div>`; return; }
+  const f=c.factors||{}, M=myCardTotals();
+  const tone=c.score>=740?"var(--held)":c.score>=670?"var(--gold)":c.score>=580?"var(--gold-dim)":"var(--warn)";
+  const pct=Math.max(0,Math.min(1,(c.score-300)/550));
+  const t30=M?Math.max(0,M.bal-M.lim*0.30):0, t10=M?Math.max(0,M.bal-M.lim*0.10):0;
+  const after=M?Math.max(0,M.bal-simPay)/M.lim*100:0;
+  const auRoom=(c.auCards||[]).reduce((s,x)=>s+(x.limit-x.bal),0);
+  el.innerHTML=`
+    <div class="scorecard" data-teach="score">
+      <div class="scorebig" style="color:${tone}">${c.score}</div>
+      <div class="scoreside">
+        <div class="scoreband">${esc(c.band||"")}</div>
+        <div class="scoremeta">${c.changed<0?"▼":"▲"} ${Math.abs(c.changed||0)} since ${esc(c.since||"")} · was ${c.previous}</div>
+        ${c.peak?`<div class="scoremeta">You reached ${c.peak} around ${esc(c.peakWhen||"")}. That number is reachable again.</div>`:""}
+      </div>
+      <div class="scorerail"><i style="left:${(pct*100).toFixed(1)}%"></i></div>
+      <div class="scorends"><span>300</span><span>850</span></div>
+    </div>
+    <h2 class="sec" data-teach="levers">The only two levers</h2>
+    <div class="lever fast">
+      <div class="lt">◐ What you owe against your limits <span class="lspeed">FAST · re-reports in 30–45 days</span></div>
+      ${M?`<div class="lbig">${M.util.toFixed(1)}%<span class="lsub"> on your own cards — ${money(M.bal)} of ${money(M.lim)}</span></div>`:""}
+      <div class="lnote">The bureau shows ${f.creditUsed}% overall because an authorized-user line adds ${money(auRoom)} of room you don't control. Your own cards are the part you can actually move.</div>
+    </div>
+    <div class="lever slow">
+      <div class="lt">◑ How you've paid <span class="lspeed">SLOW · only time fades it</span></div>
+      <div class="lbig">${f.latePayments30Plus}<span class="lsub"> accounts 30+ days late</span></div>
+      <div class="lnote">This cannot be bought off. Every month with zero new lates is the entire treatment. ${f.negativeItems} negative items on file, ${f.disputed} disputed.</div>
+    </div>
+    <h2 class="sec" data-teach="simulate">What a payment buys</h2>
+    <div class="simwrap">
+      <div class="simrow"><span>Pay</span><input id="simIn" inputmode="decimal" value="${simPay||""}" placeholder="0"><span>onto your own cards</span></div>
+      <div class="simbars">
+        <div class="simbar"><i style="width:${Math.min(100,M?M.util:0)}%"></i><span>now ${M?M.util.toFixed(1):0}%</span></div>
+        <div class="simbar good"><i style="width:${Math.min(100,after)}%"></i><span>after ${after.toFixed(1)}%</span></div>
+      </div>
+      <div class="simmarks">
+        <button data-sim="${Math.round(t30)}">under 30% · ${money(t30)}</button>
+        <button data-sim="${Math.round(t10)}">under 10% · ${money(t10)}</button>
+        <button data-sim="139">clear card 5963 · $139</button>
+      </div>
+      ${lifeSpan(simPay)?`<div class="life">≈ ${esc(lifeSpan(simPay))} of your life buys that move</div>`:""}
+    </div>
+    <h2 class="sec">What is already strong</h2>
+    <div class="strongrow"><span>Average account age</span><b>${f.avgAccountAgeYears} years</b><em>very good</em></div>
+    <div class="strongrow"><span>Revolving accounts</span><b>${f.revolvingAccounts}</b><em>exceptional</em></div>
+    <div class="strongrow"><span>Newest account</span><b>${Math.floor((f.newestAccountMonths||0)/12)}y ${(f.newestAccountMonths||0)%12}m</b><em>exceptional</em></div>
+    <div class="note">Your file is neither thin nor young — those are the parts nobody can fix quickly, and yours are already done. Only the two levers above hold the number down.</div>
+    <button class="btn solid" id="askCredit">Ask the Guardian about my score</button>`;
+  const si=$("simIn");
+  si.oninput=()=>{ simPay=Number(String(si.value).replace(/[^0-9.]/g,""))||0; renderCredit();
+    const x=$("simIn"); if(x){ x.focus(); const v=x.value; x.setSelectionRange&&x.setSelectionRange(v.length,v.length);} };
+  el.querySelectorAll("[data-sim]").forEach(b=>b.onclick=()=>{ simPay=+b.dataset.sim; renderCredit(); buzz(10); });
+  $("askCredit").onclick=()=>openGuardian("My FICO is "+c.score+", with "+f.latePayments30Plus+" accounts 30+ days late and "+(M?M.util.toFixed(0):"")+"% utilization on my own cards. What do I do, in order, to raise it before December?");
+}
 
 /* ── 0. THE GRADE: the whole standing in one letter ── */
 function gradeStatus(){
@@ -4899,6 +5156,78 @@ const CAP_ONE_SEED=[
   {name:"360 Performance Savings 6399", balance:562.27}
 ];
 function last4(s){ const m=String(s||"").match(/(\d{4})(?!.*\d{4})/); return m?m[1]:null; }
+/* Twins: the same account entered twice under different spellings —
+   "(0904)" vs "...0904" — quietly doubles money on both sides of the
+   scale. The sweeper finds them by last-four (or identical balance+
+   payment), shows both, and lets the person pick which one is true.
+   The kept twin inherits anything the removed one knew. */
+function nameCore(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,""); }
+function nameTokens(s){
+  /* Parentheses hold the payment vehicle, not the identity —
+     "Disney Plus (Credit One 4760)" is Disney, riding Credit One.
+     Identity words live outside the parens. */
+  const outside=String(s||"").replace(/\([^)]*\)/g," ");
+  return new Set(outside.toLowerCase().match(/[a-z]{4,}/g)||[]);
+}
+function findTwins(){
+  const rows=fin.accounts.map(a=>({a, four:last4(a.name), tok:nameTokens(a.name), core:nameCore(a.name)}));
+  const pairs=[], used=new Set();
+  for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++){
+    const A=rows[i], B=rows[j];
+    if(used.has(A.a.id)||used.has(B.a.id)) continue;
+    if(A.a.kind!==B.a.kind) continue;
+    /* Same trailing digits is a lead, not a verdict — the gym paid THROUGH
+       card 5963 is not a twin of card 5963. Twins must also share a real
+       word of the name. */
+    const shared=[...A.tok].some(t=>B.tok.has(t));
+    const sameFour = A.four && A.four===B.four && shared;
+    const sameMoney = Number(A.a.balance)===Number(B.a.balance) && Number(A.a.min)===Number(B.a.min) && Number(A.a.balance)!==0 && shared;
+    const coreOverlap = A.core.length>6 && (A.core.includes(B.core)||B.core.includes(A.core));
+    if(sameFour || sameMoney || (coreOverlap&&shared)){
+      pairs.push([A.a,B.a]); used.add(A.a.id); used.add(B.a.id);
+    }
+  }
+  return pairs;
+}
+function richness(a){ return (tierOf(a)?1:0)+(aprOf(a)>0?1:0)+(parseDueFor(a).ok?1:0)+((deep().verified&&deep().verified[a.id])?2:0); }
+function openTwins(){
+  const pairs=findTwins();
+  if(!pairs.length){ toast("No twins found — every account stands alone."); return; }
+  openSheet(`<h3>Twins in the record</h3>
+    <div class="sub">The same account, entered twice. Each pair doubles your numbers. Tap the version that's TRUE — it stays and inherits what the other knew; the other leaves.</div>
+    ${pairs.map(([a,b],i)=>`
+      <div class="stat" style="margin-bottom:10px;padding:12px">
+        <div class="rrb dim" style="margin-bottom:8px">pair ${i+1}</div>
+        ${[a,b].map(x=>`
+          <div class="vow" data-pair="${i}" data-keep="${esc(x.id)}" style="cursor:pointer">
+            <button class="box"></button>
+            <div style="flex:1;min-width:0">
+              <div class="vt">${esc(x.name)}</div>
+              <div class="vw">${money(Number(x.balance)||0)}${Number(x.min)?" · "+money(Number(x.min))+"/mo":""}${parseDueFor(x).ok?" · due "+esc(parseDueFor(x).label):""}${(deep().verified&&deep().verified[x.id])?" · ✓ confirmed":""}</div>
+            </div>
+          </div>`).join("")}
+      </div>`).join("")}
+    <div class="note">Not sure which is true? The newer balance usually is — and a ✓ confirmed one always is.</div>`);
+  document.querySelectorAll("[data-pair]").forEach(r=>r.onclick=()=>{
+    const i=+r.dataset.pair, keepId=r.dataset.keep;
+    const [a,b]=pairs[i]; const keep=a.id===keepId?a:b, drop=a.id===keepId?b:a;
+    // inherit what the dropped twin knew
+    if(!tierOf(keep)&&tierOf(drop)) keep.tier=drop.tier;
+    if(!parseDueFor(keep).ok&&parseDueFor(drop).ok) keep.due=drop.due;
+    const D=deep();
+    if(!(D.apr[keep.id]>0)&&D.apr[drop.id]>0) D.apr[keep.id]=D.apr[drop.id];
+    if(D.verified&&D.verified[drop.id]&&!(D.verified[keep.id])) D.verified[keep.id]=D.verified[drop.id];
+    if(domainMap()[drop.id]&&!domainMap()[keep.id]) domainMap()[keep.id]=domainMap()[drop.id];
+    delete D.apr[drop.id]; if(D.verified) delete D.verified[drop.id]; delete domainMap()[drop.id];
+    fin.accounts=fin.accounts.filter(x=>x.id!==drop.id);
+    save(true); buzz(14); chime(587,.05);
+    closeSheet(); render();
+    const left=findTwins();
+    if(left.length) setTimeout(openTwins,300);
+    else milestone("◈","No more twins.","Every account stands alone now — held and owed are counted once, the way arithmetic demands.");
+  });
+}
+$("btnTwins").onclick=openTwins;
 $("btnSeedCap").onclick=()=>{
   const existing=fin.accounts.filter(a=>!isDebt(a));
   const rows=CAP_ONE_SEED.map(s=>{
