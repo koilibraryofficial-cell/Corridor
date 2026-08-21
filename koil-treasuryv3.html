@@ -1215,7 +1215,7 @@ h2.sec{margin-top:30px}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.27";
+const BUILD = "2026-08-08.28";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -3011,7 +3011,7 @@ async function readDocuments(files){
     }
     content.push({type:"text",text:"Read these and return the JSON object described. Only what is actually printed."});
 
-    const body={model:"claude-sonnet-4-6",max_tokens:1000,system:READ_SYSTEM,messages:[{role:"user",content}]};
+    const body={model:"claude-sonnet-4-6",max_tokens:4000,system:READ_SYSTEM,messages:[{role:"user",content}]};
     let res;
     if(PROXY_URL){
       res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -3287,7 +3287,7 @@ async function guardianHands(msg,box,files){
   content.push({type:"text",text:"THE RECORD:\n"+handsSummary()+
     (files&&files.length?"\n\nThey attached "+files.length+" image"+(files.length===1?"":"s")+" — bank screens, bills, statements. Read the figures exactly as printed. A checking or savings balance matches the asset account with the closest name — propose an update to its balance. Unmatched accounts on screen become add ops. Never invent a number that isn't printed.":"")+
     "\n\nTHEIR WORDS:\n"+(msg||"Read what I attached and update the record to match it.")});
-  const body={model:"claude-sonnet-4-6",max_tokens:900,system:HANDS_SYSTEM,
+  const body={model:"claude-sonnet-4-6",max_tokens:2000,system:HANDS_SYSTEM,
     messages:[{role:"user",content}]};
   let res;
   if(PROXY_URL){
@@ -4823,7 +4823,7 @@ async function ask(q,box,files){
   content.push({type:"text",text:"THE RECORD AS STATED:\n"+ledgerSummary()+
     (files&&files.length?"\n\nThey also attached "+files.length+" image"+(files.length===1?"":"s")+". Read them as part of the question. Never invent anything they don't show.":"")+
     "\n\nTHEIR QUESTION:\n"+q});
-  const body={model:"claude-sonnet-4-6",max_tokens:1000,system:SYSTEM,
+  const body={model:"claude-sonnet-4-6",max_tokens:4000,system:SYSTEM,
     messages:[{role:"user",content}]};
   try{
     let res;
@@ -4844,6 +4844,15 @@ async function ask(q,box,files){
     if(!res.ok) throw new Error((data&&data.error&&data.error.message)||("HTTP "+res.status));
     const txt=plainSpeech((data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("\n"));
     $(id).querySelector(".txt").outerHTML=`<div class="txt">${esc(txt||"No answer came back.")}</div>`;
+    if(data.stop_reason==="max_tokens"){
+      const cid="c"+uid();
+      $(id).insertAdjacentHTML("afterend",
+        `<button class="btn quiet" id="${cid}" style="align-self:flex-start;margin:-4px 0 10px">⟳ It ran long — continue</button>`);
+      const tail=txt.slice(-300);
+      $(cid).onclick=()=>{ $(cid).outerHTML="";
+        ask("Continue exactly where you stopped, without repeating anything. Your last words were: …"+tail, box, files);
+      };
+    }
     chatScroll(box);
   }catch(e){
     $(id).querySelector(".txt").outerHTML=`<div class="txt" style="color:var(--warn)">Couldn't reach the Guardian: ${esc(e.message)}. The record is untouched — everything on the other pages still works.</div>`;
