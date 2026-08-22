@@ -249,12 +249,22 @@
     <div class="chip" data-bg="#000000">True Black (blend)</div>
   </div>
 
+  <label>Atmosphere</label>
+  <div class="row">
+    <div class="chip" data-atmo="clean">Clean</div>
+    <div class="chip on" data-atmo="embers">Embers &amp; Fire</div>
+  </div>
+
   <label>Mark</label>
   <div class="row">
     <div class="chip on" data-mark="none">None</div>
     <div class="chip" data-mark="testimony">Testimony</div>
     <div class="chip" data-mark="parable">Parable</div>
   </div>
+
+  <label for="starpos">Star position</label>
+  <input type="range" id="starpos" min="0" max="100" value="35" style="width:100%;accent-color:#C9A44C;background:transparent">
+  <div style="display:flex;justify-content:space-between;font-size:10px;color:#6b6480;letter-spacing:.1em;margin-top:2px"><span>UNDER TEXT</span><span>BOTTOM</span></div>
 </div>
 
 <div class="preview-wrap">
@@ -308,6 +318,7 @@ let placement="upper";
 let sizeMode="auto";
 let bgMode="#0B0A12";
 let markMode="none";
+let atmoMode="embers";
 
 /* ---------- shared ---------- */
 function wrap(text,maxWidth,fontSize){
@@ -379,6 +390,29 @@ function draw(){
   g.addColorStop(0,"rgba(232,196,106,0.055)");g.addColorStop(1,"rgba(0,0,0,0)");
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 
+  if(atmoMode==="embers"){
+    // hearth band — warm fire-light rising from the lower third
+    const hb=ctx.createLinearGradient(0,H,0,H*0.45);
+    hb.addColorStop(0,"rgba(214,158,70,0.16)");
+    hb.addColorStop(0.4,"rgba(190,120,50,0.08)");
+    hb.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=hb;ctx.fillRect(0,H*0.45,W,H*0.55);
+    // drifting embers — dense low, sparse high
+    for(let i=0;i<34;i++){
+      const low=Math.random()<0.7;
+      const ex=W*(0.06+Math.random()*0.88);
+      const ey=low?H*(0.55+Math.random()*0.4):H*(0.12+Math.random()*0.43);
+      const er=low?(4+Math.random()*11):(2+Math.random()*5);
+      const ea=low?(0.25+Math.random()*0.4):(0.12+Math.random()*0.25);
+      const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,er);
+      eg.addColorStop(0,`rgba(255,236,180,${ea})`);
+      eg.addColorStop(0.5,`rgba(232,196,106,${ea*0.55})`);
+      eg.addColorStop(1,"rgba(120,60,20,0)");
+      ctx.fillStyle=eg;
+      ctx.beginPath();ctx.arc(ex,ey,er,0,Math.PI*2);ctx.fill();
+    }
+  }
+
   const eyebrow=document.getElementById('eyebrow').value.trim().toUpperCase();
   const text=document.getElementById('q').value.trim();
 
@@ -416,7 +450,10 @@ function draw(){
     contentBottom=startY+blockH+pSize*1.4;
   }
 
-  drawEmblem(W/2,Math.min(contentBottom+170,H-220),74,markMode==="parable");
+  const anchorTop=Math.min(contentBottom+150,H-260);
+  const anchorBottom=H-220;
+  const t=(parseInt(document.getElementById('starpos').value,10)||0)/100;
+  drawEmblem(W/2,anchorTop+(anchorBottom-anchorTop)*t,74,markMode==="parable");
 }
 
 /* ---------- chips ---------- */
@@ -450,9 +487,16 @@ document.querySelectorAll('[data-mark]').forEach(ch=>{
     ch.classList.add('on');markMode=ch.dataset.mark;draw();
   });
 });
+document.querySelectorAll('[data-atmo]').forEach(ch=>{
+  ch.addEventListener('click',()=>{
+    document.querySelectorAll('[data-atmo]').forEach(c=>c.classList.remove('on'));
+    ch.classList.add('on');atmoMode=ch.dataset.atmo;draw();
+  });
+});
 document.getElementById('q').addEventListener('input',draw);
 document.getElementById('eyebrow').addEventListener('input',draw);
 document.getElementById('punch').addEventListener('input',draw);
+document.getElementById('starpos').addEventListener('input',draw);
 
 /* ---------- PNG export ---------- */
 document.getElementById('dl').addEventListener('click',()=>{
