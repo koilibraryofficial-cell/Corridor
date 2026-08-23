@@ -416,12 +416,13 @@ function draw(){
   const eyebrow=document.getElementById('eyebrow').value.trim().toUpperCase();
   const text=document.getElementById('q').value.trim();
 
-  if(eyebrow){
-    ctx.font="600 44px "+fontStack;ctx.fillStyle="#C9A44C";ctx.textAlign="center";
+  function drawEyebrow(cy){
+    if(!eyebrow)return;
+    ctx.font="600 44px "+fontStack;ctx.fillStyle="#C9A44C";ctx.textAlign="center";ctx.textBaseline="middle";
     const chars=eyebrow.split("");const spacing=12;
     let total=0;for(const c of chars)total+=ctx.measureText(c).width+spacing;
     total-=spacing;let x=(W-total)/2;
-    for(const c of chars){const cw=ctx.measureText(c).width;ctx.fillText(c,x+cw/2,150);x+=cw+spacing;}
+    for(const c of chars){const cw=ctx.measureText(c).width;ctx.fillText(c,x+cw/2,cy);x+=cw+spacing;}
   }
 
   let maxWidth,startSize,maxBlock;
@@ -434,6 +435,7 @@ function draw(){
   ctx.textAlign="center";ctx.textBaseline="middle";
   const blockH=lines.length*lh;
   let startY=placement==="upper"?Math.max(280,H*0.20)+lh/2:(H-blockH)/2+lh/2;
+  drawEyebrow(placement==="upper"?150:startY-lh*0.5-170);
   drawMarkLine(startY-lh*0.5-70);
   ctx.font="600 "+size+"px "+fontStack;ctx.fillStyle="#E8C46A";
   lines.forEach((ln,i)=>ctx.fillText(ln,W/2,startY+i*lh));
