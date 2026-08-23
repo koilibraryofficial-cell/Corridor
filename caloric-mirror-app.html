@@ -538,6 +538,270 @@
   .fpiece.fadd{border-style:dashed;border-color:#2A3A4C;}
   .fpiece.fadd .fic{color:var(--gold);opacity:.8;}
 
+
+  .seal-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .seal-day,.seal-state{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;}
+  .seal-day{color:var(--mist);}
+  .seal-rail{height:4px;border-radius:3px;background:rgba(26,36,48,.9);overflow:hidden;margin-bottom:12px;}
+  .seal-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+  .seal-row{display:flex;align-items:baseline;gap:9px;padding:9px 10px;margin-bottom:5px;border-radius:11px;
+    background:rgba(16,24,33,.7);border:1px solid #16202B;cursor:pointer;flex-wrap:wrap;}
+  .seal-row.on{border-color:rgba(143,203,155,.4);background:rgba(20,32,26,.5);}
+  .seal-ic{font-size:15px;width:20px;text-align:center;}
+  .seal-row.on .seal-ic{color:var(--green);}
+  .seal-name{font-family:'Cormorant',serif;font-size:15.5px;color:var(--deep);}
+  .seal-row.on .seal-name{color:var(--green);}
+  .seal-hint{flex:1 1 100%;font-size:12px;font-style:italic;color:var(--mist);padding-left:29px;margin-top:2px;}
+  .seal-btn{width:100%;margin-top:10px;padding:13px;}
+  .dock-seal{position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 8px var(--gold);}
+
+
+  #shareFab{position:fixed;right:14px;bottom:104px;z-index:60;width:50px;height:50px;border-radius:50%;
+    border:1px solid rgba(232,196,107,.45);background:rgba(10,16,23,.92);color:var(--gold);
+    font-size:21px;cursor:pointer;box-shadow:0 6px 22px rgba(0,0,0,.6);
+    padding-bottom:2px;backdrop-filter:blur(8px);}
+  #shareFab:active{background:rgba(232,196,107,.15);}
+  #shareMenu{position:fixed;right:14px;bottom:162px;z-index:61;display:none;flex-direction:column;gap:6px;
+    background:rgba(8,13,19,.97);border:1px solid #22303E;border-radius:15px;padding:8px;
+    box-shadow:0 12px 40px rgba(0,0,0,.75);}
+  #shareMenu.show{display:flex;}
+  #shareMenu button{background:none;border:none;color:var(--deep);font-family:'Cormorant',serif;
+    font-size:16px;text-align:left;padding:11px 14px;border-radius:10px;cursor:pointer;white-space:nowrap;}
+  #shareMenu button:active{background:rgba(232,196,107,.12);}
+
+
+  /* ---------- the stations ---------- */
+  .life-ton{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:11px;
+    font-family:'IBM Plex Mono',monospace;}
+  .life-ton span{font-size:9px;letter-spacing:.28em;color:var(--mist);}
+  .life-ton b{font-size:34px;font-weight:300;color:var(--gold);
+    text-shadow:0 0 26px rgba(232,196,107,.4);font-variant-numeric:tabular-nums;}
+  #blockSearch{width:100%;background:rgba(10,14,19,.85);border:1px solid #22303E;border-radius:12px;
+    color:var(--deep);font-family:'Cormorant',serif;font-size:16px;padding:11px 14px;margin-bottom:9px;}
+  #regionRail{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px;margin-bottom:9px;}
+  #regionRail button{flex:0 0 auto;background:rgba(16,24,33,.85);border:1px solid #22303E;
+    color:var(--mist);font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;
+    padding:8px 11px;border-radius:9px;cursor:pointer;white-space:nowrap;text-transform:uppercase;}
+  #regionRail button.on{border-color:var(--gold);color:var(--gold);background:rgba(232,196,107,.1);}
+  #blockGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+  .blk{position:relative;padding:11px 12px 12px;border-radius:14px;cursor:pointer;overflow:hidden;
+    background:rgba(14,21,29,.85);border:1px solid #1A2530;transition:transform .12s,border-color .2s;}
+  .blk:active{transform:scale(.97);}
+  .blk.lit{border-color:rgba(255,90,60,calc(.15 + var(--heat) * .5));
+    background:linear-gradient(160deg,rgba(45,22,16,calc(var(--heat)*.55)),rgba(14,21,29,.9));
+    box-shadow:0 0 calc(var(--heat) * 22px) rgba(255,90,60,calc(var(--heat)*.16));}
+  .blk.cold{border-color:#1E2A36;background:rgba(12,17,23,.9);}
+  .blk.cold .blk-n{color:#7E8A96;}
+  .blk-n{font-family:'Cormorant',serif;font-size:16px;line-height:1.15;color:var(--deep);margin-bottom:2px;}
+  .blk-sub{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.18em;
+    color:var(--mist);text-transform:uppercase;}
+  .blk-pr{font-family:'IBM Plex Mono',monospace;font-size:19px;color:var(--gold);margin-top:7px;
+    font-variant-numeric:tabular-nums;}
+  .blk-pr span{font-size:8.5px;letter-spacing:.12em;color:var(--mist);}
+  .blk-zero{font-family:'EB Garamond',serif;font-style:italic;font-size:12.5px;color:#4E5A66;margin-top:8px;}
+  .blk-rail{height:3px;border-radius:2px;background:rgba(26,36,48,.9);margin-top:6px;overflow:hidden;}
+  .blk-fill{height:100%;background:linear-gradient(90deg,#C1121F,#E8C46B);border-radius:2px;}
+  .blk-lvl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.15em;
+    color:var(--gold);margin-top:5px;text-transform:uppercase;}
+  .blk.cold .blk-lvl{color:#5E6B78;}
+
+  /* ---------- the opened station ---------- */
+  #blockModal{position:fixed;inset:0;z-index:120;background:rgba(4,7,11,.9);backdrop-filter:blur(9px);
+    display:none;align-items:flex-end;justify-content:center;}
+  #blockModal.show{display:flex;}
+  #blockModal.flash-log .bm-sheet{animation:bmLog .9s ease;}
+  #blockModal.flash-pr .bm-sheet{animation:bmPR .9s ease;}
+  @keyframes bmLog{0%{box-shadow:0 0 0 rgba(232,196,107,0)}25%{box-shadow:0 0 60px rgba(232,196,107,.45)}100%{box-shadow:0 0 0 rgba(232,196,107,0)}}
+  @keyframes bmPR{0%{box-shadow:0 0 0 rgba(255,90,60,0);transform:scale(1)}
+    18%{box-shadow:0 0 90px rgba(255,90,60,.7);transform:scale(1.012)}
+    100%{box-shadow:0 0 0 rgba(255,90,60,0);transform:scale(1)}}
+  .bm-sheet{width:100%;max-width:520px;max-height:92vh;overflow-y:auto;background:#0A0F16;
+    border:1px solid rgba(232,196,107,.28);border-radius:22px 22px 0 0;padding:20px 18px 16px;
+    position:relative;box-shadow:0 -14px 60px rgba(0,0,0,.8);}
+  .bm-x{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--mist);
+    font-size:19px;cursor:pointer;padding:6px 10px;}
+  .bm-name{font-family:'Cormorant',serif;font-size:29px;font-weight:300;color:var(--deep);line-height:1.1;}
+  .bm-region{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.24em;
+    color:var(--mist);text-transform:uppercase;margin-top:4px;}
+  .bm-cold{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;margin-top:6px;}
+  .bm-body{display:flex;gap:14px;margin:16px 0 12px;}
+  #bmLadder{flex:0 0 96px;}
+  .lad{position:relative;height:210px;width:100%;border-left:2px solid #1E2A36;}
+  .lad-fill{position:absolute;left:-2px;bottom:0;width:2px;
+    background:linear-gradient(0deg,#C1121F,#E8C46B);box-shadow:0 0 12px rgba(232,196,107,.5);}
+  .lad-mark{position:absolute;left:6px;transform:translateY(50%);white-space:nowrap;}
+  .lad-lab{display:block;font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:.14em;color:var(--mist);}
+  .lad-val{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(240,233,216,.75);}
+  .lad-mark.past .lad-lab{color:var(--gold);}
+  .lad-koi{position:absolute;left:-13px;transform:translateY(50%);font-size:19px;
+    filter:drop-shadow(0 0 9px rgba(255,90,60,.75));transition:bottom .8s cubic-bezier(.2,.9,.3,1);}
+  .bm-right{flex:1;min-width:0;}
+  .bm-stat{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;
+    border-bottom:1px solid #16202B;}
+  .bm-stat span{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.2em;color:var(--mist);}
+  .bm-stat b{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:300;color:var(--gold);
+    font-variant-numeric:tabular-nums;}
+  .bm-next{margin-top:11px;font-family:'EB Garamond',serif;font-size:14px;line-height:1.5;color:#8FCB9B;}
+  .bm-next b{color:#B7E5C2;}
+  .bm-last{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:rgba(240,233,216,.85);
+    background:rgba(16,24,33,.7);border:1px solid #16202B;border-radius:12px;padding:10px 12px;margin-bottom:9px;}
+  .bm-lbl{display:block;font-size:8px;letter-spacing:.24em;color:var(--mist);margin-bottom:4px;}
+  .bm-teach{font-family:'EB Garamond',serif;font-size:14.5px;line-height:1.55;color:#9FB0BF;
+    margin-bottom:8px;}
+  .bm-teach b{color:var(--gold);font-weight:400;}
+  .bm-note{font-family:'EB Garamond',serif;font-style:italic;font-size:12px;color:#5E6B78;margin-bottom:12px;}
+  .bm-bar{display:flex;gap:7px;position:sticky;bottom:0;background:#0A0F16;padding-top:8px;}
+  #bmInput{flex:1;background:rgba(10,14,19,.9);border:1px solid rgba(232,196,107,.3);border-radius:13px;
+    color:var(--deep);font-family:'Cormorant',serif;font-size:17px;padding:13px 15px;}
+  #bmSend{flex:0 0 52px;background:linear-gradient(180deg,#E8C46B,#C89B3C);border:none;border-radius:13px;
+    color:#1A1206;font-size:19px;cursor:pointer;}
+  #bmSend:active{transform:scale(.95);}
+
+
+  .quest{font-family:'EB Garamond',serif;font-size:14.5px;line-height:1.6;color:#C9BFA9;
+    background:linear-gradient(160deg,rgba(45,22,16,.4),rgba(14,21,29,.7));
+    border:1px solid rgba(255,90,60,.25);border-radius:13px;padding:11px 14px;margin-bottom:11px;}
+  .quest b{color:var(--gold);font-weight:400;}
+  #doorway{position:fixed;inset:0;z-index:125;background:rgba(4,7,11,.9);backdrop-filter:blur(9px);
+    display:none;align-items:flex-end;justify-content:center;}
+  #doorway.show{display:flex;}
+  .dw-sheet{width:100%;max-width:520px;max-height:80vh;overflow-y:auto;background:#0A0F16;
+    border:1px solid rgba(183,155,224,.35);border-radius:22px 22px 0 0;padding:20px 18px 22px;position:relative;}
+  .dw-head{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.3em;color:#B79BE0;
+    text-transform:uppercase;}
+  .dw-seen{font-family:'Cormorant',serif;font-size:23px;color:var(--deep);margin:6px 0 14px;line-height:1.2;}
+  .dw-row{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:12px 13px;margin-bottom:7px;border-radius:13px;cursor:pointer;
+    background:rgba(16,24,33,.75);border:1px solid #1A2530;}
+  .dw-row:active{border-color:var(--gold);}
+  .dw-n{font-family:'Cormorant',serif;font-size:17.5px;color:var(--deep);}
+  .dw-s{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mist);margin-top:2px;}
+  .dw-tag{flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.14em;
+    padding:5px 8px;border-radius:7px;}
+  .dw-tag.warm{color:#FF8A6B;background:rgba(255,90,60,.12);}
+  .dw-tag.cold{color:#7FA8C4;background:rgba(127,168,196,.1);}
+  .dw-tag.new{color:#B79BE0;background:rgba(183,155,224,.12);}
+
+
+  .findbar{display:flex;gap:6px;margin-bottom:9px;}
+  .findbar input{flex:1;background:rgba(10,14,19,.85);border:1px solid rgba(232,196,107,.35);
+    border-radius:13px;color:var(--deep);font-family:'Cormorant',serif;font-size:15.5px;padding:12px 14px;}
+  .findbar button{flex:0 0 46px;background:rgba(16,24,33,.9);border:1px solid #22303E;border-radius:12px;
+    font-size:17px;cursor:pointer;color:var(--deep);}
+  .findbar button:active{border-color:var(--gold);}
+  .blk{min-height:92px;}
+  .blk.lit::after{content:'';position:absolute;inset:0;border-radius:14px;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 120%,rgba(255,120,60,calc(var(--heat)*.18)),transparent 60%);}
+  .blk-crown{position:absolute;top:8px;right:9px;font-size:12px;opacity:.9;}
+
+
+  #bmCam{flex:0 0 50px;background:rgba(16,24,33,.9);border:1px solid #22303E;border-radius:13px;
+    font-size:18px;cursor:pointer;color:var(--deep);}
+  #bmCam:active{border-color:var(--gold);}
+
+
+  .bm-mus{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;}
+  .mus{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 9px;border-radius:8px;background:rgba(26,36,48,.8);color:var(--mist);
+    border:1px solid #1E2A36;}
+  .mus.prime{background:rgba(255,90,60,.14);color:#FF8A6B;border-color:rgba(255,90,60,.3);}
+  .bm-rec{font-family:'EB Garamond',serif;font-size:14px;line-height:1.5;color:#B79BE0;
+    background:rgba(28,22,40,.5);border:1px solid rgba(183,155,224,.25);border-radius:11px;
+    padding:9px 12px;margin-bottom:9px;}
+  .bm-rec b{color:#D6C4F0;font-weight:400;}
+
+
+  .hist-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #141E28;}
+  .hist-row:last-child{border-bottom:none;}
+  .hist-when{flex:0 0 62px;font-size:9.5px;letter-spacing:.1em;color:var(--mist);}
+  .hist-sets{flex:1;min-width:0;font-size:12.5px;color:rgba(240,233,216,.9);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hist-ton{flex:0 0 auto;font-size:11px;color:var(--gold);}
+  .hist-x{flex:0 0 26px;background:none;border:none;color:#5E6B78;font-size:13px;cursor:pointer;padding:4px;}
+  .hist-x:active{color:var(--ember-glow);}
+
+
+  .onebox-note{font-family:'EB Garamond',serif;font-style:italic;font-size:12.5px;line-height:1.5;
+    color:var(--mist);background:rgba(16,24,33,.5);border:1px solid #16202B;border-radius:11px;
+    padding:9px 12px;margin-bottom:9px;}
+
+
+  .cols-head{display:flex;margin-bottom:8px;}
+  .col-t{flex:1;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.26em;text-align:center;}
+  .col-t.opt{color:#7FD4E8;} .col-t.real{color:var(--gold);}
+  .cols-empty{font-family:'EB Garamond',serif;font-style:italic;font-size:13.5px;color:var(--mist);
+    text-align:center;padding:14px 0;}
+  .col-row{display:flex;gap:7px;margin-bottom:6px;align-items:stretch;}
+  .col-cell{flex:1;min-width:0;border-radius:11px;padding:8px 10px;position:relative;}
+  .col-cell.opt{background:rgba(20,32,42,.6);border:1px solid rgba(127,212,232,.22);}
+  .col-cell.real{background:rgba(28,24,16,.5);border:1px solid rgba(232,196,107,.25);}
+  .col-cell.real.hit{border-color:rgba(143,203,155,.5);background:rgba(20,32,26,.5);}
+  .col-cell.real.empty{background:rgba(14,18,24,.5);border:1px dashed #223040;}
+  .col-time{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.12em;color:var(--mist);
+    display:block;margin-bottom:2px;}
+  .col-what{font-family:'Cormorant',serif;font-size:14px;line-height:1.3;color:var(--deep);}
+  .col-cell.real.empty .col-what{color:#4E5A66;font-style:italic;}
+  .col-cell.real.hit .col-what{color:#B7E5C2;}
+  .col-why{font-size:10.5px;font-style:italic;color:var(--mist);margin-top:2px;line-height:1.35;}
+  .cols-verdict{font-family:'EB Garamond',serif;font-size:14px;line-height:1.55;color:#C9BFA9;
+    background:rgba(16,24,33,.6);border:1px solid #1B2836;border-radius:12px;padding:10px 13px;margin-top:9px;}
+  .cols-verdict b{color:var(--gold);font-weight:400;}
+
+
+  /* ---------- the station, top tier ---------- */
+  .bm-sheet{background:
+    radial-gradient(ellipse at 50% -10%, rgba(232,196,107,.07), transparent 55%),
+    linear-gradient(175deg,#0D141D 0%,#090E15 55%,#070B10 100%);
+    border:1px solid rgba(232,196,107,.32);
+    box-shadow:0 -20px 80px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.04);}
+  .bm-head{position:relative;padding:2px 0 14px;border-bottom:1px solid rgba(232,196,107,.14);
+    margin-bottom:14px;}
+  .bm-head::before{content:'';position:absolute;left:0;right:38%;bottom:-1px;height:1px;
+    background:linear-gradient(90deg,rgba(232,196,107,.6),transparent);}
+  .bm-name{font-size:31px;letter-spacing:.01em;
+    background:linear-gradient(180deg,#FBF6EA,#D8C9A6);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .bm-emblem{position:absolute;top:-2px;right:44px;width:40px;height:40px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Cormorant',serif;font-size:22px;font-weight:600;color:var(--gold);
+    background:rgba(232,196,107,.07);border:1px solid rgba(232,196,107,.3);
+    box-shadow:0 0 18px rgba(232,196,107,.12), inset 0 0 12px rgba(232,196,107,.06);}
+  .bm-ear{position:absolute;top:52px;right:14px;background:none;border:1px solid rgba(232,196,107,.3);
+    border-radius:10px;font-size:15px;padding:6px 9px;cursor:pointer;transition:opacity .2s;}
+  .lad{border-left:2px solid rgba(127,140,152,.25);}
+  .lad::before{content:'';position:absolute;left:-2px;top:0;bottom:0;width:2px;
+    background:linear-gradient(180deg,rgba(232,196,107,.35),transparent 30%);}
+  .lad-fill{width:3px;left:-2.5px;border-radius:2px;
+    background:linear-gradient(0deg,#7A0E18,#C1121F 45%,#E8C46B);
+    box-shadow:0 0 16px rgba(232,196,107,.55);}
+  .lad-koi{font-size:21px;filter:drop-shadow(0 0 11px rgba(255,90,60,.9));}
+  .bm-stat b{text-shadow:0 0 20px rgba(232,196,107,.25);}
+  .bm-stat{border-bottom:1px solid rgba(27,40,54,.8);}
+  .bm-next{background:rgba(20,32,26,.35);border:1px solid rgba(143,203,155,.2);
+    border-radius:11px;padding:9px 12px;}
+  .bm-bar{padding-top:10px;border-top:1px solid rgba(232,196,107,.12);}
+  #bmInput{box-shadow:inset 0 2px 8px rgba(0,0,0,.4);}
+  #bmSend{box-shadow:0 4px 18px rgba(200,155,60,.35);}
+  /* the log ceremony */
+  @keyframes bmPR{0%{box-shadow:0 -20px 80px rgba(0,0,0,.85);transform:scale(1)}
+    14%{box-shadow:0 0 120px rgba(255,90,60,.85), inset 0 0 60px rgba(255,90,60,.15);transform:scale(1.015)}
+    100%{box-shadow:0 -20px 80px rgba(0,0,0,.85);transform:scale(1)}}
+  @keyframes bmLog{0%{box-shadow:0 -20px 80px rgba(0,0,0,.85)}
+    22%{box-shadow:0 0 80px rgba(232,196,107,.6), inset 0 0 40px rgba(232,196,107,.08)}
+    100%{box-shadow:0 -20px 80px rgba(0,0,0,.85)}}
+  /* ---------- the grid, machine plates ---------- */
+  .blk{background:
+    linear-gradient(168deg,rgba(22,30,40,.92),rgba(12,17,24,.94));
+    border:1px solid rgba(42,58,76,.7);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 4px 14px rgba(0,0,0,.35);}
+  .blk.lit{box-shadow:inset 0 1px 0 rgba(255,255,255,.04),
+    0 0 calc(var(--heat) * 26px) rgba(255,90,60,calc(var(--heat)*.2)),
+    0 4px 14px rgba(0,0,0,.4);}
+  .blk-n{font-size:16.5px;background:linear-gradient(180deg,#F5EEDD,#CBBD9C);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .blk-pr{text-shadow:0 0 16px rgba(232,196,107,.35);}
+
 </style>
 </head>
 <body>
@@ -610,6 +874,24 @@
 </div>
 
 <div class="page" id="pageStr">
+  <div class="section open" id="blockSection">
+    <div class="sec-head"><h3>The Stations · Each One Remembers You</h3><span class="car">›</span></div>
+    <div class="sec-body">
+      <div class="life-ton"><span>LIFETIME MOVED</span><b id="lifeTon">0</b><span>LB</span></div>
+      <div id="questLine" class="quest"></div>
+      <input id="blockSearch" type="text" style="display:none">
+      <button id="findMic" type="button" style="display:none"></button>
+      <button id="findCam" type="button" style="display:none"></button>
+      <div class="onebox-note">Everything goes through the box at the bottom — speak it, type it, paste a whole workout, or photograph the machine. KOI sorts it into these stations.</div>
+      <div id="regionRail"></div>
+      <div id="blockGrid"></div>
+      <input type="file" id="mintIn" accept="image/*" capture="environment" style="display:none">
+      <div class="gnote">Tap a block. Beat yourself. That’s the whole game.</div>
+      <button class="small-link" id="pasteSessionBtn" style="color:#B79BE0;margin-top:8px">📖 Paste a whole workout — any date</button>
+      <button class="small-link" id="clearSetsBtn" style="color:var(--ember-glow);margin-top:6px">✕ Clear today’s sets</button>
+    </div>
+  </div>
+
   <div class="ribbon-wrap"><canvas class="ribbon" id="ribStr"></canvas><div class="ribbon-title">The Forge</div></div>
   <div class="dsearch">
     <input id="moveSearch" placeholder="Speak below, or search / name any movement…" autocomplete="off">
@@ -691,11 +973,6 @@
     <div class="sec-head"><h3>The Week's Work · Sets Per Muscle</h3><span class="car">›</span></div>
     <div class="sec-body" id="weekWork"></div>
   </div>
-  <div class="section open" id="ladderSec">
-    <div class="sec-head"><h3>The Ladders · Climb to Elite</h3><span class="car">›</span></div>
-    <div class="sec-body" id="ladders"></div>
-    <button class="small-link" id="clearSetsBtn" style="color:var(--ember-glow);margin-top:8px">✕ Clear today’s sets — start the forge clean</button>
-  </div>
   <div class="section" id="moveDictSec">
     <div class="sec-head"><h3>The Movement Dictionary</h3><span class="car">›</span></div>
     <div class="sec-body"><div class="codex-grid" id="moveDict"></div></div>
@@ -706,6 +983,14 @@
     <button id="bkPrev">‹</button>
     <div class="dlabel" id="bkLabel">Day 1 of 90</div>
     <button id="bkNext">›</button>
+  </div>
+  <div class="section open">
+    <div class="sec-head"><h3>Tonight’s Sealing</h3><span class="car">›</span></div>
+    <div class="sec-body"><div id="sealBox"></div>
+      <textarea id="carryBox" readonly style="display:none;width:100%;height:150px;margin-top:10px;
+        background:rgba(10,14,19,.9);border:1px solid #2A3A4C;border-radius:11px;color:var(--deep);
+        font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:10px;resize:vertical"></textarea>
+    </div>
   </div>
   <div class="section open">
     <div class="sec-head"><h3>The Book · Word For Word</h3><span class="car">›</span></div>
@@ -763,6 +1048,18 @@
     <button id="dayNext">›</button>
   </div>
   <div class="daysum" id="daySum"></div>
+  <div class="section open" id="colsSec">
+    <div class="sec-head"><h3>The Two Columns · Optimal vs Lived</h3><span class="car">›</span></div>
+    <div class="sec-body">
+      <div class="cols-head">
+        <span class="col-t opt">THE LINE</span>
+        <span class="col-t real">YOUR DAY</span>
+      </div>
+      <div id="colsBody"><div class="cols-empty">The line draws itself when the day opens — tap below.</div></div>
+      <button class="btn" id="drawLineBtn" style="width:100%;margin-top:10px;color:#7FD4E8">✦ Draw today’s line</button>
+      <div class="gnote" id="colsNote">The line is what an optimal day looks like for your body, your goal, and your shift. Your day builds itself from what you deposit. The gap is reflected — never judged.</div>
+    </div>
+  </div>
   <div style="display:flex;gap:8px;margin:10px 12px 0">
     <button class="btn" id="bookBtn" style="flex:1;padding:11px 0;font-family:'Cormorant',serif;font-weight:700;letter-spacing:.18em;font-size:13px;text-transform:uppercase;color:var(--gold)">📖 Book Page</button>
     <button class="btn" id="analyzeBtn" style="flex:1;padding:11px 0;font-family:'Cormorant',serif;font-weight:700;letter-spacing:.18em;font-size:13px;text-transform:uppercase;color:var(--ember-glow)">📊 Full Analysis</button>
@@ -817,12 +1114,12 @@
   <div class="bar">
     <div class="bar-inner">
       <button class="btn mic" id="micBtn" title="Speak">🎙</button>
-      <input id="speak" placeholder="Talk to me. Food, movement, questions…" autocomplete="off">
+      <input id="speak" placeholder="Tell me anything — food, a set, a whole workout, a question" autocomplete="off">
       <button class="btn" id="camBtn" title="Photo of your plate">📷</button>
       <button class="btn" id="sendBtn">→</button>
     </div>
     <input type="file" id="photoIn" accept="image/*" multiple>
-    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v51</div>
+    <div class="hint">Snap a photo, drop a file, or describe it — I break it into foods, calories & time. · v72</div>
   </div>
 </div>
 
@@ -834,7 +1131,59 @@
   <div class="in-tap">TAP TO CONTINUE</div>
 </div>
 
+
+<div id="blockModal">
+  <div class="bm-sheet">
+    <button class="bm-x" id="bmClose">✕</button>
+    <button class="bm-ear" id="bmEar" title="The machine speaks">🎧</button>
+    <div class="bm-head">
+      <div class="bm-emblem" id="bmEmblem"></div>
+      <div class="bm-name" id="bmName"></div>
+      <div class="bm-region" id="bmRegion"></div>
+      <div class="bm-cold" id="bmCold"></div>
+    </div>
+    <div class="bm-body">
+      <div id="bmLadder"></div>
+      <div class="bm-right">
+        <div id="bmStats"></div>
+        <div class="bm-next" id="bmNext"></div>
+      </div>
+    </div>
+    <div class="bm-mus" id="bmMus"></div>
+    <div class="bm-rec" id="bmRec"></div>
+    <div class="bm-last" id="bmLast"></div>
+    <div class="bm-teach" id="bmBuilds"></div>
+    <div class="bm-teach" id="bmForm"></div>
+    <div class="bm-note" id="bmNote"></div>
+    <div class="bm-bar">
+      <button id="bmCam" title="Photo of the machine screen">📷</button>
+      <input id="bmInput" placeholder="185×8   ·   3 sets of 10 at 135   ·   30" autocomplete="off">
+      <button id="bmSend">→</button>
+    </div>
+    <input type="file" id="bmFile" accept="image/*" multiple style="display:none">
+  </div>
+</div>
+
+
+<div id="doorway">
+  <div class="dw-sheet">
+    <button class="bm-x" id="dwClose">✕</button>
+    <div class="dw-head">THE STATION OPENS</div>
+    <div class="dw-seen" id="doorSeen"></div>
+    <div id="doorList"></div>
+  </div>
+</div>
+
 <div id="depFx"></div>
+<button id="shareFab" title="Share this page">⇪</button>
+<div id="shareMenu">
+  <button id="foodTog" style="color:var(--mist);border-bottom:1px solid #22303E;border-radius:0;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em">🍲 FOOD: HIDDEN</button>
+  <button data-k="mirror">🪞 The Mirror — today’s number</button>
+  <button data-k="forge">🔥 The Forge — today’s work</button>
+  <button data-k="move">🏃 The Road — movement</button>
+  <button data-k="week">📅 The Week — seven days</button>
+</div>
 <div class="lightbox" id="lightbox">
   <img id="lbImg" alt="">
   <video id="lbVid" controls playsinline style="display:none;max-width:100%;max-height:62%;border-radius:12px;border:1px solid #22303E"></video>
@@ -925,7 +1274,7 @@ const store=(()=>{let mem={},ok=false;
 let S=JSON.parse(store.get('caloricMirror')||'null')||{
   profile:null,targetW:null,startDate:null,mirrorStart:0,calib:1.0,
   marks:[],days:{},lifts:{},chat:[],lastGreet:null,toured:false,sound:false,
-  book:{},roomSeen:{},forgeCrowns:0,lastCrown:null,registered:false,reflect:null,goalText:null,plan:null,apiKey:null,
+  book:{},roomSeen:{},shareFood:false,forgeCrowns:0,lastCrown:null,registered:false,reflect:null,goalText:null,plan:null,apiKey:null,
   prs:{},streak:{current:0,longest:0,lastSeen:null},form:1,gateCrossed:false,session:null,installAsked:false,notifAsked:false,boardName:null,
   xp:0,owned:['crimson','corridor','gold','sigil-mirror'],equip:{koi:'crimson',water:'corridor',accent:'gold',sigil:'sigil-mirror'},xpLog:{}
 };
@@ -942,7 +1291,19 @@ const save=()=>store.set('caloricMirror',JSON.stringify(S));
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const dayIndex=()=>S.startDate?Math.floor((new Date(todayKey())-new Date(S.startDate))/864e5)+1:0;
 const fmt=n=>Math.round(n).toLocaleString('en-US');
-const $=id=>document.getElementById(id);
+const __ghost=new Proxy(function(){},{get:(t,p)=>{
+  if(p==='classList')return{add(){},remove(){},toggle(){},contains(){return false;}};
+  if(p==='style')return new Proxy({},{get:()=>'',set:()=>true});
+  if(p==='addEventListener'||p==='removeEventListener'||p==='focus'||p==='click'||p==='select'||p==='setSelectionRange'||p==='appendChild'||p==='querySelectorAll')
+    return p==='querySelectorAll'?()=>[]:function(){};
+  if(p==='value'||p==='textContent'||p==='innerHTML'||p==='placeholder')return '';
+  return undefined;
+},set:()=>true,apply:()=>undefined});
+const $=id=>{const el=document.getElementById(id);
+  if(el)return el;
+  console.warn('[mirror] missing element:',id);
+  return __ghost;};
+const $real=id=>document.getElementById(id);
 
 /* ============ HONEST INPUTS — heights in any tongue, math that checks itself ============ */
 function parseHeight(v){
@@ -974,7 +1335,17 @@ function bmr(){const p=S.profile,kg=p.w*0.4536,cm=p.h*2.54;
   return Math.round((10*kg+6.25*cm-5*p.a+(p.s==='m'?5:-161))*S.calib);}
 
 /* ============ MIRROR MATH ============ */
+function dayOf(key){
+  key=key||todayKey();
+  const d=(S.days[key]=S.days[key]||{});
+  if(!Array.isArray(d.in))d.in=[];
+  if(!Array.isArray(d.out))d.out=[];
+  if(!Array.isArray(d.sets))d.sets=[];
+  return d;
+}
+function healDays(){ for(const k in (S.days||{})) dayOf(k); }
 function dayTotals(key){const d=S.days[key];if(!d)return{inC:0,outMove:0};
+  if(!Array.isArray(d.in)||!Array.isArray(d.out))dayOf(key);
   return{inC:d.in.reduce((a,b)=>a+b.kcal,0),outMove:d.out.reduce((a,b)=>a+b.kcal,0)};}
 function secondsToday(){const n=new Date();return n.getHours()*3600+n.getMinutes()*60+n.getSeconds();}
 function anchorMark(beforeKey){
@@ -1200,6 +1571,7 @@ const FISH_SOUL = 'You are KOI — the crimson koi guide who lives inside My Cal
 'GAPS: when asked what to eat, what is missing, or what the body needs, compare TODAY SO FAR against their daily marks and name the exact gaps with numbers (e.g. 62g protein short, 40 oz water behind, 180 under your calorie mark) — then give 2-3 concrete picks from alive foods that close them, sized to their goal and bodyweight. Same for supplements: name what their day is missing before naming any pill. '+
 'GUIDE: they may ask about foods, meal ideas, workouts, muscle building, or patterns they notice in themselves. Answer as a knowledgeable coach: favor whole, alive, unprocessed foods; never push supplements or fads; suggest workouts fitted to their goals, equipment, and history; when useful, connect what you see in their numbers to a gentle observation. If they chase a target line AND strength, tell the truth about the tension between deep deficits and strength gains. '+
 'OVERLOAD: when they log a lift, compare against their last performance of that exercise and their PR; if they matched last time, call the next small step (+5 lb or +1 rep). One line, drill-fire voice, never demand. '+
+'THE SEALING: a day is complete only when five things are witnessed — food, water, movement, the frame, and the book\'s four questions. The 📕 Book tab shows what is still open. From 7pm on, name what is missing plainly and offer to walk it. Never shame a walker for an open day; unwitnessed is not failure. When all five are done, offer to carry the page to the paper book. '+
 'THE FORGE IS LIVE: sets update the ladders, the muscle heat and the tonnage the instant they are logged. Never tell a walker to refresh, reopen a tab, or wait for the screen — if something did not appear, say plainly that you will look again, and never claim a number you did not see. '+
 'THE GRID: they may keep a daily photo. Never comment on their body, never compare frames, never praise thinness — a frame is a witness, not a verdict. Encourage only the keeping of the record. '+
 'THE ROAD: if they have a chosen line, every entry moves their projected arrival date. When it shifts meaningfully, name the cost or the gift in one clause ("that pushed the line about three days out" / "pulled it two days closer") — as a fact of pace, never a scolding, and never a deadline. '+
@@ -1258,6 +1630,43 @@ let fishNoteMsg=null; function fishNote(m){fishNoteMsg=m;}
 
 
 /* ============ RAW PIPE — for cards and plans, exact JSON out ============ */
+
+async function askJSON(prompt,images,maxTok){
+  const tok=maxTok||2000;
+  if(S.apiKey&&S.apiKey.indexOf('sk-ant')===0){
+    try{
+      const content=[];
+      (images||[]).slice(0,4).forEach(img=>content.push({type:'image',
+        source:{type:'base64',media_type:'image/jpeg',data:String(img).split(',')[1]}}));
+      content.push({type:'text',text:prompt});
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':S.apiKey,
+          'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:tok,
+          system:'You output RAW JSON only. No markdown, no fences, no commentary, no explanation. Begin with { and end with }.',
+          messages:[{role:'user',content}]})});
+      const body=await res.json();
+      if(body.error){fishNote('Key refused: '+(body.error.message||'check ⚙').slice(0,100));return null;}
+      let t=(body.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('')
+        .replace(/```json|```/g,'').trim();
+      const m=t.match(/\{[\s\S]*\}/); if(!m)return null;
+      try{return JSON.parse(m[0]);}catch(e){ console.warn('json parse',t.slice(0,200)); return null; }
+    }catch(e){ console.warn(e); return null; }
+  }
+  if(CONFIG.SCRIPT_URL&&S.apiKey){
+    try{
+      const res=await fetch(CONFIG.SCRIPT_URL,{method:'POST',redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({mode:'json',token:S.apiKey,prompt,images:images||[],max:tok})});
+      const out=await res.json();
+      if(out&&out.error==='key'){fishNote(out.reply);return null;}
+      return out;
+    }catch(e){return null;}
+  }
+  fishNote('KOI needs a Mirror Key for this — add it in ⚙.');
+  return null;
+}
+
 async function askClaudeRaw(prompt){
   if(S.apiKey&&S.apiKey.indexOf('sk-ant')===0){
     try{
@@ -1416,6 +1825,10 @@ function fishAsk(){
   if(t.inC===0&&h<12)return 'Eaten yet? Just name it — “two eggs and toast” is plenty. Close is good enough.';
   if(t.inC===0)return 'What’ve you eaten today? Say it plain and watch the water move.';
   if(t.outMove===0&&h>=10)return 'Moved your body at all? Everything counts — a walk to the store counts.';
+  if(h>=19){ const s=daySeal();
+    if(!s.sealed) return 'Day '+s.n+' is <b>'+s.done+' of '+s.total+'</b> sealed. Still open: '
+      +s.rows.filter(r=>!r.done).map(r=>r.ic+' '+r.n).join(' · ')
+      +'. Open <b>📕 Book</b> and I’ll walk you through what’s left.'; }
   if(h>=19&&!(S.book[Math.min(dayIndex(),90)]||[]).some(a=>a))return 'The evening is here. Say <b>“reflect”</b> and I’ll ask you the book’s four questions for Day '+Math.min(dayIndex(),90)+' — your answers write straight onto the page.';
   if(h>=19)return 'Anything I didn’t see today? Snacks, drinks, late bites. That’s the whole practice.';
   return 'I’m here. Food, movement, or any question about either — just talk.';
@@ -1516,6 +1929,43 @@ async function _handle(text,images,imgSrcs){
   if(S.reflect&&S.reflect.day){handleReflection(text);return;}
   if(/^(help|what can you do|who are you|how do (i|you) work|what do you do|guide me)\b/.test(tl)){koiHelp();return;}
   if(/^(reflect|evening|close the day|seal the day)\b/.test(tl)){startReflection();return;}
+  if(looksLikeSession(text)&&/\d/.test(text)&&!/\b(ate|eaten|breakfast|lunch|dinner|calorie)\b/i.test(text)){
+    bulkLog(text); return;
+  }
+  if(tryWeighIn(text))return;
+  // a named movement with numbers, spoken to the librarian, goes to its station
+  if(/\d/.test(text)&&!/\b(ate|eaten|drank|breakfast|lunch|dinner|snack|calorie|water|oz|weigh|weight|weighed|scale|slept|sleep)\b/i.test(tl)){
+    try{
+      const hits=findBlocks(text);
+      const strong = hits.length===1 && (()=>{           // demand an exact token from the block's name or alias
+        const t=text.toLowerCase();
+        const nm=hits[0].n.toLowerCase().split(/\s+/).map(singular);
+        const toks=t.replace(/[^a-z0-9 ]/g,' ').split(/\s+/).map(singular);
+        return toks.some(w=>nm.includes(w)) || Object.keys(BLOCK_ALIAS).some(a=>toks.includes(singular(a))&&BLOCK_ALIAS[a].includes(hits[0].id));
+      })();
+      if(strong){
+        const b=hits[0];
+        const {sets,note}=await smartSets(text,b);
+        if(sets&&sets.length){
+          const prev=blockRec(b.id).pr||0;
+          const res=logToBlock(b.id,sets);
+          try{ const k=blockBurn(b,sets);
+            if(k>0)dayOf(todayKey()).out.push({name:b.n,kcal:Math.abs(k),t:Date.now(),block:b.id}); }catch(e){}
+          grantXP(sets.length*8+(res.wasPR?XP_RULES.pr:0),res.wasPR?'a new record':'logging the work');
+          reefBloom=1;save();renderAll();
+          const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+          const cl=coachLine(b,res,prev);
+          fishSay((note?note+' ':'')+(res.wasPR?'🔥 ':'')+'<b>'+b.n+'</b>. '+cl);
+          speakCoach(b.n+'. '+cl);
+          return;
+        }
+      }
+    }catch(e){}
+  }
+  if(/^forge\s+/.test(tl)){
+    const name=text.replace(/^forge\s+/i,'').trim();
+    if(name){forgeByName(name);return;}
+  }
   if(/analy[sz]|full report|how am i doing|read the mirror/.test(tl)){koiAnalyze();return;}
   if(/^(intro|opening|the movie|play the opening)\b/.test(tl)){playIntro();return;}
   if(/^(tutorial|explain this|show me|demo)\b/.test(tl)){playDemo(activeTab);return;}
@@ -1571,7 +2021,7 @@ async function _handle(text,images,imgSrcs){
     if(claude&&claude.reply){fishSay(claude.reply+'<br><br>'+fishAsk());return;}
     fishSay('I couldn’t read that one'+((S.apiKey||CONFIG.SCRIPT_URL)?'':' — my full mind sleeps — a Mirror Key wakes it: photo-reading, any question, a dictionary that grows forever. KOIlibraryOfficial.com/mirror-key. Meanwhile, tell me plainly and I\u2019ve got you.')+'. Name the food or the movement, or give me the number straight: “pasta, 600 calories.”');return;}
   const tk=todayKey();
-  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  dayOf(tk);
   const chips=[];
   const now=Date.now();for(const it of items){S.days[tk][it.type==='in'?'in':'out'].push({name:it.name,kcal:it.kcal,p:it.p||0,t:now});
     chips.push({...it,t:it.type});}
@@ -1637,6 +2087,9 @@ let displayed=null,pulseT=0,burst=0;
 function pulse(){$('mirrorNumber').classList.add('moving');clearTimeout(pulseT);
   pulseT=setTimeout(()=>$('mirrorNumber').classList.remove('moving'),1200);}
 function renderAll(){
+  try{renderSeal();}catch(e){}
+  try{renderBlocks();renderRegionRail();renderQuest();}catch(e){}
+  try{renderCols();}catch(e){}
   if(!S.profile){if(!S.toured)return;$('setup').classList.add('show');return;}
   $('setup').classList.remove('show');
   $('dayLabel').textContent='DAY '+dayIndex()+' · MY CALORIC MIRROR';
@@ -1664,7 +2117,8 @@ function renderAll(){
     el.innerHTML=`<div class="mnum">${fmt(m.mirror)}</div><div class="mw">${m.weight} lbs</div>
       <div class="mdate">${new Date(m.date+'T12:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>`;
     fr.appendChild(el);});
-  const lad=$('ladders');lad.innerHTML='';
+  if(!$('ladders')){} else {
+  const lad=$real('ladders');if(lad){lad.innerHTML='';}
   for(const key in LADDERS){const L=LADDERS[key],rec=S.lifts[key];
     const bw=S.profile.w,elite=L.rungs[3];
     const val=rec?rec.val:0,pct=Math.min(100,val/elite*100);
@@ -1672,10 +2126,10 @@ function renderAll(){
     el.innerHTML=`<div class="lname"><span>${L.name}</span><b>${rec?(L.reps?rec.e1rm+' reps':rec.e1rm+' lb e1RM'):'unwitnessed'}</b></div>
       <div class="rail"><div class="fill" style="width:${pct}%"></div><span class="swimmer" style="left:${Math.max(2,pct)}%">🐟</span></div>
       <div class="rungs">${L.rungs.map((r,i)=>`<span>${RUNG_NAMES[i]}<br>${L.reps?r:Math.round(r*bw)}</span>`).join('')}</div>
-      <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Say your sets — “benched 185 for 8” — and the ladder wakes.'}</div>`;
-    lad.appendChild(el);}
+      <div class="lstat">${rec?Math.round(pct)+'% of the climb to Elite at your bodyweight':'Tap the block and log — the ladder wakes.'}</div>`;
+    lad&&lad.appendChild(el);}
   renderLists();renderGauge();renderMarks();renderSchedule();renderForge();renderBook();renderWeekWork();renderStreak();renderXP();renderRoad();
-  if(activeTab==='pageGal'&&$('frameLane')&&$('frameLane').style.display!=='none')renderFrames();
+  if(activeTab==='pageGal'&&$('frameLane')&&$('frameLane').style.display!=='none')renderFrames();}
 }
 function tick(){
   if(S.profile){
@@ -2152,7 +2606,7 @@ function drawPond(ts){
 function waterGoal(){return S.profile?Math.round(S.profile.w*0.66):100;} // ~2/3 oz per lb
 function logWater(oz,silent){
   const tk=todayKey();
-  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  dayOf(tk);
   S.days[tk].water=(S.days[tk].water||0)+oz;
   if(!S.days[tk].waterLog)S.days[tk].waterLog=[];
   S.days[tk].waterLog.push({oz,t:Date.now()});
@@ -2211,7 +2665,7 @@ const QUICK_MOVE=[
 })();
 function logDirect(item){
   const tk=todayKey();
-  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  dayOf(tk);
   S.days[tk][item.type==='in'?'in':'out'].push({name:item.name,kcal:item.kcal,p:item.p||0,t:Date.now()});
   depositFX(item.type==='in'?item.kcal:-item.kcal,null,item.type);
   touchStreak();grantXP(XP_RULES.log,'logging honestly');save();renderAll();pulse();burst=1;
@@ -2387,6 +2841,7 @@ function markMoment(){
 function touchStreak(){
   const tk=todayKey(); const st=S.streak;
   if(st.lastSeen===tk)return;
+  try{ if(!daySeal().sealed) return; }catch(e){}   // the streak marks sealed days only
   const y=(()=>{const d=new Date();d.setDate(d.getDate()-1);
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})();
   const resumed = st.lastSeen && st.lastSeen<y;
@@ -2446,14 +2901,39 @@ function detectSets(text){
   }
   return out.map(s=>({ex,...s}));
 }
+function blockForName(name){
+  try{ const hits=findBlocks(name||''); return hits&&hits.length?hits[0]:null; }catch(e){ return null; }
+}
 function recordSets(sets){
+  // bridge: whatever is spoken to KOI also warms its station
+  try{
+    const byEx={};
+    sets.forEach(s=>{(byEx[s.ex||'']=byEx[s.ex||'']||[]).push(s);});
+    for(const nm in byEx){
+      const b=blockForName(nm); if(!b)continue;
+      const rec=blockRec(b.id);
+      const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+      const bwl=bwLoad(b);
+      let ton=0,best=null;
+      byEx[nm].forEach(s=>{
+        const w=+s.w||0,r=+s.r||0; ton+=(w||bwl)*r;
+        const v=isRep?r:e1rm(w,r);
+        if(!best||v>best.v)best={v,w,r};
+      });
+      if(!best)continue;
+      rec.ton=(rec.ton||0)+ton; rec.last=Date.now();
+      rec.sessions=(rec.sessions||[]).concat([{t:Date.now(),sets:byEx[nm].map(s=>({w:+s.w||0,r:+s.r||0})),ton}]).slice(-60);
+      if(best.v>(rec.pr||0)){rec.pr=best.v;rec.prSet={w:best.w,r:best.r};rec.prWhen=todayKey();}
+    }
+  }catch(e){}
+
   if(!sets.length)return null;
   if(sets.length>12){                       // nobody does 20 sets of one movement in a breath
     sets=sets.slice(0,12);
     setTimeout(()=>fishNote('That read as a lot of sets — I held the first 12. If you meant a weight, say it as “20 lb for 12”.'),900);
   }
   const tk=todayKey();
-  if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  dayOf(tk);
   if(!S.days[tk].sets)S.days[tk].sets=[];
   const mus=musclesFor(sets[0].ex);
   let prLine='';
@@ -2725,7 +3205,19 @@ setTimeout(()=>{if($('frameLane'))showLane('frames');},500);
 
 
 /* ============ THE DEPOSIT — feel every one, on every tab ============ */
+function markDock(){
+  try{
+    const tab=document.querySelector('.tab[data-go="pageBook"]')||$real('bookTab');
+    if(!tab)return;
+    let dot=tab.querySelector('.dock-seal');
+    const s=daySeal();
+    if(!s.sealed){ if(!dot){dot=document.createElement('span');dot.className='dock-seal';
+      tab.style.position='relative';tab.appendChild(dot);} }
+    else if(dot)dot.remove();
+  }catch(e){}
+}
 function tickDockNum(){
+  try{markDock();}catch(e){}
   const el=$('dockNumVal');
   if(el&&S.profile)el.textContent=fmt(mirrorNow());
 }
@@ -2806,7 +3298,7 @@ async function storageMeter(){
   }catch(e){return '';}
 }
 async function backupStat(){
-  const el=$('backupStat'); if(!el)return;
+  const el=$real('backupStat'); if(!el)return;
   try{
     const v=await vaultDump();
     const n=Object.keys(v).length;
@@ -2887,6 +3379,1244 @@ $('bkFile').onchange=e=>{
   r.readAsText(f);
 };
 
+
+
+
+/* ============ THE LIVING BLOCKS — every station remembers you ============ */
+const BLOCK_LIB=[{"id":"bench-press","n":"Bench Press","r":"chest","g":"barbell","m":2.0,"b":"The foundation of upper-body pressing. Builds the thick middle of the chest, the front delts, and the triceps together.","f":"Elbows about 45° from your ribs, bar to the lower chest, feet planted. No bounce — the pause is where the chest earns it."},{"id":"incline-bench","n":"Incline Bench Press","r":"chest","g":"barbell","m":1.6,"b":"Angles the press upward to load the upper chest — the shelf under the collarbone that makes a chest look built rather than wide.","f":"Bench at 30°, not 45 — steeper turns it into a shoulder press. Bar to the top of the chest."},{"id":"dumbbell-press","n":"Dumbbell Bench Press","r":"chest","g":"dumbbell","m":0.8,"b":"Each arm works alone, so the weaker side can't hide. Deeper stretch than a bar allows, which builds the inner chest.","f":"Let the dumbbells come level with your chest, then press up and slightly together."},{"id":"incline-db-press","n":"Incline Dumbbell Press","r":"chest","g":"dumbbell","m":0.65,"b":"Upper chest with a free range of motion. The single best movement for the shelf if the bar bothers your shoulders.","f":"30° bench, palms angled slightly in, deep stretch at the bottom."},{"id":"chest-fly","n":"Chest Fly","r":"chest","g":"dumbbell","m":0.35,"b":"Pure stretch and squeeze — no triceps helping. Widens the outer chest and carves the line down the middle.","f":"Soft bend in the elbow held all the way. Wide arc, not a press. Feel the stretch, don't chase weight."},{"id":"cable-crossover","n":"Cable Crossover","r":"chest","g":"cable","m":0.5,"b":"Constant tension the whole arc. Set high it hits the lower chest line; set low it hits the upper.","f":"Step forward so tension never dies. Cross the hands slightly past centre at the end."},{"id":"chest-dip","n":"Chest Dip","r":"chest","g":"bodyweight","m":null,"b":"Bodyweight pressing at a downward angle — the strongest builder of the lower chest line and the sweep under the pec.","f":"Lean the torso forward about 30°, elbows flare slightly. Upright turns it into a triceps movement."},{"id":"pushup","n":"Push-Up","r":"chest","g":"bodyweight","m":null,"b":"The floor of all pressing. Chest, triceps, front delts and a braced core in one movement, anywhere, forever.","f":"Body in one line from heel to head. Hands under the shoulders, elbows back at 45°."},{"id":"machine-press","n":"Machine Chest Press","r":"chest","g":"machine","m":1.2,"b":"The path is fixed, so you can push close to failure safely. Good for finishing the chest when the stabilisers are spent.","f":"Set the handles level with mid-chest. Full stretch back, full squeeze forward."},{"id":"pec-deck","n":"Pec Deck","r":"chest","g":"machine","m":0.5,"b":"An isolated squeeze on a fixed arc. Targets the inner chest with no balance demand at all.","f":"Pads at chest height, elbows slightly below the shoulder line. Hold the squeeze for a beat."},{"id":"deadlift","n":"Deadlift","r":"back","g":"barbell","m":3.25,"b":"The whole posterior chain in one pull — spinal erectors, lats, glutes, hamstrings, grip. The single heaviest thing a body can do.","f":"Bar over mid-foot, chest up, back flat. Push the floor away rather than pulling the bar up."},{"id":"pullup","n":"Pull-Up","r":"back","g":"bodyweight","m":null,"b":"The width builder. Lats, rear delts, biceps and grip, moving your whole bodyweight through space.","f":"Full hang at the bottom, chest to the bar at the top. Pull with the elbows, not the hands."},{"id":"lat-pulldown","n":"Lat Pulldown","r":"back","g":"machine","m":1.0,"b":"The pull-up made scalable. Builds the outer lats — the taper that makes a back look wide from the front.","f":"Slight lean back, bar to the collarbone. Drive the elbows down and back."},{"id":"barbell-row","n":"Barbell Row","r":"back","g":"barbell","m":1.5,"b":"Horizontal pulling for the thickness of the mid-back — rhomboids, mid-traps, lats.","f":"Torso around 45°, bar to the navel. Squeeze the shoulder blades at the top."},{"id":"dumbbell-row","n":"Dumbbell Row","r":"back","g":"dumbbell","m":0.6,"b":"One side at a time with a longer range than a bar allows. Evens out a back that pulls harder on one side.","f":"Flat back, pull the dumbbell to the hip, not the shoulder. Full stretch at the bottom."},{"id":"seated-row","n":"Seated Cable Row","r":"back","g":"cable","m":1.2,"b":"Constant tension across the mid-back. Best movement for posture — pulls the shoulders out of a desk.","f":"Chest tall, pull to the belly button, elbows brushing the ribs."},{"id":"face-pull","n":"Face Pull","r":"back","g":"cable","m":0.4,"b":"Rear delts and mid-traps — the small muscles that hold your shoulders back and keep them healthy under pressing.","f":"Rope to the forehead, elbows high, external rotation at the end. Light weight, high reps."},{"id":"shrug","n":"Shrug","r":"back","g":"dumbbell","m":0.9,"b":"Direct upper-trap work — the muscle that frames the neck and carries everything you pick up.","f":"Straight up, not rolling. Pause at the top for a beat."},{"id":"overhead-press","n":"Overhead Press","r":"shoulders","g":"barbell","m":1.3,"b":"Vertical pressing from the floor up. Front and side delts, triceps, and a braced core holding it all together.","f":"Bar from the collarbone, head moves back then through. Squeeze the glutes so the back doesn't arch."},{"id":"db-shoulder-press","n":"Dumbbell Shoulder Press","r":"shoulders","g":"dumbbell","m":0.6,"b":"Free-range overhead pressing. Each shoulder works alone, which builds the front and side head evenly.","f":"Start at ear height, press up and slightly in. Don't clang them at the top."},{"id":"lateral-raise","n":"Lateral Raise","r":"shoulders","g":"dumbbell","m":0.22,"b":"The width maker. Isolates the side delt — the muscle that gives shoulders their round, capped look.","f":"Lead with the elbow, stop at shoulder height. Light weight; momentum steals the whole movement."},{"id":"rear-delt-fly","n":"Rear Delt Fly","r":"shoulders","g":"dumbbell","m":0.2,"b":"The back of the shoulder — the head almost everyone neglects. Balances a chest-heavy build and protects the joint.","f":"Hinge at the hips, arms wide, thumbs down. Squeeze the rear delts, not the traps."},{"id":"front-raise","n":"Front Raise","r":"shoulders","g":"dumbbell","m":0.25,"b":"Isolates the front delt. Usually already worked by pressing, so treat it as a finisher rather than a main lift.","f":"Raise to eye level, controlled all the way down."},{"id":"arnold-press","n":"Arnold Press","r":"shoulders","g":"dumbbell","m":0.5,"b":"A rotating press that runs the shoulder through its full arc — front and side heads in one movement.","f":"Start palms facing you, rotate out as you press. Reverse it on the way down."},{"id":"upright-row","n":"Upright Row","r":"shoulders","g":"barbell","m":0.6,"b":"Side delts and traps together. Effective but demanding on the shoulder joint — go moderate.","f":"Wide grip, elbows lead, stop at chest height. Narrow grips pinch the joint."},{"id":"barbell-curl","n":"Barbell Curl","r":"biceps","g":"barbell","m":0.65,"b":"The classic mass builder for the biceps. Both heads loaded heavy in one movement.","f":"Elbows pinned at your sides. No swing — if the hips move, the weight is too heavy."},{"id":"dumbbell-curl","n":"Dumbbell Curl","r":"biceps","g":"dumbbell","m":0.25,"b":"One arm at a time with rotation. Builds the peak and evens out arm-to-arm strength.","f":"Supinate as you curl — turn the pinky up at the top."},{"id":"hammer-curl","n":"Hammer Curl","r":"biceps","g":"dumbbell","m":0.3,"b":"Neutral grip loads the brachialis underneath the bicep, which pushes the peak higher, plus the forearm.","f":"Palms face each other the whole way. Controlled, no swinging."},{"id":"preacher-curl","n":"Preacher Curl","r":"biceps","g":"machine","m":0.4,"b":"Locks the elbow in place so the bicep can't cheat. Builds the lower bicep and the tie-in near the elbow.","f":"Full stretch at the bottom — that's where this movement earns its keep."},{"id":"tricep-pushdown","n":"Tricep Pushdown","r":"triceps","g":"cable","m":0.5,"b":"Constant tension on the outer and medial triceps head. The workhorse of arm-day pressing.","f":"Elbows locked at your sides, full extension, squeeze at the bottom."},{"id":"skullcrusher","n":"Skullcrusher","r":"triceps","g":"barbell","m":0.5,"b":"Loads the long head of the triceps — the mass along the back of the arm that shows from the side.","f":"Lower to the forehead, elbows pointing at the ceiling and staying there."},{"id":"overhead-tricep","n":"Overhead Tricep Extension","r":"triceps","g":"dumbbell","m":0.35,"b":"The deepest stretch the long head can get. Best single movement for arm thickness from behind.","f":"Elbows close to the head, full stretch behind the neck."},{"id":"close-grip-bench","n":"Close-Grip Bench Press","r":"triceps","g":"barbell","m":1.5,"b":"Heavy compound pressing shifted onto the triceps. Builds arms and carries straight over to your bench.","f":"Hands shoulder-width, elbows tucked tight. Bar to the lower chest."},{"id":"tricep-dip","n":"Tricep Dip","r":"triceps","g":"bodyweight","m":null,"b":"Bodyweight triceps at full load. Stay upright and it becomes the strongest arm builder you own.","f":"Torso vertical, elbows straight back. Leaning forward turns it into a chest movement."},{"id":"wrist-curl","n":"Wrist Curl","r":"forearms","g":"dumbbell","m":0.25,"b":"Direct forearm work. Builds grip strength that carries into every pull you'll ever do.","f":"Forearms on a bench, wrists hanging free. Full curl, slow release."},{"id":"squat","n":"Back Squat","r":"quads","g":"barbell","m":2.75,"b":"The king of leg movements. Quads, glutes, hamstrings, spinal erectors and core under one bar.","f":"Break at the hips and knees together, knees tracking over the toes, hips below parallel."},{"id":"front-squat","n":"Front Squat","r":"quads","g":"barbell","m":2.0,"b":"Bar in front shifts the load onto the quads and forces an upright torso. Brutal on the core.","f":"Elbows high the whole rep. The moment they drop, the bar rolls forward."},{"id":"leg-press","n":"Leg Press","r":"quads","g":"machine","m":3.5,"b":"Heavy leg loading with the back supported. Lets you push near failure without balance limiting you.","f":"Feet shoulder-width, knees to 90°, never lock out hard at the top."},{"id":"lunge","n":"Lunge","r":"quads","g":"dumbbell","m":0.5,"b":"One leg at a time — quads, glutes and balance. Exposes and fixes side-to-side differences.","f":"Long step, back knee toward the floor, front knee over the ankle."},{"id":"leg-extension","n":"Leg Extension","r":"quads","g":"machine","m":0.8,"b":"Isolates the quads with zero help. Builds the teardrop above the knee.","f":"Full extension, pause at the top, slow on the way down."},{"id":"romanian-deadlift","n":"Romanian Deadlift","r":"hamstrings","g":"barbell","m":2.0,"b":"Hip hinge under load — the best hamstring and glute builder there is.","f":"Push the hips back, bar close to the legs, slight knee bend held throughout."},{"id":"leg-curl","n":"Leg Curl","r":"hamstrings","g":"machine","m":0.7,"b":"Isolates the hamstrings by bending the knee. Balances a body that squats more than it hinges.","f":"Full range, squeeze at the top, control the return."},{"id":"hip-thrust","n":"Hip Thrust","r":"glutes","g":"barbell","m":2.0,"b":"The strongest direct glute movement. Loads the glute at full contraction, which squats never do.","f":"Shoulders on a bench, chin tucked, squeeze hard at the top for a full second."},{"id":"calf-raise","n":"Calf Raise","r":"calves","g":"machine","m":1.5,"b":"Direct calf work. Stubborn muscle — needs high reps and a full stretch at the bottom.","f":"Heels drop below the platform, rise all the way to the toes, pause both ends."},{"id":"plank","n":"Plank","r":"core","g":"bodyweight","m":null,"b":"Isometric bracing — teaches the whole midsection to hold under pressure, which protects every heavy lift.","f":"Straight line from heel to head. Squeeze the glutes; don't let the hips sag."},{"id":"hanging-leg-raise","n":"Hanging Leg Raise","r":"core","g":"bodyweight","m":null,"b":"The lower abs, plus grip and lats. Hardest bodyweight core movement worth doing.","f":"Curl the pelvis up rather than just lifting the legs. No swinging."},{"id":"cable-crunch","n":"Cable Crunch","r":"core","g":"cable","m":0.6,"b":"Weighted ab work. The only reliable way to make abs thicker rather than just more endurance-trained.","f":"Crunch the ribs to the hips. Hips stay still — this is spinal flexion, not a hip movement."},{"id":"russian-twist","n":"Russian Twist","r":"core","g":"dumbbell","m":0.2,"b":"Rotation for the obliques — the muscles that frame the waist and drive every twisting movement.","f":"Slow rotation, chest up. Speed here does nothing."},{"id":"situp","n":"Sit-Up","r":"core","g":"bodyweight","m":null,"b":"Classic full-range ab flexion. Simple, scalable, and needs nothing but the floor.","f":"Feet down, hands light at the temples. Don't pull on the neck."},{"id":"run","n":"Run","r":"heart","g":"cardio","m":null,"b":"Steady-state cardio. Builds the aerobic base that makes recovery between sets faster.","f":"Land under the hips, easy cadence. Conversation pace builds the base; sprints build the ceiling."},{"id":"row-machine","n":"Rowing Machine","r":"heart","g":"cardio","m":null,"b":"Full-body conditioning — legs drive, back pulls, everything works. Hardest cardio per minute in most gyms.","f":"Legs, then back, then arms. Reverse exactly on the return."},{"id":"burpee","n":"Burpee","r":"heart","g":"bodyweight","m":null,"b":"Chest, legs, and lungs in one movement. Maximum conditioning with zero equipment.","f":"Chest to floor, explode up. Pace yourself — this one lies about how easy it is."},{"id":"jump-rope","n":"Jump Rope","r":"calves","g":"cardio","m":null,"b":"Calves, coordination and heart rate. The cheapest conditioning tool that exists.","f":"Small jumps, wrists doing the turning, stay on the balls of the feet."},{"id":"sauna","n":"Sauna","r":"heart","g":"recovery","m":null,"b":"Heat exposure raises heart rate like light cardio, floods the body with heat-shock proteins, and deepens recovery between training days.","f":"Sit with the heat, breathe slow. Minutes are the ladder \u2014 15 to 20 is a strong session. Hydrate after with salted water."},{"id":"cold-plunge","n":"Cold Plunge","r":"heart","g":"recovery","m":null,"b":"Cold immersion drives blood to the core and back out, sharpens the nervous system, and cuts soreness after heavy work.","f":"Enter slow, exhale long. Minutes are the ladder \u2014 two to five is real. Never straight after lifting if muscle growth is the goal."},{"id":"steam-room","n":"Steam Room","r":"heart","g":"recovery","m":null,"b":"Wet heat opens airways and skin, loosens tight tissue, and calms the system after work.","f":"Ten to fifteen minutes. Breathe through the nose. Water before and after."},{"id":"stretching","n":"Stretching","r":"core","g":"recovery","m":null,"b":"Held stretches lengthen what training shortens. The unglamorous work that keeps every other block available to you.","f":"Hold 30 seconds minimum, breathe into the stretch, never bounce. Minutes are the ladder."},{"id":"walk","n":"Walk","r":"heart","g":"cardio","m":null,"b":"The most underrated movement there is. Clears the mind, burns quietly, costs nothing, and recovery rides on it.","f":"Minutes are the ladder. Easy pace, arms swinging, outside if the sky allows."}];
+const REGIONS={chest:['Chest','🫀'],back:['Back','🔺'],shoulders:['Shoulders','🛡'],
+  biceps:['Biceps','💪'],triceps:['Triceps','🔱'],forearms:['Forearms','✊'],
+  quads:['Legs · Quads','🦵'],hamstrings:['Legs · Hams','🦵'],glutes:['Glutes','🍑'],
+  calves:['Calves','🐾'],core:['Core','◈'],heart:['Conditioning','🫁']};
+const RUNGS=['BEGINNER','INTERMEDIATE','ADVANCED','ELITE'];
+const RUNG_MULT=[0.25,0.5,0.75,1.0];
+const COLD_HOURS=72;
+
+function allBlocks(){ return BLOCK_LIB.concat(S.customBlocks||[]); }
+function blockById(id){ return allBlocks().find(b=>b.id===id); }
+function blockRec(id){ S.blocks=S.blocks||{};
+  return S.blocks[id]||(S.blocks[id]={pr:0,prSet:null,prWhen:null,ton:0,sessions:[],last:null,best:null}); }
+const e1rm=(w,r)=>r>1?Math.round(w*(1+r/30)):w;
+
+function blockCeiling(b){
+  const bw=(S.profile&&S.profile.w)||185;
+  if(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery')return null;      // reps are the ladder
+  return Math.round(bw*(b.m||0.5));
+}
+function blockMarks(b){
+  const c=blockCeiling(b); if(!c)return null;
+  return RUNG_MULT.map(m=>Math.round(c*m));
+}
+function blockLevel(b,val){
+  const marks=blockMarks(b);
+  if(!marks)return {i:-1,name:'',pct:0};
+  if(val>=marks[3])return {i:3,name:'ELITE',pct:1,past:val>marks[3]};
+  for(let i=0;i<4;i++) if(val<marks[i])
+    return {i:i-1,name:i===0?'':RUNGS[i-1],pct:val/marks[3]};
+  return {i:3,name:'ELITE',pct:1};
+}
+function blockHours(id){ const r=blockRec(id);
+  if(!r.last)return null; return (Date.now()-r.last)/36e5; }
+function blockHeat(id){ const h=blockHours(id);
+  if(h===null)return 0;
+  if(h<=COLD_HOURS)return 1;
+  return Math.max(0,1-(h-COLD_HOURS)/(24*14));            // fades over two weeks, never below cold
+}
+function lifetimeTonnage(){ let t=0; const bl=S.blocks||{};
+  for(const k in bl)t+=bl[k].ton||0; return t; }
+
+const BW_FRAC={pushup:0.64,pullup:1.0,'chest-dip':1.0,'tricep-dip':1.0,situp:0.30,
+  'hanging-leg-raise':0.45,plank:0.55,burpee:0.70};
+function bwLoad(b){
+  if(b.g!=='bodyweight')return 0;
+  const bw=(S.profile&&S.profile.w)||185;
+  return Math.round(bw*(BW_FRAC[b.id]||0.6));
+}
+function logToBlock(id,sets,whenKey){
+  const b=blockById(id); if(!b||!sets.length)return null;
+  const rec=blockRec(id);
+  let ton=0,best=null;
+  const bwl=bwLoad(b);
+  sets.forEach(s=>{
+    const w=+s.w||0, r=+s.r||0;
+    ton+=(w||bwl)*r;
+    const v=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery')?r:e1rm(w,r);
+    if(!best||v>best.v)best={v,w,r};
+  });
+  const when = whenKey ? new Date(whenKey+'T12:00:00').getTime() : Date.now();
+  rec.ton=(rec.ton||0)+ton;
+  rec.last=Math.max(rec.last||0,when);
+  rec.sessions=(rec.sessions||[]).concat([{t:when,sets:sets.slice(0,12),ton}])
+    .sort((a,b)=>a.t-b.t).slice(-60);
+  const wasPR=best&&best.v>(rec.pr||0);
+  if(wasPR){rec.pr=best.v;rec.prSet={w:best.w,r:best.r};rec.prWhen=todayKey();}
+  // feed the day ledger so the mirror, muscles and week all stay true
+  const day=dayOf(whenKey||todayKey());
+  let bmus=[]; try{ bmus=musclesFor(b.n)||[]; }catch(e){}
+  if(!bmus.length)bmus=[b.r||'core'];
+  day.sets=day.sets.concat(sets.map(s=>({ex:b.n,w:+s.w||0,r:+s.r||0,t:when,block:id,mus:bmus.slice()})));
+  save();
+  return {ton,best,wasPR,rec,b};
+}
+
+
+/* ---------- today's quest: the forge names the fight ---------- */
+function forgeQuest(){
+  const bl=allBlocks(); const touched=bl.filter(b=>blockRec(b.id).last);
+  if(!touched.length)return 'The stations wait. Tap one, log one set — that set becomes your floor, and everything after it is a climb.';
+  // the warmest block close to a rung, and the coldest region
+  let fight=null;
+  touched.forEach(b=>{
+    const rec=blockRec(b.id); if(!rec.pr)return;
+    const marks=blockMarks(b);
+    if(marks){
+      const next=marks.find(m=>m>rec.pr);
+      if(next){ const gap=(next-rec.pr)/next;
+        if(gap<0.12 && (!fight||gap<fight.gap)) fight={b,rec,next,gap,rung:RUNGS[marks.indexOf(next)]}; }
+    }
+  });
+  const cold=touched.map(b=>({b,h:blockHours(b.id)})).filter(x=>x.h>COLD_HOURS)
+    .sort((a,c)=>c.h-a.h)[0];
+  const recent=touched.sort((a,c)=>blockRec(c.id).last-blockRec(a.id).last)[0];
+  const parts=[];
+  if(fight)parts.push('⚔ <b>'+fight.b.n+'</b> sits '+(fight.next-fight.rec.pr)+' from <b>'+fight.rung+'</b> — that rung falls today if you take it.');
+  else if(recent){const rec=blockRec(recent.id);
+    const p=rec.prSet||{w:rec.pr,r:1};
+    parts.push('⚔ <b>'+recent.n+'</b> — the record stands at '+(rec.pr||0)+'. '+(p.w?p.w+'×'+(p.r+1)+' takes it.':'One more rep takes it.'));}
+  if(cold)parts.push('❄ <b>'+cold.b.n+'</b> has gone '+Math.floor(cold.h/24)+' days cold. Relight it and the fire spreads.');
+  return parts.join('<br>')||'Every station warm. Pick one and push the ceiling.';
+}
+function renderQuest(){ const el=$real('questLine'); if(el)el.innerHTML=forgeQuest(); }
+
+
+
+/* ---- burn: a defensible estimate, not a rounding error ---- */
+const MET_BY_GEAR={barbell:5.0,dumbbell:5.0,machine:4.5,cable:4.5,bodyweight:6.0,cardio:9.0,recovery:2.0};
+function blockBurn(b,sets){
+  const bw=(S.profile&&S.profile.w)||185, kg=bw*0.4536;
+  const isTime=(b.g==='cardio'||b.g==='recovery');
+  if(isTime){
+    const mins=sets.reduce((a,s)=>a+(+s.r||0),0);
+    const miles=sets.reduce((a,s)=>a+(+s.mi||0),0);
+    if(miles>0&&(b.id==='run'||b.id==='walk'))
+      return Math.round(miles*bw*(b.id==='run'?0.63:0.45));
+    const met=(b.id==='run')?9.8:(b.id==='walk')?3.5:(MET_BY_GEAR[b.g]||4);
+    return Math.round(met*3.5*kg/200*mins);
+  }
+  // resistance: ~45s under load + rest per set, at the gear's MET
+  const nSets=sets.length;
+  const reps=sets.reduce((a,s)=>a+(+s.r||0),0);
+  const minutes=nSets*1.6 + reps*0.06;
+  const met=MET_BY_GEAR[b.g]||5;
+  const work=sets.reduce((a,s)=>a+((+s.w||bwLoad(b))*(+s.r||0)),0)*0.00045;
+  return Math.max(1,Math.round(met*3.5*kg/200*minutes + work));
+}
+
+
+/* ---- weigh-in: "my weight was 180" redraws the mirror ---- */
+function tryWeighIn(text){
+  const tl=text.toLowerCase();
+  if(!/\b(weigh|weight|weighed|scale|weigh-in|weighin)\b/.test(tl))return false;
+  const m=normNum(text).match(/(\d{2,3}(?:\.\d)?)/);
+  if(!m)return false;
+  const lbs=+m[1];
+  if(lbs<80||lbs>500)return false;
+  const prev=S.profile&&S.profile.w;
+  S.profile.w=lbs;
+  S.marks=S.marks||[];
+  const tk=todayKey();
+  const existing=S.marks.find(x=>x.date===tk);
+  const mirror=Math.round(lbs*3500);
+  if(existing)existing.mirror=mirror; else S.marks.push({date:tk,mirror});
+  S.marks.sort((a,b)=>a.date<b.date?-1:1);
+  save();renderAll();
+  const diff=prev?Math.round((prev-lbs)*10)/10:0;
+  fishSay('⚖️ Witnessed — <b>'+lbs+' lb</b>. The mirror redraws to <b>'+fmt(mirror)+'</b>.'
+    +(prev&&diff!==0?(diff>0?' That is '+diff+' lb released since the last mark — '+fmt(Math.round(diff*3500))+' units.'
+                            :' That is '+Math.abs(diff)+' lb above the last mark. Witnessed, not judged.')
+      :'')+' A new mark stands on today.');
+  grantXP(30,'a weigh-in');
+  return true;
+}
+
+
+/* ============ THE TRAINER — every set gets the voice ============ */
+function coachLine(b,res,prevPR){
+  const rec=res.rec, isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+  const unit=isRep?((b.g==='recovery'||b.g==='cardio')?' minutes':' reps'):' lb';
+  const parts=[];
+  // 1 — what just happened
+  parts.push((res.wasPR?'New record. ':'')
+    +(isRep? res.best.v+unit+' held'
+           : res.best.w+' for '+res.best.r+' — '+fmt(res.ton)+' pounds moved'));
+  // 2 — where you stand
+  const marks=blockMarks(b);
+  if(marks){
+    const lvl=blockLevel(b,rec.pr||0);
+    const next=marks.find(m=>m>(rec.pr||0));
+    if(rec.pr>marks[3]) parts.push('You stand past elite. The mountain is yours to redraw');
+    else if(next){
+      const names=['beginner','intermediate','advanced','elite'];
+      parts.push('That puts you at '+(lvl.name||'the base').toLowerCase()
+        +' — '+(next-(rec.pr||0))+' pounds of one-rep strength from '+names[marks.indexOf(next)]);
+    }
+  } else if(rec.pr) {
+    parts.push('Your ceiling here is '+rec.pr+unit+' — every one past it is new ground');
+  }
+  // 3 — what it did to the body
+  const firstSentence=(b.b||'').split('.')[0];
+  if(firstSentence)parts.push(firstSentence);
+  // 4 — the push
+  if(rec.pr){
+    if(isRep)parts.push('Next visit: '+(rec.pr+1)+unit+' takes the summit');
+    else{const p=rec.prSet||{w:rec.pr,r:1};
+      parts.push('Next visit: '+p.w+' for '+(p.r+1)+', or '+(Math.round((p.w+5)/2.5)*2.5)+' for '+p.r);}
+  }
+  return parts.join('. ')+'.';
+}
+/* ---- the voice in the headphones ---- */
+function speakCoach(text){
+  if(!S.coachVoice)return;
+  try{
+    const clean=String(text).replace(/<[^>]+>/g,'').replace(/[🔥⚔️❄👑⚖️✦📷📖🔨🎯]/g,'');
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(clean);
+    u.rate=1.02;u.pitch=0.95;
+    const vs=speechSynthesis.getVoices();
+    const pick=vs.find(v=>/Daniel|Aaron|en-GB|en-US/i.test(v.name+v.lang)&&!/female/i.test(v.name));
+    if(pick)u.voice=pick;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---- undo: take a session back out, cleanly ---- */
+function undoSession(id,idx){
+  const b=blockById(id), rec=blockRec(id);
+  const ss=(rec.sessions||[])[idx]; if(!ss)return;
+  if(!confirm('Remove this entry?\n\n'+ss.sets.map(s=>s.w?(s.w+'×'+s.r):(s.r+' reps')).join(', ')
+    +'\n\nTonnage, burn and the record all reverse.'))return;
+  // pull the sets back out of the day ledger
+  const stamps=new Set(ss.sets.map(s=>s.t).filter(Boolean));
+  for(const k in S.days){
+    const d=S.days[k];
+    if(d.sets)d.sets=d.sets.filter(s=>!(s.block===id&&Math.abs((s.t||0)-ss.t)<12e4));
+    if(d.out)d.out=d.out.filter(it=>!(it.name===b.n&&Math.abs((it.t||0)-ss.t)<12e4));
+  }
+  rec.ton=Math.max(0,(rec.ton||0)-(ss.ton||0));
+  rec.sessions.splice(idx,1);
+  // rebuild the record from what remains
+  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+  let pr=0,prSet=null,prWhen=null;
+  (rec.sessions||[]).forEach(s=>s.sets.forEach(x=>{
+    const v=isRep?(+x.r||0):e1rm(+x.w||0,+x.r||0);
+    if(v>pr){pr=v;prSet={w:+x.w||0,r:+x.r||0};prWhen=null;}
+  }));
+  rec.pr=pr;rec.prSet=prSet;rec.prWhen=prWhen;
+  rec.last=(rec.sessions||[]).length?rec.sessions[rec.sessions.length-1].t:null;
+  save();renderAll();openBlock(id);
+  fishSay('Taken back out. '+b.n+(pr?' record now stands at '+pr+'.':' has no record — the block is clean again.'));
+}
+
+
+
+/* ============ LOCAL SESSION ABSORBER — paste eats itself, no key needed ============ */
+function guessGearRegion(name){
+  const n=name.toLowerCase();
+  const gear = /dumbbell|db\b/.test(n)?'dumbbell'
+    : /barbell|bench|squat|deadlift|press\b/.test(n)?'barbell'
+    : /cable|pulldown|pushdown|crossover|row\b/.test(n)?'cable'
+    : /machine|pec deck|leg press|extension|leg curl/.test(n)?'machine'
+    : /sauna|steam|plunge|stretch/.test(n)?'recovery'
+    : /run|walk|bike|row(er|ing)|cardio|jump/.test(n)?'cardio'
+    : /push.?up|pull.?up|dip|plank|raise|sit.?up|crunch|burpee/.test(n)?'bodyweight'
+    : 'dumbbell';
+  let region='core';
+  try{ const m=musclesFor(name); if(m&&m.length)region=m[0]; }catch(e){}
+  if(region==='core'){
+    if(/curl/.test(n))region='biceps';
+    else if(/tricep|pushdown|skull|extension\b/.test(n))region='triceps';
+    else if(/shrug|row|pull/.test(n))region='back';
+    else if(/press|push|chest|fly/.test(n))region='chest';
+    else if(/squat|lunge|leg/.test(n))region='quads';
+    else if(/shoulder|lateral|delt/.test(n))region='shoulders';
+    else if(/sauna|steam|plunge|cardio|run|walk/.test(n))region='heart';
+  }
+  return {g:gear,r:region};
+}
+function parseSessionLocal(text){
+  const lines=String(text).split(/\n/).map(l=>l.trim()).filter(Boolean);
+  let dateKey=null; const entries=[];
+  for(const line of lines){
+    const dm=line.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);
+    if(dm){let y=+dm[3];if(y<100)y+=2000;
+      dateKey=y+'-'+String(+dm[1]).padStart(2,'0')+'-'+String(+dm[2]).padStart(2,'0');continue;}
+    let name,rest;
+    const ci=line.indexOf(':');
+    if(ci>0&&/[a-zA-Z]/.test(line.slice(0,ci))&&!/^\d{1,2}:\d{2}$/.test(line)){
+      name=line.slice(0,ci).trim();rest=line.slice(ci+1);
+    } else {
+      const m=line.match(/^([A-Za-z][A-Za-z \-’']*?)[\s:]+(\d.*)$/);
+      if(m){name=m[1].trim();rest=m[2];}else continue;
+    }
+    if(!name||!/\d/.test(rest||''))continue;
+    rest=rest.replace(/\d+(?:\.\d+)?\s*(?:cal|cals|calories|kcal)\b/gi,' ')
+             .replace(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g,' ')
+             .replace(/\b(?:pace|bpm|hr)\b/gi,' ');
+    const sets=parseBlockSets(rest);
+    if(!sets.length)continue;
+    entries.push({name,sets});
+  }
+  return {dateKey,entries};
+}
+
+/* ============ THE SESSION IMPORT — paste a whole workout, any day ============ */
+function looksLikeSession(t){
+  if(!t)return false;
+  const lines=t.split(/\n/).filter(x=>x.trim()).length;
+  const colons=(t.match(/:/g)||[]).length;
+  const names=(()=>{try{ return allBlocks().filter(b=>
+    t.toLowerCase().includes(b.n.toLowerCase().split(' ')[0])).length; }catch(e){return 0;}})();
+  return lines>=3 || colons>=3 || names>=3;
+}
+async function bulkLog(text){
+  // THE FAST PATH — read it right here, no key, no wait
+  try{
+    const local=parseSessionLocal(text);
+    if(local.entries.length>=2){
+      const dateKey=local.dateKey||todayKey();
+      let logged=0,forged=[],prs=[],totalTon=0,totalKcal=0;
+      for(const e of local.entries){
+        let b=null;
+        const hits=findBlocks(e.name);
+        if(hits&&hits.length)b=hits[0];
+        if(!b){
+          const gr=guessGearRegion(e.name);
+          const card={id:'custom-'+Date.now()+'-'+Math.floor(Math.random()*999),
+            n:e.name.replace(/\w/g,c=>c.toUpperCase()),
+            r:gr.r,g:gr.g,m:null,
+            b:'Forged from your session. Say “teach '+e.name.toLowerCase()+'” and I’ll write its lesson.',
+            f:'Move it with control, full range.'};
+          S.customBlocks=(S.customBlocks||[]).concat([card]);
+          b=card;forged.push(card.n);
+        }
+        const prev=blockRec(b.id).pr||0;
+        const res=logToBlock(b.id,e.sets,dateKey);
+        totalTon+=res.ton;
+        if(res.wasPR&&res.best.v>prev)prs.push(b.n+' → '+(res.best.w?res.best.w+'×'+res.best.r:res.best.v));
+        try{
+          const kcal=blockBurn(b,e.sets);
+          if(kcal>0){const d=dayOf(dateKey);
+            d.out.push({name:b.n,kcal:Math.abs(kcal),t:new Date(dateKey+'T12:00:00').getTime(),block:b.id});
+            totalKcal+=kcal;}
+        }catch(err){}
+        logged++;
+      }
+      grantXP(logged*10,'importing a whole session');
+      reefBloom=1;save();renderAll();renderBlocks();renderRegionRail();renderQuest();
+      const dLabel=dateKey===todayKey()?'today':dateKey;
+      fishSay('📖 <b>'+logged+' movements absorbed</b> for '+dLabel+'. '
+        +fmt(totalTon)+' lb moved · '+fmt(totalKcal)+' burned.'
+        +(forged.length?'<br>🔨 New stations: <b>'+forged.join(', ')+'</b>.':'')
+        +(prs.length?'<br>🔥 Records: '+prs.join(' · '):''));
+      speakCoach(logged+' movements absorbed. '+fmt(totalTon)+' pounds moved.');
+      return;
+    }
+  }catch(e){ console.warn('local absorb',e); }
+  // the deep reader — only when the paste is stranger than the format
+  const lib=allBlocks().map(b=>b.id+' = '+b.n).join('; ');
+  fishSay('📖 Reading the whole session…');
+  try{
+    const got0=await askJSON('SESSION IMPORT. The walker pasted a full workout log, possibly for a past date. '
+      +'KNOWN BLOCKS: ['+lib+']. Today is '+todayKey()+'. '
+      +'Return ONLY compact JSON, no prose:\n'
+      +'{"date":"YYYY-MM-DD","entries":[{"id":"known block id OR null","name":"movement as they wrote it",'
+      +'"g":"barbell|dumbbell|machine|cable|bodyweight|cardio|recovery",'
+      +'"r":"chest|back|shoulders|biceps|triceps|forearms|quads|hamstrings|glutes|calves|core|heart",'
+      +'"m":0.8,"b":"two sentences on what it builds","f":"one sentence on the rep",'
+      +'"sets":[{"w":WEIGHT_LB,"r":REPS}]}],"note":"one short line back"}\n'
+      +'RULES: match to a known id whenever the movement exists in the list — set id and omit g/r/m/b/f. '
+      +'Only when nothing fits, set id to null and fill g/r/m/b/f so a new block can be forged. '
+      +'For bodyweight movements w is 0 and r is reps. For cardio/recovery w is 0 and r is MINUTES '
+      +'("1:10" or "20 minutes" = 20 if minutes are stated; a time like 1:10 alongside minutes means pace, use the minutes). '
+      +'"bar" alone means an empty barbell — w 45. '
+      +'"12 reps, 12, 12" is THREE sets of 12. "25 x 12" is 25 lb for 12 reps. '
+      +'A date written like 8-9-26 means 2026-08-09. If no date is given use today. '
+      +'Keep b and f to one short sentence each — brevity matters, the response must fit.',[],3000);
+    if(!got0)throw new Error('the reader returned nothing — check your Mirror Key in ⚙');
+    const got=got0;
+    const dateKey=/^\d{4}-\d{2}-\d{2}$/.test(got.date||'')?got.date:todayKey();
+    const entries=(got.entries||[]).filter(e=>e&&(e.sets||[]).length);
+    if(!entries.length){fishSay('I couldn’t find sets in that. Paste it with one movement per line — “Dip: 12, 12, 12”.');return;}
+    let logged=0,forged=[],prs=[],totalTon=0,totalKcal=0;
+    for(const e of entries){
+      let b=e.id?blockById(e.id):null;
+      if(!b){ const hits=findBlocks(e.name||''); if(hits&&hits.length)b=hits[0]; }
+      if(!b){
+        const card={id:'custom-'+Date.now()+'-'+Math.floor(Math.random()*999),
+          n:(e.name||'Movement').replace(/\b\w/g,c=>c.toUpperCase()),
+          r:e.r||'core',g:e.g||'dumbbell',m:e.m||null,
+          b:e.b||'Logged from your session.',f:e.f||'Move it well.'};
+        S.customBlocks=(S.customBlocks||[]).concat([card]);
+        b=card; forged.push(card.n);
+      }
+      const sets=(e.sets||[]).filter(s=>(+s.r||0)>0).slice(0,12)
+        .map(s=>({w:+s.w||0,r:+s.r||0}));
+      if(!sets.length)continue;
+      const prev=blockRec(b.id).pr||0;
+      const res=logToBlock(b.id,sets,dateKey);
+      totalTon+=res.ton;
+      if(res.wasPR&&res.best.v>prev)prs.push(b.n+' → '+(res.best.w?res.best.w+'×'+res.best.r:res.best.v));
+      try{
+        const kcal=blockBurn(b,sets);
+        if(kcal>0){const d=dayOf(dateKey);
+          d.out.push({name:b.n,kcal:Math.abs(kcal),t:new Date(dateKey+'T12:00:00').getTime(),block:b.id});
+          totalKcal+=kcal;}
+      }catch(err){}
+      logged++;
+    }
+    grantXP(logged*10,'importing a whole session');
+    reefBloom=1; save(); renderAll(); renderBlocks(); renderRegionRail(); renderQuest();
+    const dLabel = dateKey===todayKey()?'today':dateKey;
+    fishSay('📖 <b>'+logged+' movements logged</b> for '+dLabel+'. '
+      +fmt(totalTon)+' lb moved · '+fmt(totalKcal)+' burned.'
+      +(forged.length?'<br>🔨 New stations forged: <b>'+forged.join(', ')+'</b>.':'')
+      +(prs.length?'<br>🔥 Records: '+prs.join(' · '):'')
+      +(got.note?'<br>'+got.note:''));
+  }catch(e){
+    fishSay('That session didn’t read cleanly — '+String(e.message||e).slice(0,60)
+      +'. Try one movement per line, like “Dip: 12, 12, 12”.');
+  }
+}
+
+/* ---------- the grid ---------- */
+let blockFilter='warm', blockOpen=null;
+function renderBlocks(){
+  const host=$real('blockGrid'); if(!host)return;
+  const lt=lifetimeTonnage();
+  const ltEl=$real('lifeTon'); if(ltEl)ltEl.textContent=fmt(lt);
+  let list=allBlocks();
+  if(blockFilter==='warm'){
+    list=list.filter(b=>blockRec(b.id).last).sort((a,c)=>blockRec(c.id).last-blockRec(a.id).last);
+    if(!list.length){blockFilter='all';return renderBlocks();}
+  } else if(blockFilter!=='all'){
+    list=list.filter(b=>b.r===blockFilter);
+  }
+  const q=($('blockSearch')&&$('blockSearch').value||'').toLowerCase().trim();
+  if(q)list=allBlocks().filter(b=>b.n.toLowerCase().includes(q));
+  host.innerHTML=list.map(b=>{
+    const rec=blockRec(b.id), heat=blockHeat(b.id);
+    const lvl=blockLevel(b,rec.pr||0);
+    const h=blockHours(b.id);
+    const cold = h!==null && h>COLD_HOURS;
+    const days = h!==null?Math.floor(h/24):null;
+    const marks=blockMarks(b);
+    const crowned=marks&&rec.pr>marks[3];
+    return '<div class="blk'+(rec.last?' lit':'')+(cold?' cold':'')+'" data-b="'+b.id+'" '
+      +'style="--heat:'+heat.toFixed(2)+'">'
+      +(crowned?'<span class="blk-crown">👑</span>':'')
+      +'<div class="blk-n">'+b.n+'</div>'
+      +'<div class="blk-sub">'+(REGIONS[b.r]?REGIONS[b.r][0]:b.r)+'</div>'
+      +(rec.pr? '<div class="blk-pr">'+(b.g==='bodyweight'||b.g==='cardio'
+            ? rec.pr+' reps' : rec.pr+' <span>e1RM</span>')+'</div>'
+          +'<div class="blk-rail"><div class="blk-fill" style="width:'+Math.min(100,lvl.pct*100)+'%"></div></div>'
+          +'<div class="blk-lvl">'+(lvl.name||'CLIMBING')+(cold?' · '+days+'d cold':'')+'</div>'
+        : '<div class="blk-zero">untouched</div>')
+      +'</div>';
+  }).join('');
+  host.querySelectorAll('.blk').forEach(el=>el.onclick=()=>openBlock(el.dataset.b));
+}
+function renderRegionRail(){
+  const host=$real('regionRail'); if(!host)return;
+  const regions=[...new Set(allBlocks().map(b=>b.r))];
+  const heatOf=r=>{const bs=allBlocks().filter(b=>b.r===r);
+    return Math.max(0,...bs.map(b=>blockHeat(b.id)));};
+  host.innerHTML='<button data-f="warm" class="'+(blockFilter==='warm'?'on':'')+'">◆ Warm</button>'
+    +'<button data-f="all" class="'+(blockFilter==='all'?'on':'')+'">All</button>'
+    +regions.map(r=>{const h=heatOf(r);
+      return '<button data-f="'+r+'" class="'+(blockFilter===r?'on':'')+'" '
+        +'style="border-color:'+(h>.6?'rgba(255,90,60,.6)':h>0?'rgba(232,196,107,.35)':'#22303E')
+        +';color:'+(h>.6?'#FF8A6B':h>0?'var(--gold)':'var(--mist)')+'">'
+        +(REGIONS[r]?REGIONS[r][1]:'')+' '+(REGIONS[r]?REGIONS[r][0].split(' · ')[0]:r)+'</button>';}).join('');
+  host.querySelectorAll('button').forEach(b=>b.onclick=()=>{blockFilter=b.dataset.f;
+    if($('blockSearch'))$('blockSearch').value='';renderRegionRail();renderBlocks();});
+}
+
+/* ---------- one block, opened ---------- */
+function openBlock(id){
+  const b=blockById(id); if(!b)return;
+  blockOpen=id;
+  const rec=blockRec(id), marks=blockMarks(b), lvl=blockLevel(b,rec.pr||0);
+  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+  const h=blockHours(id), cold=h!==null&&h>COLD_HOURS;
+  const last=(rec.sessions||[]).slice(-1)[0];
+  const nextTargets=(()=>{
+    if(!rec.pr)return 'Log your first set — that becomes your floor.';
+    if(isRep)return 'Beat it with <b>'+(rec.pr+1)+' reps</b>.';
+    const p=rec.prSet||{w:rec.pr,r:1};
+    return 'Beat it with <b>'+p.w+'×'+(p.r+1)+'</b>, or <b>'+(Math.round((p.w+5)/2.5)*2.5)+'×'+p.r+'</b>.';
+  })();
+  $('bmName').textContent=b.n;
+  if($real('bmEmblem'))$('bmEmblem').textContent=b.n.charAt(0);
+  $('bmRegion').textContent=(REGIONS[b.r]?REGIONS[b.r][0]:b.r)+' · '+b.g;
+  $('bmBuilds').innerHTML='<b>What it builds.</b> '+b.b;
+  $('bmForm').innerHTML='<b>The rep.</b> '+b.f;
+  // muscles this block builds
+  let mus=[]; try{ mus=musclesFor(b.n)||[]; }catch(e){}
+  if(!mus.length)mus=[b.r];
+  const MUS_LABEL={chest:'Chest',back:'Back',shoulders:'Shoulders',biceps:'Biceps',triceps:'Triceps',
+    forearms:'Forearms',quads:'Quads',hamstrings:'Hamstrings',glutes:'Glutes',calves:'Calves',
+    core:'Core',lowback:'Lower back',heart:'Heart & lungs'};
+  $('bmMus').innerHTML=mus.slice(0,5).map((m,i)=>
+    '<span class="mus'+(i===0?' prime':'')+'">'+(MUS_LABEL[m]||m)+'</span>').join('');
+  // lifetime burn on this block
+  const kcalLife=(rec.sessions||[]).reduce((a,ss)=>a+blockBurn(b,ss.sets),0);
+  // goal-aware recommendation
+  const goal=((S.goalText||'')+' '+(S.plan&&S.plan.guidance||'')).toLowerCase();
+  const shred=/shred|lean|cut|aesthetic|定|tone|definition/.test(goal);
+  const strong=/strength|strong|power|max/.test(goal);
+  const repBand = strong?'4–6':(shred?'10–15':'8–12');
+  let recLine='';
+  if(rec.pr&&!isRep){
+    const p=rec.prSet||{w:rec.pr,r:8};
+    const pct = strong?0.85:(shred?0.68:0.75);
+    const target=Math.round((rec.pr*pct)/2.5)*2.5;
+    recLine='For your goal — <b>'+target+' lb × '+repBand+'</b>, 3–4 sets.';
+  } else if(rec.pr&&isRep){
+    recLine='For your goal — <b>'+Math.max(1,Math.round(rec.pr*0.8))+'–'+rec.pr+'</b> per set, 3–4 sets.';
+  } else {
+    recLine='Start moderate — a weight you could do '+repBand+' times with two left in the tank.';
+  }
+  $('bmRec').innerHTML='🎯 '+recLine;
+  $('bmStats').innerHTML=
+    '<div class="bm-stat"><span>PR</span><b>'+(rec.pr?(isRep?rec.pr+' reps':rec.pr+' lb'):'—')+'</b></div>'
+   +'<div class="bm-stat"><span>LIFETIME</span><b>'+fmt(rec.ton||0)+' lb</b></div>'
+   +'<div class="bm-stat"><span>SESSIONS</span><b>'+((rec.sessions||[]).length)+'</b></div>'
+   +'<div class="bm-stat"><span>BURNED</span><b>'+fmt(kcalLife)+'</b></div>';
+  const hist=(rec.sessions||[]).slice(-6).reverse();
+  $('bmLast').innerHTML= hist.length
+    ? '<span class="bm-lbl">HISTORY · TAP ✕ TO REMOVE</span>'
+      +hist.map((s,i)=>{
+        const realIdx=(rec.sessions||[]).length-1-i;
+        const ago=Math.floor((Date.now()-s.t)/36e5);
+        return '<div class="hist-row"><span class="hist-when">'
+          +(ago<24?'today':Math.floor(ago/24)+'d ago')+'</span>'
+          +'<span class="hist-sets">'+s.sets.map(x=>x.w?(x.w+'×'+x.r):(x.r+(isRep?(b.g==='recovery'||b.g==='cardio'?' min':' reps'):'')))
+            .join(' · ')+'</span>'
+          +'<span class="hist-ton">'+fmt(s.ton||0)+'</span>'
+          +'<button class="hist-x" data-i="'+realIdx+'">✕</button></div>';}).join('')
+    : '<span class="bm-lbl">NO HISTORY</span>This block has never been touched. Whatever you log becomes the floor.';
+  setTimeout(()=>{document.querySelectorAll('.hist-x').forEach(el=>
+    el.onclick=ev=>{ev.stopPropagation();undoSession(id,+el.dataset.i);});},0);
+  $('bmNext').innerHTML=nextTargets;
+  $('bmCold').innerHTML = cold
+    ? '<span style="color:#6B7A88">❄ '+Math.floor(h/24)+' days cold — your floor is still yours. Relight it.</span>'
+    : (rec.last?'<span style="color:#FF8A6B">🔥 warm</span>':'');
+  // the ladder
+  const ladder=$('bmLadder');
+  if(marks){
+    const top=Math.max(marks[3],rec.pr||0);
+    const pos=Math.min(1,(rec.pr||0)/top);
+    ladder.innerHTML='<div class="lad">'
+      +marks.map((m,i)=>'<div class="lad-mark" style="bottom:'+(m/top*100)+'%">'
+        +'<span class="lad-lab">'+RUNGS[i]+'</span><span class="lad-val">'+fmt(m)+'</span></div>').join('')
+      +(rec.pr>marks[3]?'<div class="lad-mark past" style="bottom:100%"><span class="lad-lab">YOU · PAST ELITE</span></div>':'')
+      +'<div class="lad-koi" style="bottom:'+(pos*100)+'%">🐟</div>'
+      +'<div class="lad-fill" style="height:'+(pos*100)+'%"></div></div>';
+  } else {
+    const top=Math.max(1,(rec.pr||0)*1.25);
+    ladder.innerHTML='<div class="lad"><div class="lad-mark" style="bottom:'+((rec.pr||0)/top*100)+'%">'
+      +'<span class="lad-lab">YOUR BEST</span><span class="lad-val">'+(rec.pr||0)+' reps</span></div>'
+      +'<div class="lad-koi" style="bottom:'+((rec.pr||0)/top*100)+'%">🐟</div>'
+      +'<div class="lad-fill" style="height:'+((rec.pr||0)/top*100)+'%"></div></div>';
+  }
+  $('bmNote').textContent = marks
+    ? 'Marks are estimates from your bodyweight — close, not gospel. The ceiling is meant to be broken.'
+    : 'Reps are the ladder here. Every rep past your best is a new floor.';
+  $('blockModal').classList.add('show');
+  $('bmInput').value='';
+  $('bmInput').placeholder = isRep
+    ? (b.g==='recovery' ? 'Say it any way — “20 min”, “sat 25 minutes”' : (b.id==='run'?'“30 min”, “ran 3.2 miles”':'“30”, “3 sets of 15”, “two sets of 25”'))
+    : 'Say it any way — “25 lbs x 12 reps”, “3 sets of 10 at 135”';
+  setTimeout(()=>{try{$('bmInput').focus();}catch(e){}},300);
+}
+function closeBlock(){ $('blockModal').classList.remove('show'); blockOpen=null; renderBlocks(); renderRegionRail(); }
+
+/* ---------- logging into an open block ---------- */
+const WORDNUM={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,
+ eleven:11,twelve:12,fifteen:15,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,
+ seventy:70,eighty:80,ninety:90,hundred:100,couple:2,few:3};
+function normNum(t){
+  t=' '+String(t).toLowerCase()+' ';
+  Object.keys(WORDNUM).sort((a,b)=>b.length-a.length).forEach(w=>{
+    t=t.replace(new RegExp('\\b'+w+'\\b','g'),String(WORDNUM[w]));
+  });
+  return t.replace(/\s+/g,' ').trim();
+}
+function parseBlockSets(text){
+  const t=normNum(text);
+  const clauses=t.split(/,|\bthen\b|\bthan\b|\band\b|\+|&/).map(s=>s.trim()).filter(Boolean);
+  const out=[];
+  const push=(w,r,n)=>{const c=Math.min(12,Math.max(1,Math.round(n||1)));
+    if(!(r>0))return; for(let i=0;i<c;i++)out.push({w:+w||0,r:+r});};
+  for(const c of clauses){
+    let m;
+    if(m=c.match(/(\d{1,3}(?:\.\d)?)\s*(?:lbs?|pounds?|#)\s*[,\s]*(\d{1,2})\s*(?:x|×|by|times|sets? of)\s*(\d{1,3})/))
+      {push(m[1],m[3],m[2]);continue;}
+    if(m=c.match(/(\d{1,2})\s*(?:sets?|rounds?)\s*(?:of|x|×)?\s*(\d{1,3})(?:\s*(?:at|@|with|w\/)\s*(\d{1,3}(?:\.\d)?))?/))
+      {push(m[3]||0,m[2],m[1]);continue;}
+    if(m=c.match(/(\d{1,3}(?:\.\d)?)\s*(?:lbs?|pounds?|#)?\s*(?:for|@|x|×|by|times)\s*(\d{1,3})\b/)){
+      const a=+m[1],b=+m[2];
+      if(a>=12||String(m[1]).indexOf('.')>-1)push(a,b,1); else push(0,b,a);
+      continue;}
+    if(m=c.match(/(\d{1,3}(?:\.\d+)?)\s*(?:min|minutes?|mins?)\b/)){push(0,Math.round(+m[1]),1);continue;}
+    if(m=c.match(/(\d{1,2}(?:\.\d{1,2})?)\s*(?:mi\b|miles?)/)){
+      const mi=+m[1];
+      const mins=Math.round(mi*10);           // ~10 min/mile until a real pace is known
+      out.push({w:0,r:mins,mi:mi}); continue;}
+    if(m=c.match(/(\d{1,3})\s*(?:reps?|pushups?|push.?ups?|pullups?|dips?|situps?|squats?)?\b/)){
+      const n=+m[1]; if(n>0){push(0,n,1);continue;}
+    }
+  }
+  return out;
+}
+
+function setsCoverText(text,sets){
+  // every number in the text should be accounted for by the parse
+  const nums=(normNum(text).match(/\d+(?:\.\d+)?/g)||[]).map(Number);
+  if(!nums.length)return false;
+  const used=new Set();
+  sets.forEach(s=>{if(s.w)used.add(+s.w);if(s.r)used.add(+s.r);});
+  used.add(sets.length);
+  return nums.every(n=>used.has(n)||n<=1);
+}
+async function smartSets(text,b){
+  const quick=parseBlockSets(text);
+  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+  const weightless = !isRep && quick.some(s=>!s.w);        // a barbell set with no weight is a misread
+  const absurd = quick.some(s=>s.r>200 || (!isRep && s.w>1200));
+  if(quick.length && setsCoverText(text,quick) && !weightless && !absurd)
+    return {sets:quick,via:'fast'};
+  // hand it to KOI — he reads what rules can't
+  try{
+    const got=await askJSON('SET READING for the "'+b.n+'" block ('+b.g+'). '
+      +'The walker said: "'+text.replace(/"/g,"'")+'". '
+      +'Return ONLY compact JSON, no prose: {"sets":[{"w":WEIGHT_LB,"r":REPS}],"note":"one short line back to them"}. '
+      +(isRep
+        ? 'This movement has no external weight — put 0 in w and put '
+          +(b.g==='recovery'||b.g==='cardio'?'MINUTES':'REPS')+' in r. '
+        : 'w is the weight in pounds per set, r is reps in that set. ')
+      +'One object per set actually performed — "3 sets of 10" is three objects. '
+      +'Dumbbell work stated as a single number is the weight per hand as they said it. '
+      +'If they truly gave no numbers, return {"sets":[],"note":"what you need from them"}.',[],600);
+    if(!got)throw new Error('no read');
+    const sets=(got.sets||[]).filter(s=>(+s.r||0)>0).slice(0,12)
+      .map(s=>({w:+s.w||0,r:Math.round((+s.r)*10)/10}));
+    return {sets,via:'koi',note:got.note||''};
+  }catch(e){
+    return {sets:quick,via:quick.length?'fast':'none'};
+  }
+}
+async function submitBlock(){
+  if(!blockOpen)return;
+  const txt=$('bmInput').value.trim(); if(!txt)return;
+  const b=blockById(blockOpen);
+  const btn=$('bmSend');
+  btn.disabled=true; btn.textContent='…';
+  $('bmNext').innerHTML='<span style="color:var(--mist)">reading…</span>';
+  const {sets,via,note}=await smartSets(txt,b);
+  btn.disabled=false; btn.textContent='→';
+  if(!sets.length){
+    $('bmNext').innerHTML='⚠ '+(note||'I couldn’t find the work in that. Try “25 lb × 12”, “3 sets of 10”, or “two sets of 25”.');
+    try{$('bmInput').style.borderColor='var(--ember-glow)';
+      setTimeout(()=>{$('bmInput').style.borderColor='';},1400);}catch(e){}
+    return;
+  }
+  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+  const prevPR=blockRec(blockOpen).pr||0;
+  const res=logToBlock(blockOpen,sets);
+  try{
+    const kcal=blockBurn(b,sets);
+    if(kcal>0){const day=dayOf(todayKey());
+      day.out.push({name:b.n,kcal:Math.abs(kcal),t:Date.now(),block:blockOpen||b.id});}
+  }catch(e){}
+  grantXP(sets.length*8+(res.wasPR?XP_RULES.pr:0),res.wasPR?'a new record':'logging the work');
+  reefBloom=1; save(); renderAll();
+  blockFlash(res.wasPR);
+  openBlock(blockOpen);
+  const line=coachLine(b,res,prevPR);
+  fishSay((note?note+' ':'')+(res.wasPR?'🔥 ':'')+line);
+  speakCoach(line);
+  $('bmInput').value='';
+}
+
+function blockFlash(pr){
+  const m=$real('blockModal'); if(!m)return;
+  m.classList.add(pr?'flash-pr':'flash-log');
+  setTimeout(()=>m.classList.remove('flash-pr','flash-log'),900);
+  if(pr){try{bellMark&&bellMark();}catch(e){}}
+}
+
+/* ---------- a photo mints a new block ---------- */
+
+
+async function blockPhotoLog(files){
+  if(!blockOpen||!files.length)return;
+  const b=blockById(blockOpen);
+  fishNote('Reading the screen…');
+  const imgs=[];
+  for(const f of files.slice(0,3)){
+    const raw=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
+    if(raw){const small=await shrinkDataUrl(raw,1100,0.8)||raw;imgs.push(small);}
+  }
+  if(!imgs.length){fishNote('Couldn’t read that file.');return;}
+  const isRep=(b.g==='bodyweight'||b.g==='cardio'||b.g==='recovery');
+  try{
+    const got=await askJSON('STATION READ for "'+b.n+'" ('+b.g+'). The photo shows a machine display, watch summary, '
+      +'weight stack, timer, or handwritten log. Extract the work shown. Reply ONLY compact JSON: '
+      +(isRep
+        ? '{"sets":[{"w":0,"r":MINUTES_OR_REPS}],"read":"what the screen showed, one line"} — r is minutes for cardio/recovery (a 32:14 run = 32), reps for bodyweight.'
+        : '{"sets":[{"w":WEIGHT_LB,"r":REPS}],"read":"what the screen showed, one line"} — one entry per set if several are visible.')
+      +' If truly unreadable: {"sets":[],"read":"what you saw"}.',imgs,800);
+    if(!got)throw new Error('no read');
+    const sets=(got.sets||[]).filter(s=>(+s.r||0)>0).slice(0,12)
+      .map(s=>({w:+s.w||0,r:Math.round(+s.r)}));
+    if(!sets.length){
+      fishSay('I could see it — '+(got.read||'the screen')+' — but no numbers I could log. Say them plain and I’ll take them.');
+      return;
+    }
+    const prevPR=blockRec(blockOpen).pr||0;
+    const res=logToBlock(blockOpen,sets);
+    try{
+      const kcal=blockBurn(b,sets);
+      if(kcal>0){const day=dayOf(todayKey());
+        day.out.push({name:b.n,kcal:Math.abs(kcal),t:Date.now(),block:blockOpen||b.id});}
+    }catch(e){}
+    grantXP(sets.length*8+(res.wasPR?XP_RULES.pr:0),res.wasPR?'a new record':'logging the work');
+    reefBloom=1;save();renderAll();
+    blockFlash(res.wasPR);
+    openBlock(blockOpen);
+    fishSay((got.read?'📷 '+got.read+' — ':'')
+      +(res.wasPR
+        ? '🔥 <b>NEW RECORD</b> — '+(isRep?res.best.v+(b.g==='recovery'||b.g==='cardio'?' min':' reps'):res.best.w+'×'+res.best.r)+' (past '+prevPR+').'
+        : 'logged. '+(isRep?res.best.v+(b.g==='recovery'||b.g==='cardio'?' minutes':' reps')+' held; your best is '+res.rec.pr+'.'
+                    : fmt(res.ton)+' lb moved. The record stands at '+res.rec.pr+'.')));
+  }catch(e){
+    fishNote('Couldn’t read that screen — say the numbers and I’ll log them.');
+  }
+}
+
+async function forgeByName(name){
+  fishNote('Forging “'+name+'”…');
+  try{
+    const card0=await askJSON('BLOCK FORGING: build an exercise card for "'+name+'". Reply ONLY compact JSON: '
+      +'{"n":"proper name","r":"chest|back|shoulders|biceps|triceps|forearms|quads|hamstrings|glutes|calves|core|heart",'
+      +'"g":"barbell|dumbbell|machine|cable|bodyweight|cardio|recovery","m":0.8,'
+      +'"b":"two sentences on what it builds and which part","f":"one or two sentences on the rep"} '
+      +'m = plausible elite bodyweight multiple; omit for bodyweight/cardio/recovery.',[],700);
+    if(!card0||!card0.n)throw new Error('no card');
+    const card=card0;
+    card.id='custom-'+Date.now();
+    S.customBlocks=(S.customBlocks||[]).concat([card]);
+    save();renderRegionRail();renderBlocks();
+    fishSay('🔨 <b>'+card.n+'</b> forged. '+(card.b||''));
+    openBlock(card.id);
+  }catch(e){ fishNote('The forge missed — try again, or photograph the equipment.'); }
+}
+
+async function stationSight(dataUrl){
+  fishNote('Reading the station…');
+  const lib=allBlocks().map(b=>b.id+' = '+b.n).join('; ');
+  try{
+    const sight0=await askJSON('STATION SIGHT: the photo shows gym equipment (a machine, rack, dumbbells, cables, bench, or a space). '
+      +'KNOWN STATIONS: ['+lib+']. '
+      +'Reply ONLY compact JSON, no prose, no markdown: '
+      +'{"seen":"what the equipment is, plainly",'
+      +'"matches":["ids of known stations this equipment serves, best first, up to 5"],'
+      +'"mint":null OR {"n":"name","r":"chest|back|shoulders|biceps|triceps|forearms|quads|hamstrings|glutes|calves|core|heart","g":"barbell|dumbbell|machine|cable|bodyweight|cardio","m":0.8,"b":"two sentences on what it builds and which part","f":"one or two sentences on the rep"}}. '
+      +'RULES: prefer matching known ids over minting; mint ONLY if nothing in the list fits this equipment. '
+      +'A dumbbell rack or cable tower matches MANY stations. m is a plausible elite load as bodyweight multiple; omit for bodyweight/cardio.',[dataUrl],1200);
+    if(!sight0)throw new Error('no reading');
+    const sight=sight0;
+    const ids=(sight.matches||[]).filter(id=>blockById(id));
+    if(!ids.length && sight.mint && sight.mint.n){
+      const card=sight.mint; card.id='custom-'+Date.now();
+      S.customBlocks=(S.customBlocks||[]).concat([card]);
+      save(); renderRegionRail(); renderBlocks();
+      fishSay('🔨 New station forged — <b>'+card.n+'</b>. '+(card.b||'')+' It remembers you from here on.');
+      openBlock(card.id); return;
+    }
+    if(!ids.length)throw new Error('nothing recognized');
+    if(ids.length===1){
+      const b=blockById(ids[0]), rec=blockRec(ids[0]);
+      const h=blockHours(ids[0]);
+      fishSay('That’s the <b>'+b.n+'</b>'
+        +(rec.pr?' — your floor here is <b>'+rec.pr+(b.g==='bodyweight'||b.g==='cardio'?' reps':' e1RM')+'</b>'
+          +(h&&h>COLD_HOURS?', '+Math.floor(h/24)+' days cold. Relight it.':'. Beat it.')
+        :' — untouched. Whatever you log becomes the floor.'));
+      openBlock(ids[0]); return;
+    }
+    // several doors — the equipment is a doorway
+    openDoorway(sight.seen||'This equipment', ids);
+  }catch(e){
+    fishNote('Couldn’t read that station — name the movement and I’ll open or build its block.');
+  }
+}
+function openDoorway(seen,ids){
+  const host=$('doorList');
+  $('doorSeen').textContent=seen;
+  host.innerHTML=ids.map(id=>{
+    const b=blockById(id), rec=blockRec(id), h=blockHours(id);
+    const cold=h!==null&&h>COLD_HOURS, un=!rec.last;
+    const tag= un?'<span class="dw-tag new">UNTOUCHED</span>'
+      : cold?'<span class="dw-tag cold">'+Math.floor(h/24)+'D COLD</span>'
+      : '<span class="dw-tag warm">WARM</span>';
+    return '<div class="dw-row" data-b="'+id+'">'
+      +'<div><div class="dw-n">'+b.n+'</div>'
+      +'<div class="dw-s">'+(rec.pr?('floor '+rec.pr+(b.g==='bodyweight'||b.g==='cardio'?' reps':' e1RM')):'no floor yet')+'</div></div>'
+      +tag+'</div>';
+  }).join('');
+  host.querySelectorAll('.dw-row').forEach(el=>el.onclick=()=>{
+    $('doorway').classList.remove('show'); openBlock(el.dataset.b);
+    if(pendingSets){const t=pendingSets;pendingSets=null;
+      setTimeout(()=>{$('bmInput').value=t;submitBlock();},350);}});
+  $('doorway').classList.add('show');
+}
+
+
+/* ============ THE SHARE FORGE — every page becomes a card worth sending ============ */
+const SHARE_W=1080, SHARE_H=1920;
+function sSeed(i,a){const s=Math.sin(i*a)*43758.5453;return s-Math.floor(s);}
+function sStone(c,W,H){
+  const g=c.createLinearGradient(0,0,W*.4,H);
+  g.addColorStop(0,'#232E39');g.addColorStop(.45,'#17202A');g.addColorStop(1,'#0B121A');
+  c.fillStyle=g;c.fillRect(0,0,W,H);
+  for(let i=0;i<160;i++){
+    const px=sSeed(i,12.9898)*W,py=sSeed(i,78.233)*H,sz=W*.006+sSeed(i,3.7)*W*.03;
+    c.fillStyle=i%13===0?'rgba(216,182,124,.05)':i%3===0?'rgba(255,255,255,.017)':'rgba(0,0,0,.17)';
+    c.beginPath();c.ellipse(px,py,sz,sz*.55,sSeed(i,5.1)*3,0,7);c.fill();
+  }
+  c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=W*.004;
+  for(let i=0;i<5;i++){const sx=sSeed(i,9.1)*W;
+    c.beginPath();c.moveTo(sx,0);
+    for(let y=0;y<H;y+=H*.03)c.lineTo(sx+Math.sin(y*.012+i)*W*.02,y);c.stroke();}
+}
+function sCleft(c,W,H,ow){
+  const gw=W*(ow||.05),lx=W/2-gw/2;
+  const g=c.createLinearGradient(lx,0,lx+gw,0);
+  g.addColorStop(0,'rgba(44,20,5,.96)');g.addColorStop(.3,'rgba(190,110,26,.75)');
+  g.addColorStop(.55,'rgba(255,216,142,.95)');g.addColorStop(.8,'rgba(204,124,36,.8)');
+  g.addColorStop(1,'rgba(38,17,4,.96)');
+  c.fillStyle=g;c.fillRect(lx,0,gw,H);
+  const sp=c.createRadialGradient(W/2,H*.62,W*.02,W/2,H*.62,W*.95);
+  sp.addColorStop(0,'rgba(255,186,102,.11)');sp.addColorStop(1,'rgba(255,186,102,0)');
+  c.fillStyle=sp;c.fillRect(0,0,W,H);
+}
+function sKoi(c,px,py,s){
+  c.save();c.translate(px,py);c.scale(s,s);
+  c.shadowColor='#FF5A3C';c.shadowBlur=34;c.fillStyle='#C1121F';
+  c.beginPath();c.moveTo(32,0);c.quadraticCurveTo(17,-11,-6,-8);
+  c.quadraticCurveTo(-21,-4,-28,0);c.quadraticCurveTo(-21,4,-6,8);
+  c.quadraticCurveTo(17,11,32,0);c.fill();
+  c.beginPath();c.moveTo(-26,0);c.quadraticCurveTo(-40,-12,-50,-8);
+  c.quadraticCurveTo(-38,0,-50,8);c.quadraticCurveTo(-40,12,-26,0);
+  c.globalAlpha=.85;c.fill();c.globalAlpha=1;c.shadowBlur=0;
+  c.fillStyle='rgba(255,255,255,.82)';c.beginPath();c.ellipse(10,-2,7.5,4.6,.3,0,7);c.fill();
+  c.fillStyle='#060A0E';c.beginPath();c.arc(25,-3,2.2,0,7);c.fill();
+  c.restore();
+}
+function sGrain(c,W,H){for(let i=0;i<110;i++){
+  c.fillStyle='rgba(255,255,255,'+(Math.random()*.02)+')';
+  c.fillRect(Math.random()*W,Math.random()*H,W*.003,W*.003);}}
+function sVign(c,W,H,s){
+  const g=c.createRadialGradient(W/2,H*.45,H*.2,W/2,H*.5,H*.8);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,'+(s||.7)+')');
+  c.fillStyle=g;c.fillRect(0,0,W,H);}
+function sWrap(c,text,cx,cy,maxW,lh){
+  const ws=String(text).split(' ');let line='',y=cy;
+  for(const w of ws){const t=line?line+' '+w:w;
+    if(c.measureText(t).width>maxW&&line){c.fillText(line,cx,y);line=w;y+=lh;}else line=t;}
+  if(line)c.fillText(line,cx,y);return y;}
+function sHead(c,W,H,kicker,title){
+  c.textAlign='center';
+  c.fillStyle='rgba(126,138,150,.9)';
+  c.font='400 34px "IBM Plex Mono", monospace';
+  c.fillText(kicker,W/2,132);
+  c.fillStyle='#F0E9D8';
+  c.font='300 96px Cormorant, serif';
+  c.fillText(title,W/2,232);
+  c.strokeStyle='rgba(232,196,107,.3)';c.lineWidth=2;
+  c.beginPath();c.moveTo(W*.30,272);c.lineTo(W*.70,272);c.stroke();
+}
+function sFoot(c,W,H,line){
+  c.textAlign='center';
+  c.strokeStyle='rgba(232,196,107,.25)';c.lineWidth=2;
+  c.beginPath();c.moveTo(W*.28,H-176);c.lineTo(W*.72,H-176);c.stroke();
+  c.fillStyle='rgba(232,196,107,.9)';
+  c.font='500 36px "IBM Plex Mono", monospace';
+  c.fillText('MY CALORIC MIRROR',W/2,H-118);
+  c.fillStyle='rgba(126,138,150,.85)';
+  c.font='italic 34px "EB Garamond", serif';
+  c.fillText(line||'KOIlibraryOfficial.com',W/2,H-64);
+}
+function sStat(c,x,y,w,label,value,col){
+  c.textAlign='center';
+  c.fillStyle='rgba(126,138,150,.85)';
+  c.font='400 28px "IBM Plex Mono", monospace';
+  c.fillText(label,x+w/2,y);
+  c.fillStyle=col||'#F0E9D8';
+  c.font='300 68px "IBM Plex Mono", monospace';
+  c.fillText(value,x+w/2,y+74);
+}
+function sPanel(c,x,y,w,h){
+  c.fillStyle='rgba(10,16,23,.55)';
+  c.strokeStyle='rgba(232,196,107,.22)';c.lineWidth=2;
+  if(c.roundRect){c.beginPath();c.roundRect(x,y,w,h,26);c.fill();c.stroke();}
+  else{c.fillRect(x,y,w,h);c.strokeRect(x,y,w,h);}
+}
+
+/* ---------- the cards ---------- */
+function cardMirror(c,W,H){
+  const s=daySeal(), key=todayKey(), t=dayTotals(key), b=bmr();
+  sStone(c,W,H);sCleft(c,W,H,.05);sVign(c,W,H,.72);
+  sHead(c,W,H,'D A Y  '+s.n+'  O F  9 0','The Mirror');
+  c.textAlign='center';
+  c.fillStyle='#E8C46B';c.shadowColor='rgba(232,196,107,.55)';c.shadowBlur=110;
+  c.font='300 168px "IBM Plex Mono", monospace';
+  c.fillText(fmt(s.close),W/2,470);c.shadowBlur=0;
+  c.fillStyle='rgba(126,138,150,.9)';
+  c.font='400 30px "IBM Plex Mono", monospace';
+  c.fillText('C A L O R I C   U N I T S',W/2,528);
+  if(S.shareFood){
+    const net=s.net;
+    c.fillStyle=net<0?'#8FCB9B':'#FF7A5E';
+    c.font='300 84px "IBM Plex Mono", monospace';
+    c.fillText((net>0?'+':'')+fmt(net)+' today',W/2,640);
+  } else {
+    c.fillStyle='rgba(201,191,169,.9)';
+    c.font='italic 46px "EB Garamond", serif';
+    c.fillText('Day '+s.n+' witnessed',W/2,632);
+  }
+  sPanel(c,90,720,W-180,250);
+  if(S.shareFood){
+    sStat(c,110,800,290,'IN','+'+fmt(t.inC),'#8FCB9B');
+    sStat(c,395,800,290,'REST','−'+fmt(b),'#FF7A5E');
+    sStat(c,680,800,290,'MOVE','−'+fmt(t.outMove),'#FF7A5E');
+  } else {
+    sStat(c,150,800,380,'REST BURN','−'+fmt(b),'#FF7A5E');
+    sStat(c,550,800,380,'MOVEMENT','−'+fmt(t.outMove),'#FF7A5E');
+  }
+  sPanel(c,90,1010,W-180,180);
+  c.textAlign='left';
+  c.fillStyle='rgba(240,233,216,.9)';c.font='400 40px Cormorant, serif';
+  c.fillText('Sealed  '+s.done+' / '+s.total,140,1078);
+  c.textAlign='right';
+  c.fillStyle=s.sealed?'#8FCB9B':'#E8C46B';
+  c.font='500 40px "IBM Plex Mono", monospace';
+  c.fillText(s.sealed?'COMPLETE':'OPEN',W-140,1078);
+  const rw=W-280, rx=140;
+  c.fillStyle='rgba(26,36,48,.9)';c.fillRect(rx,1116,rw,10);
+  c.fillStyle=s.sealed?'#8FCB9B':'#E8C46B';c.fillRect(rx,1116,rw*(s.done/s.total),10);
+  sKoi(c,W/2,1330,5.4);
+  c.textAlign='center';
+  c.fillStyle='rgba(201,191,169,.9)';
+  c.font='italic 42px "EB Garamond", serif';
+  sWrap(c,'Honest numbers only. Nothing hidden.',W/2,1470,W*.8,56);
+  sGrain(c,W,H);sFoot(c,W,H);
+}
+function cardForge(c,W,H){
+  const key=todayKey(), d=S.days[key]||{}, sets=(d.sets||[]);
+  const ton=sets.reduce((a,x)=>a+(x.w||0)*(x.r||0),0);
+  const byEx={};
+  sets.forEach(x=>{const k=x.ex||'Lift';(byEx[k]=byEx[k]||[]).push(x);});
+  const best=sets.length?sets.reduce((a,b2)=>((a.w||0)*(a.r||0)>(b2.w||0)*(b2.r||0)?a:b2)):null;
+  sStone(c,W,H);sCleft(c,W,H,.04);sVign(c,W,H,.74);
+  sHead(c,W,H,'D A Y  '+daySeal().n+'  ·  T H E  F O R G E','The Work');
+  sPanel(c,90,330,W-180,210);
+  sStat(c,110,410,290,'SETS',String(sets.length));
+  sStat(c,395,410,290,'MOVED',fmt(ton)+'','#E8C46B');
+  sStat(c,680,410,290,'BURN','−'+fmt(dayTotals(key).outMove),'#FF7A5E');
+  c.textAlign='center';
+  c.fillStyle='rgba(126,138,150,.8)';c.font='400 26px "IBM Plex Mono", monospace';
+  c.fillText('LB',W/2+40,516);
+  let y=630;
+  const keys=Object.keys(byEx).slice(0,6);
+  keys.forEach(k=>{
+    const list=byEx[k];
+    const top=list.reduce((a,b2)=>((a.w||0)*(a.r||0)>(b2.w||0)*(b2.r||0)?a:b2));
+    sPanel(c,90,y,W-180,104);
+    c.textAlign='left';c.fillStyle='#F0E9D8';c.font='400 46px Cormorant, serif';
+    c.fillText(k.length>22?k.slice(0,21)+'…':k,140,y+66);
+    c.textAlign='right';c.fillStyle='#E8C46B';c.font='300 44px "IBM Plex Mono", monospace';
+    c.fillText(list.length+' × '+(top.w?top.w+'×'+top.r:top.r+' reps'),W-140,y+66);
+    y+=122;
+  });
+  if(best&&best.w){
+    c.textAlign='center';
+    c.fillStyle='rgba(201,191,169,.9)';c.font='italic 40px "EB Garamond", serif';
+    c.fillText('Best of the day — '+best.ex+' '+best.w+'×'+best.r,W/2,y+66);
+  }
+  sKoi(c,W/2,H-330,5.0);
+  sGrain(c,W,H);sFoot(c,W,H);
+}
+function cardMove(c,W,H){
+  const key=todayKey(), d=S.days[key]||{};
+  const moves=(d.out||[]);
+  const total=moves.reduce((a,m)=>a+Math.abs(m.kcal||0),0);
+  sStone(c,W,H);sCleft(c,W,H,.05);sVign(c,W,H,.72);
+  sHead(c,W,H,'D A Y  '+daySeal().n+'  ·  M O V E M E N T','The Road');
+  c.textAlign='center';
+  c.fillStyle='#FF7A5E';c.shadowColor='rgba(255,122,94,.4)';c.shadowBlur=90;
+  c.font='300 158px "IBM Plex Mono", monospace';
+  c.fillText('−'+fmt(total),W/2,470);c.shadowBlur=0;
+  c.fillStyle='rgba(126,138,150,.9)';c.font='400 30px "IBM Plex Mono", monospace';
+  c.fillText('C A L O R I C   U N I T S   S P E N T',W/2,528);
+  let y=620;
+  moves.slice(0,7).forEach(m=>{
+    sPanel(c,90,y,W-180,100);
+    c.textAlign='left';c.fillStyle='#F0E9D8';c.font='400 44px Cormorant, serif';
+    c.fillText((m.name||'movement').slice(0,24),140,y+64);
+    c.textAlign='right';c.fillStyle='#FF7A5E';c.font='300 44px "IBM Plex Mono", monospace';
+    c.fillText('−'+fmt(Math.abs(m.kcal||0)),W-140,y+64);
+    y+=116;
+  });
+  sKoi(c,W/2,H-340,5.0);
+  sGrain(c,W,H);sFoot(c,W,H);
+}
+function cardWeek(c,W,H){
+  const days=[];
+  for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);
+    const k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    const d0=S.days[k];
+    const touched=!!(d0&&((d0.in&&d0.in.length)||(d0.out&&d0.out.length)||(d0.sets&&d0.sets.length)));
+    const t=dayTotals(k);
+    days.push({k,touched,net:touched?(t.inC-bmr()-t.outMove):0,lab:['S','M','T','W','T','F','S'][dt.getDay()]});}
+  const tot=days.filter(d=>d.touched).reduce((a,d)=>a+d.net,0);
+  sStone(c,W,H);sCleft(c,W,H,.05);sVign(c,W,H,.72);
+  sHead(c,W,H,'S E V E N   D A Y S','The Week');
+  c.textAlign='center';
+  if(S.shareFood){
+    c.fillStyle=tot<0?'#8FCB9B':'#FF7A5E';c.shadowColor='rgba(143,203,155,.35)';c.shadowBlur=90;
+    c.font='300 148px "IBM Plex Mono", monospace';
+    c.fillText((tot>0?'+':'')+fmt(tot),W/2,460);c.shadowBlur=0;
+    c.fillStyle='rgba(126,138,150,.9)';c.font='400 30px "IBM Plex Mono", monospace';
+    c.fillText('N E T   T H I S   W E E K',W/2,516);
+  } else {
+    const witnessed=days.filter(d=>d.touched).length;
+    c.fillStyle='#E8C46B';c.shadowColor='rgba(232,196,107,.45)';c.shadowBlur=90;
+    c.font='300 148px "IBM Plex Mono", monospace';
+    c.fillText(witnessed+' / 7',W/2,460);c.shadowBlur=0;
+    c.fillStyle='rgba(126,138,150,.9)';c.font='400 30px "IBM Plex Mono", monospace';
+    c.fillText('D A Y S   W I T N E S S E D',W/2,516);
+  }
+  // bars
+  const max=Math.max(...days.map(d=>Math.abs(d.net)),1);
+  const bw=W*.09, gap=(W-180-bw*7)/6, mid=1030;
+  days.forEach((d,i)=>{
+    const x=90+i*(bw+gap);
+    const h=d.touched?Math.min(230,Math.abs(d.net)/max*230):0;
+    c.fillStyle=d.net<0?'#8FCB9B':'#FF7A5E';
+    if(!d.touched){c.fillStyle='rgba(60,72,84,.5)';c.fillRect(x,mid-3,bw,6);}
+    if(d.net<0)c.fillRect(x,mid-h,bw,h); else c.fillRect(x,mid,bw,h);
+    c.textAlign='center';c.fillStyle='rgba(126,138,150,.85)';
+    c.font='400 30px "IBM Plex Mono", monospace';
+    c.fillText(d.lab,x+bw/2,mid+300);
+  });
+  c.strokeStyle='rgba(232,196,107,.35)';c.lineWidth=2;
+  c.beginPath();c.moveTo(80,mid);c.lineTo(W-80,mid);c.stroke();
+  const sealedN=days.filter(d=>d.touched).length;
+  c.textAlign='center';
+  c.fillStyle='rgba(201,191,169,.9)';c.font='italic 42px "EB Garamond", serif';
+  c.fillText(sealedN+' of 7 days witnessed',W/2,1420);
+  sKoi(c,W/2,1530,5.0);
+  sGrain(c,W,H);sFoot(c,W,H);
+}
+const CARDS_S={mirror:cardMirror,forge:cardForge,move:cardMove,week:cardWeek};
+const CARD_NAME={mirror:'the mirror',forge:'the forge',move:'the road',week:'the week'};
+
+async function shareCard(kind){
+  kind=kind||'mirror';
+  const fn=CARDS_S[kind]||cardMirror;
+  fishNote('Forging the card…');
+  const cv2=document.createElement('canvas');cv2.width=SHARE_W;cv2.height=SHARE_H;
+  const c=cv2.getContext('2d');
+  try{ fn(c,SHARE_W,SHARE_H); }catch(e){ fishNote('Card failed — '+String(e.message||e).slice(0,60)); return; }
+  const s=daySeal();
+  const text='Day '+s.n+' of 90 · My Caloric Mirror';
+  cv2.toBlob(async blob=>{
+    if(!blob){fishNote('Card failed to render.');return;}
+    const file=new File([blob],'mirror-day'+s.n+'-'+kind+'.jpg',{type:'image/jpeg'});
+    let sent=false;
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],text});sent=true;
+      }
+    }catch(e){ if(String(e).indexOf('AbortError')>-1)sent=true; }
+    if(!sent){
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download=file.name;
+      document.body.appendChild(a);a.click();a.remove();
+    }
+    grantXP(15,'sharing the walk');
+    fishSay('Card forged — '+CARD_NAME[kind]+', Day '+s.n+'. Send it to whoever walks with you.');
+  },'image/jpeg',.92);
+}
+function shareKindForTab(){
+  if(activeTab==='pageStr')return 'forge';
+  if(activeTab==='pagePath')return 'move';
+  if(activeTab==='pageBook')return 'week';
+  return 'mirror';
+}
+
+
+/* ============ THE TWO COLUMNS — the line and the lived day ============ */
+function livedDay(key){
+  key=key||todayKey();
+  const d=S.days[key]||{}; const ev=[];
+  (d.in||[]).forEach(x=>ev.push({t:x.t||0,kind:'fuel',what:(x.name||'food')+(x.kcal?' · '+fmt(x.kcal):'')}));
+  (d.out||[]).forEach(x=>ev.push({t:x.t||0,kind:'move',what:(x.name||'movement')+' · −'+fmt(Math.abs(x.kcal||0))}));
+  (d.water?[{t:d.waterT||0,kind:'water',what:'water · '+d.water+' oz'}]:[]).forEach(x=>ev.push(x));
+  const ans=(S.book[dayIndex()]||[]).filter(a=>a&&a.trim()).length;
+  if(ans>=4)ev.push({t:0,kind:'page',what:'the page · answered'});
+  (S.marks||[]).forEach(m=>{if(m.date===key)ev.push({t:0,kind:'mark',what:'weigh-in · mark drawn'});});
+  return ev.filter(e=>e.what).sort((a,b)=>(a.t||0)-(b.t||0));
+}
+function slotOf(ts){ if(!ts)return null; const h=new Date(ts).getHours();
+  return h<9?'dawn':h<12?'morning':h<15?'midday':h<18?'afternoon':h<21?'evening':'night'; }
+const SLOT_ORDER=['dawn','morning','midday','afternoon','evening','night'];
+const SLOT_LABEL={dawn:'5–9a',morning:'9–12',midday:'12–3',afternoon:'3–6',evening:'6–9',night:'9p+'};
+
+async function drawLine(){
+  const btn=$('drawLineBtn'); btn.textContent='… drawing'; btn.disabled=true;
+  const p=S.profile||{};
+  const today=new Date(); const dow=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][today.getDay()];
+  const workDay=['Friday','Saturday','Sunday','Monday'].includes(dow);
+  const got=await askJSON('THE LINE. Draw an optimal day schedule for this person, six slots. '
+    +'Body: '+p.w+' lb, '+Math.floor((p.h||66)/12)+'ft'+((p.h||66)%12)+', age '+(p.a||30)+', '+(p.s==='m'?'male':'female')+'. '
+    +'Goal: "'+(S.goalText||'health')+'". Resting burn ~'+bmr()+' kcal. '
+    +'Day: '+dow+(workDay?' — a WORK day: massage therapist, on the table roughly 10am–9pm, physical labor, limited windows.':' — an OFF day: fully flexible.')
+    +' They live in a vehicle: no kitchen, food is prepped or bought, gym and sauna access. '
+    +'Return ONLY JSON: {"slots":{"dawn":{"what":"...","why":"..."},"morning":{...},"midday":{...},"afternoon":{...},"evening":{...},"night":{...}},"principle":"one sentence — the single most important thing for THIS body chasing THIS goal"}. '
+    +'Each "what" under 9 words, concrete (water amounts, protein targets, train/sauna windows, the evening page, a sleep time). Each "why" under 12 words.',[],1400);
+  btn.textContent='✦ Redraw the line'; btn.disabled=false;
+  if(!got||!got.slots){fishNote('The line didn’t draw — check the Mirror Key in ⚙ and try again.');return;}
+  S.dayLine=S.dayLine||{}; S.dayLine[todayKey()]={slots:got.slots,principle:got.principle||''};
+  save(); renderCols();
+}
+function renderCols(){
+  const host=$real('colsBody'); if(!host)return;
+  const line=(S.dayLine||{})[todayKey()];
+  if(!line){host.innerHTML='<div class="cols-empty">The line draws itself when the day opens — tap below.</div>';return;}
+  const lived=livedDay(todayKey());
+  const bySlot={}; lived.forEach(e=>{const s=slotOf(e.t)||'night';(bySlot[s]=bySlot[s]||[]).push(e);});
+  let hits=0,slotsWithPlan=0;
+  host.innerHTML=SLOT_ORDER.map(s=>{
+    const o=line.slots[s]||{}; const real=bySlot[s]||[];
+    if(o.what)slotsWithPlan++;
+    const hit=real.length>0;
+    if(hit&&o.what)hits++;
+    return '<div class="col-row">'
+      +'<div class="col-cell opt"><span class="col-time">'+SLOT_LABEL[s]+'</span>'
+        +'<div class="col-what">'+(o.what||'—')+'</div>'
+        +(o.why?'<div class="col-why">'+o.why+'</div>':'')+'</div>'
+      +'<div class="col-cell real '+(hit?'hit':'empty')+'"><span class="col-time">'+SLOT_LABEL[s]+'</span>'
+        +'<div class="col-what">'+(hit?real.map(e=>e.what).join('<br>'):'nothing witnessed yet')+'</div></div>'
+      +'</div>';
+  }).join('')
+  +(line.principle?'<div class="cols-verdict">✦ <b>The principle:</b> '+line.principle
+     +'<br>Walked beside the line in <b>'+hits+' of '+slotsWithPlan+'</b> windows so far. The gap is information, not a verdict.</div>':'');
+}
+
+/* ============ THE SEALING — a day is not done until the page is full ============ */
+function dayKeyFor(n){const d=new Date(S.startDate);d.setDate(d.getDate()+n-1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function daySeal(n){
+  n = n || Math.min(Math.max(dayIndex(),1),90);
+  const key=dayKeyFor(n), d=S.days[key]||{};
+  const t=dayTotals(key);
+  const ans=(S.book[n]||['','','','']);
+  const frames=(S.frameCount&&S.frameCount[n])||0;
+  const rows=[
+    {id:'food',  ic:'🍲', n:'Food witnessed',      done:t.inC>0,
+      hint:'Say one thing you ate — even “nothing yet” is an answer.'},
+    {id:'water', ic:'💧', n:'Water marked',        done:(d.water||0)>0,
+      hint:'Say “drank 16 oz” or tap the chip.'},
+    {id:'move',  ic:'🔥', n:'Movement witnessed',  done:t.outMove>0||((d.sets||[]).length>0),
+      hint:'Any movement counts — a walk, a shift, one set.'},
+    {id:'body',  ic:'🧍', n:'The frame kept',      done:frames>0,
+      hint:'One photo in 📸 → Today. Same angle every day.'},
+    {id:'page',  ic:'📕', n:'The page answered',   done:ans.filter(a=>a&&a.trim()).length>=4,
+      hint:'Four questions. Say “reflect” and I ask them one at a time.'}
+  ];
+  const done=rows.filter(r=>r.done).length;
+  return {n,key,rows,done,total:rows.length,sealed:done===rows.length,
+          net:t.inC-bmr()-t.outMove, close:mirrorAtClose(key)};
+}
+function renderSeal(){
+  const host=$real('sealBox'); if(!host)return;
+  const s=daySeal();
+  const pct=Math.round(s.done/s.total*100);
+  host.innerHTML=
+    '<div class="seal-head"><span class="seal-day">DAY '+s.n+' · '+s.done+' OF '+s.total+'</span>'
+    +'<span class="seal-state" style="color:'+(s.sealed?'var(--green)':'var(--gold)')+'">'
+    +(s.sealed?'SEALED':'OPEN')+'</span></div>'
+    +'<div class="seal-rail"><div class="seal-fill" style="width:'+pct+'%;background:'
+    +(s.sealed?'var(--green)':'var(--gold)')+'"></div></div>'
+    +s.rows.map(r=>'<div class="seal-row'+(r.done?' on':'')+'" data-go="'+r.id+'">'
+      +'<span class="seal-ic">'+(r.done?'✓':r.ic)+'</span>'
+      +'<span class="seal-name">'+r.n+'</span>'
+      +(r.done?'':'<span class="seal-hint">'+r.hint+'</span>')+'</div>').join('')
+    +(s.sealed
+      ? '<button class="btn seal-btn" id="carryBtn" style="color:var(--green)">⧉ Carry Day '+s.n+' to the paper book</button>'
+      : '<button class="btn seal-btn" id="sealBtn2" style="color:var(--gold)">✦ Seal Day '+s.n+' — '+(s.total-s.done)+' left</button>');
+  host.querySelectorAll('.seal-row').forEach(el=>el.onclick=()=>sealJump(el.dataset.go));
+  const sb=$real('sealBtn2'); if(sb)sb.onclick=sealWalk;
+  const cb=$real('carryBtn'); if(cb)cb.onclick=carryPage;
+}
+function sealJump(id){
+  if(id==='page'){startReflection();go('pageMirror');return;}
+  if(id==='body'){go('pageGal');setTimeout(()=>showLane&&showLane('frames'),200);return;}
+  if(id==='move'){go('pageForge');return;}
+  go('pageMirror');
+  const s=daySeal(), row=s.rows.find(r=>r.id===id);
+  if(row)fishSay(row.ic+' <b>'+row.n+'</b> — '+row.hint);
+}
+function sealWalk(){
+  const s=daySeal();
+  const missing=s.rows.filter(r=>!r.done);
+  if(!missing.length){renderSeal();return;}
+  if(missing.length===1&&missing[0].id==='page'){startReflection();go('pageMirror');return;}
+  go('pageMirror');
+  fishSay('Day '+s.n+' is still open. '+missing.length+' thing'+(missing.length>1?'s':'')+' left:<br>'
+    +missing.map(m=>'• '+m.ic+' <b>'+m.n+'</b> — '+m.hint).join('<br>')
+    +'<br><br>Start wherever you are. I’ll keep count.',null,null,true);
+}
+function carryPage(){
+  const s=daySeal(), pg=BOOK[String(s.n)]||{r:[]};
+  const ans=S.book[s.n]||[];
+  const t=dayTotals(s.key), b=bmr();
+  const lines=[
+    'DAY '+s.n+' OF 90',
+    '',
+    'Starting mirror:  '+fmt(mirrorAt(s.key)),
+    'Total calories IN:  '+fmt(t.inC),
+    'Basal burn:  '+fmt(b),
+    'Movement:  '+fmt(t.outMove),
+    'Total OUT:  '+fmt(b+t.outMove),
+    'Today’s numeric truth:  '+(s.net>0?'+':'')+fmt(s.net),
+    'New caloric mirror total:  '+fmt(s.close),
+    '',
+    'EVENING REFLECTION'
+  ];
+  (pg.r||[]).forEach((q,i)=>{lines.push(q);lines.push('  '+(ans[i]||'—'));lines.push('');});
+  const txt=lines.join('\n');
+  const box=$real('carryBox');
+  if(box){box.style.display='block';box.value=txt;
+    try{box.focus();box.setSelectionRange(0,txt.length);}catch(e){}}
+  try{ if(navigator.clipboard)navigator.clipboard.writeText(txt); }catch(e){}
+  if(navigator.share){try{navigator.share({text:txt});}catch(e){}}
+  fishSay('Day '+s.n+' is ready for the paper. Copy it in, in ink — the app did the math, the book asks the questions.');
+}
+
 /* ============ THE SIX FRAMES — your daily shot list ============ */
 const FRAMES=[
  {id:'wake', ic:'🌅', n:'The Wake',   want:'Your face, first light. One honest sentence about the day ahead.'},
@@ -2924,7 +4654,7 @@ let frameDay=null, frameSlot=null, frameCache={};
 function fDay(){return frameDay||Math.min(Math.max(dayIndex(),1),90);}
 
 async function renderFrames(){
-  const host=$('frameList'); if(!host)return;
+  const host=$real('frameList'); if(!host)return;
   const d=fDay();
   frameCache=await frameGetAll(d);
   const filled=FRAMES.filter(f=>(frameCache[f.id]||[]).length).length;
@@ -3013,6 +4743,7 @@ async function handleFrameFile(e){
     }catch(err){ fishNote('One file wouldn’t save — '+String(err.message||err).slice(0,60)); }
   }
   if(!added){fishNote('Nothing saved — that file type isn’t supported. Photos and videos only.');return;}
+  S.frameCount=S.frameCount||{}; S.frameCount[d]=(S.frameCount[d]||0)+added;
   reefBloom=1;grantXP(20*added,'documenting the day');save();
   await renderFrames();
   const empty=FRAMES.filter(z=>!(frameCache[z.id]||[]).length);
@@ -3952,7 +5683,7 @@ function renderSession(){
   if(!n)return;
   const ton=S.session.sets.reduce((a,s)=>a+s.w*s.r,0);
   const best=S.session.sets.reduce((a,b)=>(a.w*a.r>b.w*b.r?a:b));
-  const live=$('sessLive');
+  const live=$real('sessLive');
   if(live)live.innerHTML='<b>'+n+'</b> set'+(n>1?'s':'')+' · <b>'+fmt(ton)+'</b> lb moved · best '+best.w+'×'+best.r+' · '+best.ex;
 }
 $('sealBtn').onclick=()=>{
@@ -3962,7 +5693,7 @@ $('sealBtn').onclick=()=>{
   const ton=S.session.sets.reduce((a,s)=>a+s.w*s.r,0);
   const kg=(S.profile?.w||170)*0.4536;
   const kcal=Math.round(4*kg*(dur/60));
-  const tk=todayKey();if(!S.days[tk])S.days[tk]={in:[],out:[]};
+  const tk=todayKey();dayOf(tk);
   S.days[tk].out.push({name:'Forge Session · '+n+' sets, '+dur+' min',kcal,t:Date.now()});
   if(!S.days[tk].sessions)S.days[tk].sessions=[];
   S.days[tk].sessions.push({dur,sets:n,tonnage:ton,t:Date.now()});
@@ -3970,6 +5701,7 @@ $('sealBtn').onclick=()=>{
   S.session=null;grantXP(XP_RULES.session,'sealing the forge');save();dropWake();clearInterval(sessTick);restEnd=0;
   $('sessPanel').style.display='none';$('sessBtn').style.display='block';
   renderAll();toneFall();
+  setTimeout(()=>fishSay('That session is card-ready — tap ⇪ and send <b>The Forge</b> to whoever trains with you.'),2600);
   fishSay('🔥 Session sealed — '+dur+' min, '+n+' sets, '+fmt(ton)+' lb moved, −'+kcal+' deposited. '+best);
 };
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session)grabWake();
@@ -3980,7 +5712,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.session
 let deferredInstall=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
 /* ---- version guard: a new build purges the old shell cache, never the data ---- */
-const APP_V=51;
+const APP_V=72;
 (async()=>{
   try{
     const seen=+localStorage.getItem('koil-app-v')||0;
@@ -4534,9 +6266,162 @@ $('clearSetsBtn').onclick=()=>{
   fishSay('Today’s '+n+' sets are cleared and the ladders reset. Log them again and they’ll read true.');
 };
 
+
+
+function paintFoodTog(){const b=$real('foodTog');if(b)
+  b.textContent='🍲 FOOD: '+(S.shareFood?'SHOWN':'HIDDEN');}
+$('foodTog').onclick=e=>{e.stopPropagation();
+  S.shareFood=!S.shareFood;save();paintFoodTog();
+  fishNote(S.shareFood?'Food will appear on shared cards.':'Food stays private — cards show effort only.');};
+paintFoodTog();
+try{
+$('shareFab').onclick=e=>{e.stopPropagation();
+  const m=$('shareMenu');
+  if(m.classList.contains('show')){m.classList.remove('show');return;}
+  m.classList.add('show');};
+$('shareMenu').querySelectorAll('button').forEach(b=>b.onclick=e=>{
+  e.stopPropagation();$('shareMenu').classList.remove('show');shareCard(b.dataset.k);});
+}catch(e){console.warn('wire skipped',e);}
+document.addEventListener('click',()=>{const m=$('shareMenu');if(m)m.classList.remove('show');});
+
+
+
+try{
+$('bmCam').onclick=()=>$('bmFile').click();
+$('bmFile').onchange=e=>{const fs=[...e.target.files];e.target.value='';blockPhotoLog(fs);};
+}catch(e){console.warn('wire skipped',e);}
+$('bmClose').onclick=closeBlock;
+$('blockModal').onclick=e=>{if(e.target===$('blockModal'))closeBlock();};
+$('bmSend').onclick=submitBlock;
+$('bmInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitBlock();}});
+$('blockSearch').addEventListener('input',()=>renderBlocks());
+const BLOCK_ALIAS={'dip':['chest-dip','tricep-dip'],'dips':['chest-dip','tricep-dip'],
+  'curl':['dumbbell-curl','barbell-curl','hammer-curl'],'curls':['dumbbell-curl','barbell-curl'],
+  'press':['bench-press','overhead-press','db-shoulder-press'],'pullup':['pullup'],'pullups':['pullup'],
+  'pushup':['pushup'],'pushups':['pushup'],'situp':['situp'],'situps':['situp'],
+  'pulldown':['lat-pulldown','tricep-pushdown'],'row':['barbell-row','dumbbell-row','seated-row'],
+  'squat':['squat','front-squat'],'deadlift':['deadlift','romanian-deadlift'],
+  'raise':['lateral-raise','front-raise','calf-raise'],'fly':['chest-fly','rear-delt-fly'],
+  'flys':['chest-fly'],'flies':['chest-fly'],'plank':['plank'],'run':['run'],'walk':['walk'],
+  'sauna':['sauna'],'cardio':['run'],'treadmill':['run'],'plunge':['cold-plunge'],'steam':['steam-room'],'stretch':['stretching'],
+  'stretching':['stretching'],'bench':['bench-press'],'incline':['incline-bench','incline-db-press']};
+const singular=w=>w.replace(/ies$/,'y').replace(/([^s])s$/,'$1');
+const STOPW=new Set(['was','the','and','this','that','with','for','did','had','has','have','been',
+ 'morning','today','yesterday','tonight','just','like','then','than','also','some','felt','feel',
+ 'about','after','before','went','doing','done','reps','rep','sets','set','lbs','lb','pounds','min','minutes']);
+function findBlocks(txt){
+  const t=txt.toLowerCase().replace(/[^a-z0-9 ]/g,' ');
+  const words=t.split(/\s+/).filter(w=>w.length>2&&!/^\d+$/.test(w)&&!STOPW.has(w)).map(singular);
+  if(!words.length)return [];
+  const scored=allBlocks().map(b=>{
+    const nameWords=b.n.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).map(singular);
+    let score=0;
+    words.forEach(w=>{
+      if(nameWords.includes(w))score+=3;
+      else if(w.length>=4&&nameWords.some(nw=>nw.startsWith(w)||w.startsWith(nw)))score+=2;
+    });
+    if(b.n.toLowerCase().includes(t.trim()))score+=4;
+    return {b,score};
+  }).filter(x=>x.score>0).sort((a,c)=>c.score-a.score);
+  // alias net catches "dips", "curls" etc.
+  const aliasIds=[];
+  words.forEach(w=>{ (BLOCK_ALIAS[w]||[]).forEach(id=>{if(!aliasIds.includes(id))aliasIds.push(id);}); });
+  aliasIds.forEach(id=>{ if(!scored.some(x=>x.b.id===id)){const b=blockById(id);if(b)scored.push({b,score:2});} });
+  return scored.map(x=>x.b);
+}
+function findResolve(txt){
+  txt=txt.trim(); if(!txt)return;
+  if(looksLikeSession(txt)){ $('blockSearch').value=''; bulkLog(txt); return; }
+  const sets=parseBlockSets(txt);
+  const hits=findBlocks(txt);
+  if(hits.length===1||(hits.length>1&&hits[0]&&sets.length===0&&false)){ }
+  if(hits.length===1){
+    openBlock(hits[0].id);
+    if(sets.length)setTimeout(()=>{$('bmInput').value=txt;submitBlock();},350);
+    $('blockSearch').value='';renderBlocks();return;
+  }
+  if(hits.length>1){
+    // several doors — let him pick, carry the sets through
+    pendingSets = sets.length? txt : null;
+    openDoorway('“'+txt.replace(/[<>]/g,'')+'” — which station?', hits.slice(0,6).map(b=>b.id));
+    $('blockSearch').value='';return;
+  }
+  if(blockOpen){ $('bmInput').value=txt;submitBlock();return; }
+  fishSay('No block called “'+txt.replace(/[<>]/g,'')+'” yet. Say <b>forge '+txt.replace(/[<>]/g,'')+'</b> and I’ll build it, or 📷 photograph the equipment.');
+}
+let pendingSets=null;
+
+$('blockSearch').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();findResolve($('blockSearch').value);}});
+$('findCam').onclick=()=>$('mintIn').click();
+$('findMic').onclick=()=>{
+  try{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){$('blockSearch').focus();return;}
+    const rec=new SR();rec.lang='en-US';rec.interimResults=false;
+    $('findMic').textContent='🔴';
+    rec.onresult=ev=>{const t=ev.results[0][0].transcript;
+      $('blockSearch').value=t;findResolve(t);};
+    rec.onend=()=>{$('findMic').textContent='🎙';};
+    rec.onerror=()=>{$('findMic').textContent='🎙';$('blockSearch').focus();};
+    rec.start();
+  }catch(e){$('blockSearch').focus();}
+};
+
+if($real('mintBtn'))$('mintBtn').onclick=()=>$('mintIn').click();
+$('mintIn').onchange=async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f)return;
+  const raw=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f);});
+  if(!raw)return;
+  const small=await shrinkDataUrl(raw,1100,0.8)||raw;
+  stationSight(small);
+};
+
+
+try{
+$('dwClose').onclick=()=>$('doorway').classList.remove('show');
+$('doorway').onclick=e=>{if(e.target===$('doorway'))$('doorway').classList.remove('show');};
+}catch(e){console.warn('wire skipped',e);}
+
+
+/* boot armor: one missing element must never kill the temple */
+function wire(id,ev,fn){const el=$real(id);if(!el)return;if(ev==='click')el.onclick=fn;else el.addEventListener(ev,fn);}
+
+
+if($real('pasteSessionBtn'))$('pasteSessionBtn').onclick=()=>{
+  const t=prompt('Paste your workout — one movement per line. Put the date on the first line if it isn’t today.\n\nExample:\n8-9-26\nDip: 12, 12, 12\nSquat: bar x 12, 135x12\nCardio: 20 minutes');
+  if(t&&t.trim())bulkLog(t.trim());
+};
+
+window.addEventListener('error',e=>{
+  try{
+    const el=$real('feed');
+    const note=document.createElement('div');
+    note.style.cssText='margin:8px 12px;padding:9px 12px;border-radius:10px;font-size:12px;line-height:1.4;'
+      +'background:rgba(80,20,20,.5);border:1px solid rgba(255,90,60,.4);color:#FFB4A0;'
+      +"font-family:'IBM Plex Mono',monospace";
+    note.textContent='⚠ '+String(e.message||'error').slice(0,140);
+    (el||document.body).appendChild(note);
+  }catch(err){}
+});
+
+if($real('drawLineBtn'))$('drawLineBtn').onclick=drawLine;
+
+
+if($real('bmEar')){
+  const paintEar=()=>{$('bmEar').style.opacity=S.coachVoice?'1':'.35';};
+  $('bmEar').onclick=()=>{S.coachVoice=!S.coachVoice;save();paintEar();
+    if(S.coachVoice)speakCoach('The machine hears you. Log a set and I will answer.');};
+  paintEar();
+}
+
 /* ============ BOOT ============ */
 try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); }catch(e){}
-healProfile();sizeCanvas();applySkins();tickDockNum();
+try{healDays();}catch(e){console.warn(e);}
+try{healProfile();}catch(e){console.warn(e);}
+try{sizeCanvas();}catch(e){console.warn(e);}
+try{applySkins();}catch(e){console.warn(e);}
+try{tickDockNum();}catch(e){console.warn(e);}
 setTimeout(()=>{const days=Object.keys(S.days||{}).length;
   const since = S.lastBackup ? Math.floor((new Date(todayKey())-new Date(S.lastBackup))/864e5) : 999;
   if(days>=3&&since>=7)fishSay('⚠ '+(S.lastBackup?'It has been '+since+' days since your last backup.':days+' days walked and never backed up.')+' Open ⚙ → <b>Back up everything</b> — five seconds protects the whole walk.');},9000);
