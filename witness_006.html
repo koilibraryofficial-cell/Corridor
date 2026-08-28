@@ -59,7 +59,10 @@ textarea::placeholder{color:#6a6480;font-style:italic}
 .btn{display:block;width:100%;max-width:380px;cursor:pointer;font-family:Helvetica,Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;font-size:13px;color:var(--stone);background:linear-gradient(180deg,#F0CD74,#C9A44C);border:none;padding:18px;border-radius:999px;box-shadow:0 0 40px rgba(232,196,106,.45);transition:box-shadow .3s,transform .1s}
 .btn:hover{box-shadow:0 0 60px rgba(232,196,106,.7)}.btn:active{transform:scale(.99)}
 .btn.ghost{background:transparent;color:var(--cream);border:1px solid rgba(201,164,76,.5);box-shadow:none}
-.attending{font-style:italic;font-size:24px;color:var(--cream);margin:0;animation:pulse 3s ease-in-out infinite;text-shadow:0 0 30px rgba(232,196,106,.4)}
+.attending{font-style:italic;font-size:24px;color:var(--cream);margin:0;animation:pulse 5.5s ease-in-out infinite;text-shadow:0 0 30px rgba(232,196,106,.4);transition:opacity .6s}
+#drift{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.dw{position:absolute;left:0;right:0;text-align:center;font-style:italic;font-size:19px;color:var(--cream);opacity:0;white-space:nowrap;text-shadow:0 0 12px rgba(6,5,12,.9);animation:drift 7s linear forwards}
+@keyframes drift{0%{opacity:0;transform:translateY(0) scale(1)}15%{opacity:.22}70%{opacity:.18}100%{opacity:0;transform:translateY(-52vh) scale(.6)}}
 @keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
 #observation{cursor:pointer}
 .facet{width:100%;max-width:520px;text-align:left;padding:22px 20px;border-radius:18px;border:1px solid rgba(201,164,76,.2);background:linear-gradient(180deg,rgba(14,12,24,.9),rgba(6,5,12,.96));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 30px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(232,196,106,.18);transition:opacity 700ms,transform 700ms;opacity:0;transform:translateY(12px) scale(.98)}
@@ -133,7 +136,8 @@ button:focus-visible,a:focus-visible,textarea:focus-visible{outline:1px solid va
 
 <!-- SCREEN 2 — THE WITNESSING -->
 <main id="witnessing" class="screen center">
-  <p class="attending">…paying attention…</p>
+  <div id="drift" aria-hidden="true"></div>
+  <p class="attending" id="attending">…reading it…</p>
   <p class="hint" id="attendNote"></p>
 </main>
 
@@ -224,6 +228,8 @@ Absolute laws:
 One example of the swap test, for "circled". A person said: "I keep saying I'm fine. My sister asked twice and I said fine both times. I don't know, maybe I'll call her, maybe not. Anyway it's fine."
 FAILS (a stranger could wear it): "I noticed a tendency to avoid difficult feelings and keep others at a distance."
 PASSES (only this person): "\\"Fine\\" appeared four times. \\"Maybe I'll call her, maybe not\\" was a door opened and closed in the same breath, and the sister was never mentioned again."
+- Counts and positions must be exact. If a word appeared four times, say four; if unsure, say "more than once" rather than a number. Never say where a phrase sat in the speech unless it is certain.
+- Voice: the perception law does not require the third person. "What was wanted", "the wanting underneath", "what these words protected" are all allowed — passive, no subject, never "the person themselves".
 - Length discipline: total response under 400 words. Precision over volume.`;
 
 const FORBIDDEN = /\byou(?:'re| are| seem| have| need| should)\b/i;
@@ -245,8 +251,8 @@ const $ = id => document.getElementById(id);
    faster and burns brighter as the voice rises; at "witness me" it
    collapses to a point and bursts, and you are inside it.
    ═══════════════════════════════════════════════════════════════ */
-var V = { px:0,pxT:0,py:0,pyT:0, lookY:0.4, lookYT:0.4, stir:0, stirT:0.2, voice:0, voiceT:0, burst:0, collapse:0, collapseT:0, open:1, openT:1, camZ:26, camZT:11.5, camY:1.2, camYT:0.8 };
-var vessel = { pour:function(){}, burst:function(){}, mode:function(){} };
+var V = { inhale:0,inhaleT:0, px:0,pxT:0,py:0,pyT:0, lookY:0.4, lookYT:0.4, stir:0, stirT:0.2, voice:0, voiceT:0, burst:0, collapse:0, collapseT:0, open:1, openT:1, camZ:26, camZT:11.5, camY:1.2, camYT:0.8 };
+var vessel = { pour:function(){}, burst:function(){}, mode:function(){}, hue:function(){}, pourAt:function(){}, tilt:function(){}, sky:function(){}, inhale:function(){} };
 (function initVessel(){
   if(typeof THREE==="undefined") return $("gl").style.display="none";
   var reduced=false; try{ reduced=matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
@@ -311,7 +317,7 @@ void main(){
  float depth=0.45+0.55*smoothstep(-1.0,1.0,sin(a));
  float edge=smoothstep(0.0,0.12,u)*smoothstep(1.0,0.86,u);
  vA=(0.30+0.70*tw)*u_open*depth*edge*(0.55+0.45*u)*(1.0-u_burst*0.6);
- vC=mix(vec3(0.91,0.70,0.32), mix(vec3(0.72,0.63,0.93), vec3(0.45,0.75,0.75), step(0.85,aHue)), step(0.72,aHue)); vC=mix(vC,u_hue,u_hueMix*0.7); }`,
+ vC=mix(vec3(0.91,0.70,0.32), mix(vec3(0.72,0.63,0.93), vec3(0.45,0.75,0.75), step(0.85,aHue)), step(0.72,aHue)); vC=mix(vC,u_hue,u_hueMix); }`,
     fragmentShader:emberFrag }));
   scene.add(ring);
   /* the bloom: the same spiral, drawn again four times larger at a whisper of alpha — a soft halo around every ember */
@@ -326,7 +332,7 @@ void main(){
   hg.setAttribute("position",new THREE.BufferAttribute(new Float32Array(HN*3),3));
   hg.setAttribute("aAng",new THREE.BufferAttribute(hAng,1)); hg.setAttribute("aRad",new THREE.BufferAttribute(hRad,1)); hg.setAttribute("aPh",new THREE.BufferAttribute(hPh,1)); hg.setAttribute("aSz",new THREE.BufferAttribute(hSz,1)); hg.setAttribute("aEl",new THREE.BufferAttribute(hEl,1));
   var heart=new THREE.Points(hg,new THREE.ShaderMaterial({ uniforms:U, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-    vertexShader:`attribute float aAng,aRad,aPh,aSz,aEl; uniform float u_time,u_stir,u_voice,u_burst,u_collapse,u_open,u_pr; varying float vA; varying vec3 vC;
+    vertexShader:`attribute float aAng,aRad,aPh,aSz,aEl; uniform float u_time,u_stir,u_voice,u_burst,u_collapse,u_open,u_pr,u_hueMix; uniform vec3 u_hue; varying float vA; varying vec3 vC;
 void main(){ float a=aAng+u_time*(0.4+0.9*u_stir+1.2*u_voice)*(1.0+aRad);
  float r=aRad*0.7*(0.6+0.5*u_voice+0.3*u_stir)*(1.0-0.8*u_collapse)*(1.0+4.0*u_burst);
  float el=aEl+sin(u_time*0.7+aPh*6.28)*0.3;
@@ -335,7 +341,7 @@ void main(){ float a=aAng+u_time*(0.4+0.9*u_stir+1.2*u_voice)*(1.0+aRad);
  float tw=0.5+0.5*sin(u_time*3.0+aPh*50.0);
  gl_PointSize=aSz*u_pr*(1.0+2.0*u_voice+u_burst*3.0)*(34.0/-mv.z);
  vA=(0.25+0.75*tw)*u_open*(0.22+0.55*u_stir+1.1*u_voice)*(1.0-u_burst*0.5);
- vC=mix(mix(vec3(0.95,0.82,0.45),vec3(0.62,0.5,0.95),step(0.6,aPh)),vec3(0.4,0.8,0.8),step(0.88,aPh)); }`,
+ vC=mix(mix(vec3(0.95,0.82,0.45),vec3(0.62,0.5,0.95),step(0.6,aPh)),vec3(0.4,0.8,0.8),step(0.88,aPh)); vC=mix(vC,u_hue,u_hueMix*0.9); }`,
     fragmentShader:emberFrag }));
   scene.add(heart);
 
@@ -348,6 +354,19 @@ void main(){ float a=aAng+u_time*(0.4+0.9*u_stir+1.2*u_voice)*(1.0+aRad);
   flare.position.set(0,-2.0,0); scene.add(flare);
   var rays=new THREE.Sprite(new THREE.SpriteMaterial({map:flareTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.35}));
   rays.position.set(0,-2.0,0); rays.scale.set(9,0.55,1); scene.add(rays);
+
+  /* ── the falling sky: stars streak down from above and are pulled into the throat while the witness reads ── */
+  var SN=360, sg=new THREE.BufferGeometry(), sPos=new Float32Array(SN*6), sLife=new Float32Array(SN*2), stars=[];
+  for(i=0;i<SN;i++){ stars.push({x:0,y:30,z:0,vx:0,vy:0,vz:0,life:0}); }
+  sg.setAttribute("position",new THREE.BufferAttribute(sPos,3)); sg.setAttribute("aLife",new THREE.BufferAttribute(sLife,1));
+  var sky=new THREE.LineSegments(sg,new THREE.ShaderMaterial({ uniforms:U, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:`attribute float aLife; varying float vA; void main(){ gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); vA=aLife; }`,
+    fragmentShader:`precision highp float; varying float vA; void main(){ gl_FragColor=vec4(0.98,0.92,0.70,vA*0.8); }` }));
+  scene.add(sky);
+  var skyOn=false, nextS=0;
+  vessel.sky=function(on){ skyOn=on; };
+  function spawnStar(){ var st=stars[nextS]; nextS=(nextS+1)%SN; st.x=(Math.random()-0.5)*9; st.y=7.5+Math.random()*2; st.z=(Math.random()-0.5)*4-1;
+    st.vx=(Math.random()-0.5)*1.5; st.vy=-(3+Math.random()*4); st.vz=(Math.random()-0.5); st.life=1; }
 
   /* ── the pour: words become sparks that fly into the vessel ── */
   var PN=700, pg=new THREE.BufferGeometry(), pPos=new Float32Array(PN*3), pLife=new Float32Array(PN), pSz=new Float32Array(PN);
@@ -362,8 +381,9 @@ void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionM
   var nextP=0;
   vessel.pour=function(n){ for(var k=0;k<n;k++){ var s=pool[nextP]; nextP=(nextP+1)%PN;
     s.x=(Math.random()-0.5)*5.0; s.y=-4.2-Math.random()*0.8; s.z=1.2+Math.random()*1.5; s.vx=(Math.random()-0.5)*1.2; s.vy=3.5+Math.random()*2.5; s.vz=-(1.5+Math.random()); s.life=1; } };
-  vessel.burst=function(){ V.burst=1; };
-  var HUES={ light:[0.95,0.78,0.40], shadow:[0.68,0.55,0.95], circled:[0.42,0.78,0.78], question:[1.0,0.93,0.72], none:[0.91,0.70,0.32] }, hueT=new THREE.Vector3(0.91,0.70,0.32), hueMixT=0;
+  vessel.burst=function(){ V.burst=1; V.inhaleT=0; };
+  vessel.inhale=function(){ V.inhaleT=1; };
+  var HUES={ light:[0.98,0.80,0.36], shadow:[0.62,0.45,1.0], circled:[0.30,0.85,0.85], question:[1.0,0.96,0.80], none:[0.91,0.70,0.32] }, hueT=new THREE.Vector3(0.91,0.70,0.32), hueMixT=0;
   vessel.hue=function(name){ var h=HUES[name]||HUES.none; hueT.set(h[0],h[1],h[2]); hueMixT=name&&name!=="none"?1:0; };
   vessel.pourAt=function(nx,ny,n){ for(var k=0;k<n;k++){ var s=pool[nextP]; nextP=(nextP+1)%PN;
     s.x=nx*3.2+(Math.random()-0.5)*0.6; s.y=ny*5.5+(Math.random()-0.5)*0.6; s.z=1.5+Math.random(); s.vx=(Math.random()-0.5)*2; s.vy=(Math.random()-0.5)*2; s.vz=-1; s.life=1; } };
@@ -396,7 +416,8 @@ void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionM
     U.u_time.value=t; U.u_stir.value=V.stir; U.u_voice.value=V.voice; U.u_burst.value=V.burst; U.u_collapse.value=V.collapse; U.u_open.value=V.open;
     bgU.u_time.value=t; bgU.u_glow.value=0.15+0.5*V.stir+0.5*V.voice+V.burst;
     U.u_hue.value.lerp(hueT,Math.min(1,dt*1.2)); U.u_hueMix.value+=(hueMixT-U.u_hueMix.value)*Math.min(1,dt*1.2);
-    var fs=(1.6+0.5*Math.sin(t*0.9)+2.2*V.voice+1.4*V.stir+6.0*V.burst)*(1.0-0.5*V.collapse); flare.scale.set(fs,fs,1); flare.material.opacity=(0.45+0.5*V.stir+0.5*V.voice)*V.open;
+    V.inhale+=(V.inhaleT-V.inhale)*Math.min(1,dt*4);
+    var fs=(1.6+0.5*Math.sin(t*6.2832/5.5)+2.2*V.voice+1.4*V.stir+6.0*V.burst)*(1.0-0.5*V.collapse)*(1.0-0.55*V.inhale); flare.scale.set(fs,fs,1); flare.material.opacity=(0.45+0.5*V.stir+0.5*V.voice)*V.open;
     rays.scale.set(fs*4.5,fs*0.28,1); rays.material.rotation=t*0.08; rays.material.opacity=(0.12+0.3*V.voice+0.2*V.stir)*V.open;
     /* the hand: touch drifts the camera; a tap throws sparks */
     V.px+=(V.pxT-V.px)*Math.min(1,dt*3); V.py+=(V.pyT-V.py)*Math.min(1,dt*3);
@@ -407,6 +428,12 @@ void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionM
         if(dd<0.7) s.life-=dt*4; else s.life-=dt*0.35; if(s.life<0)s.life=0; }
       pos[i*3]=s.x; pos[i*3+1]=s.y; pos[i*3+2]=s.z; lf[i]=s.life; }
     pg.attributes.position.needsUpdate=true; pg.attributes.aLife.needsUpdate=true;
+    if(skyOn){ for(var q=0;q<3;q++) spawnStar(); }
+    for(i=0;i<SN;i++){ var st=stars[i]; if(st.life>0){ var ddx=0-st.x, ddy=-2.0-st.y, ddz=0-st.z, ddd=Math.sqrt(ddx*ddx+ddy*ddy+ddz*ddz)+0.001;
+        st.vx+=(ddx/ddd)*7*dt; st.vy+=(ddy/ddd)*7*dt; st.vz+=(ddz/ddd)*7*dt; st.x+=st.vx*dt; st.y+=st.vy*dt; st.z+=st.vz*dt;
+        st.life-= (ddd<0.9? dt*5 : dt*0.25); if(st.life<0) st.life=0; }
+      var tail=0.08; sPos[i*6]=st.x; sPos[i*6+1]=st.y; sPos[i*6+2]=st.z; sPos[i*6+3]=st.x-st.vx*tail; sPos[i*6+4]=st.y-st.vy*tail; sPos[i*6+5]=st.z-st.vz*tail; sLife[i*2]=st.life; sLife[i*2+1]=0; }
+    sg.attributes.position.needsUpdate=true; sg.attributes.aLife.needsUpdate=true;
     renderer.render(scene,camera); })();
 })();
 
@@ -418,12 +445,24 @@ function speakQuestion(q){ if(!soundOn||!("speechSynthesis" in window)) return; 
   const vs=speechSynthesis.getVoices(); const pick=vs.find(v=>/en/i.test(v.lang)&&/Samantha|Serena|Moira|Daniel|Google UK English Female|Karen/i.test(v.name))||vs.find(v=>/en/i.test(v.lang)); if(pick) u.voice=pick; setTimeout(()=>speechSynthesis.speak(u),600); }catch(e){} }
 function chime(){ tone(528,.12,1.1); setTimeout(function(){tone(660,.09,1.0);},90); }
 function lowHum(){ tone(110,.05,1.6,"triangle"); }
-$("soundbtn").onclick=function(){ soundOn=!soundOn; this.innerHTML=soundOn?"&#9835;":"&#9834;"; if(soundOn){ ensureAudio(); if(actx&&actx.state==="suspended")actx.resume(); tone(330,.14,.5);} };
+$("soundbtn").onclick=function(){ if(!document.body.dataset.tilt){ document.body.dataset.tilt=1; vessel.tilt(); } soundOn=!soundOn; this.innerHTML=soundOn?"&#9835;":"&#9834;"; if(soundOn){ ensureAudio(); if(actx&&actx.state==="suspended")actx.resume(); tone(330,.14,.5);} };
 
 /* ═══════ VOICE — the ear, and the vessel that drinks it ═══════ */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let mode="mic", listening=false, wantListen=false, rec=null, finalText="", interim="", obs=null, step=0;
-let voiceDecay=null, quietTimer=null;
+let voiceDecay=null, quietTimer=null, driftTimer=null;
+function phrasesOf(t){ /* their own words, chosen on the phone, never sent anywhere new */
+  const sents=t.split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(x=>x.split(/\s+/).length>=3&&x.length<=70);
+  const withI=sents.filter(x=>/\bI\b/i.test(x)); const longest=[...sents].sort((a,b)=>b.length-a.length).slice(0,4);
+  const freq={}; t.toLowerCase().replace(/[^a-z' ]/g," ").split(/\s+/).forEach(w=>{ if(w.length>4) freq[w]=(freq[w]||0)+1; });
+  const rep=Object.entries(freq).filter(([w,n])=>n>=3).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([w])=>w);
+  const out=[...new Set([...withI.slice(0,3),...longest,...rep])].slice(0,7); return out.length?out:sents.slice(0,3);
+}
+function startDrift(t){ stopDrift(); const ph=phrasesOf(t); if(!ph.length) return; let i=0;
+  const one=()=>{ const el=document.createElement("div"); el.className="dw"; el.textContent=ph[i%ph.length]; el.style.top=(62+Math.random()*22)+"vh"; el.style.left=((Math.random()-0.5)*24)+"vw"; $("drift").appendChild(el); setTimeout(()=>el.remove(),7200); i++; };
+  one(); driftTimer=setInterval(one,1900); }
+function stopDrift(){ clearInterval(driftTimer); driftTimer=null; $("drift").innerHTML=""; }
+function attend(msg){ const a=$("attending"); if(a.textContent===msg) return; a.style.opacity=0; setTimeout(()=>{ a.textContent=msg; a.style.opacity=1; },600); }
 function armQuiet(){ clearTimeout(quietTimer); quietTimer=setTimeout(()=>{ if(listening&&!text()) $("micHint").textContent="I don’t hear you yet — try closer, or type"; },20000); }
 function heard(){ /* every fragment the ear catches is a pulse of light — no second microphone, so iOS never fights itself */
   V.voiceT=Math.min(1,V.voiceT+0.55); clearTimeout(voiceDecay); voiceDecay=setTimeout(()=>{ V.voiceT=0.25; },700); }
@@ -442,7 +481,7 @@ function startListening(){
   try{ rec&&rec.stop(); }catch{}
   rec=new SR(); rec.continuous=true; rec.interimResults=true; rec.lang=navigator.language||"en-US";
   rec.onresult=ev=>{ let fin="",tmp=""; for(let i=ev.resultIndex;i<ev.results.length;i++){ const t=ev.results[i][0].transcript; if(ev.results[i].isFinal) fin+=t+" "; else tmp+=t; }
-    if(fin){ finalText=(finalText+" "+fin).trim(); $("transcriptLive").textContent=fin; vessel.pour(Math.min(60,words(fin)*6)); } else if(tmp&&tmp!==interim){ vessel.pour(2); } interim=tmp; heard(); clearTimeout(quietTimer); refresh(); if(!document.body.dataset.tilt){ document.body.dataset.tilt=1; vessel.tilt&&vessel.tilt(); } };
+    if(fin){ finalText=(finalText+" "+fin).trim(); $("transcriptLive").textContent=fin; vessel.pour(Math.min(60,words(fin)*6)); } else if(tmp&&tmp!==interim){ vessel.pour(2); } interim=tmp; heard(); clearTimeout(quietTimer); refresh(); };
   rec.onerror=e=>{ if(e.error==="not-allowed"||e.error==="service-not-allowed"){ wantListen=false; setListening(false); setMode("type",true); } };
   rec.onend=()=>{ if(wantListen){ setTimeout(()=>{ if(!wantListen) return; try{ rec.start(); }catch{ setListening(false);} },250); } else setListening(false); };
   wantListen=true;
@@ -456,7 +495,7 @@ function setMode(m,unsupported){
   if(m==="type"){ if(!$("typed").value&&finalText) $("typed").value=finalText; setTimeout(()=>$("typed").focus(),50); V.stirT=0.4; }
   refresh();
 }
-$("micBtn").onclick=()=>{ ensureAudio(); listening?stopListening():startListening(); };
+$("micBtn").onclick=()=>{ ensureAudio(); if(listening&&!document.body.dataset.tilt){ document.body.dataset.tilt=1; vessel.tilt(); } listening?stopListening():startListening(); };
 $("toType").onclick=()=>{ stopListening(); setMode("type"); };
 $("toMic").onclick=()=>setMode("mic");
 $("typed").oninput=()=>{ refresh(); vessel.pour(2); };
@@ -515,30 +554,37 @@ let live={}, streamDone=false, shownUpTo=-1;
 async function witness(){
   stopListening();
   let input=text().trim(); const w=input.split(/\s+/); if(w.length>MAX_WORDS){ input=w.slice(0,MAX_WORDS).join(" "); $("attendNote").textContent="The vessel holds the first 4,000 words."; } else $("attendNote").textContent="";
-  vessel.pour(120); show("witnessing"); vessel.mode("witnessing"); lowHum();
-  const started=Date.now(); live={}; streamDone=false; shownUpTo=-1; obs=null; step=0;
-  let crisis=false, opened=false;
+  vessel.pour(120); show("witnessing"); vessel.mode("witnessing"); lowHum(); $("attending").textContent="…reading it…"; vessel.sky(true); startDrift(input);
+  const started=Date.now(); live={}; streamDone=false; shownUpTo=-1; obs=null; step=0; let firstTok=false;
+  let crisis=false, opened=false, failed=false; const held={};
   const onText=(buf)=>{
     if(crisis) return;
-    if(/\{\s*"crisis"\s*:\s*true/.test(buf)){ crisis=true; return; }
-    for(let i=0;i<KEYS.length;i++){ if(live[KEYS[i]]) continue; const v=fieldReady(buf,KEYS[i],KEYS[i+1]||"__end__"); if(v){ live[KEYS[i]]=v; } else break; }
+    if(/\{\s*"crisis"\s*:\s*true/.test(buf)){ crisis=true; vessel.sky(false); stopDrift(); return; }
+    V.voiceT=Math.min(1,V.voiceT+0.35); clearTimeout(voiceDecay); voiceDecay=setTimeout(()=>{ V.voiceT=0; },200); /* the light flickers on every thought that lands */
+    if(!firstTok){ firstTok=true; attend("…reading it again…"); }
+    if(buf.includes('"question"')) attend("…finding the question…"); else if(buf.includes('"circled"')) attend("…finding the words that repeat…");
+    for(let i=0;i<KEYS.length;i++){ if(live[KEYS[i]]||held[KEYS[i]]) continue; const v=fieldReady(buf,KEYS[i],KEYS[i+1]||"__end__"); if(!v) break;
+      if(breaksLaw(v)){ held[KEYS[i]]=v; } else live[KEYS[i]]=v; } /* a field that breaks the law is held back and rewritten before it is ever shown */
     if(!opened&&live.heard){ opened=true;
-      setTimeout(()=>{ if(crisis) return; obs=live; vessel.burst(); chime(); vibrate(40); vessel.mode("observation"); setTimeout(showSection,500); }, Math.max(0,3200-(Date.now()-started))); }
+      setTimeout(()=>{ if(crisis||failed) return; vessel.inhale(); /* an intake of breath before speaking */
+        setTimeout(()=>{ if(crisis||failed) return; obs=live; vessel.sky(false); stopDrift(); vessel.burst(); chime(); vibrate(40); vessel.mode("observation"); setTimeout(showSection,500); },700); }, Math.max(0,2600-(Date.now()-started))); }
+    if(waiting&&live[KEYS[step]]) showSection();
   };
   try{
     const full=await thirdEye(input,onText);
-    let out; try{ out=extractJSON(full); }catch{ out=live; }
-    if(crisis||out.crisis===true){ finalText=""; vessel.mode("crisis"); return show("crisis"); }
+    let out; try{ out=extractJSON(full); }catch{ out=Object.assign({},live,held); }
+    if(crisis||out.crisis===true){ finalText=""; vessel.sky(false); stopDrift(); vessel.mode("crisis"); return show("crisis"); }
+    for(const k of KEYS){ if(held[k]&&!out[k]) out[k]=held[k]; }
     if(breaksLaw(KEYS.map(k=>out[k]||"").join(" "))||!complete(out)){
       try{ const again=extractJSON(await thirdEye(input+"\n\n[A previous observation of this transcript follows. It contained identity phrasing such as \"you are\" or was incomplete. Rewrite it obeying every law, keeping what was true.]\n"+JSON.stringify(out), null, MODELS[MODELS.length-1]));
            if(complete(again)){ for(let i=0;i<KEYS.length;i++){ if(i>shownUpTo) out[KEYS[i]]=again[KEYS[i]]; } } }catch{}
     }
     for(const k of KEYS){ live[k]=out[k]||live[k]; } obs=live; streamDone=true;
-    if(!opened){ opened=true; await new Promise(r=>setTimeout(r,Math.max(0,3200-(Date.now()-started)))); vessel.burst(); chime(); vibrate(40); vessel.mode("observation"); setTimeout(showSection,500); }
+    if(!opened){ opened=true; await new Promise(r=>setTimeout(r,Math.max(0,2600-(Date.now()-started)))); vessel.inhale(); await new Promise(r=>setTimeout(r,700)); vessel.sky(false); stopDrift(); vessel.burst(); chime(); vibrate(40); vessel.mode("observation"); setTimeout(showSection,500); }
     else if(waiting) showSection();
   }catch(e){
     if(opened&&obs&&obs.heard){ streamDone=true; if(waiting) showSection(); return; } /* the stream broke mid-reading: show what arrived */
-    vessel.mode("threshold");
+    failed=true; vessel.sky(false); stopDrift(); vessel.mode("threshold");
     if(e.message==="NO_KEY") return show("setup");
     if(e.rest||e.type==="rate_limit_error"){ $("errTitle").textContent="The witness is resting."; $("errSub").textContent="Return tomorrow."; }
     else if(e.status===529||e.type==="overloaded_error"){ $("errTitle").textContent="The witness is busy tonight."; $("errSub").textContent="Nothing was kept. Try again in a moment."; }
@@ -576,7 +622,7 @@ function showSection(){
 function advance(){
   if(waiting) return;
   if(typing){ clearTimeout(typing); typing=null; $("fline").innerHTML=lit(obs[SECTIONS[step][0]]); $("tapHint").textContent=step<4?"tap to continue":"tap when you’re ready"; return; }
-  const f=$("facet"); f.classList.remove("in");
+  const f=$("facet"); f.classList.remove("in"); V.voiceT=0.6; clearTimeout(voiceDecay); voiceDecay=setTimeout(()=>{ V.voiceT=0; },700);
   setTimeout(()=>{ if(step<4){ step++; showSection(); } else { vessel.hue("none"); vessel.mode("close"); show("close"); chime(); } },700);
 }
 $("observation").onclick=advance; $("observation").onkeydown=e=>{ if(e.key==="Enter"||e.key===" ") advance(); };
@@ -587,18 +633,19 @@ const screens=["threshold","witnessing","observation","close","crisis","error","
 function show(id){ screens.forEach(s=>{s.classList.remove("in");s.classList.remove("on");}); const el=$(id); el.classList.add("on"); requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add("in"))); window.scrollTo(0,0); }
 
 $("shareBtn").onclick=async()=>{ const url=location.origin+location.pathname+"?from=share"; try{ if(navigator.share) await navigator.share({title:"Would you like to be witnessed?",text:"A gift. Pour it in. Nothing is saved.",url}); else { await navigator.clipboard.writeText(url); $("shareBtn").textContent="link copied"; } }catch{} };
-function reset(){ try{ speechSynthesis&&speechSynthesis.cancel(); }catch{} vessel.hue("none"); finalText="";interim="";obs=null;live={};step=0;shownUpTo=-1;waiting=false;$("typed").value="";$("shareBtn").textContent="Witness someone you love — share this gift"; setMode(SR?"mic":"type",!SR); vessel.mode("threshold"); show("threshold"); ["k1","h1","s1","micMode"].forEach(i=>$(i).classList.add("in")); }
+function reset(){ try{ speechSynthesis&&speechSynthesis.cancel(); }catch{} vessel.sky(false); stopDrift(); vessel.hue("none"); finalText="";interim="";obs=null;live={};step=0;shownUpTo=-1;waiting=false;$("typed").value="";$("shareBtn").textContent="Witness someone you love — share this gift"; setMode(SR?"mic":"type",!SR); vessel.mode("threshold"); show("threshold"); ["k1","h1","s1","micMode"].forEach(i=>$(i).classList.add("in")); }
 $("againBtn").onclick=reset; $("retryBtn").onclick=reset; $("breatheBtn").onclick=reset;
 $("readBtn").onclick=()=>{ if(!obs) return; step=0; vessel.mode("observation"); showSection(); };
-$("keepBtn").onclick=()=>{ if(!obs||!obs.question) return; const W=1080,H=1920,c=document.createElement("canvas"); c.width=W; c.height=H; const x=c.getContext("2d");
+$("keepBtn").onclick=async()=>{ if(!obs||!obs.question) return; try{ await document.fonts.ready; }catch{} const W=1080,H=1920,c=document.createElement("canvas"); c.width=W; c.height=H; const x=c.getContext("2d");
   const bg=x.createRadialGradient(W/2,H*0.42,80,W/2,H*0.42,H*0.8); bg.addColorStop(0,"#1a1530"); bg.addColorStop(0.5,"#0b0a14"); bg.addColorStop(1,"#06050c"); x.fillStyle=bg; x.fillRect(0,0,W,H);
   for(let i=0;i<900;i++){ const u=Math.pow(Math.random(),0.8), a=Math.random()*6.283, R=(40+520*Math.pow(1-u,1.35)); const px=W/2+Math.cos(a)*R, py=H*0.16+u*H*0.5+Math.sin(a)*R*0.22;
     x.globalAlpha=0.15+Math.random()*0.6; x.fillStyle=Math.random()<0.8?"#E8C46A":(Math.random()<0.5?"#B7A2EE":"#6FB8B8"); x.beginPath(); x.arc(px,py,1+Math.random()*3,0,6.283); x.fill(); }
   const gl=x.createRadialGradient(W/2,H*0.66,0,W/2,H*0.66,260); gl.addColorStop(0,"rgba(255,244,214,.9)"); gl.addColorStop(0.3,"rgba(232,196,106,.35)"); gl.addColorStop(1,"rgba(0,0,0,0)"); x.globalAlpha=1; x.fillStyle=gl; x.fillRect(0,0,W,H);
   x.fillStyle="#6FB8B8"; x.font="500 30px Helvetica, Arial, sans-serif"; x.textAlign="center"; x.letterSpacing="10px"; x.fillText("THE QUESTION YOU DIDN’T ASK",W/2,H*0.74);
   x.fillStyle="#FFF3D0"; x.font="italic 500 66px 'Cormorant Garamond', Georgia, serif"; x.letterSpacing="0px"; x.shadowColor="rgba(232,196,106,.6)"; x.shadowBlur=40;
-  const wordsQ=obs.question.split(" "), lines=[]; let cur=""; for(const wd of wordsQ){ const test=(cur?cur+" ":"")+wd; if(x.measureText(test).width>W*0.8&&cur){ lines.push(cur); cur=wd; } else cur=test; } if(cur) lines.push(cur);
-  let y=H*0.80; for(const ln of lines){ x.fillText(ln,W/2,y); y+=84; }
+  const wrap=(size)=>{ x.font="italic 500 "+size+"px 'Cormorant Garamond', Georgia, serif"; const L=[]; let cur=""; for(const wd of obs.question.split(" ")){ const test=(cur?cur+" ":"")+wd; if(x.measureText(test).width>W*0.82&&cur){ L.push(cur); cur=wd; } else cur=test; } if(cur) L.push(cur); return L; };
+  let size=66, lines=wrap(size); while(lines.length>5&&size>44){ size-=6; lines=wrap(size); } const lh=size*1.28;
+  let y=Math.min(H*0.80, H-260-lines.length*lh); for(const ln of lines){ x.fillText(ln,W/2,y); y+=lh; }
   x.shadowBlur=0; x.fillStyle="#938BA6"; x.font="italic 34px 'Cormorant Garamond', Georgia, serif"; x.fillText("Take what resonates. Leave the rest.",W/2,y+40);
   x.fillStyle="#C9A44C"; x.font="500 26px Helvetica, Arial, sans-serif"; x.letterSpacing="8px"; x.fillText("KOILIBRARYOFFICIAL.COM",W/2,H-110);
   c.toBlob(async(b)=>{ const file=new File([b],"the-question.png",{type:"image/png"});
