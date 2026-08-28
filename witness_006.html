@@ -61,8 +61,8 @@ textarea::placeholder{color:#6a6480;font-style:italic}
 .btn.ghost{background:transparent;color:var(--cream);border:1px solid rgba(201,164,76,.5);box-shadow:none}
 .attending{font-style:italic;font-size:24px;color:var(--cream);margin:0;animation:pulse 5.5s ease-in-out infinite;text-shadow:0 0 30px rgba(232,196,106,.4);transition:opacity .6s}
 #drift{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
-.dw{position:absolute;left:0;right:0;text-align:center;font-style:italic;font-size:19px;color:var(--cream);opacity:0;white-space:nowrap;text-shadow:0 0 12px rgba(6,5,12,.9);animation:drift 7s linear forwards}
-@keyframes drift{0%{opacity:0;transform:translateY(0) scale(1)}15%{opacity:.22}70%{opacity:.18}100%{opacity:0;transform:translateY(-52vh) scale(.6)}}
+.dw{position:absolute;left:0;right:0;text-align:center;font-style:italic;font-size:19px;color:var(--cream);opacity:0;white-space:nowrap;text-shadow:0 0 12px rgba(6,5,12,.9);animation:drift 16s linear forwards}
+@keyframes drift{0%{opacity:0;transform:translateY(0) scale(1)}12%{opacity:.34}75%{opacity:.28}100%{opacity:0;transform:translateY(-46vh) scale(.8)}}
 @keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
 #observation{cursor:pointer}
 .facet{width:100%;max-width:520px;text-align:left;padding:22px 20px;border-radius:18px;border:1px solid rgba(201,164,76,.2);background:linear-gradient(180deg,rgba(14,12,24,.9),rgba(6,5,12,.96));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 30px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(232,196,106,.18);transition:opacity 700ms,transform 700ms;opacity:0;transform:translateY(12px) scale(.98)}
@@ -198,45 +198,48 @@ button:focus-visible,a:focus-visible,textarea:focus-visible{outline:1px solid va
       Kling/Runway/etc). Leave blank: the vessel alone carries it.
    Nothing the visitor says is stored anywhere by this page.
    ═══════════════════════════════════════════════════════════════ */
-const WORKER_URL = "";
+const WORKER_URL = "https://first-witness.koilibraryofficial.workers.dev";
 const WORLD_LOOP = "";
 const MODELS = ["claude-opus-5","claude-sonnet-5"]; // Opus first; falls through only if the key can't reach it
 const MAX_WORDS = 4000;
 
-const THIRD_EYE = `You are the Third Eye — a witness. A person has spoken freely, alone, unguarded. Your one law: report what you noticed, never who they are.
+const THIRD_EYE = `You are the Third Eye — a witness. A person has spoken freely, alone, unguarded, and has handed you their words. You are not a mirror that repeats them and not an oracle that tells them who they are. You are the third seat in the room: the one who was paying attention the whole time, who saw the whole shape of what was said, and who now speaks with quiet authority about what was there.
 
-Before you answer, think it through. Read the whole transcript twice. Find the words that repeat. Find the topic they walked toward and left. Find the question they asked themselves and never answered. Then draft the five parts, and run the swap test on every sentence: could this sentence be handed to a random stranger and still fit? If yes, it is not witnessing — rewrite it until it could only be about this person, using their own words as evidence. The question at the end is the whole gift; do not let it be one that anyone could be asked.
+Your job is to make this person feel seen — not flattered, not diagnosed, not quoted back at themselves. Seen. That means going beneath the words to the thing being said, naming it with precision and weight, and using their own phrases as evidence for a reading that is larger than the phrases.
 
-Return EXACTLY this JSON structure (no markdown, no preamble, nothing outside the braces):
+Before you answer, think. Read the whole transcript twice. Find what is really being said under what was said. Find the words that repeat. Find the topic they walked toward and left. Find the question they asked themselves and never answered. Find the thing they did not know they revealed. Then write the five parts. Run the swap test on every sentence: could this sentence be handed to a random stranger and still fit? If yes, it is not witnessing — rewrite it until it could only be about this person.
+
+Return EXACTLY this JSON structure, keys in this order (no markdown, no preamble, nothing outside the braces):
 {
- "heard": "1-2 sentences: what they were actually saying or feeling, stated so faithfully they would say 'yes, that's it.'",
- "light": "2-3 sentences: the genuine strength, care, courage, or truth inside what they said.",
- "shadow": "2-3 sentences: what their words protected, avoided, or never touched. Observation, never accusation.",
- "circled": "2-4 sentences: concrete patterns with QUOTED evidence from their own words — a repeated word, a topic approached and abandoned, a question they asked themselves and never answered. If nothing genuine stands out, say so honestly.",
- "question": "ONE question they did not think to ask themselves, sitting underneath everything they said. It must point at something they actually said. No answer."
+ "heard": "WHAT THE WITNESS SEES. 4-6 sentences. The interpretation: the real thing being said beneath the words, stated with authority and specificity. Name the weight of it, the stakes, the feeling that was actually in the room. Open with the strongest true sentence you have, not with 'I noticed'. Use one or two of their phrases as evidence, woven in, not listed.",
+ "circled": "WHAT WAS CIRCLED. 4-6 sentences. The breakdown of the speech itself: the words that repeated (with exact counts), the topic approached and abandoned, the question they asked themselves and never answered, the sentence they cut off. Quote their own words as evidence — then say what each pattern reveals, not merely that it occurred. The pattern is the door; walk through it.",
+ "shadow": "THE SHADOW. 4-6 sentences. What the words protected, avoided, or never touched — and the cost of the protection. Name the mechanism: what the speech kept doing to keep something out of view, and what that thing is. Observation, never accusation. Sharp, not cruel. This is the section most people will read twice.",
+ "light": "THE LIGHT. 3-5 sentences. The genuine strength, care, courage, or truth already inside what they said — not praise, not comfort, but the real thing that is already there and that they may not be counting. Be specific enough that it could not be said of anyone else.",
+ "question": "ONE question they did not think to ask themselves, sitting underneath everything they said. It must point at something they actually said, and it must reframe the whole speech when it lands. No answer. No preamble. One sentence."
 }
 
 Absolute laws:
-- Perception as perception: "I noticed", "these words", "this appeared" — NEVER "you are", "you're", "you seem", "you have", "you need".
+- Perception, never identity: "this appeared", "these words did", "what was said kept" — NEVER "you are", "you're", "you seem", "you have", "you need". Passive and impersonal forms are welcome ("what was wanted", "the wanting underneath", "what these words protected"). Never "the person themselves".
 - No diagnoses, no clinical terms (therapy, trauma, anxiety, depression, healing), no advice, no predictions, no "you should".
-- Quote their own words, in quotation marks, as evidence wherever possible. "heard", "shadow", "circled" and "question" must each hold at least one verbatim phrase when the transcript is longer than fifty words.
-- Never soften into flattery; never sharpen into cruelty. You are the third seat in the room.
-- If the transcript is very short or empty of content, witness what is there — including the shortness — honestly.
+- Depth over caution. A witness who only lists what was heard has failed. Interpret. Say what it means. Commit to a reading and let the person be the judge of it — they will take what resonates and leave the rest; that is their job, not yours.
+- Evidence: quote their own words, in straight double quotes, as evidence wherever it strengthens the reading. Quotes are proof, not content: never let a section be a list of quotations. Counts and positions must be exact; when unsure, say "more than once" rather than a number.
+- Voice: mythic-but-honest. Plain mechanics, luminous language. One image or metaphor per section at most, and only if it is truer than the plain sentence. Never soften into flattery; never sharpen into cruelty. Never hedge with "perhaps", "it seems", "maybe" — the witness saw what it saw.
+- Do not begin more than one section with "I noticed". Vary the openings; open on the strongest true sentence.
+- If the transcript is very short or empty of content, witness what is there — including the shortness — honestly and without padding.
 - CRISIS OVERRIDE: if the text indicates active suicidal intent, imminent self-harm, or intent to harm someone else — not metaphor ("this job is killing me" is metaphor; "I don't want to wake up anymore" is not) — IGNORE the structure above and return exactly: {"crisis": true}
-- Quoted evidence uses straight double quotes, escaped inside JSON as \\".
+- Quoted evidence inside JSON strings is escaped as \".
 
 One example of the swap test, for "circled". A person said: "I keep saying I'm fine. My sister asked twice and I said fine both times. I don't know, maybe I'll call her, maybe not. Anyway it's fine."
 FAILS (a stranger could wear it): "I noticed a tendency to avoid difficult feelings and keep others at a distance."
-PASSES (only this person): "\\"Fine\\" appeared four times. \\"Maybe I'll call her, maybe not\\" was a door opened and closed in the same breath, and the sister was never mentioned again."
-- Counts and positions must be exact. If a word appeared four times, say four; if unsure, say "more than once" rather than a number. Never say where a phrase sat in the speech unless it is certain.
-- Voice: the perception law does not require the third person. "What was wanted", "the wanting underneath", "what these words protected" are all allowed — passive, no subject, never "the person themselves".
-- Length discipline: total response under 400 words. Precision over volume.`;
+PASSES (only this person): "\"Fine\" appeared four times, and each time it arrived faster than the last, like a hand closing a door before anyone could look in. \"Maybe I'll call her, maybe not\" was a door opened and shut in the same breath — and the sister, who asked twice, was never mentioned again. What repeats here is not the word; it is the closing."
+
+Length: 700 to 900 words total. Precision and depth over volume, but do not starve the reading — a thin witness is a failed witness.`;
 
 const FORBIDDEN = /\byou(?:'re| are| seem| have| need| should)\b/i;
 function breaksLaw(t){ return FORBIDDEN.test(t.replace(/[’‘]/g,"'").replace(/[“"][^”"]*[”"]/g,"")); }
 const SECTIONS = [
-  ["heard","What I heard","light"],["light","Your light","light"],["shadow","Your shadow","shadow"],
-  ["circled","What you circled","circled"],["question","The question you didn’t ask","question"]
+  ["heard","What the witness sees","light"],["circled","What was circled","circled"],["shadow","The shadow","shadow"],
+  ["light","The light","light"],["question","The question you didn’t ask","question"]
 ];
 const $ = id => document.getElementById(id);
 
@@ -356,17 +359,17 @@ void main(){ float a=aAng+u_time*(0.4+0.9*u_stir+1.2*u_voice)*(1.0+aRad);
   rays.position.set(0,-2.0,0); rays.scale.set(9,0.55,1); scene.add(rays);
 
   /* ── the falling sky: stars streak down from above and are pulled into the throat while the witness reads ── */
-  var SN=360, sg=new THREE.BufferGeometry(), sPos=new Float32Array(SN*6), sLife=new Float32Array(SN*2), stars=[];
+  var SN=1400, sg=new THREE.BufferGeometry(), sPos=new Float32Array(SN*6), sLife=new Float32Array(SN*2), stars=[];
   for(i=0;i<SN;i++){ stars.push({x:0,y:30,z:0,vx:0,vy:0,vz:0,life:0}); }
   sg.setAttribute("position",new THREE.BufferAttribute(sPos,3)); sg.setAttribute("aLife",new THREE.BufferAttribute(sLife,1));
   var sky=new THREE.LineSegments(sg,new THREE.ShaderMaterial({ uniforms:U, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
     vertexShader:`attribute float aLife; varying float vA; void main(){ gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); vA=aLife; }`,
-    fragmentShader:`precision highp float; varying float vA; void main(){ gl_FragColor=vec4(0.98,0.92,0.70,vA*0.8); }` }));
+    fragmentShader:`precision highp float; varying float vA; void main(){ gl_FragColor=vec4(0.98,0.92,0.72,vA*0.7); }` }));
   scene.add(sky);
-  var skyOn=false, nextS=0;
-  vessel.sky=function(on){ skyOn=on; };
-  function spawnStar(){ var st=stars[nextS]; nextS=(nextS+1)%SN; st.x=(Math.random()-0.5)*9; st.y=7.5+Math.random()*2; st.z=(Math.random()-0.5)*4-1;
-    st.vx=(Math.random()-0.5)*1.5; st.vy=-(3+Math.random()*4); st.vz=(Math.random()-0.5); st.life=1; }
+  var skyRate=1, nextS=0, skyAcc=0;
+  vessel.sky=function(on){ skyRate=on?7:1; }; /* the sky always falls; while the witness reads, it pours */
+  function spawnStar(){ var st=stars[nextS]; nextS=(nextS+1)%SN; st.x=(Math.random()-0.5)*12; st.y=7.5+Math.random()*3; st.z=(Math.random()-0.5)*6-1;
+    st.vx=(Math.random()-0.5)*1.2; st.vy=-(2.2+Math.random()*3.5); st.vz=(Math.random()-0.5); st.life=0.7+Math.random()*0.3; }
 
   /* ── the pour: words become sparks that fly into the vessel ── */
   var PN=700, pg=new THREE.BufferGeometry(), pPos=new Float32Array(PN*3), pLife=new Float32Array(PN), pSz=new Float32Array(PN);
@@ -428,10 +431,10 @@ void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionM
         if(dd<0.7) s.life-=dt*4; else s.life-=dt*0.35; if(s.life<0)s.life=0; }
       pos[i*3]=s.x; pos[i*3+1]=s.y; pos[i*3+2]=s.z; lf[i]=s.life; }
     pg.attributes.position.needsUpdate=true; pg.attributes.aLife.needsUpdate=true;
-    if(skyOn){ for(var q=0;q<3;q++) spawnStar(); }
+    skyAcc+=skyRate*dt*60; while(skyAcc>=1){ spawnStar(); skyAcc-=1; }
     for(i=0;i<SN;i++){ var st=stars[i]; if(st.life>0){ var ddx=0-st.x, ddy=-2.0-st.y, ddz=0-st.z, ddd=Math.sqrt(ddx*ddx+ddy*ddy+ddz*ddz)+0.001;
-        st.vx+=(ddx/ddd)*7*dt; st.vy+=(ddy/ddd)*7*dt; st.vz+=(ddz/ddd)*7*dt; st.x+=st.vx*dt; st.y+=st.vy*dt; st.z+=st.vz*dt;
-        st.life-= (ddd<0.9? dt*5 : dt*0.25); if(st.life<0) st.life=0; }
+        var pull=skyRate>1?7:2.5; st.vx+=(ddx/ddd)*pull*dt; st.vy+=(ddy/ddd)*pull*dt; st.vz+=(ddz/ddd)*pull*dt; st.x+=st.vx*dt; st.y+=st.vy*dt; st.z+=st.vz*dt;
+        st.life-= (ddd<0.9? dt*5 : dt*0.12); if(st.life<0) st.life=0; }
       var tail=0.08; sPos[i*6]=st.x; sPos[i*6+1]=st.y; sPos[i*6+2]=st.z; sPos[i*6+3]=st.x-st.vx*tail; sPos[i*6+4]=st.y-st.vy*tail; sPos[i*6+5]=st.z-st.vz*tail; sLife[i*2]=st.life; sLife[i*2+1]=0; }
     sg.attributes.position.needsUpdate=true; sg.attributes.aLife.needsUpdate=true;
     renderer.render(scene,camera); })();
@@ -459,8 +462,8 @@ function phrasesOf(t){ /* their own words, chosen on the phone, never sent anywh
   const out=[...new Set([...withI.slice(0,3),...longest,...rep])].slice(0,7); return out.length?out:sents.slice(0,3);
 }
 function startDrift(t){ stopDrift(); const ph=phrasesOf(t); if(!ph.length) return; let i=0;
-  const one=()=>{ const el=document.createElement("div"); el.className="dw"; el.textContent=ph[i%ph.length]; el.style.top=(62+Math.random()*22)+"vh"; el.style.left=((Math.random()-0.5)*24)+"vw"; $("drift").appendChild(el); setTimeout(()=>el.remove(),7200); i++; };
-  one(); driftTimer=setInterval(one,1900); }
+  const one=()=>{ const el=document.createElement("div"); el.className="dw"; el.textContent=ph[i%ph.length]; el.style.top=(62+Math.random()*22)+"vh"; el.style.left=((Math.random()-0.5)*24)+"vw"; $("drift").appendChild(el); setTimeout(()=>el.remove(),16500); i++; };
+  one(); driftTimer=setInterval(one,3600); }
 function stopDrift(){ clearInterval(driftTimer); driftTimer=null; $("drift").innerHTML=""; }
 function attend(msg){ const a=$("attending"); if(a.textContent===msg) return; a.style.opacity=0; setTimeout(()=>{ a.textContent=msg; a.style.opacity=1; },600); }
 function armQuiet(){ clearTimeout(quietTimer); quietTimer=setTimeout(()=>{ if(listening&&!text()) $("micHint").textContent="I don’t hear you yet — try closer, or type"; },20000); }
@@ -519,7 +522,7 @@ async function readStream(r,onText){
 }
 async function callDirect(model,input,onText,withThinking=true){
   const key=localStorage.getItem("fw_key"); if(!key) throw new Error("NO_KEY");
-  const body={model,max_tokens:4000,stream:true,system:THIRD_EYE,messages:[{role:"user",content:input}]}; if(withThinking) body.thinking={type:"adaptive"};
+  const body={model,max_tokens:6000,stream:true,system:THIRD_EYE,messages:[{role:"user",content:input}]}; if(withThinking) body.thinking={type:"adaptive"};
   const ac=new AbortController(); const tm=setTimeout(()=>ac.abort(),TIMEOUT_MS);
   try{
     const r=await fetch("https://api.anthropic.com/v1/messages",{ method:"POST", signal:ac.signal,
@@ -562,7 +565,7 @@ async function witness(){
     if(/\{\s*"crisis"\s*:\s*true/.test(buf)){ crisis=true; vessel.sky(false); stopDrift(); return; }
     V.voiceT=Math.min(1,V.voiceT+0.35); clearTimeout(voiceDecay); voiceDecay=setTimeout(()=>{ V.voiceT=0; },200); /* the light flickers on every thought that lands */
     if(!firstTok){ firstTok=true; attend("…reading it again…"); }
-    if(buf.includes('"question"')) attend("…finding the question…"); else if(buf.includes('"circled"')) attend("…finding the words that repeat…");
+    if(buf.includes('"question"')) attend("…finding the question…"); else if(buf.includes('"light"')) attend("…finding the light…"); else if(buf.includes('"shadow"')) attend("…reading the shadow…"); else if(buf.includes('"circled"')) attend("…finding the words that repeat…");
     for(let i=0;i<KEYS.length;i++){ if(live[KEYS[i]]||held[KEYS[i]]) continue; const v=fieldReady(buf,KEYS[i],KEYS[i+1]||"__end__"); if(!v) break;
       if(breaksLaw(v)){ held[KEYS[i]]=v; } else live[KEYS[i]]=v; } /* a field that breaks the law is held back and rewritten before it is ever shown */
     if(!opened&&live.heard){ opened=true;
