@@ -163,11 +163,11 @@ nav{
   position:fixed;left:0;right:0;bottom:0;z-index:40;
   background:rgba(12,10,9,.94);backdrop-filter:blur(12px);
   border-top:1px solid var(--line);
-  display:grid;grid-template-columns:repeat(8,1fr);
+  display:grid;grid-template-columns:repeat(7,1fr);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
 nav{padding-left:2px;padding-right:2px}
-nav button{font-size:7.5px;letter-spacing:.06em;min-width:0;overflow:hidden;
+nav button{font-size:8.5px;letter-spacing:.06em;min-width:0;overflow:hidden;
   height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   color:var(--quiet);font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;
 }
@@ -657,7 +657,7 @@ input.filled,textarea.filled,select.filled{animation:fillFlash 1.5s ease both}
 
 
 /* payday grid — a month you tap, no keyboard involved */
-.daygrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:4px}
+.daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px}
 .daygrid button{
   aspect-ratio:1;border:1px solid var(--line);border-radius:10px;
   font-family:var(--mono);font-size:13px;color:var(--muted);
@@ -985,6 +985,48 @@ h2.sec{margin-top:30px}
 .row.autopaid .when::after{content:" · autopay";color:var(--held);font-family:var(--mono);font-size:9px;letter-spacing:.1em}
 .row.autopaid{opacity:.72}
 
+
+/* plain rows — a child reads top to bottom */
+.plainrows{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:6px;background:rgba(255,255,255,.012)}
+.prow{display:flex;align-items:baseline;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(41,35,32,.6)}
+.prow:last-child{border-bottom:none}
+.prow span{flex:1;font-size:14px;color:var(--muted)}
+.prow b{font-size:17px;font-weight:400}
+.prow.big{background:rgba(216,180,106,.05)}
+.prow.big span{color:var(--fg)} .prow.big b{font-size:21px;color:var(--gold)}
+.prow.dim span,.prow.dim b{color:var(--quiet);font-size:12.5px}
+.hand{display:flex;align-items:center;gap:11px;padding:12px 14px;border:1px solid var(--line);border-left:2px solid var(--warn);border-radius:12px;margin-bottom:7px;background:rgba(255,255,255,.012)}
+.hand.ok{border-left-color:var(--held)}
+.hand .hn{flex:1;font-size:14px}
+.hand .hw{font-family:var(--mono);font-size:10px;color:var(--quiet)}
+.hand .ha{font-size:14px}
+
+
+/* the briefing — the app speaks first */
+.brief2{border:1px solid rgba(216,180,106,.28);border-left:2px solid var(--gold);border-radius:16px;
+  padding:18px 18px 14px;margin-bottom:14px;
+  background:linear-gradient(180deg,rgba(216,180,106,.055),rgba(216,180,106,.012))}
+.brief2 p{font-size:15px;line-height:1.72;margin:0 0 15px;color:var(--fg)}
+.brief2 p:last-of-type{margin-bottom:12px}
+.brief2 b{color:var(--gold);font-weight:400}
+.brief2 .btn{margin-top:2px}
+
+
+/* the ring */
+.ringcard{border:1px solid var(--line);border-radius:16px;padding:16px 14px;background:rgba(255,255,255,.012)}
+.ringsvg{width:min(74vw,300px);display:block;margin:0 auto 8px}
+.ringseg{cursor:pointer;transition:opacity .2s}
+.ringseg:active{opacity:.7}
+.ringbig{font-family:var(--mono);font-size:19px;fill:var(--fg);letter-spacing:-.02em}
+.ringsub{font-family:var(--serif);font-size:9.5px;fill:var(--quiet)}
+.ringgap{font-family:var(--mono);font-size:11px}
+.ringlegend{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;
+  padding:7px 12px;font-family:var(--serif);font-size:12px;color:var(--muted);background:rgba(255,255,255,.02)}
+.chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chip b{font-family:var(--mono);font-size:11px;color:var(--fg)}
+.chip:active{border-color:var(--gold-dim)}
+
 </style>
 </head>
 <body>
@@ -1011,59 +1053,58 @@ h2.sec{margin-top:30px}
     </div>
   </div>
 
+  <div id="briefing"></div>
+
   <div class="hero">
-    <div class="hk" data-teach="free">Free to spend today</div>
-    <button class="hrchip" id="hrChip" onclick="askHours()" style="display:none">⏳ set your hour rate — see what money truly costs</button>
+    <div class="hk" data-teach="free">You can spend today</div>
     <div class="hv num" id="perDay">—</div>
-    <div class="hs" id="perDayU">State what comes in to see this.</div>
-    <div class="hmeta">
-      <div><div class="k">Until</div><div class="v num" id="hUntil">—</div></div>
-      <div><div class="k">Days to cross</div><div class="v num" id="hDays">—</div></div>
-      <div><div class="k">Bills first</div><div class="v num" id="hFirst">—</div></div>
-    </div>
+    <div class="hs" id="perDayU"></div>
   </div>
 
-  <div class="pillars">
-    <div class="pillar hold" data-x="have"><div class="k">You have</div><div class="v num" id="pHave">$0</div></div>
-    <div class="pillar bills" data-x="bills"><div class="k">Goes to bills</div><div class="v num" id="pBills">$0</div></div>
-    <div class="pillar free" data-x="exp"><div class="k">Expendable</div><div class="v num" id="pFree">$0</div></div>
+  <div class="plainrows">
+    <div class="prow" data-x="have"><span>Money you're holding</span><b class="num" id="pHave">$0</b></div>
+    <div class="prow" data-x="owed"><span>Bills still to pay this month</span><b class="num" id="pBills">$0</b></div>
+    <div class="prow big" data-x="exp"><span>Left after every bill</span><b class="num" id="pFree">$0</b></div>
+    <div class="prow dim" data-x="net"><span>Everything you own minus everything you owe</span><b class="num" id="nwBig">$0</b></div>
   </div>
 
-  <div class="streakrow" id="streakRow" style="display:none">
-    <span class="k">Gap held</span><span id="streakPips" style="display:flex;gap:6px"></span>
-    <span class="slab" id="streakLab"></span>
-  </div>
+  <h2 class="sec" data-teach="ring">The month, in one ring</h2>
+  <div id="ringWrap"></div>
 
-  <div class="nwline">
-    <div data-x="net"><div class="k">Net worth</div><div class="v num" id="nwBig">$0</div></div>
-    <svg class="spark" id="nwSpark" viewBox="0 0 88 34" preserveAspectRatio="none"></svg>
-  </div>
+  <h2 class="sec">Needs your hand soon</h2>
+  <div id="needHand"></div>
 
-  <div class="grid2">
-    <div class="stat" data-x="today"><div class="k">Due today</div><div class="v num" id="sToday">$0</div></div>
-    <div class="stat" data-x="week"><div class="k">Next 7 days</div><div class="v num" id="s7">$0</div></div>
-    <div class="stat" data-x="owed"><div class="k">Still owed this month</div><div class="v num" id="sOwed">$0</div></div>
-    <div class="stat" data-x="hold"><div class="k">What you hold</div><div class="v num" id="sHold">$0</div></div>
-  </div>
-
-  <div class="wheel">
-    <div class="wlabel">The month <span id="wheelMonth"></span></div>
-    <div class="days" id="wheel"></div>
-    <div class="pocket" id="pocket"></div>
-  </div>
-
-  <h2 class="sec" data-teach="crossing">The crossing</h2>
-  <div id="runway"></div>
-
-  <h2 class="sec">Standing today</h2>
+  <h2 class="sec">Every bill this month, in order</h2>
   <div id="todayList"></div>
 
   <div class="note" id="paydayNote"></div>
   <button class="btn quiet" id="btnPaydays">Set your paydays</button>
+
+  <div style="display:none">
+    <span id="hUntil"></span><span id="hDays"></span><span id="hFirst"></span><span id="hrChip" onclick="askHours()"></span>
+    <span id="streakRow"><span id="streakPips"></span><span id="streakLab"></span></span>
+    <svg id="nwSpark" viewBox="0 0 88 34"></svg>
+    <span id="sToday"></span><span id="s7"></span><span id="sOwed"></span><span id="sHold"></span>
+    <span id="wheelMonth"></span><span id="wheel"></span><span id="pocket"></span><span id="runway"></span>
+  </div>
 </section>
 
 <!-- ══════════════ BILLS ══════════════ -->
 <section class="panel" id="p-bills">
+
+  <h2 class="sec">What you hold <span class="tally num" id="tHold"></span></h2>
+  <div id="listHold"></div>
+  <button class="btn solid" onclick="openEditor(null,'asset')">Add what you hold</button>
+  <button class="btn" id="btnReconcile">Reconcile from a photo</button>
+  <button class="btn quiet" id="btnSeedCap">Add my Capital One accounts</button>
+  <button class="btn" id="btnTwins">Find twins — duplicate accounts</button>
+  <div class="note">Photograph your bank's account list. Every balance on screen is proposed against this list — matched by the last four digits — and nothing changes until you seal it. Accounts in your record that aren't on the screen are left alone and named, so you decide.</div>
+
+  <h2 class="sec">Marked for the cull</h2>
+  <div id="listCull"></div>
+  <div class="note">The cull is a verdict you write yourself, on the account's own page. Nothing here cancels anything — you do that out there, with the company.</div>
+
+  <h2 class="sec" style="margin-top:18px">Your bills</h2>
   <div id="noPayNote"></div>
   <h2 class="sec" data-teach="rooms">The rooms of your life <span class="tally num" id="tRooms"></span></h2>
   <div id="domainsWrap"></div>
@@ -1083,19 +1124,7 @@ h2.sec{margin-top:30px}
 </section>
 
 <!-- ══════════════ HOLD ══════════════ -->
-<section class="panel" id="p-hold">
-  <h2 class="sec">What you hold <span class="tally num" id="tHold"></span></h2>
-  <div id="listHold"></div>
-  <button class="btn solid" onclick="openEditor(null,'asset')">Add what you hold</button>
-  <button class="btn" id="btnReconcile">Reconcile from a photo</button>
-  <button class="btn quiet" id="btnSeedCap">Add my Capital One accounts</button>
-  <button class="btn" id="btnTwins">Find twins — duplicate accounts</button>
-  <div class="note">Photograph your bank's account list. Every balance on screen is proposed against this list — matched by the last four digits — and nothing changes until you seal it. Accounts in your record that aren't on the screen are left alone and named, so you decide.</div>
 
-  <h2 class="sec">Marked for the cull</h2>
-  <div id="listCull"></div>
-  <div class="note">The cull is a verdict you write yourself, on the account's own page. Nothing here cancels anything — you do that out there, with the company.</div>
-</section>
 
 <!-- ══════════════ PLAN ══════════════ -->
 <section class="panel" id="p-plan">
@@ -1227,8 +1256,7 @@ h2.sec{margin-top:30px}
 
 <nav>
   <button data-go="today" class="on"><span class="g">◔</span>Today</button>
-  <button data-go="bills"><span class="g">☰</span>Bills</button>
-  <button data-go="hold"><span class="g">◈</span>Hold</button>
+  <button data-go="bills"><span class="g">◈</span>Money</button>
   <button data-go="plan"><span class="g">◇</span>Plan</button>
   <button data-go="credit"><span class="g">◍</span>Credit</button>
   <button data-go="vehicle"><span class="g">➤</span>Vehicle</button>
@@ -1288,7 +1316,7 @@ h2.sec{margin-top:30px}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.33";
+const BUILD = "2026-08-08.36";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -1846,6 +1874,8 @@ function render(){
      cycle, and it hid itself by looking like "loading forever". */
   renderErrors=[];
   const step=(name,fn)=>{ try{ fn(); }catch(e){ renderErrors.push(name+": "+e.message); console.error(name,e); } };
+  step("brief",renderBriefing);
+  step("ring",renderRing);
   step("today",renderToday);
   step("bills",renderBills);
   step("nopay",renderNoPay);
@@ -1942,6 +1972,129 @@ function sortDue(list){
   });
 }
 
+/* ═══════════════════════════════════════════════════════════
+   THE BRIEFING
+   The app speaks before it is asked. Every number that matters,
+   in full sentences, in the order a person actually needs them:
+   where you stand, what's coming, what to do, what's worth
+   knowing. No taps required. This is the difference between a
+   dashboard and a guardian — a dashboard shows, a guardian tells.
+   ═══════════════════════════════════════════════════════════ */
+function hour(){ const h=new Date().getHours(); return h<12?"Morning":h<17?"Afternoon":"Evening"; }
+function plainDate(d){ return d.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}); }
+function renderBriefing(){
+  const el=$("briefing"); if(!el) return;
+  const who=deep().who?esc(deep().who):"";
+  const held=heldTotal(), ds=dailySpendable(), np=nextPayday();
+  const ord=killOrder().filter(d=>d.apr>0);
+  const c=credit(), v=vehicle(), M=myCardTotals();
+  const un=unpaidBills().filter(a=>!isAuto(a));
+  const soon=un.filter(a=>{const p=parseDueFor(a); return p.ok&&p.days<=7;});
+  const soonAmt=soon.reduce((s,a)=>s+amountDue(a),0);
+  const autos=fin.accounts.filter(a=>isDebt(a)&&isAuto(a)).length;
+  const P=[];
+
+  /* 1. Where you stand — the sentence that answers "how am I doing" */
+  P.push(`<b>${hour()}${who?", "+who:""}. Here is exactly where you stand.</b>`);
+  if(ds){
+    P.push(`You are holding <b>${money(held)}</b>. Your next paycheck lands <b>${plainDate(ds.date)}</b>, which is <b>${ds.days} day${ds.days===1?"":"s"}</b> from now. Between now and then, <b>${money(ds.before)}</b> of bills will come out on their own. You've told me never to let the account fall below <b>${money(ds.floor)}</b>. That leaves <b>${money(Math.max(0,ds.free))}</b> to actually live on — which is <b>${money(Math.max(0,ds.perDay))} a day</b>. Spend more than that and something bounces.`);
+  } else {
+    P.push(`You are holding <b>${money(held)}</b>. I don't know when your next paycheck lands, so I can't tell you what's safe to spend. Tell me your payday and this becomes one clear number every morning.`);
+  }
+
+  /* 2. What is coming — the week ahead, by name */
+  if(soon.length){
+    P.push(`<b>This week needs your hand.</b> ${soon.length} bill${soon.length===1?"":"s"} totalling <b>${money(soonAmt)}</b>: ` +
+      soon.sort((a,b)=>parseDueFor(a).days-parseDueFor(b).days).map(a=>{
+        const pp=parseDueFor(a);
+        return `${esc(a.name)} (${money(amountDue(a))}, ${pp.days<0?Math.abs(pp.days)+" days late":pp.days===0?"today":"in "+pp.days+" days"})`;
+      }).join(", ") + `.`);
+  } else if(autos){
+    P.push(`<b>Nothing needs your hand this week.</b> ${autos} of your bills pay themselves, and I clear them here as their dates pass — so an empty list means the month is working, not that something is missing.`);
+  }
+
+  /* 3. What to do — the single highest-value move, named */
+  if(ord.length){
+    const t=ord[0], bal=t.bal, apr=t.apr, mo=bal*apr/100/12;
+    const min=Number(t.a.min)||0;
+    P.push(`<b>The one thing worth doing with spare money:</b> ${esc(t.a.name)}. It charges you <b>${apr}%</b> — the highest rate you carry — which costs <b>${money(mo)} every month</b> just to keep owing it. ${min>0&&mo>=min?`Its minimum payment of ${money(min)} is <b>smaller than that interest</b>, so paying the minimum means the balance grows forever.`:min>0?`Only ${money(min-mo)} of the ${money(min)} minimum actually reduces what you owe.`:""} Every extra dollar you send here is worth more than a dollar sent anywhere else.`);
+  }
+
+  /* 4. Credit — because it prices everything he'll borrow */
+  if(c&&M){
+    P.push(`<b>Your credit is ${c.score}</b> — ${esc(c.band||"")}. Two things hold it down, and only two: your own cards are <b>${M.util.toFixed(0)}% full</b> (${money(M.bal)} against ${money(M.lim)} of limits), and <b>${c.factors.latePayments30Plus} accounts</b> have been 30+ days late. The first one moves fast — pay cards down and it re-reports within 30 to 45 days. The second only heals with time. Everything else about your file already scores Very Good or Exceptional.`);
+  }
+
+  /* 5. What is on the clock — anything with a real deadline */
+  if(v&&v.matures){
+    const days=Math.ceil((new Date(v.matures+"T12:00:00")-todayLocal())/86400000);
+    if(days>-30) P.push(`<b>The Jeep is on a clock: ${days} day${days===1?"":"s"}.</b> The lease matures ${plainDate(new Date(v.matures+"T12:00:00"))} and ${money(v.owed)} is owed on it. Buying it would cost ${money(v.buyout)} for something worth about ${money(v.marketValue)} — you'd owe ${money(v.negativeEquity)} more than the car is worth. Hand it back and that difference is not yours to pay. Until the extension answer comes, both roads need the same thing from you: hold cash.`);
+  }
+
+  /* 6. The month in one honest line */
+  if(deep().income.length){
+    const gap=theGap();
+    P.push(gap>0
+      ? `<b>Over a whole month</b>, ${money(netMonthly())} comes in and ${money(billsMonthly())} goes to bills — leaving <b>${money(gap)}</b>. That strip is the only material anything gets built from: savings, the down payment, the cards, all of it.`
+      : `<b>Over a whole month</b>, ${money(netMonthly())} comes in and ${money(billsMonthly())} goes out. More leaves than arrives by <b>${money(Math.abs(gap))}</b>. That is arithmetic, not a verdict — and there are only two levers: what leaves the Chosen list, and what comes in.`);
+  }
+
+  el.innerHTML=`<div class="brief2">${P.map(t=>`<p>${t}</p>`).join("")}
+    <button class="btn" id="briefAsk">Ask me anything about this</button></div>`;
+  const b=$("briefAsk"); if(b) b.onclick=()=>openGuardian("Walk me through my whole situation right now, in plain words, and tell me the order to do things in.");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE RING — the whole month in one shape
+   Income sits in the center. Around it, every room of your life
+   drawn to scale: the bigger the arc, the hungrier the room. The
+   unfilled remainder of the circle IS the gap — the money left
+   after every bill, visible as empty space. Tap any arc and it
+   tells you what lives inside it.
+   ═══════════════════════════════════════════════════════════ */
+const ROOM_HUES={shelter:"#e2b04a",transport:"#c98a5a",body:"#7fb069",connection:"#6aa7c9",
+  protection:"#8a7fc9",debt:"#c96a6a",pleasures:"#c9699e",growth:"#69c9b0",obligation:"#a3a3a3",unplaced:"#5a5a5a"};
+function renderRing(){
+  const el=$("ringWrap"); if(!el) return;
+  const inc=deep().income.length?netMonthly():0;
+  const t=domainTotals();
+  const rows=LIFE_ROOMS.map(d=>({d,m:t[d.id].monthly,n:t[d.id].count})).filter(r=>r.m>0);
+  if(!rows.length){ el.innerHTML=`<div class="empty">State some bills and the ring draws itself.</div>`; return; }
+  const total=rows.reduce((s,r)=>s+r.m,0);
+  const denom=Math.max(inc,total);
+  const R=74, C=2*Math.PI*R, GAP=Math.max(2,C*0.008);
+  let off=0, segs="";
+  rows.sort((a,b)=>b.m-a.m).forEach(r=>{
+    const frac=r.m/denom, len=Math.max(0.001,frac*C-GAP);
+    segs+=`<circle r="${R}" cx="100" cy="100" fill="none" stroke="${ROOM_HUES[r.d.id]||"#888"}"
+      stroke-width="17" stroke-linecap="round" stroke-dasharray="${len} ${C-len}"
+      stroke-dashoffset="${-off}" data-room="${r.d.id}" class="ringseg"/>`;
+    off+=frac*C;
+  });
+  const gapMoney=inc>0? inc-total : 0;
+  el.innerHTML=`
+    <div class="ringcard">
+      <svg viewBox="0 0 200 200" class="ringsvg">
+        <circle r="${R}" cx="100" cy="100" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="17"/>
+        <g transform="rotate(-90 100 100)">${segs}</g>
+        <text x="100" y="92" text-anchor="middle" class="ringbig">${inc>0?money(inc):money(total)}</text>
+        <text x="100" y="112" text-anchor="middle" class="ringsub">${inc>0?"comes in each month":"bills each month"}</text>
+        ${inc>0?`<text x="100" y="130" text-anchor="middle" class="ringgap" fill="${gapMoney>=0?"var(--held)":"var(--warn)"}">${money(gapMoney)} left</text>`:""}
+      </svg>
+      <div class="ringlegend">
+        ${rows.map(r=>`<button class="chip" data-room="${r.d.id}">
+          <i style="background:${ROOM_HUES[r.d.id]}"></i>${esc(r.d.name)} <b class="num">${money(r.m)}</b></button>`).join("")}
+        ${inc>0?`<button class="chip gapchip"><i style="background:transparent;border:1px dashed var(--held)"></i>Left over <b class="num">${money(gapMoney)}</b></button>`:""}
+      </div>
+      ${inc>0?`<div class="note">The empty part of the ring is your gap — <b>${money(gapMoney)}</b> that isn't promised to anyone. That's the money that builds the floor, kills the cards, and buys December.</div>`:""}
+    </div>`;
+  el.querySelectorAll("[data-room]").forEach(x=>x.onclick=()=>{
+    const id=x.dataset.room; domainOpen=id;
+    const nb=document.querySelector('nav button[data-go="bills"]'); if(nb) nb.onclick();
+    setTimeout(()=>{ const d=document.querySelector('.dom[data-dom="'+id+'"]'); d&&d.scrollIntoView({behavior:"smooth",block:"center"}); },250);
+  });
+}
+
 function renderToday(){
   const held=heldTotal(), owed=owedThisMonth(), left=held-owed;
   /* #hLeft and #hUnder belonged to the old headline block, replaced by the
@@ -1988,17 +2141,33 @@ function renderToday(){
   tick($("pFree"),expendable);
   $("pFree").style.color = expendable<0 ? "var(--warn)" : "var(--parchment)";
 
+  (function(){
+    const el=$("needHand"); if(!el) return;
+    const un=unpaidBills().filter(a=>!isAuto(a));
+    const soon=un.filter(a=>{const p=parseDueFor(a); return p.ok && p.days<=7;})
+                 .sort((a,b)=>parseDueFor(a).days-parseDueFor(b).days);
+    const autos=fin.accounts.filter(a=>isDebt(a)&&isAuto(a)).length;
+    el.innerHTML = (soon.length
+      ? soon.map(a=>{const pp=parseDueFor(a);
+          return `<div class="hand ${pp.days<0?"":"ok"}" data-id="${esc(a.id)}">
+            <div style="flex:1"><div class="hn">${esc(a.name)}</div>
+            <div class="hw">${pp.days<0?Math.abs(pp.days)+" day"+(Math.abs(pp.days)>1?"s":"")+" late":pp.days===0?"due today":"in "+pp.days+" day"+(pp.days>1?"s":"")}</div></div>
+            <div class="ha num">${money(amountDue(a))}</div></div>`;}).join("")
+      : `<div class="note">Nothing needs your hand this week.</div>`)
+      + (autos?`<div class="note">${autos} other bills pay themselves — they clear on their own as their days pass.</div>`:"");
+    el.querySelectorAll(".hand").forEach(r=>r.onclick=()=>{const a=fin.accounts.find(x=>x.id===r.dataset.id); if(a) openEditor(a);});
+  })();
   if(!ds){
     $("perDay").textContent="—"; $("perDay").className="hv num"; $("perDay").dataset.v=0;
-    $("perDayU").textContent="State when money comes in — on the Plan page — and this becomes the only number you need each morning.";
+    $("perDayU").textContent="Tell me your paydays and this becomes one simple number every morning: what you can spend without touching a single bill.";
     $("hUntil").textContent="—"; $("hDays").textContent="—"; $("hFirst").textContent="—";
     $("runway").innerHTML=`<div class="empty">The crossing shows day by day what happens between now and the next money landing. It needs a payday stated.</div>`;
   }else{
     tick($("perDay"),Math.max(0,ds.perDay));
     $("perDay").className="hv num "+(ds.perDay>0?"":"thin");
     $("perDayU").textContent = ds.perDay>0
-      ? "Spend this and every stated bill still clears, and you still land above your floor."
-      : "Nothing free. Bills landing before the next money exceed what you hold.";
+      ? "Spend up to this and every bill still gets paid, and you stay above your floor. Next paycheck: "+ds.date.toLocaleDateString("en-US",{month:"short",day:"numeric"})+"."
+      : "Nothing free right now — the bills landing before your next paycheck take everything you hold.";
     $("hUntil").textContent=ds.date.toLocaleDateString("en-US",{month:"short",day:"numeric"});
     $("hDays").textContent=ds.days;
     $("hFirst").textContent=money(ds.before);
@@ -3753,6 +3922,9 @@ const TEACH={
   whatif:{t:"What if…",
     kid:"A pretend-room. Flip a bill off and see what the world looks like without it — how much money comes back, how much faster a debt dies. Nothing real changes until you say so.",
     adult:"A sandbox over your real numbers: toggle any bill, add hypothetical income, and watch the gap, the yearly total, and the top debt's death date recompute live. It never writes to the record — when a cut is real, cull it through the bar or the editor."},
+  ring:{t:"The month, in one ring",
+    kid:"The number in the middle is what comes in each month. Each colored piece is one room of your life eating its share. The empty part of the circle is what's left over — the bigger the empty part, the more you can build.",
+    adult:"Monthly net income at center; each life domain drawn to scale around it, sorted hungriest first. The unfilled arc is the gap. Tap any segment to open that room's bills on the Money page. If bills exceed income, the ring fills completely and the center switches to the bills total."},
   rooms:{t:"The rooms of your life",
     kid:"Every bill feeds one room of your life — where you sleep, how you move, what you eat, who you talk to. The bars show which rooms eat the most. A room that eats too much can be put on a diet.",
     adult:"Bills grouped by life domain, ranked by monthly cost, with the one-check test on top: survival must fit inside a single paycheck, or the month has no building material. Tap a room to open it; tap a bill to move, shrink, or cull it. Guessed placements announce themselves until you confirm them."},
