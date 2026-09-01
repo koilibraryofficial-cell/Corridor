@@ -1074,6 +1074,52 @@ input:focus,textarea:focus{border-color:var(--iris-b);box-shadow:0 0 0 1px rgba(
 .gdockbtn.send{background:var(--prism);background-size:280% 100%;animation:prismshift 9s ease infinite;color:#0b0716}
 ::selection{background:rgba(106,93,240,.4)}
 
+
+/* ── the curator ── */
+#curatorOrb{position:fixed;right:14px;bottom:calc(var(--nav-h) + 118px);z-index:60;
+  width:52px;height:52px;border-radius:50%;font-size:22px;color:var(--gold);
+  background:rgba(13,10,28,.92);border:1px solid var(--line);
+  box-shadow:0 4px 22px rgba(6,4,15,.7);backdrop-filter:blur(8px)}
+#curatorOrb.on{border:1px solid transparent;background:
+  linear-gradient(rgba(13,10,28,.94),rgba(13,10,28,.94)) padding-box,
+  var(--prism) border-box;background-size:auto,280% 100%;
+  animation:prismshift 7s ease infinite;
+  box-shadow:0 0 26px rgba(106,93,240,.5),0 0 60px rgba(74,198,232,.25)}
+#curator{position:fixed;left:10px;right:10px;bottom:calc(var(--nav-h) + 64px);z-index:55;
+  border-radius:16px;padding:13px 14px 11px;display:none;
+  background:rgba(10,8,22,.94);backdrop-filter:blur(14px);
+  border:1px solid transparent;
+  background:linear-gradient(rgba(10,8,22,.94),rgba(10,8,22,.94)) padding-box,var(--prism) border-box;
+  background-size:auto,280% 100%;animation:prismshift 9s ease infinite;
+  box-shadow:0 12px 44px rgba(6,4,15,.8)}
+#curator.on{display:block}
+#curatorText{font-size:14px;line-height:1.62;color:var(--parchment);max-height:31vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#curatorText b{color:var(--gold);font-weight:400}
+#curatorText i{color:var(--chosen);font-style:normal}
+.currow{display:flex;gap:8px;margin-top:10px}
+.currow input{flex:1;border-radius:12px;padding:10px 13px;font-size:14px;background:rgba(6,4,15,.8);border:1px solid var(--line)}
+.currow button{width:42px;height:42px;border-radius:50%;font-size:17px;color:#0b0716;
+  background:var(--prism);background-size:280% 100%;animation:prismshift 9s ease infinite}
+body.guided main{filter:saturate(1.06)}
+body.guided main [data-teach],body.guided main [data-x],body.guided main .row,body.guided main .hand,
+body.guided main .chip,body.guided main .lever,body.guided main .dbill{outline:1px dashed rgba(106,93,240,.35);outline-offset:2px;border-radius:8px}
+
+
+.curtools{display:flex;align-items:center;gap:8px;margin-top:10px}
+.curtools button{border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:12px;
+  color:var(--gold-dim);background:rgba(6,4,15,.6);font-family:var(--mono);letter-spacing:.04em}
+.curtools button:active{color:var(--gold);border-color:var(--gold-dim)}
+#curCam,#curFile{width:38px;height:38px;padding:0;border-radius:50%;font-size:14px}
+#curAtt{font-family:var(--mono);font-size:10px;color:var(--chosen)}
+.curline{border-top:1px dashed rgba(106,93,240,.35);margin:11px 0}
+#curatorText .msg{margin:0 0 10px}
+#curatorText .msg .txt{max-width:100%;font-size:13.5px}
+#curatorText{max-height:38vh}
+
+
+.setrow{display:flex;gap:8px;align-items:center;margin-top:8px}
+.setstate{font-family:var(--mono);font-size:10px;color:var(--quiet);flex:1;text-align:right}
+
 </style>
 </head>
 <body>
@@ -1257,8 +1303,28 @@ input:focus,textarea:focus{border-color:var(--iris-b);box-shadow:0 0 0 1px rgba(
 
 <!-- ══════════════ LEDGER ══════════════ -->
 <section class="panel" id="p-ledger">
-  <h2 class="sec">The Guardian &amp; keys</h2>
-  <button class="btn solid" id="btnKeyLedger">API key · sound · the Guardian</button>
+  <h2 class="sec">Settings</h2>
+  <div class="field"><label>Anthropic API key — the Guardian's voice</label>
+    <input id="setKey" type="password" placeholder="sk-ant-…" autocomplete="off">
+    <div class="setrow">
+      <button class="btn" id="setKeySave">Save key</button>
+      <button class="btn quiet" id="setKeyClear">Remove</button>
+      <span class="setstate" id="setKeyState"></span>
+    </div>
+  </div>
+  <div class="field"><label>Mind — which engine thinks</label>
+    <div class="seg" id="setEngine" style="grid-template-columns:1fr 1fr">
+      <button data-m="claude-opus-5">Opus — deepest</button>
+      <button data-m="claude-sonnet-4-6">Steady — cheaper</button>
+    </div>
+  </div>
+  <div class="field"><label>Sound</label>
+    <div class="seg" id="setSound" style="grid-template-columns:1fr 1fr">
+      <button data-s="0">Chimes on</button>
+      <button data-s="1">Silent</button>
+    </div>
+  </div>
+  <button class="btn quiet" id="btnKeyLedger" style="display:none">legacy</button>
 
   <h2 class="sec">The picture</h2>
   <button class="btn" id="btnReveal">Open the Reveal</button>
@@ -1309,7 +1375,7 @@ input:focus,textarea:focus{border-color:var(--iris-b);box-shadow:0 0 0 1px rgba(
   <button data-go="credit"><span class="g">𓂀</span>Credit</button>
   <button data-go="vehicle"><span class="g">𓊝</span>Vehicle</button>
   <button data-go="counsel"><span class="g">𓁟</span>Counsel</button>
-  <button data-go="ledger"><span class="g">𓏞</span>Ledger</button>
+  <button data-go="ledger"><span class="g">𓏞</span>Settings</button>
 </nav>
 
 
@@ -1364,7 +1430,7 @@ input:focus,textarea:focus{border-color:var(--iris-b);box-shadow:0 0 0 1px rgba(
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.37";
+const BUILD = "2026-08-08.40";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -3322,7 +3388,7 @@ async function readDocuments(files){
     }
     content.push({type:"text",text:"Read these and return the JSON object described. Only what is actually printed."});
 
-    const body={model:"claude-sonnet-4-6",max_tokens:4000,system:READ_SYSTEM,messages:[{role:"user",content}]};
+    const body={model:AI_MODEL,max_tokens:4000,system:READ_SYSTEM,messages:[{role:"user",content}]};
     let res;
     if(PROXY_URL){
       res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -3453,7 +3519,7 @@ ${spec.context?"\nContext: "+spec.context:""}`;
         content.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:await shrinkImage(f)}});
     }
     content.push({type:"text",text:"Extract the fields. Only what is actually shown."});
-    const body={model:"claude-sonnet-4-6",max_tokens:700,system:sysFor(spec),messages:[{role:"user",content}]};
+    const body={model:AI_MODEL,max_tokens:700,system:sysFor(spec),messages:[{role:"user",content}]};
     let res;
     if(PROXY_URL){
       res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -3608,7 +3674,7 @@ async function guardianHands(msg,box,files){
   content.push({type:"text",text:"THE RECORD:\n"+handsSummary()+
     (files&&files.length?"\n\nThey attached "+files.length+" image"+(files.length===1?"":"s")+" — bank screens, bills, statements. Read the figures exactly as printed. A checking or savings balance matches the asset account with the closest name — propose an update to its balance. Unmatched accounts on screen become add ops. Never invent a number that isn't printed.":"")+
     "\n\nTHEIR WORDS:\n"+(msg||"Read what I attached and update the record to match it.")});
-  const body={model:"claude-sonnet-4-6",max_tokens:2000,system:HANDS_SYSTEM,
+  const body={model:AI_MODEL,max_tokens:2000,system:HANDS_SYSTEM,
     messages:[{role:"user",content}]};
   let res;
   if(PROXY_URL){
@@ -5133,7 +5199,7 @@ function openKeyDoor(){
       const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":localStorage.getItem("koil_api_key")||"",
                  "anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:8,messages:[{role:"user",content:"ok"}]})});
+        body:JSON.stringify({model:AI_MODEL,max_tokens:8,messages:[{role:"user",content:"ok"}]})});
       const d=await r.json();
       toast(r.ok ? "The key works." : "Refused: "+((d.error&&d.error.message)||r.status));
     }catch(e){ toast("Couldn't reach it: "+e.message); }
@@ -5163,6 +5229,7 @@ async function converse(box,q,files){
     }
   }catch(e){
     const wEl=$(tid); if(wEl) wEl.outerHTML="";
+    if(modelFallback(e.message)){ /* fell back — user resends */ }
     if(q) ask(q,box,files);
     else box.insertAdjacentHTML("beforeend",`<div class="msg"><div class="who">The Guardian</div><div class="txt" style="color:var(--warn)">Couldn't read that: ${esc(e.message)}</div></div>`);
   }
@@ -5304,7 +5371,7 @@ async function ask(q,box,files){
   box.insertAdjacentHTML("beforeend",`<div class="msg me"><div class="who">You</div><div class="txt">${esc(q)}</div></div>`);
   const id="m"+uid();
   box.insertAdjacentHTML("beforeend",`<div class="msg" id="${id}"><div class="who">The Guardian</div><div class="txt" style="color:var(--quiet)">reading the record…</div></div>`);
-  box.lastElementChild.scrollIntoView({block:"nearest",behavior:"smooth"});
+  box.lastElementChild.scrollIntoView&&box.lastElementChild.scrollIntoView({block:"nearest",behavior:"smooth"});
   const content=[];
   for(const f of (files||[])){
     if(f.type==="application/pdf")
@@ -5315,7 +5382,7 @@ async function ask(q,box,files){
   content.push({type:"text",text:"THE RECORD AS STATED:\n"+ledgerSummary()+
     (files&&files.length?"\n\nThey also attached "+files.length+" image"+(files.length===1?"":"s")+". Read them as part of the question. Never invent anything they don't show.":"")+
     "\n\nTHEIR QUESTION:\n"+q});
-  const body={model:"claude-sonnet-4-6",max_tokens:4000,system:SYSTEM,
+  const body={model:AI_MODEL,max_tokens:4000,system:SYSTEM,
     messages:[{role:"user",content}]};
   try{
     let res;
@@ -5358,8 +5425,152 @@ document.querySelectorAll("nav button").forEach(b=>{
     document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+b.dataset.go));
     window.scrollTo({top:0,behavior:"instant"});
     if(b.dataset.go==="today"){ Lamp.fit(); Lamp.wake(); }
+    if(typeof curatorPage==="function") curatorPage(b.dataset.go);
   };
 });
+
+/* ═══════════════════════════════════════════════════════════
+   THE CURATOR 𓂀
+   The palace, given a voice. Toggle the eye and the room you're
+   standing in introduces itself; touch anything and it is
+   explained instead of activated; ask anything and the Guardian
+   answers with the page already in its hands. Off by one tap —
+   the palace goes quiet again.
+   ═══════════════════════════════════════════════════════════ */
+/* The Curator thinks with the strongest mind available. If a key can't
+   reach Opus, it falls back to Sonnet once and remembers the choice. */
+let AI_MODEL = localStorage.getItem("koil_model") || "claude-opus-5";
+function modelFallback(msg){
+  if(AI_MODEL!=="claude-sonnet-4-6" && /model|not_found|invalid|permission/i.test(String(msg||""))){
+    AI_MODEL="claude-sonnet-4-6"; localStorage.setItem("koil_model",AI_MODEL);
+    toast("Switched to the steady engine — send that again."); return true;
+  } return false;
+}
+let guideOn=false;
+function curatorSay(html){ const t=$("curatorText"); if(t){ t.innerHTML=html; t.scrollTop=0; } }
+function pageName(){ const b=document.querySelector("nav button.on"); return b?b.dataset.go:"today"; }
+function curatorIntro(page){
+  const held=heldTotal();
+  switch(page){
+    case "today": { const ds=dailySpendable();
+      return `This is the <b>Hall of the Present</b>. It answers one question: what can you do <i>today</i> without breaking a promise. ${ds?`Right now the answer is <b>${money(Math.max(0,ds.perDay))}</b> a day.`:""} Touch anything here and I'll tell you what it is.`; }
+    case "bills": return `The <b>Hall of Money</b> — everything you hold (${money(held)}) and everything with a claim on it, sorted into the rooms of a life. Touch any bill and I'll tell you what it is, what it costs, and whether it pays itself.`;
+    case "plan": return `The <b>Map Room</b> — where the month is drawn before it happens: the gap, the goals, the order your debts should die in. Touch a number and I'll unfold it.`;
+    case "credit": { const c=credit();
+      return `The <b>Hall of Reputation</b>. ${c?`Your name is currently worth <b>${c.score}</b> to lenders — this room shows the only two levers that move it, and prices each one.`:"State your credit file and this room fills."} Touch either lever and I'll explain it like you're ten.`; }
+    case "vehicle": { const v=vehicle();
+      return `The <b>Boat House</b> 𓊝. ${v?`The Jeep's lease ends in a counted number of days, and this room holds both roads. The frightening number here — the negative equity — is only real if you buy. Touch it and I'll prove it.`:"No vehicle stated yet."}`; }
+    case "counsel": return `The <b>Council Chamber</b> — the grade of your whole standing, the sit-down brief, the what-if bench where you can flip bills off and watch the world change without touching the record. Touch anything.`;
+    case "ledger": return `The <b>Scriptorium</b> 𓏞 — where the record itself is kept, exported, imported, and proven. The Version line here is the truth of which build you're running.`;
+  }
+  return "Walk the palace. Touch anything and I'll explain it.";
+}
+function curatorPage(page){ if(guideOn) curatorSay(curatorIntro(page)); }
+function billStory(a){
+  const p=parseDueFor(a), amt=amountDue(a), apr=aprOf(a), auto=isAuto(a), paid=isPaid(a);
+  const room=(LIFE_ROOMS.find(d=>d.id===domainOf(a).id)||{}).name||"";
+  let s=`<b>${esc(a.name)}</b>. `;
+  if(!isDebt(a)) return s+`A place money sits — currently <b>${money(a.balance)}</b>. It counts toward what you hold.`;
+  if(amt>0) s+=`It asks for <b>${money(amt)}</b>${p.ok?" around the "+esc(String(a.due)):""} each month. `;
+  if(Math.abs(a.balance)>amt) s+=`The whole debt behind it is <b>${money(Math.abs(a.balance))}</b>. `;
+  if(apr>0) s+=`It charges <b>${apr}%</b> — ${money(Math.abs(a.balance)*apr/100/12)} of every month is pure interest. `;
+  s+= paid? (auto&&a.paidMonth!==currentMonth()? `It pays itself, and this month's has already gone through — nothing for you to do. `:`Already paid this month. `)
+          : (p.ok&&p.days<0? `<b>It is ${Math.abs(p.days)} days late and needs your hand.</b> `:`Not yet paid this month. `);
+  if(room) s+=`It lives in the <b>${esc(room)}</b> room of your life.`;
+  return s;
+}
+function curatorExplain(t){
+  const acctEl=t.closest("[data-id],[data-acct]");
+  if(acctEl){ const a=fin.accounts.find(x=>x.id===(acctEl.dataset.id||acctEl.dataset.acct)); if(a){ curatorSay(billStory(a)); return true; } }
+  const teachEl=t.closest("[data-teach]");
+  if(teachEl){ const L=TEACH[teachEl.dataset.teach]; if(L){ curatorSay(`<b>${esc(L.t)}.</b> ${esc(L.kid)}`); return true; } }
+  const xEl=t.closest("[data-x]");
+  if(xEl){ const k=xEl.dataset.x, L=TEACH[k==="hold"?"have":k==="owed"?"bills":k];
+    curatorSay(`<b>${esc((L||{}).t||"This number")}.</b> ${esc((L||{}).kid||"")} Touch it again with me switched off and it will show you the full receipts.`); return true; }
+  const roomEl=t.closest("[data-room],[data-dom]");
+  if(roomEl){ const id=roomEl.dataset.room||roomEl.dataset.dom; const d=LIFE_ROOMS.find(x=>x.id===id);
+    if(d){ const tt=domainTotals()[id]; curatorSay(`<b>The ${esc(d.name)} room.</b> ${tt.count} bill${tt.count===1?"":"s"} live here, eating <b>${money(tt.monthly)}</b> of every month. The bigger this room, the more of your working life it swallows.`); return true; } }
+  const seg=t.closest(".lever,.scorecard,.vcount,.vequity,.gradecard,.brief2,.ringcard,.hero,.plainrows,.simwrap");
+  if(seg){ const key=seg.classList.contains("lever")?"levers":seg.classList.contains("scorecard")?"score":
+      seg.classList.contains("vcount")?"vehicle":seg.classList.contains("vequity")?"equity":
+      seg.classList.contains("gradecard")?"grade":seg.classList.contains("ringcard")?"ring":
+      seg.classList.contains("simwrap")?"simulate":seg.classList.contains("hero")?"free":null;
+    const L=key&&TEACH[key];
+    if(L){ curatorSay(`<b>${esc(L.t)}.</b> ${esc(L.kid)}`); return true; }
+    if(seg.classList.contains("brief2")){ curatorSay(`<b>The morning briefing.</b> I write this from your real record every time the page opens — where you stand, what's coming, and the one move worth making. Nothing in it is generic.`); return true; }
+    if(seg.classList.contains("plainrows")){ curatorSay(`<b>The four plain truths.</b> What you hold, what the month still asks, what's left after, and what you're worth when everything owed is subtracted. Touch any one with me off to see its receipts.`); return true; } }
+  return false;
+}
+document.addEventListener("click",function(e){
+  if(!guideOn) return;
+  const t=e.target;
+  if(t.closest("#curator")||t.closest("#curatorOrb")||t.closest("nav")||t.closest(".sheet")||t.closest(".scrim")||t.closest(".speakdock")) return;
+  if(!t.closest("main")) return;
+  if(curatorExplain(t)){ e.preventDefault(); e.stopPropagation(); buzz(6); }
+  else { const txt=(t.textContent||"").trim().slice(0,60);
+    curatorSay(`I don't have a card for that yet. Ask me below and I'll answer properly${txt?` — I can see it says “${esc(txt)}”`:""}.`); e.preventDefault(); e.stopPropagation(); }
+},true);
+(function(){
+  const orb=document.createElement("button");
+  orb.id="curatorOrb"; orb.innerHTML="𓂀"; orb.setAttribute("aria-label","The Curator");
+  document.body.appendChild(orb);
+  const panel=document.createElement("div");
+  panel.id="curator";
+  panel.innerHTML=`<div id="curatorText"></div>
+    <div class="curtools">
+      <button id="curCam" title="Snap">◉</button>
+      <button id="curFile" title="Attach">⌫</button>
+      <span id="curAtt"></span>
+    </div>
+    <div class="currow">
+      <input id="curatorIn" placeholder="Ask anything — or attach a statement, photo, or ledger…" autocomplete="off">
+      <button id="curatorAsk">𓂀</button>
+    </div>`;
+  document.body.appendChild(panel);
+  orb.onclick=()=>{ guideOn=!guideOn;
+    orb.classList.toggle("on",guideOn);
+    panel.classList.toggle("on",guideOn);
+    document.body.classList.toggle("guided",guideOn);
+    if(guideOn) curatorSay(`<b>I am the Curator of this palace.</b> Every room here is built from your real life. Touch anything — a bill, a number, a ring — and I will tell you what it is in plain words. Ask me anything below. Tap my eye again and I go quiet.`);
+    buzz(10);
+  };
+  const curAttN=()=>{ const a=$("curAtt"); if(a) a.textContent=(guardianFiles&&guardianFiles.length)?guardianFiles.length+" attached":""; };
+  $("curCam").onclick=()=>{ if(!hasKey())return openKeyDoor(); if(guardianFiles===null)guardianFiles=[]; $("camIn").click(); setTimeout(curAttN,600); };
+  $("curFile").onclick=()=>{ if(!hasKey())return openKeyDoor(); if(guardianFiles===null)guardianFiles=[]; $("docIn").click(); setTimeout(curAttN,600); };
+
+  $("curatorAsk").onclick=()=>{
+    const q=($("curatorIn").value||"").trim();
+    const f=(guardianFiles||[]).slice();
+    if(!q&&!f.length) return;
+    $("curatorIn").value=""; if(guardianFiles) guardianFiles.length=0; curAttN();
+    if(!hasKey()){ openKeyDoor(); return; }
+    /* the Curator answers in its own panel, with the page in hand —
+       full converse pipeline: statements propose changes, questions get answers */
+    const box=$("curatorText");
+    box.insertAdjacentHTML("beforeend",`<div class="curline"></div>`);
+    converse(box, (q?("(( I'm on the "+pageName()+" page. )) "+q):q), f);
+  };
+  $("curatorIn").addEventListener("keydown",e=>{ if(e.key==="Enter") $("curatorAsk").onclick(); });
+})();
+(function(){
+  const st=()=>{ const k=localStorage.getItem("koil_api_key")||"";
+    $("setKeyState").textContent = k? "✓ key held · ends "+k.slice(-4) : "no key — the Guardian sleeps";
+    $("setKey").value="";
+    $("setEngine").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.m===AI_MODEL));
+    const mute=localStorage.getItem("koil_treasury_mute")==="1";
+    $("setSound").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.s===(mute?"1":"0")));
+  };
+  $("setKeySave").onclick=()=>{ const v=($("setKey").value||"").trim();
+    if(!v) return toast("Paste the key first.");
+    localStorage.setItem("koil_api_key",v); toast("Key held."); buzz(10); st(); render(); if(typeof renderAIGate==="function") renderAIGate(); };
+  $("setKeyClear").onclick=()=>{ localStorage.removeItem("koil_api_key"); toast("Key removed."); st(); if(typeof renderAIGate==="function") renderAIGate(); };
+  $("setEngine").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    AI_MODEL=b.dataset.m; localStorage.setItem("koil_model",AI_MODEL); buzz(8); st();
+    toast(b.dataset.m.includes("opus")?"Opus thinks now — deepest, costs more.":"Steady engine — quick and cheap."); });
+  $("setSound").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    localStorage.setItem("koil_treasury_mute",b.dataset.s); buzz(6); st(); if(b.dataset.s==="0") chime(659,.05); });
+  st();
+})();
 $("btnExport").onclick=exportLedger;
 $("btnImport").onclick=()=>$("fileIn").click();
 $("fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importLedger(r.result);r.readAsText(f);e.target.value="";};
@@ -5523,7 +5734,7 @@ function routeFiles(f){
     return;
   }
   if(visionPending) Vision.run(f);          // a specific question asked for this
-  else if(guardianFiles!==null) attachToGuardian(f);
+  else if(guardianFiles!==null){ attachToGuardian(f); const a=$("curAtt"); if(a) a.textContent=guardianFiles.length+" attached"; }
   else readDocuments(f);                    // the full-statement reader
 }
 $("camIn").onchange=e=>{const f=[...e.target.files];e.target.value="";routeFiles(f);};
