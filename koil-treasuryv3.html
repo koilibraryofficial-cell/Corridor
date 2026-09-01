@@ -24,19 +24,26 @@
    TOKENS — dark, serif + mono, gold. Calm.
    ───────────────────────────────────────────────────────────── */
 :root{
-  --ink:#0c0a09;          /* the dark of a closed room */
-  --ink-2:#141110;        /* card */
-  --ink-3:#1c1816;        /* raised */
-  --line:#2a2421;         /* hairline */
-  --gold:#d8b46a;         /* the lamp */
-  --gold-dim:#8d7440;
-  --parchment:#e8e0d2;    /* body text */
-  --muted:#9a8f80;
-  --quiet:#6b6259;
-  --survival:#d8b46a;     /* gold = must live */
-  --chosen:#7fa3a8;       /* cool = chosen */
-  --held:#8fae7a;         /* green = what you hold */
-  --warn:#c98a5a;         /* warm clay, never red */
+  /* ── THE BIFROST ──
+     Deep space under the bridge; starlight text; the prism where
+     the light lands; kingdom gold for what matters. */
+  --ink:#06040f;          /* the void the bridge crosses */
+  --ink-2:#0d0a1c;        /* card — nebula glass */
+  --ink-3:#151129;        /* raised */
+  --line:#241d42;         /* hairline — dim violet */
+  --gold:#f2c86b;         /* kingdom gold — the lamp of Ra */
+  --gold-dim:#98793f;
+  --parchment:#eceaff;    /* starlight text */
+  --muted:#a49ec4;
+  --quiet:#6b648f;
+  --survival:#f2c86b;     /* gold = must live */
+  --chosen:#7fd4d8;       /* glacial cyan = chosen */
+  --held:#7fe0a8;         /* aurora green = what you hold */
+  --warn:#e08a6a;         /* ember, never red */
+  --iris-a:#6a5df0;       /* the prism: violet */
+  --iris-b:#4ac6e8;       /*             cyan  */
+  --iris-c:#e06ad8;       /*             magenta */
+  --prism:linear-gradient(100deg,var(--iris-a),var(--iris-b) 30%,var(--held) 50%,var(--gold) 70%,var(--iris-c));
   --serif:"Fraunces","Iowan Old Style",Palatino,Georgia,serif;
   --mono:"JBMono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --r:14px;
@@ -45,6 +52,17 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--ink);color:var(--parchment)}
+body::before{content:"";position:fixed;inset:-20%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(42% 30% at 78% 6%,rgba(106,93,240,.16),transparent 65%),
+    radial-gradient(36% 26% at 12% 20%,rgba(74,198,232,.10),transparent 60%),
+    radial-gradient(50% 36% at 50% 110%,rgba(224,106,216,.10),transparent 62%),
+    radial-gradient(30% 22% at 90% 80%,rgba(242,200,107,.07),transparent 60%);
+  animation:aurora 26s ease-in-out infinite alternate}
+@keyframes aurora{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-2.5%,1.5%,0) scale(1.06)}}
+#rain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.10}
+@media (prefers-reduced-motion:reduce){body::before{animation:none}#rain{display:none}}
+main,header,nav,.sheet,.scrim{position:relative;z-index:1}
 body{
   font-family:var(--serif);
   font-size:17px;line-height:1.5;
@@ -1027,6 +1045,35 @@ h2.sec{margin-top:30px}
 .chip b{font-family:var(--mono);font-size:11px;color:var(--fg)}
 .chip:active{border-color:var(--gold-dim)}
 
+
+/* ── bifrost accents ── */
+header{border-bottom:1px solid transparent;border-image:var(--prism) 1;border-image-slice:0 0 1 0}
+.btn.solid{background:var(--prism);background-size:280% 100%;color:#0b0716;
+  animation:prismshift 9s ease infinite;border:none;text-shadow:none;font-weight:600}
+@keyframes prismshift{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+nav button.on{color:var(--parchment)}
+nav button.on .g{background:var(--prism);background-size:240% 100%;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;animation:prismshift 7s ease infinite;filter:drop-shadow(0 0 7px rgba(106,93,240,.55))}
+nav button.on::after{content:"";position:absolute;left:22%;right:22%;bottom:5px;height:2px;border-radius:2px;
+  background:var(--prism);background-size:240% 100%;animation:prismshift 7s ease infinite}
+nav button{position:relative}
+h2.sec{display:flex;align-items:center;gap:10px}
+h2.sec::before{content:"𓂀";font-size:12px;color:var(--gold-dim);filter:drop-shadow(0 0 5px rgba(242,200,107,.35))}
+h2.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),rgba(106,93,240,.5),transparent)}
+.hero{border:1px solid rgba(106,93,240,.34);box-shadow:0 0 34px rgba(106,93,240,.10) inset,0 0 26px rgba(74,198,232,.06)}
+.brief2{border-left:2px solid transparent;border-image:var(--prism) 1;border-image-slice:0 0 0 2;
+  box-shadow:0 0 30px rgba(106,93,240,.08) inset}
+.gradecard,.scorecard,.ringcard{box-shadow:0 0 26px rgba(106,93,240,.09) inset}
+.sheet{box-shadow:0 -18px 60px rgba(6,4,15,.9),0 0 40px rgba(106,93,240,.14)}
+.sheetX{border:1px solid var(--line)}
+.grab::before{content:"☥";color:var(--gold-dim);font-size:13px;display:block;text-align:center;line-height:1}
+.vow .box{border-color:var(--gold-dim)}
+.milestone .mg{filter:drop-shadow(0 0 10px rgba(242,200,107,.6))}
+input,textarea{background:rgba(13,10,28,.85)}
+input:focus,textarea:focus{border-color:var(--iris-b);box-shadow:0 0 0 1px rgba(74,198,232,.35),0 0 18px rgba(74,198,232,.12)}
+.gdockbtn.send{background:var(--prism);background-size:280% 100%;animation:prismshift 9s ease infinite;color:#0b0716}
+::selection{background:rgba(106,93,240,.4)}
+
 </style>
 </head>
 <body>
@@ -1038,6 +1085,7 @@ h2.sec{margin-top:30px}
   <button class="keydoor" id="keyDoor" aria-label="The Guardian and your key">◆</button>
 </header>
 
+<canvas id="rain" aria-hidden="true"></canvas>
 <main>
 
 <!-- ══════════════ TODAY ══════════════ -->
@@ -1255,13 +1303,13 @@ h2.sec{margin-top:30px}
 </div>
 
 <nav>
-  <button data-go="today" class="on"><span class="g">◔</span>Today</button>
-  <button data-go="bills"><span class="g">◈</span>Money</button>
-  <button data-go="plan"><span class="g">◇</span>Plan</button>
-  <button data-go="credit"><span class="g">◍</span>Credit</button>
-  <button data-go="vehicle"><span class="g">➤</span>Vehicle</button>
-  <button data-go="counsel"><span class="g">❖</span>Counsel</button>
-  <button data-go="ledger"><span class="g">⎘</span>Ledger</button>
+  <button data-go="today" class="on"><span class="g">𓇳</span>Today</button>
+  <button data-go="bills"><span class="g">𓋹</span>Money</button>
+  <button data-go="plan"><span class="g">𓊖</span>Plan</button>
+  <button data-go="credit"><span class="g">𓂀</span>Credit</button>
+  <button data-go="vehicle"><span class="g">𓊝</span>Vehicle</button>
+  <button data-go="counsel"><span class="g">𓁟</span>Counsel</button>
+  <button data-go="ledger"><span class="g">𓏞</span>Ledger</button>
 </nav>
 
 
@@ -1316,7 +1364,7 @@ h2.sec{margin-top:30px}
 const PROXY_URL = "";
 
 let renderErrors=[];
-const BUILD = "2026-08-08.36";
+const BUILD = "2026-08-08.37";
 const REALM_KEY  = "koilstore:koil-realm-v1";
 const SOLO_KEY   = "koilstore:koil-treasury-solo-v1";  // used only if no Realm record exists here
 const LOCAL_KEY  = "koil:treasury:local-v1";           // paydays etc. App-local. Not part of the ledger shape.
@@ -2091,7 +2139,7 @@ function renderRing(){
   el.querySelectorAll("[data-room]").forEach(x=>x.onclick=()=>{
     const id=x.dataset.room; domainOpen=id;
     const nb=document.querySelector('nav button[data-go="bills"]'); if(nb) nb.onclick();
-    setTimeout(()=>{ const d=document.querySelector('.dom[data-dom="'+id+'"]'); d&&d.scrollIntoView({behavior:"smooth",block:"center"}); },250);
+    setTimeout(()=>{ const d=document.querySelector('.dom[data-dom="'+id+'"]'); d&&d.scrollIntoView&&d.scrollIntoView({behavior:"smooth",block:"center"}); },250);
   });
 }
 
@@ -2390,7 +2438,7 @@ function treasuryLight(){
   let v=0;
   if(debts===0 || dated===debts) v+=.10;
   if(ord.length===0 || rated===ord.length) v+=.10;
-  if((star.entries||[]).length) v+=.04;
+  if(((star&&star.entries)||[]).length) v+=.04;
   if(hasIncome) v+=.04;
 
   /* HEALTH (max .72) — all of it downstream of the gap. */
@@ -5544,6 +5592,48 @@ $("btnPaydays").onclick=()=>{
   };
 };
 $("btnAsk").onclick=()=>openGuardian();
+
+/* ═══════════════════════════════════════════════════════════
+   THE RAIN — the falling script of the bridge
+   Hieroglyphs, runes and stranger marks drift down behind the
+   glass, Matrix-slow, Bifrost-colored. Cheap on the battery:
+   ~12 frames a second, pauses when the page hides, and stands
+   completely still for anyone who asked motion to stop.
+   ═══════════════════════════════════════════════════════════ */
+(function(){
+  const cv=$("rain"); if(!cv) return;
+  let ctx; try{ ctx=cv.getContext("2d"); }catch(e){ return; }
+  if(!ctx) return;
+  try{ if(typeof matchMedia!=="undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches) return; }catch(e){}
+  const GLYPHS="𓂀𓁹𓋹𓆃𓇳𓊝𓅓𓎼𓐍𓊖𓏞𓆣☥𐤀𐤄𐤒𐎗𐎀ᚠᚱᛝ⍟⌬◬⟁✶⟒⋉⋇꩜";
+  const COLS=["rgba(106,93,240,","rgba(74,198,232,","rgba(224,106,216,","rgba(242,200,107,","rgba(127,224,168,"];
+  let W,H,drops=[],FS=18;
+  function size(){ W=cv.width=innerWidth*devicePixelRatio; H=cv.height=innerHeight*devicePixelRatio;
+    cv.style.width=innerWidth+"px"; cv.style.height=innerHeight+"px";
+    FS=Math.round(17*devicePixelRatio);
+    const n=Math.floor(W/(FS*1.6));
+    drops=Array.from({length:n},(_,i)=>({x:i*FS*1.6+FS*.3,y:Math.random()*H,v:(0.35+Math.random()*0.8)*devicePixelRatio,
+      c:COLS[i%COLS.length],g:GLYPHS[Math.floor(Math.random()*GLYPHS.length)],a:.25+Math.random()*.5}));
+  }
+  size(); addEventListener("resize",size);
+  let last=0, depth=0;
+  function tick(t){
+    if(depth>2) return;            /* breaks recursion under synchronous rAF stubs */
+    depth++; requestAnimationFrame(tick); depth--;
+    if(document.hidden||t-last<80) return; last=t;
+    ctx.clearRect(0,0,W,H);
+    ctx.font=FS+"px serif"; ctx.textBaseline="top";
+    for(const d of drops){
+      ctx.fillStyle=d.c+(d.a*0.9)+")";
+      ctx.fillText(d.g,d.x,d.y);
+      ctx.fillStyle=d.c+(d.a*0.35)+")";
+      ctx.fillText(d.g,d.x,d.y-FS*1.4);
+      d.y+=d.v*3.4;
+      if(d.y>H+FS){ d.y=-FS*2; d.g=GLYPHS[Math.floor(Math.random()*GLYPHS.length)]; d.v=(0.35+Math.random()*0.8)*devicePixelRatio; }
+    }
+  }
+  requestAnimationFrame(tick);
+})();
 
 /* the month can turn while the app sits open */
 let watchMonth=currentMonth();
