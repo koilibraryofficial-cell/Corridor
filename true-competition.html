@@ -361,6 +361,11 @@ details.how .tablewrap{border:0;border-top:1px solid var(--vein);border-radius:0
 @keyframes slam{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
 .duel .score .big,.duel h1{animation:slam .55s cubic-bezier(.2,1.4,.4,1) both}
 @media (prefers-reduced-motion:reduce){.duel .score .big,.duel h1{animation:none}.fig{transition:none}}
+.bubble{position:relative;background:#0b0912;border:1px solid #5a4c8a;border-radius:14px;padding:10px 14px 12px;margin-top:4px;box-shadow:0 0 18px rgba(122,104,184,.18)}
+.bubble::before{content:"";position:absolute;top:-7px;right:22%;width:12px;height:12px;background:#0b0912;border-left:1px solid #5a4c8a;border-top:1px solid #5a4c8a;transform:rotate(45deg)}
+.bubble .who{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#a99be0}
+.bubble p{margin:4px 0 0;font-family:var(--display);font-size:17px;line-height:1.35;color:var(--text)}
+.grid28 i.miss{background:#2a2145;border-color:#7a68b8}
 /* trainer */
 .meters{display:flex;flex-direction:column;gap:6px}
 .meter{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
@@ -1649,9 +1654,10 @@ function chainCard(){
   h+='<section class="panel stack chain"><div class="chh"><span class="eyebrow">The chain · today</span><span class="chs num">'+n+' of 4</span></div><div class="habits">';
   hs.forEach(function(x){h+='<button type="button" class="hb'+(x.ok?' ok':'')+'" data-act="habit" data-go="'+x.go+'"><i></i><b>'+x.k+'</b><span class="num">'+(x.ok?'Done':esc(x.left))+'</span></button>'});
   h+='</div><div class="grid28" role="img" aria-label="Last 28 days, brighter means more habits kept">';
-  for(var j=27;j>=0;j--){var at=addDays(td,-j),c=keptCount(at);h+='<i class="l'+c+(j===0?' now':'')+'" title="'+fmtDate(at)+': '+c+' of 4"></i>'}
+  var ms={};missedDays().forEach(function(x){ms[x]=1});
+  for(var j=27;j>=0;j--){var at=addDays(td,-j),c=keptCount(at);h+='<i class="l'+c+(j===0?' now':'')+(ms[at]?' miss':'')+'" title="'+fmtDate(at)+': '+c+' of 4'+(ms[at]?', missed, the Shadow trained':'')+'"></i>'}
   h+='</div><p class="lede">'+(streak?streak+(streak===1?' day':' days')+' in a row with all four kept. ':'No full day in a row yet. ')+week+' of the last 7 days fully kept.</p>';
-  h+='<p class="note">Each square is a day. Brighter means more of the four kept. A habit only counts when the log proves it.</p></section>';
+  h+='<p class="note">Each square is a day. Brighter means more of the four kept. A violet square is a missed training day: the Shadow trained and you did not. A habit only counts when the log proves it.</p></section>';
   return h;
 }
 
@@ -1672,6 +1678,34 @@ function duelFor(id,at){
   return {first:false,prevAt:pv,champ:champ&&v==='more',verdict:v,pct:pct,changes:ch};
 }
 function weekStart(at){var d=new Date(at+'T12:00:00'),k=(d.getDay()+6)%7;return addDays(at,-k)}
+// The Shadow speaks. It jabs when you miss and never breaks you when you win.
+var SH={
+ miss:['Looks like I want your goal more than you.','I showed up {day}. Hit your baseline. Where were you?','You’re behind. I’m not.','I did your reps for you {day}. Don’t get used to it.','{goal} doesn’t care how you felt.','Another day in my column. Keep feeding me.','I don’t miss. That’s the only difference between us right now.','You rested. I didn’t.','I’m getting used to winning by default.','Every day you sit, I get closer to the body you want.'],
+ behind:['You’re behind by {n}. I’m right here when you’re ready.','I have taken your last {n}. Come take one back.','The scoreboard doesn’t lie. Neither do I.'],
+ ahead:['Wow. {n} straight. You’re making me work.','You keep beating me. Bet you can’t do it again.','You’re ahead. Enjoy it. I’m training tonight.'],
+ win:['Wow. You beat me. You just made me stronger. Bet you can’t do it again.','Okay. I felt that. Next time I’m coming harder.','You took that one clean. Now I’m the one chasing you.','Respect. Now do it twice.','I’m carrying your new number now. Let’s see if you can lift it again.','Good. I needed someone to chase.'],
+ champ:['You took down the Champion. That’s the best you have ever been. Prove it wasn’t luck.','New king. I’m wearing your crown now and I want it back.','That’s the strongest you have ever been. I’ll be waiting at that number.'],
+ loss:['Mine. I’ll hold this one until you take it back.','Not today. Same time tomorrow?','I’ll keep this number warm for you.','Close is still mine. Come back.'],
+ same:['Even. Neither of us moved. One more rep ends this.','A tie is just a fight nobody finished.'],
+ born:['So this is where we start. I’ll remember every number.','Now there are two of us.'],
+ open:['Your move.','I’m already warmed up.','Every set is a duel. Show me something.']
+};
+function pickLine(kind,seed,vars){
+  var pool=SH[kind],h=0,str=String(seed);for(var i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))>>>0;
+  var line=pool[h%pool.length];vars=vars||{};
+  return line.replace(/\{(\w+)\}/g,function(m,k){return vars[k]!=null?vars[k]:m});
+}
+function missedDays(){
+  var g=S.prog.goals;if(!g||!g.built)return [];
+  var out=[],td=today(),ws=weekStart(g.built);
+  while(ws<=td){
+    var allowed=7-g.days,rest=0;
+    for(var i=0;i<7;i++){var at=addDays(ws,i);if(at<g.built||at>=td||trainedOn(at))continue;if(rest<allowed){rest++;continue}out.push(at)}
+    ws=addDays(ws,7);
+  }
+  return out;
+}
+function bubble(text){return '<div class="bubble" role="note"><span class="who">Your Shadow</span><p>'+esc(text)+'</p></div>'}
 function rivalry(){
   var ev=[],td=today(),n=dayNum(td);
   Object.keys(S.ex).forEach(function(id){
@@ -1679,21 +1713,13 @@ function rivalry(){
     (ex.entries||[]).forEach(function(e){seen[e.at]=1});
     Object.keys(seen).sort().forEach(function(at){var d=duelFor(id,at);if(d&&!d.first)ev.push({at:at,id:id,name:ex.name,v:d.verdict,champ:d.champ})});
   });
-  var g=S.prog.goals;
-  if(g&&g.built){
-    var ws=weekStart(g.built),cur=weekStart(td);
-    while(ws<cur){
-      var trained=0;for(var i=0;i<7;i++)if(trainedOn(addDays(ws,i)))trained++;
-      var miss=Math.max(0,g.days-trained);
-      for(var j=0;j<miss;j++)ev.push({at:addDays(ws,6),id:null,name:'A missed training day',v:'less',champ:false,miss:true});
-      ws=addDays(ws,7);
-    }
-  }
+  missedDays().forEach(function(at){ev.push({at:at,id:null,name:'Missed day',v:'less',champ:false,miss:true})});
   ev.sort(function(a,b){return a.at<b.at?-1:a.at>b.at?1:0});
-  var r={you:0,shadow:0,draw:0,champ:0,wYou:0,wShadow:0,streak:0,lstreak:0,events:ev};
+  var r={you:0,shadow:0,draw:0,champ:0,wYou:0,wShadow:0,streak:0,lstreak:0,missed:0,events:ev};
   ev.forEach(function(e){
     if(e.v==='more')r.you++;else if(e.v==='less')r.shadow++;else r.draw++;
     if(e.champ)r.champ++;
+    if(e.miss)r.missed++;
     if(n-dayNum(e.at)<7){if(e.v==='more')r.wYou++;else if(e.v==='less')r.wShadow++}
   });
   for(var k=ev.length-1;k>=0&&ev[k].v==='more';k--)r.streak++;
@@ -1706,24 +1732,31 @@ function figure(cls,label){
 function rivalryCard(){
   var r=rivalry(),h='';
   var lead=r.you>r.shadow?'You lead':r.you<r.shadow?'The Shadow leads':'Dead even';
-  var line=r.streak>=2?r.streak+' wins in a row. Do not let it breathe.':r.lstreak>=2?'The Shadow has won your last '+r.lstreak+'. Take it back today.':r.events.length?'Every set is a duel. Beat the last you.':'Your Shadow is born the first time you log a movement. The second time, it fights back.';
+  var td=today(),md=missedDays(),lastMiss=md.length?md[md.length-1]:null,goal=S.prog.goals?S.prog.goals.goal+' lb':'Your goal';
+  var say;
+  if(lastMiss&&dayNum(td)-dayNum(lastMiss)<=2&&!trainedOn(td))say=pickLine('miss',lastMiss,{day:dayNum(td)-dayNum(lastMiss)===1?'yesterday':'on '+fmtDate(lastMiss),goal:goal});
+  else if(r.lstreak>=2||r.shadow>r.you+2)say=pickLine('behind',td,{n:r.lstreak>=2?r.lstreak:r.shadow-r.you});
+  else if(r.streak>=2)say=pickLine('ahead',td,{n:r.streak});
+  else if(!r.events.length)say='Log your first set and I’m born. The second time, I fight back.';
+  else say=pickLine('open',td);
+  var line=r.shadow>r.you?'You are behind by '+(r.shadow-r.you)+'.':r.you>r.shadow?'You are ahead by '+(r.you-r.shadow)+'.':'Dead even.';
   h+='<section class="panel stack rival"><span class="eyebrow">The rivalry · '+lead+'</span><div class="vs">'+figure('you'+(r.you>r.shadow?' up':''),'You')+'<div class="score"><b class="num">'+r.you+'</b><span>vs</span><b class="num sh">'+r.shadow+'</b></div>'+figure('shadow'+(r.shadow>r.you?' up':''),'Your Shadow')+'</div>';
-  h+='<div class="vsl"><span>You</span><span>Shadow</span></div><p class="lede">'+esc(line)+'</p>';
-  h+='<div class="stats"><div class="stat"><b class="num">'+r.wYou+' to '+r.wShadow+'</b><span>This week</span></div><div class="stat"><b class="num">'+r.champ+'</b><span>Champion taken down</span></div><div class="stat"><b class="num">'+r.draw+'</b><span>Draws</span></div></div>';
-  h+='<details class="how"><summary>How the duel works</summary><ol><li><b>The Shadow is your last time.</b> Every time you log a movement, you fight the last day you did it. More is a win. Less is a loss. The same is a draw.</li><li><b>The Champion is your best ever.</b> Break a record and you take the Champion down. That is the biggest win there is.</li><li><b>Missed days go to the Shadow.</b> Each week you train fewer days than you chose, the Shadow gets a point for every day short. It showed up. You did not.</li><li><b>Nothing is given.</b> Every point comes from your log.</li></ol></details></section>';
+  h+='<div class="vsl"><span>You</span><span>Shadow</span></div>'+bubble(say)+'<p class="lede">'+esc(line)+'</p>';
+  h+='<div class="stats"><div class="stat"><b class="num">'+r.wYou+' to '+r.wShadow+'</b><span>This week</span></div><div class="stat"><b class="num">'+r.champ+'</b><span>Champion taken down</span></div><div class="stat"><b class="num">'+r.missed+'</b><span>Days it trained without you</span></div></div>';
+  h+='<details class="how"><summary>How the duel works</summary><ol><li><b>The Shadow is your last time.</b> Every time you log a movement, you fight the last day you did it. More is a win. Less is a loss. The same is a draw.</li><li><b>The Champion is your best ever.</b> Break a record and you take the Champion down. That is the biggest win there is.</li><li><b>The Shadow never misses.</b> You get the rest days your plan allows each week. Any other day you do not train, the Shadow trains without you, hits your baseline, and takes the point. The day stays marked as missed. There are no shields.</li><li><b>Nothing is given.</b> Every point comes from your log.</li></ol></details></section>';
   return h;
 }
 function duelStage(r){
   var def=r.def,d=duelFor(def.id,r.e.at),h='';
   if(!d)return '';
   if(d.first){
-    return '<section class="duel born"><div class="vs">'+figure('you up','You')+'<div class="score"><span class="big">Born</span></div>'+figure('shadow','Your Shadow')+'</div><h1>Your Shadow is born</h1><p class="lede">It now holds today\'s numbers for '+esc(def.name)+'. Next time, it fights back.</p></section>';
+    return '<section class="duel born"><div class="vs">'+figure('you up','You')+'<div class="score"><span class="big">Born</span></div>'+figure('shadow','Your Shadow')+'</div><h1>Your Shadow is born</h1>'+bubble(pickLine('born',def.id))+'<p class="lede">It now holds today\'s numbers for '+esc(def.name)+'. Next time, it fights back.</p></section>';
   }
   var win=d.verdict==='more',loss=d.verdict==='less';
   var title=d.champ?'Champion down':win?'You beat your Shadow':loss?'Your Shadow wins':'Dead even';
   var sub=d.champ?'Best ever. The Champion now wears your new numbers.':win?'You did '+fmtPct(d.pct)+' more than '+fmtDate(d.prevAt)+'. It just got stronger. So did you.':loss?'You did '+fmtPct(-d.pct).replace('+','')+' less than '+fmtDate(d.prevAt)+'. It keeps that day. Come back and take it.':'Even with '+fmtDate(d.prevAt)+'. '+(d.changes.some(function(c){return c.v==='more'})&&d.changes.some(function(c){return c.v==='less'})?'You gained in one place and lost in another, so it is not counted as growth.':'Any change was too small to be real. One more rep next time breaks it.');
   h+='<section class="duel '+(d.champ?'champ':win?'win':loss?'loss':'draw')+'"><canvas class="fx" aria-hidden="true"></canvas><div class="vs">'+figure('you'+(win||d.champ?' up':loss?' down':''),'You')+'<div class="score"><span class="big num">'+(d.verdict==='same'?'=':fmtPct(d.pct))+'</span></div>'+figure('shadow'+(loss?' up':win||d.champ?' down':''),'Your Shadow')+'</div>';
-  h+='<h1>'+title+'</h1><p class="lede">'+esc(sub)+'</p>';
+  h+='<h1>'+title+'</h1>'+bubble(pickLine(d.champ?'champ':win?'win':loss?'loss':'same',def.id+r.e.at+(r.e.ts||'')))+'<p class="lede">'+esc(sub)+'</p>';
   d.changes.forEach(function(c){h+='<div class="gc"><span>'+markLabel(c.m,def)+' '+fmtMark(c.m,c.to,def)+', Shadow had '+fmtMark(c.m,c.from,def)+'</span><span class="v-'+c.v+'">'+(c.v==='same'&&Math.abs(c.pct)>=0.05?fmtPct(c.pct)+', noise':fmtPct(c.pct))+'</span></div>'});
   var rv=rivalry();
   h+='<p class="tally num">You '+rv.you+' · Shadow '+rv.shadow+(rv.streak>=2?' · '+rv.streak+' straight':'')+'</p></section>';
