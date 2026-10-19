@@ -330,6 +330,37 @@ details.how .tablewrap{border:0;border-top:1px solid var(--vein);border-radius:0
 .grid28 i.l3{background:color-mix(in srgb,var(--gold) 75%,var(--stone-3))}
 .grid28 i.l4{background:var(--gold-hi);border-color:var(--gold-hi)}
 .grid28 i.now{outline:2px solid var(--text);outline-offset:1px}
+/* shadow */
+.rival{background:radial-gradient(120% 90% at 50% 0%,rgba(104,82,168,.22),transparent 70%),var(--stone)}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:10px;justify-items:center}
+.fig{width:64px;height:128px;transition:transform .5s cubic-bezier(.2,1.4,.4,1),opacity .4s}
+.fig .crown{opacity:0}
+.fig.you{fill:var(--gold);filter:drop-shadow(0 0 10px rgba(246,226,168,.45))}
+.fig.shadow{fill:#050407;stroke:#7a68b8;stroke-width:1.2;filter:drop-shadow(0 0 10px rgba(122,104,184,.55));transform:scaleX(-1)}
+.fig.up{transform:translateY(-8px) scale(1.12)}
+.fig.shadow.up{transform:scaleX(-1) translateY(-8px) scale(1.12)}
+.fig.up .crown{opacity:1}
+.fig.down{opacity:.38;transform:translateY(6px) scale(.9)}
+.fig.shadow.down{transform:scaleX(-1) translateY(6px) scale(.9)}
+.score{display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:28px}
+.score b{font-family:var(--display);font-size:44px;line-height:1;color:var(--gold-hi)}
+.score b.sh{color:#a99be0}
+.score span{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+.score .big{font-family:var(--display);font-size:34px;letter-spacing:.02em;color:var(--gold-hi);text-transform:none}
+.vsl{display:grid;grid-template-columns:1fr 1fr;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:-6px}
+.duel{position:relative;overflow:hidden;border:1px solid var(--vein);border-radius:var(--r);padding:18px 16px;display:flex;flex-direction:column;gap:10px;background:var(--stone)}
+.duel canvas.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+.duel h1{font-size:30px}
+.duel.win,.duel.champ{border-color:var(--gold);background:radial-gradient(120% 80% at 30% 20%,rgba(246,226,168,.18),transparent 65%),var(--stone)}
+.duel.champ h1{background:linear-gradient(180deg,var(--gold-hi),var(--gold) 60%,var(--bronze));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-size:36px;letter-spacing:.06em;text-transform:uppercase}
+.duel.loss{border-color:#5a4c8a;background:radial-gradient(120% 80% at 70% 20%,rgba(122,104,184,.22),transparent 65%),var(--stone)}
+.duel.loss .score .big{color:#a99be0}
+.duel .gc{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tally{font-family:var(--display);letter-spacing:.12em;color:var(--text);font-size:15px}
+.shline{color:#b9aee6;font-size:13.5px}
+@keyframes slam{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+.duel .score .big,.duel h1{animation:slam .55s cubic-bezier(.2,1.4,.4,1) both}
+@media (prefers-reduced-motion:reduce){.duel .score .big,.duel h1{animation:none}.fig{transition:none}}
 /* trainer */
 .meters{display:flex;flex-direction:column;gap:6px}
 .meter{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
@@ -400,6 +431,16 @@ var TYPES={
   hold:{fields:['dur','cal','eff'],marks:['dur']}
 };
 var LOWER={pace:true};
+// Only these count as growth. Volume, total reps, calories and session length are kept and shown but never claimed as growth.
+var REC={load:['e1rm'],reps:['reps'],hold:['dur'],dist:['dist','pace'],time:[]};
+// The smallest change that counts as real. Anything smaller is noise and is called the same.
+var MIN_GAIN={e1rm:1,reps:0.01,dur:3,dist:2,pace:1};
+function changeOf(m,from,to){return LOWER[m]?(from-to)/from*100:(to-from)/from*100}
+function judgeChange(m,pct){return pct>=MIN_GAIN[m]?'more':pct<=-MIN_GAIN[m]?'less':'same'}
+function judge(changes){
+  var up=0,down=0;changes.forEach(function(c){c.v=judgeChange(c.m,c.pct);if(c.v==='more')up++;else if(c.v==='less')down++});
+  return up&&!down?'more':down&&!up?'less':'same';
+}
 function pos(v){return (typeof v==='number'&&isFinite(v)&&v>0)?v:null}
 function clamp01(v){return v<0?0:v>1?1:v}
 function markValue(m,e,floor){
@@ -414,7 +455,7 @@ function markValue(m,e,floor){
       if(floor!=null&&e.dist<floor-1e-9)return null;
       return e.dur/e.dist;
     case 'e1rm':
-      if(!(pos(e.wt)&&pos(e.reps)))return null;
+      if(!(pos(e.wt)&&pos(e.reps))||e.reps>12)return null;
       return e.reps===1?e.wt:e.wt*(1+e.reps/30);
     case 'vol':
       if(!(pos(e.wt)&&pos(e.reps)))return null;
@@ -465,9 +506,9 @@ function analyze(ex){
       if(v==null)return;
       var s=st[m];
       if(!s){st[m]={base:v,baseAt:e.at,best:v,bestAt:e.at};if(m==='pace')floor=e.dist;res.set.push(m);return}
-      var better=LOWER[m]?v<s.best*(1-1e-9):v>s.best*(1+1e-9);
-      if(better){
-        var gain=LOWER[m]?(s.best-v)/s.best*100:(v-s.best)/s.best*100;
+      var rec=REC[ex.type].indexOf(m)>=0,gain=changeOf(m,s.best,v);
+      if(!rec){if(gain>0){s.best=v;s.bestAt=e.at}return}
+      if(gain>=MIN_GAIN[m]){
         var pts=10+Math.min(40,Math.round(gain));
         res.prs.push({m:m,prev:s.best,val:v,gain:gain,pts:pts});
         light+=pts;records++;s.best=v;s.bestAt=e.at;
@@ -479,11 +520,13 @@ function analyze(ex){
   var headline=0;
   marks.forEach(function(m){
     var s=st[m];if(!s)return;
-    s.growth=LOWER[m]?(s.base-s.best)/s.base*100:(s.best-s.base)/s.base*100;
-    if(s.growth>headline)headline=s.growth;
+    s.growth=changeOf(m,s.base,s.best);
+    if(REC[ex.type].indexOf(m)>=0&&s.growth>headline)headline=s.growth;
   });
-  var days=Object.keys(dayset).length,sd=standing(headline,days,ex.type);
-  return {marks:st,floor:floor,light:light,records:records,sessions:sessions,growth:headline,days:days,
+  var days=Object.keys(dayset).length,sd=ex.type==='time'?{level:0,frac:0,next:null}:standing(headline,days,ex.type);
+  var std=typeof stdFor==='function'&&entries.length?stdFor(ex,st):null;
+  if(std){sd={level:std.level,frac:std.frac,next:std.next}}
+  return {std:std,marks:st,floor:floor,light:light,records:records,sessions:sessions,growth:headline,days:days,
     level:entries.length?sd.level:-1,frac:entries.length?sd.frac:0,next:sd.next,
     baseAt:entries.length?entries[0].at:null,lastAt:entries.length?entries[entries.length-1].at:null,count:entries.length};
 }
@@ -623,14 +666,14 @@ function interpret(def,p){
 
 // ---------- the day grade ----------
 // Arithmetic only. Each movement done on the latest training day is set against the last day that same movement was done.
-var GRADE_MARKS={dist:['dist','pace'],time:['dur'],load:['e1rm','vol'],reps:['reps','total'],hold:['dur']};
+var GRADE_MARKS=REC;
 function dayNum(at){var p=String(at).split('-');return Math.round(Date.UTC(+p[0],+p[1]-1,+p[2])/86400000)}
 function gradeLetter(n){
   var t=[[97,'A+'],[93,'A'],[90,'A-'],[87,'B+'],[83,'B'],[80,'B-'],[77,'C+'],[73,'C'],[70,'C-'],[67,'D+'],[63,'D'],[60,'D-']];
   for(var i=0;i<t.length;i++)if(n>=t[i][0])return t[i][1];
   return 'F';
 }
-function verdictOf(p){return p>0.5?'more':p<-0.5?'less':'same'}
+function verdictOf(p){return p>=1?'more':p<=-1?'less':'same'}
 function dayBest(ex,at){
   var o={};
   (ex.entries||[]).forEach(function(e){
@@ -650,19 +693,23 @@ function dayGrade(all,todayStr){
     var on=false,prev=null;
     (ex.entries||[]).forEach(function(e){if(e.at===latest)on=true;else if(e.at<latest&&(prev==null||e.at>prev))prev=e.at});
     if(!on)return;
+    if(ex.type==='time'){g.firsts.push({id:id,name:ex.name,timed:true});return}
     if(prev==null){g.firsts.push({id:id,name:ex.name});return}
     var a=dayBest(ex,latest),b=dayBest(ex,prev),ch=[];
     GRADE_MARKS[ex.type].forEach(function(m){
       if(a[m]==null||b[m]==null)return;
-      ch.push({m:m,from:b[m],to:a[m],pct:LOWER[m]?(b[m]-a[m])/b[m]*100:(a[m]-b[m])/b[m]*100});
+      ch.push({m:m,from:b[m],to:a[m],pct:changeOf(m,b[m],a[m])});
     });
     if(!ch.length){g.firsts.push({id:id,name:ex.name});return}
-    var avg=ch.reduce(function(s,c){return s+c.pct},0)/ch.length;
-    g.lines.push({id:id,name:ex.name,type:ex.type,unit:ex.unit||'',vs:prev,gap:dayNum(latest)-dayNum(prev),changes:ch,pct:avg,verdict:verdictOf(avg)});
+    var v=judge(ch),real=ch.filter(function(c){return c.v!=='same'});
+    var avg=v==='same'?0:real.reduce(function(s,c){return s+c.pct},0)/real.length;
+    g.lines.push({id:id,name:ex.name,type:ex.type,unit:ex.unit||'',vs:prev,gap:dayNum(latest)-dayNum(prev),changes:ch,pct:avg,verdict:v});
   });
   if(g.lines.length){
     g.pct=g.lines.reduce(function(s,l){return s+l.pct},0)/g.lines.length;
-    g.verdict=verdictOf(g.pct);
+    var ups=g.lines.filter(function(l){return l.verdict==='more'}).length,downs=g.lines.filter(function(l){return l.verdict==='less'}).length;
+    g.verdict=ups>downs?'more':downs>ups?'less':'same';
+    if(g.verdict==='same')g.pct=0;
     g.number=g.verdict==='same'?75:Math.round(Math.max(0,Math.min(100,75+2.5*g.pct)));
     g.letter=gradeLetter(g.number);
   }
@@ -875,7 +922,12 @@ function mini(level){
   }
   return h+'</svg>';
 }
-function coursesTable(level,type){
+function coursesTable(level,type,a){
+  if(a&&a.std){
+    var hh='<div class="tablewrap"><table><thead><tr><th>Course</th><th>Needs</th></tr></thead><tbody>';
+    for(var k=6;k>=0;k--)hh+='<tr class="'+(k===level?'cur':'')+'"><td class="tier">'+RANKS[k]+(k===level?' · you':'')+'</td><td>'+(k===0?'first entry':fmtStd(a.std.s,Math.round(a.std.anchors[k])))+'</td></tr>';
+    return hh+'</tbody></table></div><p class="note" style="padding:0 14px 14px">Strong, Advanced and Elite are approximate public standards for men at your bodyweight. Flame is Strong, Beacon is Advanced.</p>';
+  }
   var h='<div class="tablewrap"><table><thead><tr><th>Course</th>'+(type?'<th>Growth</th><th>Record days</th>':'<th>Light</th>')+'</tr></thead><tbody>';
   for(var i=6;i>=0;i--){
     h+='<tr class="'+(i===level?'cur':'')+'"><td class="tier">'+RANKS[i]+(i===level?' · you':'')+'</td>';
@@ -886,6 +938,13 @@ function coursesTable(level,type){
   return h+'</tbody></table></div>';
 }
 function nextLine(a,type){
+  if(a.std){
+    var sd=a.std,s=sd.s;
+    if(a.level>=6)return 'Elite at your bodyweight. Very few men who lift ever get here.';
+    var nv=sd.next.value;
+    return RANKS[a.level+1]+' is '+fmtStd(s,nv)+'. You are at '+fmtStd(s,sd.you)+', '+fmtStd(s,Math.max(0,nv-sd.you))+' away. This course comes from strength standards at your bodyweight. Logging more does not move it. Getting stronger does.';
+  }
+  if(type==='time')return 'Timed sessions are logged, not ranked. Time spent is not proof of growth.';
   if(a.level>=6)return 'The capstone is lit. It stays lit because you kept beating yourself.';
   var n=a.next,g=a.level===0?'any gain':'+'+fmtNum(n.g,1)+'% growth';
   return RANKS[a.level+1]+' needs '+g+' and '+n.d+(n.d===1?' record day':' record days')+'. You have '+fmtGrowth(a.growth)+' and '+a.days+'.';
@@ -922,16 +981,16 @@ function gradeCard(g){
   }
   g.lines.forEach(function(l){
     h+='<div class="gline"><div class="gh"><b>'+esc(l.name)+'</b><span class="v-'+l.verdict+'">'+(l.verdict==='more'?'More':l.verdict==='less'?'Less':'Same')+' · '+fmtPct(l.pct)+'</span></div><span class="gs">against '+fmtDate(l.vs)+', '+plural(l.gap,'day')+' earlier</span>';
-    l.changes.forEach(function(c){h+='<div class="gc"><span>'+markLabel(c.m,l)+' '+fmtMark(c.m,c.to,l)+', was '+fmtMark(c.m,c.from,l)+'</span><span class="v-'+verdictOf(c.pct)+'">'+fmtPct(c.pct)+'</span></div>'});
+    l.changes.forEach(function(c){h+='<div class="gc"><span>'+markLabel(c.m,l)+' '+fmtMark(c.m,c.to,l)+', was '+fmtMark(c.m,c.from,l)+'</span><span class="v-'+c.v+'">'+(c.v==='same'&&Math.abs(c.pct)>=0.05?fmtPct(c.pct)+', within noise':fmtPct(c.pct))+'</span></div>'});
     h+='</div>';
   });
   if(g.firsts.length)h+='<div class="gline"><span class="gs">First entry, nothing to compare: '+g.firsts.map(function(x){return esc(x.name)}).join(', ')+'.</span></div>';
   h+='<details class="how"><summary>How the grade is worked out</summary><ol>'
     +'<li><b>Like against like.</b> Each movement you did that day is set against the last day you did that same movement, however long ago that was.</li>'
-    +'<li><b>Each measure gets a percent.</b> Distance and pace for runs. Strength and volume for lifts. Reps for bodyweight. Time for holds and sessions.</li>'
-    +'<li><b>Then two averages.</b> A movement is the average of its measures. The day is the average of its movements.</li>'
+    +'<li><b>Only real growth is measured.</b> Estimated one rep max for lifts. Best set for bodyweight. Distance and pace for runs. Time for holds. Extra sets, calories and longer classes are kept but never counted as growth.</li>'
+    +'<li><b>Each movement wins, loses or ties.</b> A run that went further but slower is a tie, not a win. The day goes to whichever side has more movements.</li>'
     +'<li><b>Matching yourself is a C, 75.</b> Every percent more adds 2.5 points. Every percent less takes 2.5 away.</li>'
-    +'<li><b>What is left out.</b> Within half a percent counts as the same. Calories and effort are kept but not graded. A first entry is not graded.</li>'
+    +'<li><b>Noise is not growth.</b> Strength must rise at least 1 percent, a hold 3 percent, a distance 2 percent. One more rep always counts. Anything smaller is the same. A first entry and a timed class are not graded.</li>'
     +'</ol></details>';
   return h+'</section>';
 }
@@ -1004,13 +1063,14 @@ function doExplain(){
 
 // ---------- views ----------
 function viewHome(){
-  var t=totals(),ls=lightStanding(t.light),lv=t.baselines?ls.level:-1,h='',facts=standFacts();
+  var t=totals(),os=overallStanding(),ls=os||{level:-1,frac:0},lv=os?os.level:-1,h='',facts=standFacts();
   h+='<section class="panel hero stack">'+scene(lv,lv<0?0:ls.frac)+'<div class="standing"><span class="eyebrow">Physical · compete with yourself</span>';
   if(lv<0){
-    h+='<span class="rank unlit">Unbuilt</span><p class="lede">No stone is laid yet. Log one session of anything. That day becomes your baseline, with its date, and the first course lights.</p>';
+    h+='<span class="rank unlit">Unbuilt</span><p class="lede">This pyramid only moves with real strength. Log a bench press, squat, deadlift, overhead press, pull ups, push ups or a plank to be placed on it.</p>';
   }else{
-    h+='<span class="rank">'+RANKS[lv]+'</span><span class="big num">'+fmtInt(t.light)+' Light</span>';
-    h+='<p class="lede">'+(lv>=6?'The capstone is lit. It stays lit because you kept beating yourself.':(fmtInt(ls.next-t.light)+' more Light lays the '+RANKS[lv+1]+' course. Only a broken record adds a stone.'))+'</p>';
+    h+='<span class="rank">'+RANKS[lv]+'</span><span class="big num">'+fmtInt(t.light)+' Light earned</span>';
+    h+='<p class="lede">'+(os.list.length===1?'This is where your one measured lift stands':'This is the average of where your '+os.list.length+' measured lifts stand')+' against strength standards at your bodyweight. Logging more does not move it. Getting stronger does.'+(os.list.length<3?' It rests on '+(os.list.length===1?'one lift':'two lifts')+' so far. Log your squat and deadlift for a true reading.':'')+'</p>';
+    h+='<ul class="facts">'+os.list.map(function(m){return '<li>'+esc(m.a.std.s.name)+': '+RANKS[m.a.level]+', '+(m.a.std.s.m==='e1rm'?'estimated max ':'best ')+esc(fmtStd(m.a.std.s,m.a.std.you))+'</li>'}).join('')+'</ul>';
   }
   h+='</div><button type="button" class="btn" data-act="tab" data-tab="log">'+(lv<0?'Log your first session':'Log a session')+'</button></section>';
   h+=mapSection(null)+gradeCard(facts.g)+standSection(facts);
@@ -1025,13 +1085,13 @@ function viewHome(){
     h+='</div>';
   }
   h+='</section>';
-  h+='<details class="how"><summary>The seven courses</summary>'+coursesTable(lv,null)+'</details>';
+  
   h+='<details class="how"><summary>How this keeps score</summary><ol>'
    +'<li><b>The first entry is the baseline.</b> It earns nothing. It is the one to beat, and its date is kept.</li>'
-   +'<li><b>Beat any mark and it is a record.</b> A record gives 10 Light, plus 1 for each percent you beat it by, up to 50.</li>'
-   +'<li><b>This pyramid is built from Light.</b> Every stone on it is a record you broke somewhere in your training.</li>'
+   +'<li><b>A record must be real.</b> Strength up at least 1 percent, one more rep, a hold 3 percent longer, a run 2 percent further or 1 percent faster. Smaller is noise. Extra sets, calories and longer classes never count. A record gives 10 Light, plus 1 for each percent, up to 50.</li>'
+   +'<li><b>This pyramid is not built from Light.</b> It shows where your main lifts stand against strength standards for men at your bodyweight: Flame is Strong, Beacon is Advanced, the capstone is Elite. Logging often cannot raise it. Only strength can.</li>'
    +'<li><b>Each movement has its own pyramid.</b> A course there needs two things: growth past your baseline, and enough separate days on which a record fell. One strong day can lay one course and no more.</li>'
-   +'<li><b>Lifts climb at half the growth.</b> Strength moves slower than distance, so Elite on a lift is 50 percent past your baseline and Elite elsewhere is 100.</li>'
+   +'<li><b>Lifts are estimated honestly.</b> The one rep max is only estimated from sets of 12 reps or fewer, where the formula holds. Higher rep sets are kept but do not move strength.</li>'
    +'<li><b>Pace only counts over your baseline distance or more.</b> A short sprint cannot take it.</li>'
    +'<li><b>Effort is kept on every entry and never scores.</b> The win is more output. Effort shows what it cost.</li>'
    +'</ol></details>';
@@ -1161,6 +1221,7 @@ function resultBody(r){
 }
 function viewResult(){
   var r=ui.result,def=r.def,a=r.after,h='',eb='<span class="eyebrow">'+esc(def.name)+' · '+fmtDate(r.e.at)+'</span>';
+  h+=duelStage(r);
   if(r.kind==='baseline'){
     h+='<section class="panel hero result ignite">'+scene(a.level,a.frac)+eb+'<h1>Baseline set</h1><p class="lede">The first course is laid. No Light for setting it. The next stone comes the day you pass these.</p><div>'+resultBody(r)+'</div></section>';
   }else if(r.kind==='record'){
@@ -1233,7 +1294,7 @@ function viewDetail(){
     h+='<tr class="'+(m===cm?'sel':'')+'"><td><button type="button" data-act="chart" data-m="'+m+'">'+markLabel(m,def)+'</button></td><td>'+fmtMark(m,s.base,def)+'</td><td>'+fmtMark(m,s.best,def)+'</td><td class="'+(s.growth>0?'g':'z')+'">'+fmtGrowth(s.growth)+'</td></tr>'});
   h+='</tbody></table></div><p class="note">Tap a mark to chart it.'+(a.marks.e1rm?' Strength is an estimated one rep max from weight and reps.':'')+(a.marks.pace?' Pace counts at '+fmtMark('dist',a.floor,def)+' or more.':'')+'</p></section>';
   h+=chartHTML(def,a,cm);
-  h+='<details class="how"><summary>The seven courses</summary>'+coursesTable(a.level,ex.type)+'</details>';
+  h+='<details class="how"><summary>The seven courses</summary>'+coursesTable(a.level,ex.type,a)+'</details>';
   h+='<section class="stack-s"><h2>Every entry</h2><div class="rows">';
   a.sessions.slice().reverse().forEach(function(s){
     var e=s.e;
@@ -1263,7 +1324,7 @@ function viewSettings(){
   h+='<section class="panel stack"><h3>Your goals</h3><p class="lede">'+(S.prog.goals?esc(GOAL):'Not set yet.')+'</p><button type="button" class="btn ghost" data-act="goals">'+(S.prog.goals?'Change my goals':'Set my goals')+'</button></section>';
   h+='<section class="panel stack"><h3>Your trainer</h3><div class="fields"><div class="field"><label for="bw">Bodyweight in lb</label><input id="bw" type="number" inputmode="decimal" min="60" max="600" placeholder="175" value="'+(S.prog.bw||'')+'"></div><div class="field"><label for="runmi">Morning run in miles</label><input id="runmi" type="number" inputmode="decimal" min="0" step="0.1" value="'+(S.prog.runMi||3)+'"></div></div>'
     +'<label class="check"><input id="runon" type="checkbox"'+(S.prog.run?' checked':'')+'> Add a run to each day (off by default)</label>'
-    +'<p class="note">Bodyweight is used only to work out calories.</p><button type="button" class="btn" data-act="saveprog">Save</button><p class="note" role="status">'+esc(ui.progNote||'')+'</p></section>';
+    +'<label class="check"><input id="soundon" type="checkbox"'+(S.prog.sound!==false?' checked':'')+'> Sound when you win or lose a duel</label>'+'<p class="note">Bodyweight is used only to work out calories.</p><button type="button" class="btn" data-act="saveprog">Save</button><p class="note" role="status">'+esc(ui.progNote||'')+'</p></section>';
   if(STANDALONE){
     var k=getKey(),cur=getModel();
     h+='<section class="panel stack"><h3>Your API key</h3><p class="lede">The key lets this app ask Claude to read a photo, read a line it could not match, and explain where you stand. The scoring and the grade never use it. They are arithmetic done on this phone.</p>';
@@ -1362,7 +1423,7 @@ var PLAN=[
 ];
 var RUN_ITEM={id:'run',met:9,what:'Your morning run before the lift.',feel:'Legs and heart',gives:'Burns fat every day and keeps the gas tank full for the mat.',daily:true};
 var PROG_LS='koil-tc-prog';
-S.prog={day:0,dayDate:null,run:false,runMi:3,bw:null,savedAt:0};
+S.prog={day:0,dayDate:null,sound:true,run:false,runMi:3,bw:null,savedAt:0};
 function progLoad(){try{var v=JSON.parse(localStorage.getItem(PROG_LS));if(v&&typeof v.day==='number')S.prog=Object.assign(S.prog,v)}catch(e){}
   if(!S.prog.v2){S.prog.v2=true;S.prog.run=false}
   if(!(S.prog.day>=0&&S.prog.day<PLAN.length))S.prog.day=0}
@@ -1467,6 +1528,23 @@ function stdYou(s){
   var a=analyze(ex),mk=a.marks[s.m==='reps'?'reps':s.m];return mk?mk.best:null;
 }
 function fmtStd(s,v){return s.m==='dur'?fmtDur(v):s.m==='reps'?fmtInt(v)+' reps':fmtInt(v)+' lb'}
+function stdFor(ex,st){
+  var s=null;STD.forEach(function(x){var d=LIBMAP[x.id];if(d&&d.name===ex.name&&d.type===ex.type)s=x});if(!s)return null;
+  var mk=st[s.m];if(!mk)return null;
+  var you=mk.best,lv=stdLevels(s),A=[0,lv[0]*0.5,lv[0]*0.75,lv[0],(lv[0]+lv[1])/2,lv[1],lv[2]],level=0;
+  for(var i=1;i<7;i++)if(you>=A[i])level=i;
+  var frac=level<6?Math.min(0.999,clamp01((you-A[level])/(A[level+1]-A[level]))):0;
+  return {s:s,you:you,anchors:A,level:level,frac:frac,next:level<6?{value:A[level+1]}:null};
+}
+function overallStanding(){
+  var ls=totals().list.filter(function(m){return m.a.std});if(!ls.length)return null;
+  var sum=0;ls.forEach(function(m){sum+=m.a.level+m.a.frac});var x=sum/ls.length;
+  return {level:Math.floor(x),frac:Math.min(0.999,x-Math.floor(x)),list:ls};
+}
+function weekAvg(endAt){
+  var w=S.food.weights.filter(function(x){var d=dayNum(endAt)-dayNum(x.at);return d>=0&&d<7});
+  return w.length?w.reduce(function(s,x){return s+x.lb},0)/w.length:null;
+}
 function weightTrack(){
   var g=S.prog.goals,now=curBw();if(!g||!now)return '';
   var start=g.now,goal=g.goal,span=start-goal,frac=span>0?Math.max(0,Math.min(1,(start-now)/span)):1;
@@ -1577,11 +1655,126 @@ function chainCard(){
   return h;
 }
 
+// ---------- the Shadow ----------
+// The Shadow is you. Daily it fights as your last time on each movement. Your best ever stands behind it as the Champion.
+// Every duel is arithmetic on your own log: more is a win, less is a loss, the same is a draw.
+function prevDate(ex,at){var p=null;(ex.entries||[]).forEach(function(e){if(e.at<at&&(p==null||e.at>p))p=e.at});return p}
+function duelFor(id,at){
+  var ex=S.ex[id];if(!ex||!TYPES[ex.type]||ex.type==='time')return null;
+  var pv=prevDate(ex,at);
+  var a=analyze(ex),champ=a.sessions.some(function(s){return s.e.at===at&&s.prs.length&&!s.first});
+  if(!pv)return {first:true,champ:false,verdict:null,pct:0,changes:[]};
+  var x=dayBest(ex,at),y=dayBest(ex,pv),ch=[];
+  GRADE_MARKS[ex.type].forEach(function(m){if(x[m]==null||y[m]==null)return;ch.push({m:m,from:y[m],to:x[m],pct:changeOf(m,y[m],x[m])})});
+  if(!ch.length)return {first:true,champ:champ,verdict:null,pct:0,changes:[]};
+  var v=judge(ch),real=ch.filter(function(c){return c.v!=='same'});
+  var pct=v==='same'?0:real.reduce(function(s,c){return s+c.pct},0)/real.length;
+  return {first:false,prevAt:pv,champ:champ&&v==='more',verdict:v,pct:pct,changes:ch};
+}
+function weekStart(at){var d=new Date(at+'T12:00:00'),k=(d.getDay()+6)%7;return addDays(at,-k)}
+function rivalry(){
+  var ev=[],td=today(),n=dayNum(td);
+  Object.keys(S.ex).forEach(function(id){
+    var ex=S.ex[id];if(!ex||!TYPES[ex.type])return;var seen={};
+    (ex.entries||[]).forEach(function(e){seen[e.at]=1});
+    Object.keys(seen).sort().forEach(function(at){var d=duelFor(id,at);if(d&&!d.first)ev.push({at:at,id:id,name:ex.name,v:d.verdict,champ:d.champ})});
+  });
+  var g=S.prog.goals;
+  if(g&&g.built){
+    var ws=weekStart(g.built),cur=weekStart(td);
+    while(ws<cur){
+      var trained=0;for(var i=0;i<7;i++)if(trainedOn(addDays(ws,i)))trained++;
+      var miss=Math.max(0,g.days-trained);
+      for(var j=0;j<miss;j++)ev.push({at:addDays(ws,6),id:null,name:'A missed training day',v:'less',champ:false,miss:true});
+      ws=addDays(ws,7);
+    }
+  }
+  ev.sort(function(a,b){return a.at<b.at?-1:a.at>b.at?1:0});
+  var r={you:0,shadow:0,draw:0,champ:0,wYou:0,wShadow:0,streak:0,lstreak:0,events:ev};
+  ev.forEach(function(e){
+    if(e.v==='more')r.you++;else if(e.v==='less')r.shadow++;else r.draw++;
+    if(e.champ)r.champ++;
+    if(n-dayNum(e.at)<7){if(e.v==='more')r.wYou++;else if(e.v==='less')r.wShadow++}
+  });
+  for(var k=ev.length-1;k>=0&&ev[k].v==='more';k--)r.streak++;
+  for(var q=ev.length-1;q>=0&&ev[q].v==='less';q--)r.lstreak++;
+  return r;
+}
+function figure(cls,label){
+  return '<svg class="fig '+cls+'" viewBox="0 0 60 120" role="img" aria-label="'+label+'"><circle cx="30" cy="13" r="9"/><polygon points="11,27 49,27 39,66 21,66"/><polygon points="11,27 5,30 3,63 9,63 14,35"/><polygon points="49,27 55,30 57,63 51,63 46,35"/><polygon points="21,66 29,66 28,115 19,115"/><polygon points="31,66 39,66 41,115 32,115"/><polygon points="30,0 33,4 27,4" class="crown"/></svg>';
+}
+function rivalryCard(){
+  var r=rivalry(),h='';
+  var lead=r.you>r.shadow?'You lead':r.you<r.shadow?'The Shadow leads':'Dead even';
+  var line=r.streak>=2?r.streak+' wins in a row. Do not let it breathe.':r.lstreak>=2?'The Shadow has won your last '+r.lstreak+'. Take it back today.':r.events.length?'Every set is a duel. Beat the last you.':'Your Shadow is born the first time you log a movement. The second time, it fights back.';
+  h+='<section class="panel stack rival"><span class="eyebrow">The rivalry · '+lead+'</span><div class="vs">'+figure('you'+(r.you>r.shadow?' up':''),'You')+'<div class="score"><b class="num">'+r.you+'</b><span>vs</span><b class="num sh">'+r.shadow+'</b></div>'+figure('shadow'+(r.shadow>r.you?' up':''),'Your Shadow')+'</div>';
+  h+='<div class="vsl"><span>You</span><span>Shadow</span></div><p class="lede">'+esc(line)+'</p>';
+  h+='<div class="stats"><div class="stat"><b class="num">'+r.wYou+' to '+r.wShadow+'</b><span>This week</span></div><div class="stat"><b class="num">'+r.champ+'</b><span>Champion taken down</span></div><div class="stat"><b class="num">'+r.draw+'</b><span>Draws</span></div></div>';
+  h+='<details class="how"><summary>How the duel works</summary><ol><li><b>The Shadow is your last time.</b> Every time you log a movement, you fight the last day you did it. More is a win. Less is a loss. The same is a draw.</li><li><b>The Champion is your best ever.</b> Break a record and you take the Champion down. That is the biggest win there is.</li><li><b>Missed days go to the Shadow.</b> Each week you train fewer days than you chose, the Shadow gets a point for every day short. It showed up. You did not.</li><li><b>Nothing is given.</b> Every point comes from your log.</li></ol></details></section>';
+  return h;
+}
+function duelStage(r){
+  var def=r.def,d=duelFor(def.id,r.e.at),h='';
+  if(!d)return '';
+  if(d.first){
+    return '<section class="duel born"><div class="vs">'+figure('you up','You')+'<div class="score"><span class="big">Born</span></div>'+figure('shadow','Your Shadow')+'</div><h1>Your Shadow is born</h1><p class="lede">It now holds today\'s numbers for '+esc(def.name)+'. Next time, it fights back.</p></section>';
+  }
+  var win=d.verdict==='more',loss=d.verdict==='less';
+  var title=d.champ?'Champion down':win?'You beat your Shadow':loss?'Your Shadow wins':'Dead even';
+  var sub=d.champ?'Best ever. The Champion now wears your new numbers.':win?'You did '+fmtPct(d.pct)+' more than '+fmtDate(d.prevAt)+'. It just got stronger. So did you.':loss?'You did '+fmtPct(-d.pct).replace('+','')+' less than '+fmtDate(d.prevAt)+'. It keeps that day. Come back and take it.':'Even with '+fmtDate(d.prevAt)+'. '+(d.changes.some(function(c){return c.v==='more'})&&d.changes.some(function(c){return c.v==='less'})?'You gained in one place and lost in another, so it is not counted as growth.':'Any change was too small to be real. One more rep next time breaks it.');
+  h+='<section class="duel '+(d.champ?'champ':win?'win':loss?'loss':'draw')+'"><canvas class="fx" aria-hidden="true"></canvas><div class="vs">'+figure('you'+(win||d.champ?' up':loss?' down':''),'You')+'<div class="score"><span class="big num">'+(d.verdict==='same'?'=':fmtPct(d.pct))+'</span></div>'+figure('shadow'+(loss?' up':win||d.champ?' down':''),'Your Shadow')+'</div>';
+  h+='<h1>'+title+'</h1><p class="lede">'+esc(sub)+'</p>';
+  d.changes.forEach(function(c){h+='<div class="gc"><span>'+markLabel(c.m,def)+' '+fmtMark(c.m,c.to,def)+', Shadow had '+fmtMark(c.m,c.from,def)+'</span><span class="v-'+c.v+'">'+(c.v==='same'&&Math.abs(c.pct)>=0.05?fmtPct(c.pct)+', noise':fmtPct(c.pct))+'</span></div>'});
+  var rv=rivalry();
+  h+='<p class="tally num">You '+rv.you+' · Shadow '+rv.shadow+(rv.streak>=2?' · '+rv.streak+' straight':'')+'</p></section>';
+  ui.fx=d.champ?'champ':win?'win':loss?'loss':null;
+  return h;
+}
+// The moment: sound, a buzz where the phone allows it, and a burst of gold.
+var actx=null;
+function tone(seq){
+  if(S.prog.sound===false)return;
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    seq.forEach(function(s){var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+s[1];o.type=s[3]||'triangle';o.frequency.value=s[0];g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.22,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+s[2]);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+s[2]+0.05)});
+  }catch(e){}
+}
+function cue(kind){
+  if(kind==='champ')tone([[523,0,.18],[659,.12,.18],[784,.24,.2],[1047,.38,.6]]);
+  else if(kind==='win')tone([[587,0,.16],[880,.12,.45]]);
+  else if(kind==='loss')tone([[220,0,.5,'sine']]);
+  try{if(navigator.vibrate)navigator.vibrate(kind==='champ'?[40,60,40,60,120]:kind==='win'?[40,50,80]:[120])}catch(e){}
+}
+function runFx(){
+  var kind=ui.fx;ui.fx=null;if(!kind)return;
+  cue(kind);
+  if(kind==='loss')return;
+  try{if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
+  var cv=document.querySelector('.duel canvas.fx');if(!cv)return;
+  var box=cv.parentNode.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  cv.width=box.width*dpr;cv.height=box.height*dpr;var c=cv.getContext('2d');c.scale(dpr,dpr);
+  var css=getComputedStyle(document.documentElement),cols=[css.getPropertyValue('--gold-hi').trim()||'#f6e2a8',css.getPropertyValue('--gold').trim()||'#d6ae5a','#ffffff'];
+  var n=kind==='champ'?140:70,ps=[],cx=box.width*0.3,cy=box.height*0.32;
+  for(var i=0;i<n;i++){var an=Math.random()*Math.PI*2,sp=2+Math.random()*(kind==='champ'?7:5);ps.push({x:cx,y:cy,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp-2,r:1.5+Math.random()*3,c:cols[i%3],life:1})}
+  var t0=performance.now();
+  (function step(t){
+    var k=(t-t0)/1400;c.clearRect(0,0,box.width,box.height);
+    ps.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=0.12;p.vx*=0.985;p.life=1-k;c.globalAlpha=Math.max(0,p.life);c.fillStyle=p.c;c.save();c.translate(p.x,p.y);c.rotate(Math.PI/4);c.fillRect(-p.r,-p.r,p.r*2,p.r*2);c.restore()});
+    if(k<1)requestAnimationFrame(step);else c.clearRect(0,0,box.width,box.height);
+  })(t0);
+}
+function shadowLine(it){
+  var ex=S.ex[it.id];if(!ex||!ex.entries||!ex.entries.length)return 'No Shadow yet. Your first set creates it.';
+  var td=today(),last=lastBefore(it.id,td),def=LIBMAP[it.id],a=analyze(ex),m=TYPES[def.type].marks[0],best=a.marks[m];
+  var s=last?'Shadow: '+summary(last,def).split(' · effort')[0]:'';
+  if(best)s+=(s?' · ':'')+'Champion: '+markLabel(m,def).toLowerCase()+' '+fmtMark(m,best.best,def);
+  return s;
+}
+
 function viewToday(){
   syncDay();
   var day=PLAN[S.prog.day],items=planItems(S.prog.day),cal=0,mins=0,done=0,h='';
   var mapHere=mapSection(todayMapIds());
-  h+=chainCard();
+  h+=rivalryCard()+chainCard();
   items.forEach(function(it){cal+=itemCal(it);mins+=itemMinutes(it);if(loggedOn(it.id,today()))done++});
   h+='<section class="panel hero stack"><span class="eyebrow">Day '+(S.prog.day+1)+' of '+PLAN.length+' · '+fmtDate(today())+'</span><h1>'+esc(day.name)+'</h1><p class="lede">'+esc(day.why)+'</p>';
   h+=meterRow(day.m);
@@ -1593,7 +1786,7 @@ function viewToday(){
   items.forEach(function(it,i){
     var def=LIBMAP[it.id],t=target(it),isDone=loggedOn(it.id,today());
     h+='<div class="wk'+(isDone?' done':'')+'"><div class="wkh"><span class="wkn num">'+(i+1)+'</span><div class="main"><h3>'+esc(def.name)+'</h3><span class="tline num">'+esc(t.line)+'</span></div>'+(isDone?'<span class="tag gold">Done</span>':'')+'</div>';
-    h+='<p class="what">'+esc(it.what)+'</p><p class="gives">'+esc(it.gives)+'</p><p class="note num">'+esc(t.short)+' · burns about '+Math.round(itemCal(it)/5)*5+' cal</p>';
+    h+='<p class="what">'+esc(it.what)+'</p><p class="gives">'+esc(it.gives)+'</p><p class="shline num">'+esc(shadowLine(it))+'</p><p class="note num">Burns about '+Math.round(itemCal(it)/5)*5+' cal</p>';
     h+=isDone?doneLine(it)+'<button type="button" class="btn small ghost" data-act="planlog" data-i="'+i+'">Log another set</button>':'<button type="button" class="btn" data-act="planlog" data-i="'+i+'">Log it</button>';
     h+='</div>';
   });
@@ -1662,18 +1855,22 @@ function foodVerdict(t,g){
 function weightStory(){
   var w=S.food.weights,goal=S.food.goal;
   if(!w.length)return 'No weigh in yet. Weigh in the morning before you eat, the same way each time.';
-  var first=w[0],last=w[w.length-1],s='Now '+fmtLb(last.lb)+' on '+fmtDate(last.at)+'.';
-  if(w.length>1){
-    var ch=last.lb-first.lb,days=dayNum(last.at)-dayNum(first.at);
-    s+=' '+(Math.abs(ch)<0.05?'No change':(ch<0?'Down ':'Up ')+fmtNum(Math.abs(ch),1)+' lb')+' since '+fmtDate(first.at)+'.';
-    if(goal&&days>=7){
-      var perWeek=-ch/days*7;
-      if(perWeek>0.05&&last.lb>goal)s+=' At '+fmtNum(perWeek,1)+' lb a week you reach '+goal+' in about '+Math.ceil((last.lb-goal)/perWeek)+' weeks.';
-      else if(last.lb>goal)s+=' At this pace you are not moving toward '+goal+'. The food is where to look first.';
+  var last=w[w.length-1],s='Last weigh in '+fmtLb(last.lb)+' on '+fmtDate(last.at)+'.';
+  var span=dayNum(last.at)-dayNum(w[0].at);
+  if(span<14||w.length<4){
+    s+=' Too early to call a trend. Your weight swings 1 to 3 lb a day with water and food, so the app waits for two weeks and at least four weigh ins.';
+  }else{
+    var startAvg=weekAvg(addDays(w[0].at,6)),nowAvg=weekAvg(last.at),ch=nowAvg-startAvg,weeks=(span-6)/7;
+    s+=' Your weekly average is '+fmtLb(nowAvg)+', against '+fmtLb(startAvg)+' when you started.';
+    if(Math.abs(ch)<1)s+=' That is no real change yet. A move under a pound is inside the daily swing.';
+    else{
+      var perWeek=-ch/Math.max(1,weeks);
+      s+=' That is '+(ch<0?'down ':'up ')+fmtNum(Math.abs(ch),1)+' lb, about '+fmtNum(Math.abs(perWeek),1)+' lb a week.';
+      if(goal&&nowAvg>goal){s+=perWeek>0.1?' At that pace you reach '+goal+' in about '+Math.ceil((nowAvg-goal)/perWeek)+' weeks.':' At this pace you are not moving toward '+goal+'. The food is where to look first.'}
     }
   }
-  if(goal&&last.lb>goal)s+=' '+fmtNum(last.lb-goal,1)+' lb to '+goal+'.';
-  else if(goal&&last.lb<=goal)s+=' You are at or under your goal of '+goal+'.';
+  if(goal&&last.lb>goal)s+=' '+fmtNum(last.lb-goal,1)+' lb to '+goal+' by the last weigh in.';
+  else if(goal&&last.lb<=goal)s+=' At or under your goal of '+goal+' on the last weigh in.';
   return s;
 }
 function viewFood(){
@@ -1768,6 +1965,7 @@ function render(){
   else h=viewHome();
   v.innerHTML=h;
   if(ui.sub==='form'&&ui.prefill)applyPrefill(ui.prefill);
+  if(ui.fx)setTimeout(runFx,60);
   ['today','food','home','log','marks'].forEach(function(t){
     var on=ui.tab===t;var b=document.getElementById('tab-'+t);b.className=on?'on':'';if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
@@ -1942,6 +2140,7 @@ function storeDrafts(){
   var ready=ui.drafts.filter(function(d){return d.def&&!d.missing.length});if(!ready.length)return;
   var out=ready.map(function(d){var e=clone(d.e);e.src=d.src;e.at=today();return commitEntry(d.def,e)});
   ui.drafts=ui.drafts.filter(function(d){return ready.indexOf(d)<0});
+  if(out.length!==1){var best=null;out.forEach(function(r){var d=duelFor(r.def.id,r.e.at);if(!d||d.first)return;var k=d.champ?'champ':d.verdict==='more'?'win':d.verdict==='less'?'loss':null;if(k==='champ'||(k==='win'&&best!=='champ')||(k==='loss'&&!best))best=k});ui.fx=best}
   if(out.length===1){ui.result=out[0];go({sub:'result',note:''})}
   else{ui.results=out;go({sub:'results',note:''})}
 }
@@ -1981,7 +2180,7 @@ document.addEventListener('click',function(ev){
   else if(a==='saveprog'){
     var bwv=parseFloat((document.getElementById('bw')||{}).value),rm=parseFloat((document.getElementById('runmi')||{}).value);
     S.prog.bw=bwv>60&&bwv<600?Math.round(bwv*10)/10:null;S.prog.runMi=rm>0&&rm<30?rm:3;
-    S.prog.run=!!(document.getElementById('runon')||{}).checked;progSave();
+    S.prog.run=!!(document.getElementById('runon')||{}).checked;S.prog.sound=!!(document.getElementById('soundon')||{}).checked;progSave();
     ui.progNote='Saved.';render();
   }
   else if(a==='cat'){var c=t.getAttribute('data-cat');var qe=document.getElementById('quick');if(qe)ui.quick=qe.value;go({cat:ui.cat===c?null:c,q:''},true)}
